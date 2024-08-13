@@ -1,6 +1,8 @@
 ﻿
 using DiamondShop.Application.Commons.Responses;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
+using FluentResults;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,17 +13,14 @@ namespace DiamondShop.Application.Services.Interfaces
 {
     public interface IAuthenticationService
     {
-        Task<string> Register(string email, string password, string fullname, CancellationToken cancellationToken = default);
-        Task<AuthenticationResultDto> Login(string email, string password, CancellationToken cancellationToken = default);
-        //Task<bool> Logout();
-        Task GetUserIdentity();
-        Task AddToRole();
-        Task RemoveFromRole();
-        Task Ban(TimeSpan time);
-        Task ConfirmEmail();
-        Task SendConfirmEmail();
-        Task ResetPassword();
-        Task GenerateResetPasswordToken();
+        Task<Result<string>> Register(string email, string password, FullName fullname, CancellationToken cancellationToken = default);
+        Task<Result<AuthenticationResultDto>> Login(string email, string password, CancellationToken cancellationToken = default);
+        Task<Result> Logout(IUserIdentity userIdentity, CancellationToken cancellationToken = default);
+        Task<Result<IUserIdentity>> GetUserIdentity(string identityId, CancellationToken cancellationToken = default);
+        Task<Result> ConfirmEmail();
+        Task<Result> SendConfirmEmail();
+        Task<Result> ResetPassword();
+        Task<Result<string>> GenerateResetPasswordToken();
 
     }
 }

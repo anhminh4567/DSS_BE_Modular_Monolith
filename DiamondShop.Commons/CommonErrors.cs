@@ -41,7 +41,20 @@ namespace DiamondShop.Commons
 
     public class UnexpectedError: Error { }
     public class ConflictError : Error { }
-    public class NotFoundError : Error { }
+    public class NotFoundError : Error
+    {
+        public NotFoundError(string message) : base(message)
+        {
+        }
+
+        public NotFoundError(string message, IError causedBy) : base(message, causedBy)
+        {
+        }
+
+        public NotFoundError()
+        {
+        }
+    }
     public class UnauthorizedError : Error { }
     public class ForbiddenError : Error { }
 

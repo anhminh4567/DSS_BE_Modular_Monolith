@@ -18,6 +18,7 @@ namespace DiamondShop.Domain.Roles
         {
             return diamondShopRole.Value;
         }
+
     }
     public class DiamondShopStoreRoles : DiamonShopRole
     {

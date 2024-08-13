@@ -1,4 +1,5 @@
 ﻿
+using DiamondShop.Domain.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +11,9 @@ namespace BeatvisionRemake.Application.Services.Interfaces
 {
     public interface IJwtTokenProvider
     {
-        //(string accessToken, DateTime expiredDate) GenerateAccessToken(User user);
-        //(string refreshToken, DateTime expiredDate) GenerateRefreshToken(User user);
-        //ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
-        //IEnumerable<Claim> GetUserClaims(User user);
+        (string accessToken, DateTime expiredDate) GenerateAccessToken(IUserIdentity user);
+        (string refreshToken, DateTime expiredDate) GenerateRefreshToken(IUserIdentity user);
+        ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
+        IEnumerable<Claim> GetUserClaims(IUserIdentity user);
     }
 }
