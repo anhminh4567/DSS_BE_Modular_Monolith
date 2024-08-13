@@ -11,7 +11,7 @@ namespace DiamondShop.Application.Services.Interfaces
 {
     public interface IAuthenticationService
     {
-        Task<IdentityId> Register(string email, string password, string fullname, CancellationToken cancellationToken = default);
+        Task<string> Register(string email, string password, string fullname, CancellationToken cancellationToken = default);
         Task<AuthenticationResultDto> Login(string email, string password, CancellationToken cancellationToken = default);
         //Task<bool> Logout();
         Task GetUserIdentity();

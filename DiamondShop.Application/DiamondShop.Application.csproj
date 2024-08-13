@@ -12,10 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Commons\PipelineBehavior\" />
-    <Folder Include="Services\Interfaces\" />
     <Folder Include="Services\Implementations\" />
-    <Folder Include="Services\Data\" />
     <Folder Include="Usecases\Security\" />
   </ItemGroup>
 
