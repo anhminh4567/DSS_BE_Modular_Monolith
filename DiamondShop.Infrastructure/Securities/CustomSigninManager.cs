@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Securities
 {
-    internal class CustomSigninManager : SignInManager<CustomIdentityUser>
+    public class CustomSigninManager : SignInManager<CustomIdentityUser>
     {
         public CustomSigninManager(UserManager<CustomIdentityUser> userManager,
             IHttpContextAccessor contextAccessor, 

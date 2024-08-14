@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Commons.PipelineBehavior;
 using FluentValidation;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
@@ -7,9 +8,10 @@ namespace DiamondShop.Application
 {
     public static class DependencyInjections
     {
-        public static Assembly CurrentAssembly = typeof(DependencyInjections).Assembly;
-        public static IServiceCollection AddApplication(this IServiceCollection services)
+        public static Assembly CurrentAssembly = Assembly.GetExecutingAssembly();
+        public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddValidatorsFromAssembly(CurrentAssembly);
             services.AddMediatR(config =>
             {
                 config.RegisterServicesFromAssembly(CurrentAssembly);
@@ -17,7 +19,7 @@ namespace DiamondShop.Application
                 config.AddOpenBehavior(typeof(ValidationBehavior<,>));
 
             });
-            services.AddValidatorsFromAssembly(CurrentAssembly);
+            
             return services;
         }
     }

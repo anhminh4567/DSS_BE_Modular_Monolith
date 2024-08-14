@@ -10,8 +10,8 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
 {
     internal class BaseRepository<T> : IBaseRepository<T> where T : class
     {
-        private readonly DiamondShopDbContext _dbContext;
-        private readonly DbSet<T> _set;
+        protected readonly DiamondShopDbContext _dbContext;
+        protected readonly DbSet<T> _set;
 
         public BaseRepository(DiamondShopDbContext dbContext)
         {

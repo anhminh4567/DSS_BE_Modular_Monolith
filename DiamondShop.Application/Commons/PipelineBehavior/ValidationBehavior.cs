@@ -42,12 +42,13 @@ namespace DiamondShop.Application.Commons.PipelineBehavior
 
             if (validationFailure is not null && validationFailure.Count > 0)
             {
+
                 validationFailure
                     .ForEach(input =>
                         validationErrors.Add( input.PropertyName,input.ErrorMessage )
                         ) ;
 
-                ValidationError validationError = new ValidationError($"validation error at command {nameof(TRequest)}",validationErrors);
+                ValidationError validationError = new ValidationError($"validation error ",validationErrors);
                 return (dynamic)validationError;
             }
             else

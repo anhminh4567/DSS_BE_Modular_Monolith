@@ -19,26 +19,26 @@ namespace DiamondShop.Domain.Models.CustomerAggregate
         {
 
         }
-        private Customer(CustomerId customerId, IUserIdentity identityId, FullName fullName, DateTime? birthDate = null) : base(customerId)
+        private Customer(CustomerId customerId ,FullName fullName,string email, DateTime? birthDate = null) : base(customerId)
         {
-            Identity = identityId;
             FullName = fullName;
             BirthDate = birthDate;
+            Email = email;
         }
         public string IdentityId { get; private set; }
         public IUserIdentity Identity { get; private set; }
         public FullName FullName { get; private set; }
         public DateTime? BirthDate { get; private set; }
         public string Email { get; private set; }
-        public static Customer Create(IUserIdentity identityId, FullName fullName)
+        public static Customer Create( FullName fullName, string email)
         {
-            var user = new Customer(CustomerId.Create(), identityId, fullName);
-            user.SetIdentity(identityId);
+            var user = new Customer(CustomerId.Create(), fullName,email);
             return user;
         }
-        private void SetIdentity(IUserIdentity userIdentity)
+        public void SetIdentity(IUserIdentity userIdentity)
         {
             IdentityId = userIdentity.IdentityId;
+            Identity = userIdentity;
         }
     }
 }

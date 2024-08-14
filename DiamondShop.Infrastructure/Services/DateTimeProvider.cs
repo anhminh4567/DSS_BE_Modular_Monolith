@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Services
 {
-    public class DateTimeProvider : IDateTimeProvider
+    internal class DateTimeProvider : IDateTimeProvider
     {
         public DateTime UtcNow => DateTime.UtcNow;
     }

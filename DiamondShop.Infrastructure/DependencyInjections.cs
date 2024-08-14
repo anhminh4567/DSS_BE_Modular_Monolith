@@ -31,7 +31,7 @@ namespace DiamondShop.Infrastructure
 
             services.AddPersistance(configuration); 
             services.AddSecurity(configuration);
-            
+            services.AddMyIdentity(configuration);
             return services;
         }
         public static IServiceCollection AddPersistance(this IServiceCollection services, IConfiguration configuration)
@@ -42,16 +42,15 @@ namespace DiamondShop.Infrastructure
                 //opt.UseNpgsql(configuration.GetSection("ConnectionString:Database"));
             });
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
+            
             return services;
         }
         public static IServiceCollection AddSecurity(this IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<JwtOptions>(options =>
-            {
-                configuration.GetSection("Authentication");
-            });
+            services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.JwtSection));
             var authOpt = new JwtOptions();
-            configuration.GetSection("Authentication").Bind(authOpt);
+            configuration.GetSection(JwtOptions.JwtSection).Bind(authOpt);
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer();
             services.Configure<JwtBearerOptions>(config =>
@@ -71,6 +70,8 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IAuthorizationService, AuthorizationService>();
 
+
+
             return services;
         }
         public static IServiceCollection AddMyIdentity(this IServiceCollection services, IConfiguration configuration)
@@ -81,6 +82,19 @@ namespace DiamondShop.Infrastructure
                .AddSignInManager<CustomSigninManager>()
                .AddUserManager<CustomUserManager>()
                .AddDefaultTokenProviders();
+            services.Configure<IdentityOptions>(options =>
+            {
+                var userOpt = options.User;
+                var passOpt = options.Password;
+                var tokenOpt = options.Tokens;
+                userOpt.RequireUniqueEmail = true;
+
+                passOpt.RequireNonAlphanumeric = false;
+                passOpt.RequireDigit = true;
+                passOpt.RequireLowercase = false;
+                passOpt.RequireUppercase = false;
+                passOpt.RequiredLength = 3;
+            });
             return services;
         }
     }

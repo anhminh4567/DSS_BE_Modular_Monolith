@@ -282,7 +282,7 @@ namespace DiamondShop.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("DiamondShop.Domain.Common.ValueObjects.FullName", "FullName", b1 =>
+                    b.OwnsOne("DiamondShop.Domain.Models.CustomerAggregate.Customer.FullName#DiamondShop.Domain.Common.ValueObjects.FullName", "FullName", b1 =>
                         {
                             b1.Property<string>("CustomerId")
                                 .HasColumnType("text");
@@ -299,7 +299,7 @@ namespace DiamondShop.Infrastructure.Migrations
 
                             b1.HasKey("CustomerId");
 
-                            b1.ToTable("Customer");
+                            b1.ToTable("Customer", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("CustomerId");
@@ -317,7 +317,7 @@ namespace DiamondShop.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("DiamondShop.Domain.Common.ValueObjects.FullName", "FullName", b1 =>
+                    b.OwnsOne("DiamondShop.Domain.Models.StaffAggregate.Staff.FullName#DiamondShop.Domain.Common.ValueObjects.FullName", "FullName", b1 =>
                         {
                             b1.Property<string>("StaffId")
                                 .HasColumnType("text");
@@ -334,7 +334,7 @@ namespace DiamondShop.Infrastructure.Migrations
 
                             b1.HasKey("StaffId");
 
-                            b1.ToTable("Staff");
+                            b1.ToTable("Staff", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("StaffId");

@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace BeatvisionRemake.Infrastructure.Services
 {
-    public class JwtTokenProvider : IJwtTokenProvider
+    internal class JwtTokenProvider : IJwtTokenProvider
     {
         // public const string JWT_SINGING_KEY= "adfsasdfadsfasdfasdfasdfsadfsdfdasffasdds";
         private readonly JwtOptions _jwtOptions;

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Databases
 {
-    internal class DiamondShopDbContext : IdentityDbContext<
+    public class DiamondShopDbContext : IdentityDbContext<
         CustomIdentityUser,
         CustomIdentityRole,
         string,

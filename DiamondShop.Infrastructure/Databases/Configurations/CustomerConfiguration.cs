@@ -37,6 +37,8 @@ namespace DiamondShop.Infrastructure.Databases.Configurations
                 .HasForeignKey<Customer>(c => c.IdentityId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasKey(o => o.Id);
         }
     }
 }

@@ -1,4 +1,9 @@
 using DiamondShop.Api.Middlewares;
+using DiamondShop.Infrastructure;
+using DiamondShop.Application;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using DiamondShop.Api.Configurations.ProblemErrors;
+using DiamondShop.Api.Extensions;
 
 internal class Program
 {
@@ -12,11 +17,19 @@ internal class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        builder.Services.AddSingleton<ProblemDetailsFactory, DiamonShopProblemDetailsFactory>();
+        builder.Services.AddScoped<CustomExeptionHandlerMiddleware>();
+
+        builder.Services.AddInfrastructure(builder.Configuration);
+        builder.Services.AddApplication(builder.Configuration);
 
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
-
+        if(app.Environment.EnvironmentName != "Production")
+        {
+            //app.SeedData();
+        }
         app.UseSwagger();
         app.UseSwaggerUI();
 

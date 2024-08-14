@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Securities
 {
-    internal class CustomRoleManager : RoleManager<CustomIdentityRole>
+    public class CustomRoleManager : RoleManager<CustomIdentityRole>
     {
         public CustomRoleManager(IRoleStore<CustomIdentityRole> store, 
             IEnumerable<IRoleValidator<CustomIdentityRole>> roleValidators, 

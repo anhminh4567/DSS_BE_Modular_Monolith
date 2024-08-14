@@ -1,4 +1,8 @@
-﻿using DiamondShop.Infrastructure.Identity.Models;
+﻿using DiamondShop.Domain.Models.StaffAggregate.ValueObjects;
+using DiamondShop.Domain.Roles;
+using DiamondShop.Infrastructure.Identity.Models;
+using DiamondShop.Infrastructure.Securities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,6 +14,15 @@ namespace DiamondShop.Infrastructure.Databases.Configurations
 {
     internal class IdentityConfiguration
     {
+        internal static readonly CustomIdentityRole[] SYSTEM_ROLE =
+        {
+            new CustomIdentityRole(DiamondShopAdminRole.Admin.Value.Id,DiamondShopAdminRole.Admin.Value.Name),
+            new CustomIdentityRole(DiamondShopCustomerRole.Customer.Value.Id,DiamondShopCustomerRole.Customer.Value.Name),
+            new CustomIdentityRole(DiamondShopStoreRoles.Manager.Value.Id,DiamondShopStoreRoles.Manager.Value.Name),   
+            new CustomIdentityRole(DiamondShopStoreRoles.StorageManager.Value.Id,DiamondShopStoreRoles.StorageManager.Value.Name),
+            new CustomIdentityRole(DiamondShopStoreRoles.Staff.Value.Id, DiamondShopStoreRoles.Staff.Value.Name),
+
+        };
         internal static void ApplyIdentityConfiguration(ModelBuilder builder)
         {
             builder.Entity<CustomIdentityUser>().ToTable("User");
@@ -52,7 +65,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations
                     .WithOne(e => e.Role)
                     .HasForeignKey(rc => rc.RoleId)
                     .IsRequired();
+                //b.HasData(SYSTEM_ROLE);
             });
         }
+        
     }
+    
 }

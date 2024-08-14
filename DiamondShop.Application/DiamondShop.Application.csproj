@@ -13,7 +13,8 @@
 
   <ItemGroup>
     <Folder Include="Services\Implementations\" />
-    <Folder Include="Usecases\Security\" />
+    <Folder Include="Usecases\Staffs\Commands\" />
+    <Folder Include="Usecases\Staffs\Queries\" />
   </ItemGroup>
 
   <ItemGroup>

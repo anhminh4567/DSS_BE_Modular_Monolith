@@ -24,8 +24,4 @@
     <ProjectReference Include="..\DiamondShop.Infrastructure\DiamondShop.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Configurations\" />
-  </ItemGroup>
-
 </Project>

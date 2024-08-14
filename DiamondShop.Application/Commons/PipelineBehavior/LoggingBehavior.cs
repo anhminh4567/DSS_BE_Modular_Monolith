@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using FluentResults;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -26,8 +27,21 @@ namespace DiamondShop.Application.Commons.PipelineBehavior
                 _logger.LogInformation("Executing command {command}", requestName);
 
                 var result = await next();
-                _logger.LogInformation("Executing command {command} SUCCESS", requestName);
-
+                if(result is IResultBase resultType)
+                {
+                    if(resultType.IsSuccess is false)
+                    {
+                        _logger.LogInformation("Executing command {command} FAIL", requestName);
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Executing command {command} SUCCESS", requestName);
+                    }
+                }
+                else
+                {
+                    _logger.LogInformation("Executing command {command} Finish", requestName);
+                }
                 return result;
             }
             catch (Exception ex)

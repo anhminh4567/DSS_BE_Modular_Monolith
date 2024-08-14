@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.CustomerAggregate;
+﻿using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Models.CustomerAggregate;
 using DiamondShop.Domain.Roles;
 using System;
 using System.Collections.Generic;
@@ -10,8 +11,8 @@ namespace DiamondShop.Domain.Repositories
 {
     public interface ICustomerRepository : IBaseRepository<Customer>
     {
-        Task<Customer> AddRole(DiamondShopCustomerRole diamondShopCustomerRole);
-        Task<Customer> RemoveRole(DiamondShopCustomerRole diamondShopCustomerRole);
+        Task AddRole(IUserIdentity identity, DiamondShopCustomerRole diamondShopCustomerRole, CancellationToken cancellationToken  = default);
+        Task RemoveRole(IUserIdentity identity, DiamondShopCustomerRole diamondShopCustomerRole, CancellationToken cancellationToken = default);
 
     }
 }

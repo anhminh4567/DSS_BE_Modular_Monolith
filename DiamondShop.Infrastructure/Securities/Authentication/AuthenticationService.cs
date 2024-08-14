@@ -100,10 +100,17 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             {
                 var identity = new CustomIdentityUser();
                 identity.Email = email;
+                identity.UserName = email;
+                identity.LockoutEnabled = false;
                 var result = await _userManager.CreateAsync(identity, password);
                 if (result.Succeeded is false)
                 {
-                    return Result.Fail(result.Errors.First().Description);
+                    var errDict = new Dictionary<string, object>();
+                    foreach(var err in result.Errors)
+                    {
+                        errDict.Add(err.Code, err.Description);
+                    }
+                    return Result.Fail(new ValidationError("Password Error", errDict));
                 }
                 return Result.Ok(identity.IdentityId);
 

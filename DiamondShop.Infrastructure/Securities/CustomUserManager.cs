@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace DiamondShop.Infrastructure.Securities
 {
-    internal class CustomUserManager : UserManager<CustomIdentityUser>
+    public class CustomUserManager : UserManager<CustomIdentityUser>
     {
         private readonly JwtOptions _jwtOptions;
         public const string REFRESH_TOKEN = "RefreshToken";

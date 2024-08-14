@@ -23,6 +23,7 @@ namespace DiamondShop.Api.Middlewares
             catch (Exception ex)
             {
                 _logger.LogError("exception catched in middleware with messager: {message}", ex.Message);
+                _logger.LogError(ex.StackTrace);
                 var problemDetailResponse = _problemDetailsFactory.CreateProblemDetails(context, StatusCodes.Status500InternalServerError, detail: ex.Message);
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 await context.Response.WriteAsJsonAsync(problemDetailResponse);

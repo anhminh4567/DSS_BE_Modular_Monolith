@@ -21,7 +21,8 @@ namespace DiamondShop.Infrastructure.Databases
         {
             if (_transaction == null)
             {
-                await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+                _transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+                
             }
         }
 

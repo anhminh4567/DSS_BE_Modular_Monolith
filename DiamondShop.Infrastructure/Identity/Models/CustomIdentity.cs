@@ -52,6 +52,11 @@ namespace DiamondShop.Infrastructure.Identity.Models
         {
             Name = roleName;
         }
+        public CustomIdentityRole(string id, string roleName) : this()
+        {
+            Id = id;
+            Name = roleName;
+        }
         public virtual IList<CustomIdentityUser> Users { get; set; } = new List<CustomIdentityUser>();
         public virtual IList<CustomIdentityUserRoleClaim> RoleClaims { get; set; } = new List<CustomIdentityUserRoleClaim>();
     }
