@@ -1,3 +1,4 @@
+using DiamondShop.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiamondShopSystem.Controllers
@@ -12,10 +13,12 @@ namespace DiamondShopSystem.Controllers
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IDateTimeProvider dateTimeProvider)
         {
             _logger = logger;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -28,6 +31,11 @@ namespace DiamondShopSystem.Controllers
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             })
             .ToArray();
+        }
+        [HttpGet("GetTimeZone")]
+        public ActionResult GetTimeZone()
+        {
+            return Ok(TimeZoneInfo.Local);
         }
     }
 }
