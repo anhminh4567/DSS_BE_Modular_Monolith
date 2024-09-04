@@ -28,9 +28,10 @@ namespace DiamondShop.Infrastructure
         {
             services.AddScoped<IDateTimeProvider, DateTimeProvider>();
 
-            services.AddPersistance(configuration); 
-            services.AddSecurity(configuration);
+            services.AddPersistance(configuration);
             services.AddMyIdentity(configuration);
+            services.AddSecurity(configuration);
+            
             return services;
         }
         public static IServiceCollection AddPersistance(this IServiceCollection services, IConfiguration configuration)
@@ -52,21 +53,15 @@ namespace DiamondShop.Infrastructure
             services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.JwtSection));
             var authOpt = new JwtOptions();
             configuration.GetSection(JwtOptions.JwtSection).Bind(authOpt);
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer();
-            services.Configure<JwtBearerOptions>(config =>
+            services.AddAuthentication(options =>
             {
-                var validationParam = config.TokenValidationParameters;
-                validationParam.ValidIssuer = authOpt.ValidIssuer;
-                validationParam.ValidAudience = authOpt.Audience;
-                validationParam.ValidateIssuer = false;
-                validationParam.ValidateAudience = false;
-                validationParam.ValidateLifetime = true;
-                validationParam.ValidateIssuerSigningKey = true;
-                validationParam.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authOpt.SigningKey));
-                config.RequireHttpsMetadata = authOpt.RequireHttpsMetadata;
-                config.MetadataAddress = authOpt.MetadataUrl;
-            });
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+                .AddJwtBearer();
+            services.ConfigureOptions<JwtBearerOptionSetup>();
             services.AddScoped<IJwtTokenProvider, JwtTokenProvider>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
 

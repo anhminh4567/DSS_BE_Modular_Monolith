@@ -19,14 +19,16 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
 
         public async Task<List<DiamondShopCustomerRole>> GetCustomerRoles()
         {
-            var accountRole =  _set.Where(r => r.RoleType == Domain.Models.AccountRoleAggregate.AccountRoleType.Customer).AsNoTracking().ToList();
-            return accountRole.Select(r => new DiamondShopCustomerRole(r)).ToList();
+            return await _dbContext.CustomerRoles.ToListAsync();
+            //var accountRole =  _set.Where(r => r.RoleType == Domain.Models.AccountRoleAggregate.AccountRoleType.Customer).AsNoTracking().ToList();
+            //return accountRole.Select(r => new DiamondShopCustomerRole(r)).ToList();
         }
 
         public async Task<List<DiamondShopStoreRoles>> GetStaffRoles()
         {
-            var accountRole = _set.Where(r => r.RoleType == Domain.Models.AccountRoleAggregate.AccountRoleType.Staff).AsNoTracking().ToList();
-            return accountRole.Select(r => new DiamondShopStoreRoles(r)).ToList();
+            return await _dbContext.StoreRoles.ToListAsync();
+            //var accountRole = _set.Where(r => r.RoleType == Domain.Models.AccountRoleAggregate.AccountRoleType.Staff).AsNoTracking().ToList();
+            //return accountRole.Select(r => new DiamondShopStoreRoles(r)).ToList();
         }
 
     }

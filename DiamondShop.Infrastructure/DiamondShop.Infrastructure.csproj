@@ -7,13 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Securities\Authorization\**" />
+    <EmbeddedResource Remove="Securities\Authorization\**" />
+    <None Remove="Securities\Authorization\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DiamondShop.Application\DiamondShop.Application.csproj" />
     <ProjectReference Include="..\DiamondShop.Commons\DiamondShop.Commons.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Databases\Interceptors\" />
-    <Folder Include="Securities\Authorization\" />
   </ItemGroup>
 
   <ItemGroup>

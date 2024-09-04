@@ -65,16 +65,21 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             var getCustomer = await _customerRepository.GetByIdentityId(tryGetUser.Id,cancellationToken);
             try
             {
+             
+                // Generate Token
                 List<AccountRole> toAccountRole = getCustomer.Roles.Select(r => (AccountRole)r).ToList();
-                List<Claim> userClaim = _jwtTokenProvider.GetUserClaims(toAccountRole, getCustomer.Email,getCustomer.IdentityId);
+                List<Claim> userClaim = _jwtTokenProvider.GetUserClaims(toAccountRole, getCustomer.Email,getCustomer.IdentityId,getCustomer.Id.Value,getCustomer.FullName.Value);
                 var accTokenResult = _jwtTokenProvider.GenerateAccessToken(userClaim);
                 var refreshTokenResult = _jwtTokenProvider.GenerateRefreshToken(getCustomer.IdentityId);
-
+                // Save Refresh Token
+                await _userManager.SetRefreshTokenAsync(getCustomer.IdentityId,refreshTokenResult.refreshToken,refreshTokenResult.expiredDate,cancellationToken);
+                // the inside function already have saveChanges() on db level
+                //await _unitOfWork.SaveChangesAsync();
                 return Result.Ok(new AuthenticationResultDto(
                     accessToken: accTokenResult.accessToken,
                     expiredAccess: accTokenResult.expiredDate,
                     refreshToken: refreshTokenResult.refreshToken,
-                    expiredRefresh: accTokenResult.expiredDate
+                    expiredRefresh: refreshTokenResult.expiredDate
                 ));
 
             }

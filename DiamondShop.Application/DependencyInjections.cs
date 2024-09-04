@@ -11,6 +11,7 @@ namespace DiamondShop.Application
         public static Assembly CurrentAssembly = Assembly.GetExecutingAssembly();
         public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddHttpContextAccessor();
             services.AddValidatorsFromAssembly(CurrentAssembly);
             services.AddMediatR(config =>
             {

@@ -1,5 +1,6 @@
 ﻿using BeatvisionRemake.Application.Services.Interfaces;
 using BeatvisionRemake.Domain.Common;
+using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Infrastructure.Options;
@@ -22,18 +23,22 @@ namespace BeatvisionRemake.Infrastructure.Services
         // public const string JWT_SINGING_KEY= "adfsasdfadsfasdfasdfasdfsadfsdfdasffasdds";
         private readonly JwtOptions _jwtOptions;
         private readonly JwtBearerOptions _jwtBearerOptions;
-        public JwtTokenProvider(IOptions<JwtOptions> jwtOptions, IOptions<JwtBearerOptions> jwtBearerOptions)
+        private readonly IDateTimeProvider _dateTimeProvider;
+        public JwtTokenProvider(IOptions<JwtOptions> jwtOptions, IOptions<JwtBearerOptions> jwtBearerOptions, IDateTimeProvider dateTimeProvider)
         {
             _jwtOptions = jwtOptions.Value;
             _jwtBearerOptions = jwtBearerOptions.Value;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public (string accessToken, DateTime expiredDate) GenerateAccessToken(List<Claim> claims)
         {
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SigningKey));
             var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
-            var expiredTime = DateTime.Now.AddMinutes(100);
+            // need .ToLocalTime() since .net only work with DateTime.Now to validate token
+            var expiredTime = _dateTimeProvider.UtcNow.AddMinutes(100).ToLocalTime();
             var tokeOptions = new JwtSecurityToken(
+                issuer: _jwtBearerOptions.TokenValidationParameters.ValidIssuer,
                 claims: claims,
                 expires: expiredTime,
                 signingCredentials: signinCredentials
@@ -45,18 +50,11 @@ namespace BeatvisionRemake.Infrastructure.Services
 
         public (string refreshToken, DateTime expiredDate) GenerateRefreshToken(string identityId)
         {
-            return (Convert.ToBase64String(Guid.NewGuid().ToByteArray()),
-                DateTime.Now.AddHours(7));
+            return (Convert.ToBase64String(Guid.NewGuid().ToByteArray()), _dateTimeProvider.UtcNow.AddHours(7));
         }
 
         public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
         {
-            //var tokenValidationParameters = new TokenValidationParameters
-            //{
-            //    ValidateIssuerSigningKey = true,
-            //    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SigningKey)),
-            //    ValidateLifetime = false, //here we are saying that we don't care about the token's expiration date
-            //};
             var tokenHandler = new JwtSecurityTokenHandler();
             SecurityToken securityToken;
             ClaimsPrincipal principal;
@@ -76,15 +74,17 @@ namespace BeatvisionRemake.Infrastructure.Services
             return principal;
         }
 
-        public List<Claim> GetUserClaims(List<AccountRole> roles, string email, string id)
+        public List<Claim> GetUserClaims(List<AccountRole> roles, string email, string identityid, string userId, string fullname)
         {
             var claims = new List<Claim>();
             foreach(var role in roles)
             {
-                claims.Add(new Claim(ClaimTypes.Role, role.Id.ToString()) );
+                claims.Add(new Claim(IJwtTokenProvider.ROLE_CLAIM_NAME, role.Id.Value.ToString()) );
             }
-            claims.Add(new Claim(ClaimTypes.Email, email));
-            claims.Add(new Claim(ClaimTypes.Name, id));
+            claims.Add(new Claim(IJwtTokenProvider.EMAIL_CLAIM_NAME, email));
+            claims.Add(new Claim(IJwtTokenProvider.USERNAME_CLAIM_NAME, fullname));
+            claims.Add(new Claim(IJwtTokenProvider.IDENTITY_CLAIM_NAME, identityid));
+            claims.Add(new Claim(IJwtTokenProvider.USER_ID_CLAIM_NAME, userId));
 
             return claims;
         }

@@ -2,6 +2,7 @@
 using DiamondShop.Application.Usecases.Customers.Queries.GetCustomerPage;
 using DiamondShop.Domain.Models.CustomerAggregate.ValueObjects;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiamondShop.Api.Controllers
@@ -21,12 +22,16 @@ namespace DiamondShop.Api.Controllers
         {
             return Ok((await _sender.Send(getCustomerPageQuery)).Value);
         }
-        [HttpGet("{customerId}")]
-        public async Task<ActionResult> GetPaging([FromRoute] string customerId)
-        {
-            var id = CustomerId.Parse(customerId);
-            return Ok((await _sender.Send(new GetCustomerDetailQuery(id))).Value);
-        }
 
+    
+        [HttpGet("Detail")]
+        [Authorize]
+        public async Task<ActionResult> GetDetail()
+        {
+            var result = await _sender.Send(new GetCustomerDetailQuery());
+            if(result.IsSuccess)
+                return Ok(result.Value);
+            return MatchError(result.Errors,ModelState);
+        }
     }
 }

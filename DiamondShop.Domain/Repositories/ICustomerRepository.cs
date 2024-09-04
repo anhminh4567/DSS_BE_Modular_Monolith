@@ -11,6 +11,6 @@ namespace DiamondShop.Domain.Repositories
 {
     public interface ICustomerRepository : IBaseRepository<Customer>
     {
-        Task<Customer> GetByIdentityId(string id, CancellationToken cancellationToken);
+        Task<Customer?> GetByIdentityId(string id, CancellationToken cancellationToken = default);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Domain.Models.CustomerAggregate;
 using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Models.StaffAggregate;
+using DiamondShop.Domain.Roles;
 using DiamondShop.Infrastructure.Databases.Configurations;
 using DiamondShop.Infrastructure.Identity.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -31,9 +32,19 @@ namespace DiamondShop.Infrastructure.Databases
         public DiamondShopDbContext()
         {
         }
+
+        //Roles Related//
+        public DbSet<AccountRole> AccountRoles { get; set; }
+        public DbSet<DiamondShopCustomerRole> CustomerRoles { get; set; }
+        public DbSet<DiamondShopStoreRoles> StoreRoles { get; set; }
+
+        //Roles Related//
+
+        //Application//
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Staff> Staff { get; set; }
-        public DbSet<AccountRole> AccountRoles { get; set; }
+        //Application//
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);

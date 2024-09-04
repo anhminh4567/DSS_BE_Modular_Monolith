@@ -61,7 +61,7 @@ namespace DiamondShop.Application.Usecases.Customers.Commands.RegisterCustomer
             await _unitOfWork.SaveChangesAsync();
             //customer.AddRole(customerRole);
             //await _customerRepository.Update(customer);
-            await _unitOfWork.SaveChangesAsync();
+            //await _unitOfWork.SaveChangesAsync();
 
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();

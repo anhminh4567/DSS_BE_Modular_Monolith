@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Usecases.Customers.Commands.RegisterCustomer;
+using DiamondShop.Application.Usecases.Customers.Queries.LoginCustomer;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,15 +22,17 @@ namespace DiamondShop.Api.Controllers
         {
             var result = await _sender.Send(registerCustomerCommand);
             if(result.IsSuccess is false) 
-            {
                 return MatchError(result.Errors, ModelState);
-            }
             return Ok(result.Value);
         }
-        [HttpGet("login")]
-        public async Task<ActionResult> Login()
+        [HttpPost("login")]
+        [Consumes("application/json")]
+        public async Task<ActionResult> Login([FromBody] LoginCustomerQuery loginCustomerQuery)
         {
-            return Ok();
+            var result = await _sender.Send(loginCustomerQuery);
+            if(result.IsSuccess is false)
+                return MatchError(result.Errors, ModelState);
+            return Ok(result.Value);
         }
 
     }
