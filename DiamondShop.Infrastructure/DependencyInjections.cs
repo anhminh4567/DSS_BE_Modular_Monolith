@@ -19,6 +19,8 @@ using DiamondShop.Infrastructure.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using DiamondShop.Infrastructure.Securities;
 using DiamondShop.Infrastructure.Securities.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
+using DiamondShop.Infrastructure.Options.Setups;
 
 namespace DiamondShop.Infrastructure
 {
@@ -60,8 +62,17 @@ namespace DiamondShop.Infrastructure
                 options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-                .AddJwtBearer();
+                .AddJwtBearer()
+                .AddGoogle(GoogleDefaults.AuthenticationScheme, opt => {  });
+            // this configure for current time, exist throughout the app life
+            services.Configure<GoogleAuthenticationOption>(configuration.GetSection(GoogleAuthenticationOption.Section));
+            services.Configure<ExternalAuthenticationOptions>(configuration.GetSection(ExternalAuthenticationOptions.Section));
+
+            // this also exist throughout the app life, but it is configured at the end of dependency injection,
+            // allow it to inject other or override settings , also more cleaner moduler code
             services.ConfigureOptions<JwtBearerOptionSetup>();
+            services.ConfigureOptions<GoogleOptionSetup>();
+            
             services.AddScoped<IJwtTokenProvider, JwtTokenProvider>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
 

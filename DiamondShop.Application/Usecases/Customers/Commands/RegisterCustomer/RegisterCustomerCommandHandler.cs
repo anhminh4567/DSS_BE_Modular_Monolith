@@ -18,6 +18,7 @@ namespace DiamondShop.Application.Usecases.Customers.Commands.RegisterCustomer
         public string? Email { get; set; }
         public string? Password { get; set; }
         public FullName? FullName { get; set; }
+        public string? ExternalProviderName { get; set; }   
     }
 
 
@@ -44,7 +45,6 @@ namespace DiamondShop.Application.Usecases.Customers.Commands.RegisterCustomer
             DiamondShopCustomerRole? customerRole = customerRoles.FirstOrDefault(c => c.Id == DiamondShopCustomerRole.Customer.Id);
             if (customerRole is null)
                 throw new ArgumentNullException("no role found");
-
             //start transaction
             await _unitOfWork.BeginTransactionAsync();
             var registerResult = await _authenticationService.Register(request.Email,request.Password,request.FullName,cancellationToken);

@@ -8,20 +8,24 @@ using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Infrastructure.Identity.Models;
+using DiamondShop.Infrastructure.Options;
 using FluentResults;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Securities.Authentication
 {
-    internal class AuthenticationService : IAuthenticationService
+    internal class AuthenticationService : DiamondShop.Application.Services.Interfaces.IAuthenticationService
     {
         private readonly CustomRoleManager _roleManager;
         private readonly CustomSigninManager _signinManager;
@@ -48,11 +52,85 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
         {
             throw new NotImplementedException();
         }
-
         public Task<Result<string>> GenerateResetPasswordToken()
         {
             throw new NotImplementedException();
         }
+
+        public async Task<Result<AuthenticationResultDto>> ExternalLogin(string provider, string providerKey, CancellationToken cancellationToken = default)
+        {
+            var getUserByEmail = await _userManager.FindByLoginAsync(provider, providerKey);
+            if (getUserByEmail == null)
+                return Result.Fail(new NotFoundError());
+            var getCustomer = await _customerRepository.GetByIdentityId(getUserByEmail.Id, cancellationToken);
+            if (getCustomer is null)
+                return Result.Fail(new NotFoundError());
+            List<AccountRole> toAccountRole = getCustomer.Roles.Select(r => (AccountRole)r).ToList();
+            var authTokenDto = await GenerateTokenForUser(toAccountRole, getCustomer.Email, getCustomer.IdentityId, getCustomer.Id.Value, getCustomer.FullName.Value);
+            return Result.Ok(authTokenDto);
+        }
+
+        public async Task<Result<(string identityId, FullName fullName)>> ExternalRegister(CancellationToken cancellationToken = default)
+        {
+            var info = await _signinManager.GetExternalLoginInfoAsync();
+            if (info == null)
+                return Result.Fail(new NotFoundError("not found user principle"));
+            if ((info.Principal.Claims.FirstOrDefault(c => c.Type == "FAILURE") is not null))
+            {
+                return Result.Fail("Cannot call request to user infor in google , try again later");
+            }
+            var tryLogin = await _signinManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
+            if (tryLogin.Succeeded)
+                return Result.Fail(new ConflictError("user already exist"));
+            var getEmail = info.Principal.FindFirstValue(ExternalAuthenticationOptions.EXTERNAL_EMAIL_CLAIM_NAME);
+            var getUsername = info.Principal.FindFirstValue(ExternalAuthenticationOptions.EXTERNAL_USERNAME_CLAIM_NAME);
+            var getProfileImage = info.Principal.FindFirstValue(ExternalAuthenticationOptions.EXTERNAL_PROFILE_IMAGE_CLAIM_NAME);
+            var identity = new CustomIdentityUser() 
+            {
+                Email = getEmail,
+                UserName = getEmail,
+                LockoutEnabled = false,
+            };
+            var createResult = await _userManager.CreateAsync(identity);
+            if (createResult.Succeeded is false)
+                return Result.Fail("fail to create");
+            FullName fullname;
+            string[] splitedName = getUsername.Split(" ",StringSplitOptions.RemoveEmptyEntries );
+            if(splitedName.Length >=2)
+            {
+                string[] lastNameArray = new string[splitedName.Length - 1];
+                splitedName.CopyTo(lastNameArray, 1);
+                fullname = FullName.Create(splitedName[0], lastNameArray.ToString());
+            }
+            else
+            {
+                fullname = FullName.Create(splitedName[0], "");
+            }
+            return (identity.Id, fullname);
+        }
+
+       
+
+        public async Task<Result<AuthenticationProperties>> GetProviderAuthProperty(string providerName, string callback_URL, CancellationToken cancellationToken = default)
+        {
+            var getAuthProviderSchemes = await _signinManager.GetExternalAuthenticationSchemesAsync();
+            bool isSchemeExist = false;
+            foreach (var authScheme in getAuthProviderSchemes)
+            {
+                if (string.Equals(authScheme.Name, providerName))
+                {
+                    isSchemeExist = true;
+                    break;
+                }
+            }
+            if (isSchemeExist is false)
+            {
+                return Result.Fail(new NotFoundError("not found the login requested"));
+            }
+            AuthenticationProperties authProperties = _signinManager.ConfigureExternalAuthenticationProperties(providerName, callback_URL);
+            return Result.Ok(authProperties);
+        }
+
 
 
         public async Task<Result<AuthenticationResultDto>> Login(string email, string password, CancellationToken cancellationToken = default)
@@ -62,34 +140,27 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             {
                 return Result.Fail(new NotFoundError("User Not Found"));
             }
-            var getCustomer = await _customerRepository.GetByIdentityId(tryGetUser.Id,cancellationToken);
-            try
-            {
-             
-                // Generate Token
-                List<AccountRole> toAccountRole = getCustomer.Roles.Select(r => (AccountRole)r).ToList();
-                List<Claim> userClaim = _jwtTokenProvider.GetUserClaims(toAccountRole, getCustomer.Email,getCustomer.IdentityId,getCustomer.Id.Value,getCustomer.FullName.Value);
-                var accTokenResult = _jwtTokenProvider.GenerateAccessToken(userClaim);
-                var refreshTokenResult = _jwtTokenProvider.GenerateRefreshToken(getCustomer.IdentityId);
-                // Save Refresh Token
-                await _userManager.SetRefreshTokenAsync(getCustomer.IdentityId,refreshTokenResult.refreshToken,refreshTokenResult.expiredDate,cancellationToken);
-                // the inside function already have saveChanges() on db level
-                //await _unitOfWork.SaveChangesAsync();
-                return Result.Ok(new AuthenticationResultDto(
-                    accessToken: accTokenResult.accessToken,
-                    expiredAccess: accTokenResult.expiredDate,
-                    refreshToken: refreshTokenResult.refreshToken,
-                    expiredRefresh: refreshTokenResult.expiredDate
-                ));
-
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                throw;
-            }
+            var getCustomer = await _customerRepository.GetByIdentityId(tryGetUser.Id, cancellationToken);
+            List<AccountRole> toAccountRole = getCustomer.Roles.Select(r => (AccountRole)r).ToList();
+            var authTokenDto = await GenerateTokenForUser(toAccountRole, getCustomer.Email, getCustomer.IdentityId, getCustomer.Id.Value, getCustomer.FullName.Value, cancellationToken);
+            return Result.Ok(authTokenDto);
         }
-
+        private async Task<AuthenticationResultDto> GenerateTokenForUser(List<AccountRole> roles, string email, string identityId, string userId, string fullname, CancellationToken cancellationToken = default)
+        {
+            List<Claim> userClaim = _jwtTokenProvider.GetUserClaims(roles, email, identityId, userId, fullname);
+            var accTokenResult = _jwtTokenProvider.GenerateAccessToken(userClaim);
+            var refreshTokenResult = _jwtTokenProvider.GenerateRefreshToken(identityId);
+            // Save Refresh Token
+            await _userManager.SetRefreshTokenAsync(identityId, refreshTokenResult.refreshToken, refreshTokenResult.expiredDate,  cancellationToken);
+            // the inside function already have saveChanges() on db level
+            //await _unitOfWork.SaveChangesAsync();
+            return new AuthenticationResultDto(
+                accessToken: accTokenResult.accessToken,
+                expiredAccess: accTokenResult.expiredDate,
+                refreshToken: refreshTokenResult.refreshToken,
+                expiredRefresh: refreshTokenResult.expiredDate
+            );
+        }
         public async Task<Result> Logout(string identityId, CancellationToken cancellationToken = default)
         {
             await _userManager.RemoveRefreshTokenAsync(identityId, cancellationToken);
@@ -112,7 +183,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 if (result.Succeeded is false)
                 {
                     var errDict = new Dictionary<string, object>();
-                    foreach(var err in result.Errors)
+                    foreach (var err in result.Errors)
                     {
                         errDict.Add(err.Code, err.Description);
                     }
