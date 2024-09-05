@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Customers.Queries.LoginCustomer
 {
-    public record LoginCustomerQuery(string email, string password) : IRequest<Result<AuthenticationResultDto>>;
+    public record LoginCustomerQuery(string? email, string? password, bool isExternalLogin = false) : IRequest<Result<AuthenticationResultDto>>;
     internal class LoginCustomerQueryHandler : IRequestHandler<LoginCustomerQuery, Result<AuthenticationResultDto>>
     {
         private readonly IAuthenticationService _authenticationService;
@@ -25,7 +25,15 @@ namespace DiamondShop.Application.Usecases.Customers.Queries.LoginCustomer
 
         public async Task<Result<AuthenticationResultDto>> Handle(LoginCustomerQuery request, CancellationToken cancellationToken)
         {
-            return await _authenticationService.Login(request.email,request.password,cancellationToken);
+            if(request.isExternalLogin is false)
+            {
+                return await _authenticationService.Login(request.email, request.password, cancellationToken);
+            }
+            else
+            {
+                return await _authenticationService.ExternalLogin(cancellationToken);
+            }
+
         }
     }
 }

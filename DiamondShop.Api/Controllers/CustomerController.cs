@@ -1,6 +1,8 @@
-﻿using DiamondShop.Application.Usecases.Customers.Queries.GetCustomerDetail;
+﻿using DiamondShop.Application.Usecases.Customers.Commands.UpRankCustomer;
+using DiamondShop.Application.Usecases.Customers.Queries.GetCustomerDetail;
 using DiamondShop.Application.Usecases.Customers.Queries.GetCustomerPage;
 using DiamondShop.Domain.Models.CustomerAggregate.ValueObjects;
+using DiamondShop.Domain.Roles;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,6 +34,16 @@ namespace DiamondShop.Api.Controllers
             if(result.IsSuccess)
                 return Ok(result.Value);
             return MatchError(result.Errors,ModelState);
+        }
+        [HttpPut]
+        [Consumes("applicaton/json")]
+        //[Authorize(Roles = )]
+        public async Task<ActionResult> UpRank([FromBody] UpRankCustomerCommand upRankCustomerCommand, CancellationToken cancellationToken = default)
+        {
+            var result = await _sender.Send(upRankCustomerCommand, cancellationToken);
+            if (result.IsSuccess)
+                return Ok();
+            return MatchError(result.Errors, ModelState);
         }
     }
 }

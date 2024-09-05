@@ -17,8 +17,8 @@ namespace DiamondShop.Application.Services.Interfaces
         Task<Result<string>> Register(string email, string password, FullName fullname, CancellationToken cancellationToken = default);
         Task<Result<AuthenticationResultDto>> Login(string email, string password, CancellationToken cancellationToken = default);
         Task<Result<AuthenticationProperties>> GetProviderAuthProperty(string providerName, string callback_URL, CancellationToken cancellationToken = default);
-        Task<Result<(string identityId, FullName fullName)>> ExternalRegister( CancellationToken cancellationToken = default);
-        Task<Result<AuthenticationResultDto>> ExternalLogin(string provider, string providerKey, CancellationToken cancellationToken = default);
+        Task<Result<(string identityId, FullName fullName, string email)>> ExternalRegister( CancellationToken cancellationToken = default);
+        Task<Result<AuthenticationResultDto>> ExternalLogin( CancellationToken cancellationToken = default);
         Task<Result> Logout(string identityID, CancellationToken cancellationToken = default);
         //Task<Result<IUserIdentity>> GetUserIdentity(string identityId, CancellationToken cancellationToken = default);
         Task<Result> ConfirmEmail();

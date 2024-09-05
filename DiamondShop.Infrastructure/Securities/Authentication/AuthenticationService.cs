@@ -57,9 +57,14 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             throw new NotImplementedException();
         }
 
-        public async Task<Result<AuthenticationResultDto>> ExternalLogin(string provider, string providerKey, CancellationToken cancellationToken = default)
+        public async Task<Result<AuthenticationResultDto>> ExternalLogin( CancellationToken cancellationToken = default)
         {
-            var getUserByEmail = await _userManager.FindByLoginAsync(provider, providerKey);
+            var info = await _signinManager.GetExternalLoginInfoAsync();
+            if (info == null)
+                return Result.Fail(new NotFoundError("not found user principle"));
+            if ((info.Principal.Claims.FirstOrDefault(c => c.Type == "FAILURE") is not null))
+                return Result.Fail("Cannot call request to user infor in google , try again later");
+            var getUserByEmail = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
             if (getUserByEmail == null)
                 return Result.Fail(new NotFoundError());
             var getCustomer = await _customerRepository.GetByIdentityId(getUserByEmail.Id, cancellationToken);
@@ -70,7 +75,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             return Result.Ok(authTokenDto);
         }
 
-        public async Task<Result<(string identityId, FullName fullName)>> ExternalRegister(CancellationToken cancellationToken = default)
+        public async Task<Result<(string identityId, FullName fullName, string email)>> ExternalRegister(CancellationToken cancellationToken = default)
         {
             var info = await _signinManager.GetExternalLoginInfoAsync();
             if (info == null)
@@ -85,6 +90,8 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             var getEmail = info.Principal.FindFirstValue(ExternalAuthenticationOptions.EXTERNAL_EMAIL_CLAIM_NAME);
             var getUsername = info.Principal.FindFirstValue(ExternalAuthenticationOptions.EXTERNAL_USERNAME_CLAIM_NAME);
             var getProfileImage = info.Principal.FindFirstValue(ExternalAuthenticationOptions.EXTERNAL_PROFILE_IMAGE_CLAIM_NAME);
+            ArgumentNullException.ThrowIfNull(getEmail);
+            ArgumentNullException.ThrowIfNull(getUsername);
             var identity = new CustomIdentityUser() 
             {
                 Email = getEmail,
@@ -93,20 +100,24 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             };
             var createResult = await _userManager.CreateAsync(identity);
             if (createResult.Succeeded is false)
-                return Result.Fail("fail to create");
+                return Result.Fail("fail to create identity");
+            var createLogin = await _userManager.AddLoginAsync(identity, info);
+            if (createLogin.Succeeded is false)
+                return Result.Fail("fail to create login");
             FullName fullname;
             string[] splitedName = getUsername.Split(" ",StringSplitOptions.RemoveEmptyEntries );
             if(splitedName.Length >=2)
             {
-                string[] lastNameArray = new string[splitedName.Length - 1];
-                splitedName.CopyTo(lastNameArray, 1);
-                fullname = FullName.Create(splitedName[0], lastNameArray.ToString());
+                //string[] lastNameArray = (string[]) splitedName.Clone();
+                // Array.Copy(splitedName,1,lastNameArray,0,1);
+                //splitedName.CopyTo(lastNameArray, 1);lastNameArray.ToString()
+                fullname = FullName.Create(splitedName[0], splitedName[1]);
             }
             else
             {
                 fullname = FullName.Create(splitedName[0], "");
             }
-            return (identity.Id, fullname);
+            return (identity.Id, fullname, getEmail);
         }
 
        

@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using BeatvisionRemake.Application.Services.Interfaces;
 
-namespace DiamondShop.Infrastructure.Options
+namespace DiamondShop.Infrastructure.Options.Setups
 {
     internal class JwtBearerOptionSetup : IConfigureNamedOptions<JwtBearerOptions>
     {
