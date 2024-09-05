@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Usecases.Customers.Queries.LoginCustomer
+namespace DiamondShop.Application.Usecases.Customers.Commands.Security.Login
 {
-    internal class LoginCustomerQueryValidator : AbstractValidator<LoginCustomerQuery>
+    internal class LoginCustomerCommandValidator : AbstractValidator<LoginCustomerCommand>
     {
-        public LoginCustomerQueryValidator()
+        public LoginCustomerCommandValidator()
         {
             RuleFor(q => q.email).NotEmpty().EmailAddress();
             RuleFor(q => q.password).NotEmpty();

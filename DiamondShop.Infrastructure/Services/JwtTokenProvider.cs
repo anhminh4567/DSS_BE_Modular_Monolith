@@ -5,6 +5,7 @@ using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Infrastructure.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -24,11 +25,13 @@ namespace BeatvisionRemake.Infrastructure.Services
         private readonly JwtOptions _jwtOptions;
         private readonly JwtBearerOptions _jwtBearerOptions;
         private readonly IDateTimeProvider _dateTimeProvider;
-        public JwtTokenProvider(IOptions<JwtOptions> jwtOptions, IOptions<JwtBearerOptions> jwtBearerOptions, IDateTimeProvider dateTimeProvider)
+        private readonly ILogger<JwtTokenProvider> _logger;
+        public JwtTokenProvider(IOptions<JwtOptions> jwtOptions, IOptions<JwtBearerOptions> jwtBearerOptions, IDateTimeProvider dateTimeProvider, ILogger<JwtTokenProvider> logger)
         {
             _jwtOptions = jwtOptions.Value;
             _jwtBearerOptions = jwtBearerOptions.Value;
             _dateTimeProvider = dateTimeProvider;
+            _logger = logger;
         }
 
         public (string accessToken, DateTime expiredDate) GenerateAccessToken(List<Claim> claims)
@@ -62,8 +65,10 @@ namespace BeatvisionRemake.Infrastructure.Services
             {
                 principal = tokenHandler.ValidateToken(token, _jwtBearerOptions.TokenValidationParameters, out securityToken);
             }
-            catch (SecurityTokenValidationException ex)
+            catch (Exception ex)
             {
+                _logger.LogError("exception in getting principle in jwt token handler, when trying to parse the principle " +
+                    "from existing access token, with message: {1} ",ex.Message);
                 return null;
             }
             var jwtSecurityToken = securityToken as JwtSecurityToken;

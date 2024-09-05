@@ -9,5 +9,6 @@ namespace DiamondShop.Domain.Repositories
 {
     public interface IStaffRepository : IBaseRepository<Staff>
     {
+        Task<Staff?> GetByIdentityId (string identityId, CancellationToken cancellationToken =default);
     }
 }

@@ -14,7 +14,6 @@
   <ItemGroup>
     <Folder Include="Dtos\" />
     <Folder Include="Services\Implementations\" />
-    <Folder Include="Usecases\Staffs\Commands\Security\Ban\" />
     <Folder Include="Usecases\Staffs\Queries\" />
   </ItemGroup>
 

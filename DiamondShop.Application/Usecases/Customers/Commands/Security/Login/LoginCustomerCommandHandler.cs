@@ -11,21 +11,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Usecases.Customers.Queries.LoginCustomer
+namespace DiamondShop.Application.Usecases.Customers.Commands.Security.Login
 {
-    public record LoginCustomerQuery(string? email, string? password, bool isExternalLogin = false) : IRequest<Result<AuthenticationResultDto>>;
-    internal class LoginCustomerQueryHandler : IRequestHandler<LoginCustomerQuery, Result<AuthenticationResultDto>>
+    public record LoginCustomerCommand(string? email, string? password, bool isExternalLogin = false) : IRequest<Result<AuthenticationResultDto>>;
+    internal class LoginCustomerCommandHandler : IRequestHandler<LoginCustomerCommand, Result<AuthenticationResultDto>>
     {
         private readonly IAuthenticationService _authenticationService;
 
-        public LoginCustomerQueryHandler(IAuthenticationService authenticationService)
+        public LoginCustomerCommandHandler(IAuthenticationService authenticationService)
         {
             _authenticationService = authenticationService;
         }
 
-        public async Task<Result<AuthenticationResultDto>> Handle(LoginCustomerQuery request, CancellationToken cancellationToken)
+        public async Task<Result<AuthenticationResultDto>> Handle(LoginCustomerCommand request, CancellationToken cancellationToken)
         {
-            if(request.isExternalLogin is false)
+            if (request.isExternalLogin is false)
             {
                 return await _authenticationService.Login(request.email, request.password, cancellationToken);
             }

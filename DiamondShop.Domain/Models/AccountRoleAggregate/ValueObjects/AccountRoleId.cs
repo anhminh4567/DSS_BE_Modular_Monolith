@@ -14,9 +14,9 @@ namespace DiamondShop.Domain.Models.AccountRoleAggregate.ValueObjects
         {
             return new AccountRoleId(id) { Value = id } ;
         }
-        public static AccountRoleId Create(int id)
+        public static AccountRoleId Create(string id)
         {
-            return new AccountRoleId(id.ToString());
+            return new AccountRoleId(id);
             //{
             //    Value = id.ToString(),
             //};

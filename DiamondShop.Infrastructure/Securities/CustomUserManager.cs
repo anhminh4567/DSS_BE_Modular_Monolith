@@ -69,5 +69,14 @@ namespace DiamondShop.Infrastructure.Securities
             }
             return IdentityResult.Success;
         }
+        public async Task<(string? refreshToken, DateTime? expiredTime)> GetRefreshTokenAsync(string identityId, CancellationToken cancellationToken = default)
+        {
+            ThrowIfDisposed();
+            ArgumentNullException.ThrowIfNull(identityId);
+            var tryGetToken = await _diamondShopDbContext.UserTokens.FirstOrDefaultAsync(t => t.UserId == identityId);
+            if(tryGetToken != null)
+                return (tryGetToken.Value,tryGetToken.ExpiredDate);
+            return (null,null); 
+        }
     }
 }

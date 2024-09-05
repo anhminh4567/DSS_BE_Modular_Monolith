@@ -6,13 +6,19 @@ using DiamondShop.Commons;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
+using DiamondShop.Domain.Models.StaffAggregate;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Infrastructure.Identity.Models;
 using DiamondShop.Infrastructure.Options;
+using DiamondShop.Infrastructure.Services;
 using FluentResults;
+using MediatR;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,9 +40,13 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
         private readonly ILogger<AuthenticationService> _logger;
         private readonly IJwtTokenProvider _jwtTokenProvider;
         private readonly ICustomerRepository _customerRepository;
+        private readonly IStaffRepository _staffRepository;
         private readonly IAccountRoleRepository _accountRoleRepository;
+        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private const string BEARER_HEADER = "Bearer ";
 
-        public AuthenticationService(CustomRoleManager roleManager, CustomSigninManager signinManager, CustomUserManager userManager, IUnitOfWork unitOfWork, ILogger<AuthenticationService> logger, IJwtTokenProvider jwtTokenProvider, ICustomerRepository customerRepository, IAccountRoleRepository accountRoleRepository)
+        public AuthenticationService(CustomRoleManager roleManager, CustomSigninManager signinManager, CustomUserManager userManager, IUnitOfWork unitOfWork, ILogger<AuthenticationService> logger, IJwtTokenProvider jwtTokenProvider, ICustomerRepository customerRepository, IStaffRepository staffRepository, IAccountRoleRepository accountRoleRepository, IHttpContextAccessor contextAccessor, IDateTimeProvider dateTimeProvider)
         {
             _roleManager = roleManager;
             _signinManager = signinManager;
@@ -45,19 +55,15 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             _logger = logger;
             _jwtTokenProvider = jwtTokenProvider;
             _customerRepository = customerRepository;
+            _staffRepository = staffRepository;
             _accountRoleRepository = accountRoleRepository;
+            _contextAccessor = contextAccessor;
+            _dateTimeProvider = dateTimeProvider;
         }
 
-        public Task<Result> ConfirmEmail()
-        {
-            throw new NotImplementedException();
-        }
-        public Task<Result<string>> GenerateResetPasswordToken()
-        {
-            throw new NotImplementedException();
-        }
 
-        public async Task<Result<AuthenticationResultDto>> ExternalLogin( CancellationToken cancellationToken = default)
+
+        public async Task<Result<AuthenticationResultDto>> ExternalLogin(CancellationToken cancellationToken = default)
         {
             var info = await _signinManager.GetExternalLoginInfoAsync();
             if (info == null)
@@ -92,7 +98,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             var getProfileImage = info.Principal.FindFirstValue(ExternalAuthenticationOptions.EXTERNAL_PROFILE_IMAGE_CLAIM_NAME);
             ArgumentNullException.ThrowIfNull(getEmail);
             ArgumentNullException.ThrowIfNull(getUsername);
-            var identity = new CustomIdentityUser() 
+            var identity = new CustomIdentityUser()
             {
                 Email = getEmail,
                 UserName = getEmail,
@@ -105,8 +111,8 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             if (createLogin.Succeeded is false)
                 return Result.Fail("fail to create login");
             FullName fullname;
-            string[] splitedName = getUsername.Split(" ",StringSplitOptions.RemoveEmptyEntries );
-            if(splitedName.Length >=2)
+            string[] splitedName = getUsername.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+            if (splitedName.Length >= 2)
             {
                 //string[] lastNameArray = (string[]) splitedName.Clone();
                 // Array.Copy(splitedName,1,lastNameArray,0,1);
@@ -120,7 +126,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             return (identity.Id, fullname, getEmail);
         }
 
-       
+
 
         public async Task<Result<AuthenticationProperties>> GetProviderAuthProperty(string providerName, string callback_URL, CancellationToken cancellationToken = default)
         {
@@ -162,7 +168,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             var accTokenResult = _jwtTokenProvider.GenerateAccessToken(userClaim);
             var refreshTokenResult = _jwtTokenProvider.GenerateRefreshToken(identityId);
             // Save Refresh Token
-            await _userManager.SetRefreshTokenAsync(identityId, refreshTokenResult.refreshToken, refreshTokenResult.expiredDate,  cancellationToken);
+            await _userManager.SetRefreshTokenAsync(identityId, refreshTokenResult.refreshToken, refreshTokenResult.expiredDate, cancellationToken);
             // the inside function already have saveChanges() on db level
             //await _unitOfWork.SaveChangesAsync();
             return new AuthenticationResultDto(
@@ -184,33 +190,111 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             {
                 return Result.Fail("User Exist");
             }
-            try
+            var identity = new CustomIdentityUser();
+            identity.Email = email;
+            identity.UserName = email;
+            identity.LockoutEnabled = false;
+            identity.EmailConfirmed = emailEnabled;
+            var result = await _userManager.CreateAsync(identity, password);
+            if (result.Succeeded is false)
             {
-                var identity = new CustomIdentityUser();
-                identity.Email = email;
-                identity.UserName = email;
-                identity.LockoutEnabled = false;
-                identity.EmailConfirmed = emailEnabled;
-                var result = await _userManager.CreateAsync(identity, password);
-                if (result.Succeeded is false)
+                var errDict = new Dictionary<string, object>();
+                foreach (var err in result.Errors)
                 {
-                    var errDict = new Dictionary<string, object>();
-                    foreach (var err in result.Errors)
-                    {
-                        errDict.Add(err.Code, err.Description);
-                    }
-                    return Result.Fail(new ValidationError("Password Error", errDict));
+                    errDict.Add(err.Code, err.Description);
                 }
-                return Result.Ok(identity.Id);
+                return Result.Fail(new ValidationError("Password Error", errDict));
+            }
+            return Result.Ok(identity.Id);
 
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                throw;
-            }
         }
 
+
+
+        public async Task<Result<AuthenticationResultDto>> LoginStaff(string email, string password, CancellationToken cancellationToken = default)
+        {
+            var tryGetAccount = await _userManager.FindByEmailAsync(email);
+            if (tryGetAccount is null)
+            {
+                return Result.Fail(new NotFoundError("account Not Found"));
+            }
+            var getStaff = await _staffRepository.GetByIdentityId(tryGetAccount.Id, cancellationToken);
+            if (getStaff is null)
+                return Result.Fail(new NotFoundError("staff not found"));
+            List<AccountRole> toAccountRole = getStaff.Roles.Select(r => (AccountRole)r).ToList();
+            var authTokenDto = await GenerateTokenForUser(toAccountRole, getStaff.Email, getStaff.IdentityId, getStaff.Id.value, getStaff.FullName.Value, cancellationToken);
+            return Result.Ok(authTokenDto);
+           // throw new NotImplementedException();
+        }
+
+        public async Task<Result<(string? refreshToken, DateTime? ExpiredDate)>> GetRefreshToken(string identityId, CancellationToken cancellationToken = default)
+        {
+            var getIdentity = await _userManager.GetRefreshTokenAsync(identityId, cancellationToken);
+            if (getIdentity.refreshToken is null)
+                return Result.Fail("no token found");
+            return Result.Ok( (getIdentity.refreshToken,getIdentity.expiredTime) );
+            //throw new NotImplementedException();
+        }
+
+        public async Task<Result<ClaimsPrincipal>> GetClaimsPrincipalFromCurrentUserContext(CancellationToken cancellationToken = default)
+        {
+            var httpContext = _contextAccessor.HttpContext;
+            var accessToken = httpContext.Request.Headers.Authorization.ToString().Substring(BEARER_HEADER.Length);
+            if (accessToken.IsNullOrEmpty())
+                return Result.Fail("no access token found, login to get it");
+            ClaimsPrincipal? tryGetClaimFromAccessToken = _jwtTokenProvider.GetPrincipalFromExpiredToken(accessToken);
+            if (tryGetClaimFromAccessToken == null)
+                return Result.Fail("cannot get principle from the token, try login again");
+            return Result.Ok(tryGetClaimFromAccessToken);
+        }
+
+        public async Task<Result<AuthenticationResultDto>> RefreshingToken(string refreshToken, List<AccountRole> roles, string email, string identityId, string userId, string fullname, CancellationToken cancellationToken)
+        {
+            var getUserRefreshTokenResul = await GetRefreshToken(identityId, cancellationToken);
+            if (getUserRefreshTokenResul.IsFailed)
+                return Result.Fail(getUserRefreshTokenResul.Errors);
+
+            (string? returnedToken, DateTime? expiredTime) = getUserRefreshTokenResul.Value;
+            if (refreshToken == returnedToken)
+            {
+                // if date time now is greater than expired time, means pass the expired or equal
+                if (DateTime.Compare(_dateTimeProvider.UtcNow, expiredTime.Value) >= 0)
+                {
+                    Result.Fail("Token Expired, Login again");
+                }
+                var claims = _jwtTokenProvider.GetUserClaims(roles,email,identityId,userId,fullname);
+                var newAccToken = _jwtTokenProvider.GenerateAccessToken(claims);
+                var newRefreshToken = _jwtTokenProvider.GenerateRefreshToken(identityId);
+                //save the new token before return it
+                await _userManager.SetRefreshTokenAsync(identityId, newRefreshToken.refreshToken, newRefreshToken.expiredDate, cancellationToken);
+                return Result.Ok(new AuthenticationResultDto
+                (
+                    accessToken:newAccToken.accessToken,
+                    expiredAccess: newAccToken.expiredDate,
+                    refreshToken: newRefreshToken.refreshToken,
+                    expiredRefresh: newRefreshToken.expiredDate
+                ));
+            }
+            return Result.Fail("Token not match");
+        }
+
+        public async Task<Result> BanAccount(string identityID, CancellationToken cancellationToken = default)
+        {
+            var tryGetAccount = await _userManager.FindByIdAsync(identityID);
+            if (tryGetAccount is null)
+                return Result.Fail(new NotFoundError()); ;
+            tryGetAccount.LockoutEnabled = true;
+
+            throw new NotImplementedException();
+        }
+        public Task<Result> ConfirmEmail()
+        {
+            throw new NotImplementedException();
+        }
+        public Task<Result<string>> GenerateResetPasswordToken()
+        {
+            throw new NotImplementedException();
+        }
         public Task<Result> ResetPassword()
         {
             throw new NotImplementedException();

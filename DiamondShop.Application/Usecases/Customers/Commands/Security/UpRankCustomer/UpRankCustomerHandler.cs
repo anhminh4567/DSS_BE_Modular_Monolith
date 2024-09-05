@@ -1,5 +1,4 @@
 ﻿using DiamondShop.Application.Services.Data;
-using DiamondShop.Application.Usecases.Customers.Commands.RegisterCustomer;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.AccountRoleAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomerAggregate;
