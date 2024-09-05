@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Usecases.Customers.Commands.UpRankCustomer;
+﻿using DiamondShop.Application.Usecases.Customers.Commands.Security.DownRankCustomer;
+using DiamondShop.Application.Usecases.Customers.Commands.Security.UpRankCustomer;
 using DiamondShop.Application.Usecases.Customers.Queries.GetCustomerDetail;
 using DiamondShop.Application.Usecases.Customers.Queries.GetCustomerPage;
 using DiamondShop.Domain.Models.CustomerAggregate.ValueObjects;
@@ -35,8 +36,8 @@ namespace DiamondShop.Api.Controllers
                 return Ok(result.Value);
             return MatchError(result.Errors,ModelState);
         }
-        [HttpPut]
-        [Consumes("applicaton/json")]
+        [HttpPut("Uprank")]
+        //[Consumes("applicaton/json")]
         //[Authorize(Roles = )]
         public async Task<ActionResult> UpRank([FromBody] UpRankCustomerCommand upRankCustomerCommand, CancellationToken cancellationToken = default)
         {
@@ -45,5 +46,16 @@ namespace DiamondShop.Api.Controllers
                 return Ok();
             return MatchError(result.Errors, ModelState);
         }
+        [HttpPut("DownRank")]
+        //[Consumes("applicaton/json")]
+        //[Authorize(Roles = )]
+        public async Task<ActionResult> DownRank([FromBody] DownRankCustomerCommand downRankCustomerCommand, CancellationToken cancellationToken = default)
+        {
+            var result = await _sender.Send(downRankCustomerCommand, cancellationToken);
+            if (result.IsSuccess)
+                return Ok();
+            return MatchError(result.Errors, ModelState);
+        }
+
     }
 }

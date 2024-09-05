@@ -37,10 +37,12 @@ namespace DiamondShop.Domain.Models.StaffAggregate
         }
         public void AddRole(DiamondShopStoreRoles role)
         {
+            ArgumentNullException.ThrowIfNull(role);
             Roles.Add(role);
         }
         public void RemoveRole(DiamondShopStoreRoles role)
         {
+            ArgumentNullException.ThrowIfNull(role);
             Roles.Remove(role);
         }
     }

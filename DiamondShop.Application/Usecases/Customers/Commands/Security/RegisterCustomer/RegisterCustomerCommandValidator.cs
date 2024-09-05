@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Usecases.Customers.Commands.RegisterCustomer
+namespace DiamondShop.Application.Usecases.Customers.Commands.Security.RegisterCustomer
 {
     public class RegisterCustomerCommandValidator : AbstractValidator<RegisterCustomerCommand>
     {

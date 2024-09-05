@@ -1,5 +1,5 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Application.Usecases.Customers.Commands.RegisterCustomer;
+using DiamondShop.Application.Usecases.Customers.Commands.Security.RegisterCustomer;
 using DiamondShop.Application.Usecases.Customers.Queries.LoginCustomer;
 using DiamondShop.Domain.Common.ValueObjects;
 using FluentResults;

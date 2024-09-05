@@ -178,7 +178,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             return Result.Ok();
         }
 
-        public async Task<Result<string>> Register(string email, string password, FullName fullname, CancellationToken cancellationToken = default)
+        public async Task<Result<string>> Register(string email, string password, FullName fullname, bool emailEnabled = false, CancellationToken cancellationToken = default)
         {
             if ((await _userManager.FindByEmailAsync(email)) is not null)
             {
@@ -190,6 +190,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 identity.Email = email;
                 identity.UserName = email;
                 identity.LockoutEnabled = false;
+                identity.EmailConfirmed = emailEnabled;
                 var result = await _userManager.CreateAsync(identity, password);
                 if (result.Succeeded is false)
                 {

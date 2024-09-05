@@ -12,10 +12,10 @@ using MediatR;
 using System;
 using System.Windows.Input;
 
-namespace DiamondShop.Application.Usecases.Customers.Commands.RegisterCustomer
+namespace DiamondShop.Application.Usecases.Customers.Commands.Security.RegisterCustomer
 {
     public record RegisterCustomerCommand(string? Email, string? Password, FullName? FullName, bool isExternalRegister = false) : IRequest<Result<Customer>>;
-    
+
 
 
     internal class RegisterCustomerCommandHandler : IRequestHandler<RegisterCustomerCommand, Result<Customer>>
@@ -45,10 +45,10 @@ namespace DiamondShop.Application.Usecases.Customers.Commands.RegisterCustomer
             //start transaction
             await _unitOfWork.BeginTransactionAsync();
             Customer customer;
-            if (request.isExternalRegister )
+            if (request.isExternalRegister)
             {
                 var registerResult = await _authenticationService.ExternalRegister(cancellationToken);
-                if(registerResult.IsSuccess is false)
+                if (registerResult.IsSuccess is false)
                 {
                     return Result.Fail(registerResult.Errors);
                 }
@@ -60,7 +60,7 @@ namespace DiamondShop.Application.Usecases.Customers.Commands.RegisterCustomer
             }
             else
             {
-                var registerResult = await _authenticationService.Register(request.Email, request.Password, request.FullName, cancellationToken);
+                var registerResult = await _authenticationService.Register(request.Email, request.Password, request.FullName,false, cancellationToken);
                 if (registerResult.IsSuccess is false)
                 {
                     return Result.Fail(registerResult.Errors);

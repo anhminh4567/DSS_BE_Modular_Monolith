@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Usecases.Customers.Commands.DownRankCustomer
+namespace DiamondShop.Application.Usecases.Customers.Commands.Security.DownRankCustomer
 {
     public record DownRankCustomerCommand(CustomerId CustomerId, AccountRoleId RankToRemoveID) : IRequest<Result>;
     public class DownRankCustomerHandler : IRequestHandler<DownRankCustomerCommand, Result>

@@ -7,19 +7,19 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.AccountRoleAggregate.ValueObjects
 {
-    public record AccountRoleId
+    public record AccountRoleId(string Value)
     {
-        public string Value  { get; private set; }
+        //public string Value  { get; private set; }
         public static AccountRoleId Parse(string id)
         {
-            return new AccountRoleId() { Value = id } ;
+            return new AccountRoleId(id) { Value = id } ;
         }
         public static AccountRoleId Create(int id)
         {
-            return new AccountRoleId() 
-            {
-                Value = id.ToString(),
-            };
+            return new AccountRoleId(id.ToString());
+            //{
+            //    Value = id.ToString(),
+            //};
         }
     }
 }

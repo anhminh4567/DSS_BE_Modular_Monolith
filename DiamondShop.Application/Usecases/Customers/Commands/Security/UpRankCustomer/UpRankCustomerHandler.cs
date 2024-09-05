@@ -14,7 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Usecases.Customers.Commands.UpRankCustomer
+namespace DiamondShop.Application.Usecases.Customers.Commands.Security.UpRankCustomer
 {
     public record UpRankCustomerCommand(CustomerId CustomerId, AccountRoleId NewRankID) : IRequest<Result>;
     public class UpRankCustomerHandler : IRequestHandler<UpRankCustomerCommand, Result>
@@ -36,9 +36,11 @@ namespace DiamondShop.Application.Usecases.Customers.Commands.UpRankCustomer
             var getCustomerRole = diamondShopCustomerRoles.FirstOrDefault(role => role.Id == request.NewRankID);
             if (getCustomerRole == null)
                 return Result.Fail(new NotFoundError("cannot found such customer role"));
-            var getCustomer = await _customerRepository.GetById(cancellationToken,request.CustomerId);
+            var getCustomer = await _customerRepository.GetById(cancellationToken, request.CustomerId);
             if (getCustomer == null)
                 return Result.Fail(new NotFoundError("cannot found user with such id"));
+            if (getCustomer.Roles.Any(r => r.Id.Value == getCustomerRole.Id.Value))
+                return Result.Fail(new ConflictError("this role is already in for this user"));
             getCustomer.AddRole(getCustomerRole);
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok();

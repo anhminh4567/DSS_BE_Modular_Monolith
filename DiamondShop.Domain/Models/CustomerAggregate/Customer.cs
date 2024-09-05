@@ -40,10 +40,12 @@ namespace DiamondShop.Domain.Models.CustomerAggregate
         }
         public void AddRole(DiamondShopCustomerRole role) 
         {
+            ArgumentNullException.ThrowIfNull(role);
             Roles.Add(role);
         }
         public void RemoveRole(DiamondShopCustomerRole role)
         {
+            ArgumentNullException.ThrowIfNull(role);
             Roles.Remove(role);
         }
     }
