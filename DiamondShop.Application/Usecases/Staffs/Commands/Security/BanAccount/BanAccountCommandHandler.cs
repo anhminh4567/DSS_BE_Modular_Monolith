@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Staffs.Commands.Security.BanAccount
 {
-    public record BanAccountCommand(string identityId, bool isBanning = true) : IRequest<Result>;
+    public record BanAccountCommand(string identityId) : IRequest<Result>;
     internal class BanAccountCommandHandler : IRequestHandler<BanAccountCommand, Result>
     {
         private readonly IAuthenticationService _authenticationService;
@@ -22,8 +22,7 @@ namespace DiamondShop.Application.Usecases.Staffs.Commands.Security.BanAccount
 
         public async Task<Result> Handle(BanAccountCommand request, CancellationToken cancellationToken)
         {
-            
-            return Result.Ok();
+            return  await _authenticationService.BanAccount(request.identityId, cancellationToken);
         }
     }
 }

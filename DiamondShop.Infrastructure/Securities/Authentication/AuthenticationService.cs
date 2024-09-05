@@ -102,9 +102,9 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             {
                 Email = getEmail,
                 UserName = getEmail,
-                LockoutEnabled = false,
             };
             var createResult = await _userManager.CreateAsync(identity);
+            await _userManager.SetLockoutEnabledAsync(identity, false);
             if (createResult.Succeeded is false)
                 return Result.Fail("fail to create identity");
             var createLogin = await _userManager.AddLoginAsync(identity, info);
@@ -157,6 +157,10 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             {
                 return Result.Fail(new NotFoundError("User Not Found"));
             }
+            if (await _userManager.CheckPasswordAsync(tryGetUser, password) is false)
+                return Result.Fail(new Error("password not match"));
+            if (await _userManager.IsLockedOutAsync(tryGetUser) is false)
+                return Result.Fail("can't sign, you might have been block ");
             var getCustomer = await _customerRepository.GetByIdentityId(tryGetUser.Id, cancellationToken);
             List<AccountRole> toAccountRole = getCustomer.Roles.Select(r => (AccountRole)r).ToList();
             var authTokenDto = await GenerateTokenForUser(toAccountRole, getCustomer.Email, getCustomer.IdentityId, getCustomer.Id.Value, getCustomer.FullName.Value, cancellationToken);
@@ -196,6 +200,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             identity.LockoutEnabled = false;
             identity.EmailConfirmed = emailEnabled;
             var result = await _userManager.CreateAsync(identity, password);
+            await _userManager.SetLockoutEnabledAsync(identity, false);
             if (result.Succeeded is false)
             {
                 var errDict = new Dictionary<string, object>();
@@ -218,13 +223,17 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             {
                 return Result.Fail(new NotFoundError("account Not Found"));
             }
+            if (await _userManager.CheckPasswordAsync(tryGetAccount, password) is false)
+                return Result.Fail(new Error("password not match"));
+            if (await _userManager.IsLockedOutAsync(tryGetAccount) is false)
+                return Result.Fail("can't sign, you might have been block ");
             var getStaff = await _staffRepository.GetByIdentityId(tryGetAccount.Id, cancellationToken);
             if (getStaff is null)
                 return Result.Fail(new NotFoundError("staff not found"));
             List<AccountRole> toAccountRole = getStaff.Roles.Select(r => (AccountRole)r).ToList();
             var authTokenDto = await GenerateTokenForUser(toAccountRole, getStaff.Email, getStaff.IdentityId, getStaff.Id.value, getStaff.FullName.Value, cancellationToken);
             return Result.Ok(authTokenDto);
-           // throw new NotImplementedException();
+            // throw new NotImplementedException();
         }
 
         public async Task<Result<(string? refreshToken, DateTime? ExpiredDate)>> GetRefreshToken(string identityId, CancellationToken cancellationToken = default)
@@ -232,7 +241,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             var getIdentity = await _userManager.GetRefreshTokenAsync(identityId, cancellationToken);
             if (getIdentity.refreshToken is null)
                 return Result.Fail("no token found");
-            return Result.Ok( (getIdentity.refreshToken,getIdentity.expiredTime) );
+            return Result.Ok((getIdentity.refreshToken, getIdentity.expiredTime));
             //throw new NotImplementedException();
         }
 
@@ -262,14 +271,14 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 {
                     Result.Fail("Token Expired, Login again");
                 }
-                var claims = _jwtTokenProvider.GetUserClaims(roles,email,identityId,userId,fullname);
+                var claims = _jwtTokenProvider.GetUserClaims(roles, email, identityId, userId, fullname);
                 var newAccToken = _jwtTokenProvider.GenerateAccessToken(claims);
                 var newRefreshToken = _jwtTokenProvider.GenerateRefreshToken(identityId);
                 //save the new token before return it
                 await _userManager.SetRefreshTokenAsync(identityId, newRefreshToken.refreshToken, newRefreshToken.expiredDate, cancellationToken);
                 return Result.Ok(new AuthenticationResultDto
                 (
-                    accessToken:newAccToken.accessToken,
+                    accessToken: newAccToken.accessToken,
                     expiredAccess: newAccToken.expiredDate,
                     refreshToken: newRefreshToken.refreshToken,
                     expiredRefresh: newRefreshToken.expiredDate
@@ -283,9 +292,10 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             var tryGetAccount = await _userManager.FindByIdAsync(identityID);
             if (tryGetAccount is null)
                 return Result.Fail(new NotFoundError()); ;
-            tryGetAccount.LockoutEnabled = true;
-
-            throw new NotImplementedException();
+            tryGetAccount.LockoutEnabled = !tryGetAccount.LockoutEnabled;
+            await _userManager.UpdateSecurityStampAsync(tryGetAccount);
+            await _userManager.UpdateAsync(tryGetAccount);
+            return Result.Ok();
         }
         public Task<Result> ConfirmEmail()
         {
@@ -295,9 +305,22 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
         {
             throw new NotImplementedException();
         }
-        public Task<Result> ResetPassword()
+        public async Task<Result> ChangePassword(string identityId, string oldPassword, string newPassword, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var tryGetAccount = await _userManager.FindByIdAsync(identityId);
+            if (tryGetAccount is null)
+                return Result.Fail(new NotFoundError()); ;
+            var result = await _userManager.ChangePasswordAsync(tryGetAccount, oldPassword, newPassword);
+            if (result.Succeeded is false)
+            {
+                Dictionary<string, object> errors = new();
+                foreach (var error in result.Errors)
+                {
+                    errors.Add(error.Code, error.Description);
+                }
+                return Result.Fail(new ValidationError("password error", errors));
+            }
+            return Result.Ok();
         }
 
         public Task<Result> SendConfirmEmail()

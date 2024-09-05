@@ -32,7 +32,7 @@ namespace DiamondShop.Api.Controllers
                 ConflictError => (StatusCodes.Status409Conflict,error.Message),
                 ValidationError => (StatusCodes.Status400BadRequest,error.Message),
                 NotFoundError => (StatusCodes.Status404NotFound,error.Message),
-                _ => (StatusCodes.Status500InternalServerError, "Error Unidentified"),
+                _ => (StatusCodes.Status400BadRequest, error.Message),
             };
 
             return Problem(statusCode: statusCode, title: message);

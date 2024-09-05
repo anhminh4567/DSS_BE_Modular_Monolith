@@ -20,7 +20,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
 
         public async Task<Staff?> GetByIdentityId(string identityId, CancellationToken cancellationToken = default)
         {
-            return await _set.FirstOrDefaultAsync(s => s.IdentityId == identityId,cancellationToken);
+            return await _set.Include(c => c.Roles).FirstOrDefaultAsync(s => s.IdentityId == identityId,cancellationToken);
         }
 
         public override async Task Update(Staff entity, CancellationToken token = default)

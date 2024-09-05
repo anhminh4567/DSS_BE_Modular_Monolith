@@ -67,7 +67,7 @@ namespace DiamondShop.Infrastructure
             // this configure for current time, exist throughout the app life
             services.Configure<GoogleAuthenticationOption>(configuration.GetSection(GoogleAuthenticationOption.Section));
             services.Configure<ExternalAuthenticationOptions>(configuration.GetSection(ExternalAuthenticationOptions.Section));
-
+            services.Configure<AuthenticationRestrictionOption>(configuration.GetSection(AuthenticationRestrictionOption.Section));
             // this also exist throughout the app life, but it is configured at the end of dependency injection,
             // allow it to inject other or override settings , also more cleaner moduler code
             services.ConfigureOptions<JwtBearerOptionSetup>();

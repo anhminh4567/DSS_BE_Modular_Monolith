@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Customers.Commands.Security.Login;
 using DiamondShop.Application.Usecases.Customers.Commands.Security.RegisterCustomer;
+using DiamondShop.Application.Usecases.Staffs.Commands.Security.BanAccount;
 using DiamondShop.Application.Usecases.Staffs.Commands.Security.Login;
 using DiamondShop.Application.Usecases.Staffs.Commands.Security.Register;
 using DiamondShop.Application.Usecases.Staffs.Commands.Security.RegisterAdmin;
@@ -139,6 +140,14 @@ namespace DiamondShop.Api.Controllers
                 return MatchError(result.Errors, ModelState);
             return Ok(result.Value);
         }
-
+        [HttpPut("Ban")]
+        [Authorize(Roles = DiamondShopStoreRoles.StaffId)]
+        public async Task<ActionResult> BanAccount([FromQuery]string identityId , CancellationToken cancellationToken =default)
+        {
+            var result = await _sender.Send(new BanAccountCommand(identityId));
+            if (result.IsSuccess is false)
+                return MatchError(result.Errors, ModelState);
+            return Ok();
+        }
     }
 }
