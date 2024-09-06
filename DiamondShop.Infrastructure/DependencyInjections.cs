@@ -21,6 +21,9 @@ using DiamondShop.Infrastructure.Securities;
 using DiamondShop.Infrastructure.Securities.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using DiamondShop.Infrastructure.Options.Setups;
+using Azure.Storage.Blobs;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 
 namespace DiamondShop.Infrastructure
 {
@@ -28,33 +31,41 @@ namespace DiamondShop.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<IDateTimeProvider, DateTimeProvider>();
-
+            services.AddMyOptionsConfiguration(configuration);
             services.AddPersistance(configuration);
             services.AddMyIdentity(configuration);
             services.AddSecurity(configuration);
-            
+
             return services;
         }
         public static IServiceCollection AddPersistance(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<DiamondShopDbContext>( opt =>
+            services.AddScoped<IDateTimeProvider, DateTimeProvider>();
+
+            services.AddDbContext<DiamondShopDbContext>(opt =>
             {
                 opt.UseNpgsql("Host=localhost;Port=5432;Database=DiamondShopTest;Username=postgres;Password=12345;Include Error Detail=true");
                 //opt.UseNpgsql(configuration.GetSection("ConnectionString:Database"));
             });
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
-            services.AddScoped<IStaffRepository, StaffRepository>();    
+            services.AddScoped<IStaffRepository, StaffRepository>();
             services.AddScoped<IAccountRoleRepository, AccountRoleRepository>();
-            
+            // file service persist
+            services.AddSingleton((serviceProvider) =>
+            {
+                IOptions<ExternalUrlsOptions> getOption = serviceProvider.GetRequiredService<IOptions<ExternalUrlsOptions>>();
+                if (getOption is null)
+                    throw new ArgumentNullException();
+                ExternalUrlsOptions option = getOption.Value;
+                var newClient = new BlobServiceClient(option.Azure.ConnectionString,new BlobClientOptions() { });
+                return newClient;
+            });
+            services.AddScoped<IBlobFileServices, AzureBlobContainerService>();
             return services;
         }
         public static IServiceCollection AddSecurity(this IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.JwtSection));
-            var authOpt = new JwtOptions();
-            configuration.GetSection(JwtOptions.JwtSection).Bind(authOpt);
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -62,17 +73,8 @@ namespace DiamondShop.Infrastructure
                 options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-                .AddJwtBearer()
-                .AddGoogle(GoogleDefaults.AuthenticationScheme, opt => {  });
-            // this configure for current time, exist throughout the app life
-            services.Configure<GoogleAuthenticationOption>(configuration.GetSection(GoogleAuthenticationOption.Section));
-            services.Configure<ExternalAuthenticationOptions>(configuration.GetSection(ExternalAuthenticationOptions.Section));
-            services.Configure<AuthenticationRestrictionOption>(configuration.GetSection(AuthenticationRestrictionOption.Section));
-            // this also exist throughout the app life, but it is configured at the end of dependency injection,
-            // allow it to inject other or override settings , also more cleaner moduler code
-            services.ConfigureOptions<JwtBearerOptionSetup>();
-            services.ConfigureOptions<GoogleOptionSetup>();
-            
+            .AddJwtBearer()
+            .AddGoogle();
             services.AddScoped<IJwtTokenProvider, JwtTokenProvider>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
 
@@ -100,6 +102,20 @@ namespace DiamondShop.Infrastructure
                 passOpt.RequireUppercase = false;
                 passOpt.RequiredLength = 3;
             });
+            return services;
+        }
+        public static IServiceCollection AddMyOptionsConfiguration(this IServiceCollection services, IConfiguration configuration)
+        {
+            // this configure for current time, exist throughout the app life
+            services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.JwtSection));
+            services.Configure<GoogleAuthenticationOption>(configuration.GetSection(GoogleAuthenticationOption.Section));
+            services.Configure<ExternalAuthenticationOptions>(configuration.GetSection(ExternalAuthenticationOptions.Section));
+            services.Configure<AuthenticationRestrictionOption>(configuration.GetSection(AuthenticationRestrictionOption.Section));
+            services.Configure<ExternalUrlsOptions>(configuration.GetSection(ExternalUrlsOptions.Section));
+            // this also exist throughout the app life, but it is configured at the end of dependency injection,
+            // allow it to inject other or override settings , also more cleaner moduler code
+            services.ConfigureOptions<JwtBearerOptionSetup>();
+            services.ConfigureOptions<GoogleOptionSetup>();
             return services;
         }
     }

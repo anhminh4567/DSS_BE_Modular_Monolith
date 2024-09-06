@@ -13,11 +13,11 @@
 
   <ItemGroup>
     <Folder Include="Dtos\" />
-    <Folder Include="Services\Implementations\" />
     <Folder Include="Usecases\Staffs\Queries\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.21.2" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     <PackageReference Include="MediatR" Version="12.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />

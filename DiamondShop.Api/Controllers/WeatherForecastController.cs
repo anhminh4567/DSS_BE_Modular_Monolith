@@ -14,11 +14,13 @@ namespace DiamondShopSystem.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IBlobFileServices _blobFileServices;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IDateTimeProvider dateTimeProvider)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IDateTimeProvider dateTimeProvider, IBlobFileServices blobFileServices)
         {
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
+            _blobFileServices = blobFileServices;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -36,6 +38,19 @@ namespace DiamondShopSystem.Controllers
         public ActionResult GetTimeZone()
         {
             return Ok(TimeZoneInfo.Local);
+        }
+        [HttpPost("upload-file")]
+        public async Task<ActionResult> Upload(IFormFile files)
+        {
+            using Stream openstream = files.OpenReadStream();
+            var result = await _blobFileServices.UploadFileAsync("fakefileupload/fakefile", openstream, files.ContentType);
+            return Ok();
+        }
+        [HttpDelete("delete-file")]
+        public async Task<ActionResult> download()
+        {
+            var result = await _blobFileServices.DeleteFileAsync("fakefileupload/fakefile");
+            return Ok();
         }
     }
 }
