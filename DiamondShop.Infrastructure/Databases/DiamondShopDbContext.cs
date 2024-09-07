@@ -3,6 +3,7 @@ using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Models.StaffAggregate;
 using DiamondShop.Domain.Roles;
 using DiamondShop.Infrastructure.Databases.Configurations;
+using DiamondShop.Infrastructure.Databases.Interceptors;
 using DiamondShop.Infrastructure.Identity.Models;
 using DiamondShop.Infrastructure.Outbox;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -25,9 +26,10 @@ namespace DiamondShop.Infrastructure.Databases
         CustomIdentityUserRoleClaim,
         CustomIdentityUserToken>
     {
-        public DiamondShopDbContext(DbContextOptions options) : base(options)
+        private readonly DomainEventsPublishserInterceptors _domainEventsInterceptor;
+        public DiamondShopDbContext(DbContextOptions options, DomainEventsPublishserInterceptors interceptors) : base(options)
         {
-            
+            _domainEventsInterceptor = interceptors;
         }
 
         public DiamondShopDbContext()
@@ -52,7 +54,9 @@ namespace DiamondShop.Infrastructure.Databases
             base.OnConfiguring(optionsBuilder);
             //optionsBuilder.UseSqlServer("server=(local);Uid=sa;Pwd=12345;Database=BeatVisionRemake;TrustServerCertificate=true");
             optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=DiamondShopTest;Username=postgres;Password=12345;Include Error Detail=true");
-            //optionsBuilder.AddInterceptors(_publishDomainEventsInterceptor);
+            //configure interceptors
+            optionsBuilder.AddInterceptors(_domainEventsInterceptor);
+            //configure logging
             optionsBuilder.EnableSensitiveDataLogging();
             optionsBuilder.EnableDetailedErrors();
         }

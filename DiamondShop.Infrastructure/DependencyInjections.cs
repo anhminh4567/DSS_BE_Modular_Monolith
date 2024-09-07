@@ -25,6 +25,8 @@ using Azure.Storage.Blobs;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using DiamondShop.Infrastructure.Outbox;
+using DiamondShop.Infrastructure.Databases.Interceptors;
+using Quartz;
 
 namespace DiamondShop.Infrastructure
 {
@@ -36,7 +38,7 @@ namespace DiamondShop.Infrastructure
             services.AddPersistance(configuration);
             services.AddMyIdentity(configuration);
             services.AddSecurity(configuration);
-
+            services.AddBackgroundJobs(configuration);
             return services;
         }
         public static IServiceCollection AddPersistance(this IServiceCollection services, IConfiguration configuration)
@@ -48,6 +50,7 @@ namespace DiamondShop.Infrastructure
                 opt.UseNpgsql("Host=localhost;Port=5432;Database=DiamondShopTest;Username=postgres;Password=12345;Include Error Detail=true");
                 //opt.UseNpgsql(configuration.GetSection("ConnectionString:Database"));
             });
+            services.AddScoped<DomainEventsPublishserInterceptors>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IStaffRepository, StaffRepository>();
@@ -105,6 +108,17 @@ namespace DiamondShop.Infrastructure
             });
             return services;
         }
+        public static IServiceCollection AddBackgroundJobs(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddQuartz();
+            //quartz optoin is configured inside the ConfigureSetup<>();
+            //to inject the option of the job from appsettings
+            services.AddQuartzHostedService(configure =>
+            {
+                configure.WaitForJobsToComplete = false;
+            });
+            return services;
+        }
         public static IServiceCollection AddMyOptionsConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
             // this configure for current time, exist throughout the app life
@@ -118,7 +132,9 @@ namespace DiamondShop.Infrastructure
             // allow it to inject other or override settings , also more cleaner moduler code
             services.ConfigureOptions<JwtBearerOptionSetup>();
             services.ConfigureOptions<GoogleOptionSetup>();
+            services.ConfigureOptions<QuartzOptionSetup>();
             return services;
         }
+
     }
 }

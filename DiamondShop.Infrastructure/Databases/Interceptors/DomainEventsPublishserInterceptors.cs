@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Databases.Interceptors
 {
-    internal class DomainEventsPublishserInterceptors : SaveChangesInterceptor
+    public class DomainEventsPublishserInterceptors : SaveChangesInterceptor
     {
         private readonly IPublisher _publisher;
         private readonly IDateTimeProvider _dateTimeProvider;
