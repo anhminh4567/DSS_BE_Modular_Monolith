@@ -24,6 +24,7 @@ using DiamondShop.Infrastructure.Options.Setups;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using DiamondShop.Infrastructure.Outbox;
 
 namespace DiamondShop.Infrastructure
 {
@@ -112,6 +113,7 @@ namespace DiamondShop.Infrastructure
             services.Configure<ExternalAuthenticationOptions>(configuration.GetSection(ExternalAuthenticationOptions.Section));
             services.Configure<AuthenticationRestrictionOption>(configuration.GetSection(AuthenticationRestrictionOption.Section));
             services.Configure<ExternalUrlsOptions>(configuration.GetSection(ExternalUrlsOptions.Section));
+            services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.Section));
             // this also exist throughout the app life, but it is configured at the end of dependency injection,
             // allow it to inject other or override settings , also more cleaner moduler code
             services.ConfigureOptions<JwtBearerOptionSetup>();

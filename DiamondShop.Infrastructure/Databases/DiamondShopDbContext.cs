@@ -4,6 +4,7 @@ using DiamondShop.Domain.Models.StaffAggregate;
 using DiamondShop.Domain.Roles;
 using DiamondShop.Infrastructure.Databases.Configurations;
 using DiamondShop.Infrastructure.Identity.Models;
+using DiamondShop.Infrastructure.Outbox;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -32,7 +33,8 @@ namespace DiamondShop.Infrastructure.Databases
         public DiamondShopDbContext()
         {
         }
-
+        // Outbox Related //
+        internal DbSet<OutboxMessages> OutboxMessages { get; set; }
         //Roles Related//
         public DbSet<AccountRole> AccountRoles { get; set; }
         public DbSet<DiamondShopCustomerRole> CustomerRoles { get; set; }

@@ -10,5 +10,6 @@ namespace BeatvisionRemake.Domain.Common
     {
         public List<IDomainEvent> DomainEvents { get; }
         void ClearDomainEvents();
+        void Raise(IDomainEvent domainEvent);
     }
 }
