@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Services
 {
-    public class ExcelManagerService
+    public class ExcelSyncfunctionService
     {
         private string[] EXCEL_FILE_EXTENSION = { "xls", "csv", "xlsx" }; 
         

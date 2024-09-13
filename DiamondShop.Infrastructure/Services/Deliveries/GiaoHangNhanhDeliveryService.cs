@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Infrastructure.Services
+namespace DiamondShop.Infrastructure.Services.Deliveries
 {
     internal class GiaoHangNhanhDeliveryService
     {
