@@ -1,4 +1,5 @@
 using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiamondShopSystem.Controllers
@@ -52,5 +53,13 @@ namespace DiamondShopSystem.Controllers
             var result = await _blobFileServices.DeleteFileAsync("fakefileupload/fakefile");
             return Ok();
         }
+        [HttpDelete("test-excel")]
+        public async Task<ActionResult> excel()
+        {
+            //var test = new ExcelManagerService();
+            //test.Testing();
+            return Ok();
+        }
+
     }
 }
