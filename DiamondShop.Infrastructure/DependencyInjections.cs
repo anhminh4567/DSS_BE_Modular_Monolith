@@ -128,6 +128,7 @@ namespace DiamondShop.Infrastructure
             services.Configure<AuthenticationRestrictionOption>(configuration.GetSection(AuthenticationRestrictionOption.Section));
             services.Configure<ExternalUrlsOptions>(configuration.GetSection(ExternalUrlsOptions.Section));
             services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.Section));
+            services.Configure<VnpayOption>(configuration.GetSection(VnpayOption.Section));
             // this also exist throughout the app life, but it is configured at the end of dependency injection,
             // allow it to inject other or override settings , also more cleaner moduler code
             services.ConfigureOptions<JwtBearerOptionSetup>();
