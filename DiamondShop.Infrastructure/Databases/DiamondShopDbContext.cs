@@ -1,7 +1,6 @@
-﻿using DiamondShop.Domain.Models.CustomerAggregate;
+﻿using DiamondShop.Domain.Models.AccountAggregate;
+using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.RoleAggregate;
-using DiamondShop.Domain.Models.StaffAggregate;
-using DiamondShop.Domain.Roles;
 using DiamondShop.Infrastructure.Databases.Configurations;
 using DiamondShop.Infrastructure.Databases.Interceptors;
 using DiamondShop.Infrastructure.Identity.Models;
@@ -43,8 +42,8 @@ namespace DiamondShop.Infrastructure.Databases
         //Roles Related//
 
         //Application//
-        public DbSet<Customer> Customers { get; set; }
-        public DbSet<Staff> Staff { get; set; }
+        public DbSet<Account> Accounts { get; set; }
+        public DbSet<Address> Addresses { get; set; }
         //Application//
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -1,8 +1,6 @@
 ﻿using DiamondShop.Domain.Models.AccountRoleAggregate;
 using DiamondShop.Domain.Models.AccountRoleAggregate.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
-using DiamondShop.Domain.Models.StaffAggregate.ValueObjects;
-using DiamondShop.Domain.Roles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

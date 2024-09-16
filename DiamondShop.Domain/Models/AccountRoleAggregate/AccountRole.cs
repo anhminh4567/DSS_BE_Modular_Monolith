@@ -1,9 +1,7 @@
 ﻿using BeatvisionRemake.Domain.Common;
+using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountRoleAggregate;
 using DiamondShop.Domain.Models.AccountRoleAggregate.ValueObjects;
-using DiamondShop.Domain.Models.CustomerAggregate;
-using DiamondShop.Domain.Models.StaffAggregate;
-using DiamondShop.Domain.Roles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,8 +15,7 @@ namespace DiamondShop.Domain.Models.RoleAggregate
         public string RoleName { get; private set; }
         public AccountRoleType RoleType { get; private set; }
         public string RoleDescription { get; private set; }
-        public List<Staff> Staffs { get; private set; } = new();
-        public List<Customer> Customers { get; private set; } = new();
+        public List<Account> Accounts { get; private set; } = new();
 
         public AccountRole(AccountRoleId id,AccountRoleType type, string name, string description): base(id) 
         {

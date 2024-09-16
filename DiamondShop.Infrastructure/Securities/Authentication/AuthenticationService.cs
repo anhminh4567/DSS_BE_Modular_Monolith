@@ -6,7 +6,6 @@ using DiamondShop.Commons;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
-using DiamondShop.Domain.Models.StaffAggregate;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Infrastructure.Identity.Models;
 using DiamondShop.Infrastructure.Options;
@@ -39,14 +38,13 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AuthenticationService> _logger;
         private readonly IJwtTokenProvider _jwtTokenProvider;
-        private readonly ICustomerRepository _customerRepository;
-        private readonly IStaffRepository _staffRepository;
+        private readonly IAccountRepository _accountRepository;
         private readonly IAccountRoleRepository _accountRoleRepository;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IDateTimeProvider _dateTimeProvider;
         private const string BEARER_HEADER = "Bearer ";
 
-        public AuthenticationService(CustomRoleManager roleManager, CustomSigninManager signinManager, CustomUserManager userManager, IUnitOfWork unitOfWork, ILogger<AuthenticationService> logger, IJwtTokenProvider jwtTokenProvider, ICustomerRepository customerRepository, IStaffRepository staffRepository, IAccountRoleRepository accountRoleRepository, IHttpContextAccessor contextAccessor, IDateTimeProvider dateTimeProvider)
+        public AuthenticationService(CustomRoleManager roleManager, CustomSigninManager signinManager, CustomUserManager userManager, IUnitOfWork unitOfWork, ILogger<AuthenticationService> logger, IJwtTokenProvider jwtTokenProvider, IAccountRepository accountRepository, IAccountRoleRepository accountRoleRepository, IHttpContextAccessor contextAccessor, IDateTimeProvider dateTimeProvider)
         {
             _roleManager = roleManager;
             _signinManager = signinManager;
@@ -54,14 +52,11 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             _unitOfWork = unitOfWork;
             _logger = logger;
             _jwtTokenProvider = jwtTokenProvider;
-            _customerRepository = customerRepository;
-            _staffRepository = staffRepository;
+            _accountRepository = accountRepository;
             _accountRoleRepository = accountRoleRepository;
             _contextAccessor = contextAccessor;
             _dateTimeProvider = dateTimeProvider;
         }
-
-
 
         public async Task<Result<AuthenticationResultDto>> ExternalLogin(CancellationToken cancellationToken = default)
         {
@@ -75,11 +70,11 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 return Result.Fail("cannot login, you are locked out");
             if (getUserByEmail == null)
                 return Result.Fail(new NotFoundError());
-            var getCustomer = await _customerRepository.GetByIdentityId(getUserByEmail.Id, cancellationToken);
+            var getCustomer = await _accountRepository.GetByIdentityId(getUserByEmail.Id, cancellationToken);
             if (getCustomer is null)
                 return Result.Fail(new NotFoundError());
-            List<AccountRole> toAccountRole = getCustomer.Roles.Select(r => (AccountRole)r).ToList();
-            var authTokenDto = await GenerateTokenForUser(toAccountRole, getCustomer.Email, getCustomer.IdentityId, getCustomer.Id.Value, getCustomer.FullName.Value);
+            getCustomer.Roles.First(r => r.Id != AccountRole.Customer.Id);
+            var authTokenDto = await GenerateTokenForUser(getCustomer.Roles, getCustomer.Email, getCustomer.IdentityId, getCustomer.Id.Value, getCustomer.FullName.Value);
             return Result.Ok(authTokenDto);
         }
 
@@ -160,7 +155,8 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 return Result.Fail(loginValidateResult.Errors);
             }
             var userIdentity = loginValidateResult.Value;
-            var getCustomer = await _customerRepository.GetByIdentityId(userIdentity.Id, cancellationToken);
+            var getCustomer = await _accountRepository.GetByIdentityId(userIdentity.Id, cancellationToken);
+            getCustomer.Roles.First(r => r.Id == AccountRole.Customer.Id);
             List<AccountRole> toAccountRole = getCustomer.Roles.Select(r => (AccountRole)r).ToList();
             var authTokenDto = await GenerateTokenForUser(toAccountRole, getCustomer.Email, getCustomer.IdentityId, getCustomer.Id.Value, getCustomer.FullName.Value, cancellationToken);
             return Result.Ok(authTokenDto);
@@ -223,11 +219,11 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 return Result.Fail(loginValidateResult.Errors);
             }
             var userIdentity = loginValidateResult.Value;
-            var getStaff = await _staffRepository.GetByIdentityId(userIdentity.Id, cancellationToken);
+            var getStaff = await _accountRepository.GetByIdentityId(userIdentity.Id, cancellationToken);
             if (getStaff is null)
                 return Result.Fail(new NotFoundError("staff not found"));
-            List<AccountRole> toAccountRole = getStaff.Roles.Select(r => (AccountRole)r).ToList();
-            var authTokenDto = await GenerateTokenForUser(toAccountRole, getStaff.Email, getStaff.IdentityId, getStaff.Id.value, getStaff.FullName.Value, cancellationToken);
+
+            var authTokenDto = await GenerateTokenForUser(getStaff.Roles, getStaff.Email, getStaff.IdentityId, getStaff.Id.Value, getStaff.FullName.Value, cancellationToken);
             return Result.Ok(authTokenDto);
             // throw new NotImplementedException();
         }

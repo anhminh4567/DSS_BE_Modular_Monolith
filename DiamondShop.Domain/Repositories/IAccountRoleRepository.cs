@@ -1,5 +1,4 @@
 ﻿using DiamondShop.Domain.Models.RoleAggregate;
-using DiamondShop.Domain.Roles;
 using FluentResults;
 using System;
 using System.Collections.Generic;

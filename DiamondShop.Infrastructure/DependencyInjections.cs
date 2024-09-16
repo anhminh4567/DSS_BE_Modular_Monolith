@@ -52,8 +52,7 @@ namespace DiamondShop.Infrastructure
             });
             services.AddScoped<DomainEventsPublishserInterceptors>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<ICustomerRepository, CustomerRepository>();
-            services.AddScoped<IStaffRepository, StaffRepository>();
+            services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAccountRoleRepository, AccountRoleRepository>();
             // file service persist
             services.AddSingleton((serviceProvider) =>

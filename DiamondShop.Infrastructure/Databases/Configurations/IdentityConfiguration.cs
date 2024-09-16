@@ -1,14 +1,8 @@
-﻿using DiamondShop.Domain.Models.StaffAggregate.ValueObjects;
-using DiamondShop.Domain.Roles;
+﻿
 using DiamondShop.Infrastructure.Identity.Models;
-using DiamondShop.Infrastructure.Securities;
-using Microsoft.AspNetCore.Identity;
+
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace DiamondShop.Infrastructure.Databases.Configurations
 {

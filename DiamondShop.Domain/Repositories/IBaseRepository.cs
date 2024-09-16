@@ -11,7 +11,7 @@ namespace DiamondShop.Domain.Repositories
     {
         Task<IEnumerable<TEntity>> GetAll(CancellationToken token = default);
 
-        Task<TEntity> GetById(CancellationToken token = default, params object[] ids);
+        Task<TEntity> GetById( params object[] ids);
         IQueryable<TEntity> GetQuery();
         Task Create(TEntity entity, CancellationToken token = default);
         Task Update(TEntity entity, CancellationToken token = default);

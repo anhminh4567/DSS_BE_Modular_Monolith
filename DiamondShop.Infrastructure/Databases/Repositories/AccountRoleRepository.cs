@@ -1,7 +1,6 @@
-﻿using DiamondShop.Domain.Models.CustomerAggregate;
+﻿
 using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories;
-using DiamondShop.Domain.Roles;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

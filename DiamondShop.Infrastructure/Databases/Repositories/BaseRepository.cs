@@ -35,9 +35,9 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             return await _set.ToListAsync(token);
         }
 
-        public virtual async Task<T?> GetById(CancellationToken token = default, params object[] ids)
+        public virtual async Task<T?> GetById( params object[] ids)
         {
-            return await _set.FindAsync(ids, token);
+            return await _set.FindAsync(ids);
         }
 
         public virtual int GetCount()

@@ -1,7 +1,7 @@
 ﻿using DiamondShop.Application.Services.Data;
 using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories;
-using DiamondShop.Domain.Roles;
+
 using DiamondShop.Infrastructure.Databases.Configurations;
 using DiamondShop.Infrastructure.Securities;
 using Microsoft.AspNetCore.Identity;

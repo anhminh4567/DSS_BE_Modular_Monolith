@@ -1,5 +1,6 @@
 ﻿using BeatvisionRemake.Domain.Common;
 using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Domain.Common;
 using DiamondShop.Infrastructure.Outbox;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -45,8 +46,8 @@ namespace DiamondShop.Infrastructure.Databases.Interceptors
         private void ProcessOutboxDomainEvents(DbContext dbContext)
         {
             var entitiesWithDomainEvents = dbContext.ChangeTracker
-                .Entries<IHasDomainEvent>()
-                .Select(entry => entry.Entity)
+                .Entries<IAggregateRoot>()
+                .Select(entry =>(IHasDomainEvent) entry.Entity)
                 .ToList();
             var allDomainEvents = entitiesWithDomainEvents
                 .SelectMany(entry => entry.DomainEvents)
