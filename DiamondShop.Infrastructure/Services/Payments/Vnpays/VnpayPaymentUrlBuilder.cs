@@ -1,6 +1,6 @@
 ﻿using Azure;
 using DiamondShop.Infrastructure.Options;
-using DiamondShop.Infrastructure.Services.Payments.Vnpayment.Models;
+using DiamondShop.Infrastructure.Services.Payments.Vnpays.Models;
 using FluentResults;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;

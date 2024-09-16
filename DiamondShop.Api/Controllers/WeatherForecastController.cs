@@ -60,6 +60,12 @@ namespace DiamondShopSystem.Controllers
             //test.Testing();
             return Ok();
         }
-
+        [Route("/callback-ngrok")]
+        [HttpGet]
+        public async Task<ActionResult> CallbackNgrokTest()
+        {
+            Console.WriteLine("Hello world, calling from vnpay");
+            return Ok();
+        }
     }
 }

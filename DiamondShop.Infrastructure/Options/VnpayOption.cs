@@ -18,5 +18,6 @@ namespace DiamondShop.Infrastructure.Options
         public int Vnp_Min_Per_Transaction_VND { get; set; }
         public int Vnp_Payment_Timeout_Minute { get; set; }
         public string Vnp_DateTime_Format { get; set; }
+        public string Version { get; set; }
     }
 }

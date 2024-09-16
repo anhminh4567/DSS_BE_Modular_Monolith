@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Infrastructure.Services.Payments.Vnpayment.Models
+namespace DiamondShop.Infrastructure.Services.Payments.Vnpays.Models
 {
     internal class VnpayOrderInfo
     {
