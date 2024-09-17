@@ -1,12 +1,14 @@
+using DiamondShop.Api.Controllers;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Infrastructure.Services;
+using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiamondShopSystem.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    public class WeatherForecastController : ApiControllerBase
     {
         private static readonly string[] Summaries = new[]
         {
@@ -66,6 +68,18 @@ namespace DiamondShopSystem.Controllers
         {
             Console.WriteLine("Hello world, calling from vnpay");
             return Ok();
+        }
+        [Route("/exception")]
+        [HttpGet]
+        public async Task<ActionResult> exception()
+        {
+            throw new Exception();
+        }
+        [Route("/badrequest")]
+        [HttpGet]
+        public async Task<ActionResult> basdreqiest()
+        {
+            return MatchError(new List<IError>(), ModelState); 
         }
     }
 }

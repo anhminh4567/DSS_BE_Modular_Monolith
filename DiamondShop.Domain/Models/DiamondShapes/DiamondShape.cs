@@ -1,6 +1,7 @@
 ﻿using BeatvisionRemake.Domain.Common;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
+using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.DiamondShapes
 {
-    public class DiamondShape : Entity<DiamondId> , IAggregateRoot
+    public class DiamondShape : Entity<DiamondShapeId> , IAggregateRoot
     {
         public string ShapeName { get; private set; }
         public string? IconPath { get; private set; }
@@ -17,7 +18,7 @@ namespace DiamondShop.Domain.Models.DiamondShapes
         {
             return new DiamondShape() 
             {
-                Id = DiamondId.Create(),
+                Id = DiamondShapeId.Create(),
                 ShapeName = shapeName,
                 IconPath = relativeIconPath
             };

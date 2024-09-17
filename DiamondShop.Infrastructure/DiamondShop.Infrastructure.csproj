@@ -35,4 +35,8 @@
     <PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="26.2.14" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\Payments\Paypals\" />
+  </ItemGroup>
+
 </Project>

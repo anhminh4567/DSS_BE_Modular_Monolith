@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services.Payments.Vnpayment;
+using DiamondShop.Infrastructure.Services.Payments.Vnpays.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
