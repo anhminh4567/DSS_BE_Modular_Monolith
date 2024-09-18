@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Add meta tags for mobile and IE -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>PayPal Checkout Integration | Server Demo</title>
+</head>
+
+<body>
+    <!-- Set up a container element for the button -->
+    <h1 style="text-align: center; width: 100vw">Test Only</h1>
+    <div style="display: flex; justify-content: center; align-items: center">
+        <div id="paypal-button-container"></div>
+    </div>
+
+    <!-- Include the PayPal JavaScript SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id=ASmiLidY15ys_DfovGPP61puG16rpzK7karOvHS49o5Mg92AQm2W42LxCuen-kr8YGFwka2uMR6l37vE&currency=USD&debug=true&disable-funding=card"></script>
+
+    <script>
+        // Render the PayPal button into #paypal-button-container
+        const serverURL = "http://localhost:7160";
+        const orderJson = {
+            purchase_units: [
+                {
+                    reference_id: "testingnotimportant" + Math.floor(Math.random() * 100000),
+                    amount: {
+                        currency_code: "USD",
+                        value: "100.00",
+                    },
+                },
+            ],
+            intent: "string",
+        };
+        paypal
+            .Buttons({
+                style: {
+                    shape: "pill",
+                    layout: "vertical",
+                    color: "gold",
+                    label: "pay",
+                },
+                // Call your server to set up the transaction
+                async createOrder() {
+                    const response = await fetch(serverURL + "/paypalCreateOrder", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(orderJson),
+                    });
+                    const order = await response.json();
+                    return order.Id;
+                },
+
+                // Call your server to finalize the transaction
+                async onApprove(data) {
+                    const response = await fetch(serverURL + "/paypalCaptureOrder?paypalOrderId=" + data.orderID, {
+                        method: "GET",
+                    });
+                    const detail = await response.json();
+                    window.alert("transaction is completed by you");
+                },
+                onCancel(data) {
+                    // Show a cancel page, or return to cart
+                    //window.location.assign("/your-cancel-page");
+                    window.alert("you have cancel transaction");
+                },
+                onError(err) {
+                    // For example, redirect to a specific error page
+                    //window.location.assign("/your-error-page-here");
+                    window.alert("your transaction is error");
+                },
+            })
+            .render("#paypal-button-container");
+    </script>
+</body>
+</html>
