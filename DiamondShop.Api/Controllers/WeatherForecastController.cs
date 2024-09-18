@@ -79,25 +79,6 @@ namespace DiamondShopSystem.Controllers
             Console.WriteLine("Hello world, calling from vnpay");
             return Ok();
         }
-        [Route("/exception")]
-        [HttpGet]
-        public async Task<ActionResult> exception()
-        {
-            throw new Exception();
-        }
-        [Route("/badrequest")]
-        [HttpGet]
-        public async Task<ActionResult> basdreqiest()
-        {
-            return MatchError(new List<IError>(), ModelState); 
-        }
-        [Route("/paypalresponse")]
-        [HttpGet]
-        public async Task<ActionResult> paypal()
-        {
-            var paypalClient = new PaypalClient(_paypal);
-            return Ok( await paypalClient.GetAccessToken());
-        }
         
     }
 }
