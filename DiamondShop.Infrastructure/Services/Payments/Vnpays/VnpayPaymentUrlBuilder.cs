@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Services.Payments.Vnpays
 {
-    internal class VnpayPaymentUrlBuilder
+    public class VnpayPaymentUrlBuilder
     {
         private readonly VnpayOption _vnpayOption;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -107,7 +107,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Vnpays
             //vnpay.AddRequestData("vnp_Inv_Type", cbo_inv_type.SelectedItem.Value);
 
             string paymentUrl = vnpay.CreateRequestUrl(vnp_Url, vnp_HashSecret);
-            _logger.LogInformation("VNPAY URL: {paymentUrl}", paymentUrl);
+            //_logger.LogInformation("VNPAY URL: {paymentUrl}", paymentUrl);
             //Response.Redirect(paymentUrl);
             return Result.Ok(paymentUrl);
         }

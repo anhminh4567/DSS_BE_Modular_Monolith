@@ -13,6 +13,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Vnpayment
     internal class VnpayLibrary
     {
         public const string VERSION = "2.1.0";
+
         private SortedList<string, string> _requestData = new SortedList<string, string>(new VnPayCompare());
         private SortedList<string, string> _responseData = new SortedList<string, string>(new VnPayCompare());
 
@@ -45,7 +46,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Vnpayment
             }
         }
 
-        #region Request
+
 
         public string CreateRequestUrl(string baseUrl, string vnp_HashSecret)
         {
@@ -74,9 +75,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Vnpayment
 
 
 
-        #endregion
 
-        #region Response process
 
         public bool ValidateSignature(string inputHash, string secretKey)
         {
@@ -111,9 +110,13 @@ namespace DiamondShop.Infrastructure.Services.Payments.Vnpayment
             return data.ToString();
         }
 
-        #endregion
-    }
 
+    }
+    public class VnpayRefundType
+    {
+        public const string HoanTraMotPhan = "03";
+        public const string HoanTraToanPhan = "02";
+    }
     public class Utils
     {
 
