@@ -39,7 +39,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Vnpays
             //Get payment input
             VnpayOrderInfo order = new VnpayOrderInfo();
             //Save order to db
-            order.OrderId = DateTime.UtcNow.Ticks; // Giả lập mã giao dịch hệ thống merchant gửi sang VNPAY
+            order.OrderId = DateTime.Now.Ticks; // Giả lập mã giao dịch hệ thống merchant gửi sang VNPAY
             order.Amount = 100000; // Giả lập số tiền thanh toán hệ thống merchant gửi sang VNPAY 100,000 VND
             order.Status = "0"; //0: Trạng thái thanh toán "chờ thanh toán" hoặc "Pending"
             order.OrderDesc = "not important";
@@ -66,14 +66,14 @@ namespace DiamondShop.Infrastructure.Services.Payments.Vnpays
             //    vnpay.AddRequestData("vnp_BankCode", cboBankCode.SelectedItem.Value);
             //}
 
-
-            vnpay.AddRequestData("vnp_CreateDate", order.CreatedDate.ToString(_vnpayOption.Vnp_DateTime_Format));
+            string createDate = order.CreatedDate.ToString(_vnpayOption.Vnp_DateTime_Format);//this thing will be used for refund/query/anything
+            vnpay.AddRequestData("vnp_CreateDate", createDate);
             vnpay.AddRequestData("vnp_CurrCode", "VND");
             vnpay.AddRequestData("vnp_IpAddr", Utils.GetIpAddress(_httpContextAccessor.HttpContext));
 
             vnpay.AddRequestData("vnp_Locale", "vn");
 
-            vnpay.AddRequestData("vnp_OrderInfo", "Thanh toan don hang:" + order.OrderId);
+            vnpay.AddRequestData("vnp_OrderInfo", "Thanh toan don hang:" + order.OrderId + " | tai thoi diem: " +createDate);
             vnpay.AddRequestData("vnp_OrderType", "other"); //default value: other
             vnpay.AddRequestData("vnp_ReturnUrl", vnp_Returnurl);
 
@@ -83,28 +83,6 @@ namespace DiamondShop.Infrastructure.Services.Payments.Vnpays
             vnpay.AddRequestData("vnp_ExpireDate", order.CreatedDate.AddMinutes(_vnpayOption.Vnp_Payment_Timeout_Minute).ToString(_vnpayOption.Vnp_DateTime_Format));
             //Billing
 
-            //vnpay.AddRequestData("vnp_Bill_Mobile", txt_billing_mobile.Text.Trim());
-            //vnpay.AddRequestData("vnp_Bill_Email", txt_billing_email.Text.Trim());
-            //var fullName = txt_billing_fullname.Text.Trim();
-            //if (!String.IsNullOrEmpty(fullName))
-            //{
-            //    var indexof = fullName.IndexOf(' ');
-            //    vnpay.AddRequestData("vnp_Bill_FirstName", fullName.Substring(0, indexof));
-            //    vnpay.AddRequestData("vnp_Bill_LastName", fullName.Substring(indexof + 1,
-            //    fullName.Length - indexof - 1));
-            //}
-            //vnpay.AddRequestData("vnp_Bill_Address", txt_inv_addr1.Text.Trim());
-            //vnpay.AddRequestData("vnp_Bill_City", txt_bill_city.Text.Trim());
-            //vnpay.AddRequestData("vnp_Bill_Country", txt_bill_country.Text.Trim());
-            //vnpay.AddRequestData("vnp_Bill_State", "");
-            //// Invoice
-            //vnpay.AddRequestData("vnp_Inv_Phone", txt_inv_mobile.Text.Trim());
-            //vnpay.AddRequestData("vnp_Inv_Email", txt_inv_email.Text.Trim());
-            //vnpay.AddRequestData("vnp_Inv_Customer", txt_inv_customer.Text.Trim());
-            //vnpay.AddRequestData("vnp_Inv_Address", txt_inv_addr1.Text.Trim());
-            //vnpay.AddRequestData("vnp_Inv_Company", txt_inv_company.Text);
-            //vnpay.AddRequestData("vnp_Inv_Taxcode", txt_inv_taxcode.Text);
-            //vnpay.AddRequestData("vnp_Inv_Type", cbo_inv_type.SelectedItem.Value);
 
             string paymentUrl = vnpay.CreateRequestUrl(vnp_Url, vnp_HashSecret);
             //_logger.LogInformation("VNPAY URL: {paymentUrl}", paymentUrl);

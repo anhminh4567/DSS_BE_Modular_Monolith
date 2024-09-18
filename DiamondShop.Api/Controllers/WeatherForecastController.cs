@@ -98,13 +98,6 @@ namespace DiamondShopSystem.Controllers
             var paypalClient = new PaypalClient(_paypal);
             return Ok( await paypalClient.GetAccessToken());
         }
-        [Route("/vnpayurl")]
-        [HttpGet]
-        public async Task<ActionResult> vnpay()
-        {
-            var paypalClient = new VnpayPaymentUrlBuilder(_vnpayOption,_httpContextAccessor,null);
-            //paypalClient.GetPaymentUrl();
-            return Ok(paypalClient.GetPaymentUrl().Value);
-        }
+        
     }
 }

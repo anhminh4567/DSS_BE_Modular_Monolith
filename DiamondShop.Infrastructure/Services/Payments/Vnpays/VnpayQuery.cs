@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Services.Payments.Vnpays
 {
-    internal class VnpayQuery
+    public class VnpayQuery
     {
         private readonly IOptions<VnpayOption> _options;
 
