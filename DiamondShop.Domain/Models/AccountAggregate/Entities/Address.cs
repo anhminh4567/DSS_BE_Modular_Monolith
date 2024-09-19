@@ -1,4 +1,4 @@
-﻿using BeatvisionRemake.Domain.Common;
+﻿using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using System;
 using System.Collections.Generic;
@@ -12,6 +12,7 @@ namespace DiamondShop.Domain.Models.AccountAggregate.Entities
     public class Address : Entity<AddressId>
     {
         public AccountId AccountId { get; set; }
+        public Account? Account { get; set; }    
         public string Province { get; set; }
         public string District { get; set; }
         public string Ward { get; set; }

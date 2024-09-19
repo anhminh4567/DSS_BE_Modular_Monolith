@@ -1,18 +1,13 @@
 ﻿using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services.Payments.Paypals.Models;
-using FluentResults;
 using Microsoft.Extensions.Options;
-using System;
-using System.Buffers.Text;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
-using System.Threading.Tasks;
-using RestSharp;
 using Newtonsoft.Json;
 using DiamondShop.Infrastructure.Services.Payments.Paypals.Models.Generals;
+using Microsoft.AspNetCore.Http;
+using FluentResults;
 namespace DiamondShop.Infrastructure.Services.Payments.Paypals
 {
     public class PaypalClient
@@ -94,7 +89,55 @@ namespace DiamondShop.Infrastructure.Services.Payments.Paypals
                 return message;
             }
         }
+        public async Task RefundOrder(string paypalGivenId, PaypalRefundOrderBody paypalRefundOrderBody)
+        {
+            ArgumentNullException.ThrowIfNull(paypalGivenId);
+            PaypalOption paypalOption = _options.Value;
+            string accessToken = await GetAccessToken();
+            string captureOrderUri = "/v2/checkout/orders/" + paypalGivenId + "/capture";
+            using (var httpsClient = new HttpClient()) 
+            {
+                var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(paypalOption.Url + captureOrderUri));
+                httpRequest.Headers.Add("Authorization", "Bearer " + accessToken);
+                httpRequest.Content = new StringContent(JsonConvert.SerializeObject(paypalRefundOrderBody),null, "application/json");
 
+            }
+        }
+        public async Task<Result<PaypalRefundDetail>> ShowRefundDetail(string paypalRefundId)
+        {
+            PaypalOption paypalOption = _options.Value;
+            string accessToken = await GetAccessToken();
+            string paymentDetailURL = "/v2/payments/refunds/" + paypalRefundId;
+            using (var httpClient = new HttpClient())
+            {
+                var httpRequest = new HttpRequestMessage(HttpMethod.Get, paypalOption.Url + paymentDetailURL);
+                httpRequest.Content = new StringContent("", null, "application/json");
+                httpRequest.Headers.Add("Authorization", "Bearer " + accessToken);
+                var result = await httpClient.SendAsync(httpRequest);
+                if (result.IsSuccessStatusCode)
+                {
+                    return Result.Ok(await result.Content.ReadFromJsonAsync<PaypalRefundDetail>());
+                }
+                return Result.Fail($"fail with status code: {result.StatusCode} ,and have body: {await result.Content.ReadAsStringAsync()}");
+            }
+        }
+        public async Task<Result<PaypalPaymentDetail>> ShowCapturedPaymentDetail(string paypalPaymentId)
+        {
+            PaypalOption paypalOption = _options.Value;
+            string accessToken = await GetAccessToken();
+            string paymentDetailURL = "/v2/payments/captures/" + paypalPaymentId;
+            using(var httpClient = new HttpClient()) {
+                var httpRequest = new HttpRequestMessage(HttpMethod.Get, paypalOption.Url +  paymentDetailURL);
+                httpRequest.Content = new StringContent("", null, "application/json");
+                httpRequest.Headers.Add("Authorization","Bearer "+accessToken);
+                var result = await httpClient.SendAsync(httpRequest);
+                if (result.IsSuccessStatusCode)
+                {
+                    return Result.Ok(await result.Content.ReadFromJsonAsync<PaypalPaymentDetail>());
+                }
+                return Result.Fail($"fail with status code: {result.StatusCode}  and have body: {await result.Content.ReadAsStringAsync()}");
+            }
+        }
         public async Task<string> GetAccessToken()
         {
             PaypalOption paypalOpt = _options.Value;

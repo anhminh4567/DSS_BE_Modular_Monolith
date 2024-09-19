@@ -1,5 +1,4 @@
-﻿using BeatvisionRemake.Domain.Common;
-using DiamondShop.Domain.Common;
+﻿using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;

@@ -9,7 +9,7 @@ namespace DiamondShop.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PaypalController : ControllerBase
+    public class PaypalController : ApiControllerBase
     {
         private readonly IOptions<PaypalOption> _paypal;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -51,5 +51,26 @@ namespace DiamondShop.Api.Controllers
             var result = await paypalClient.CaptureOrder(paypalOrderId);
             return Ok(result);
         }
+        [Route("/paypalShowPaymentDetail")]
+        [HttpGet]
+        public async Task<ActionResult> paypalPaymentDetail([FromQuery] string paypalOrderId)
+        {
+            var paypalClient = new PaypalClient(_paypal);
+            var result = await paypalClient.ShowCapturedPaymentDetail(paypalOrderId);
+            if (result.IsSuccess)
+                return Ok(result);
+            return MatchError(result.Errors, ModelState);
+        }
+        [Route("/paypalShowRefundDetail")]
+        [HttpGet]
+        public async Task<ActionResult> paypalRefundDetail([FromQuery] string refundTransactionId)
+        {
+            var paypalClient = new PaypalClient(_paypal);
+            var result = await paypalClient.ShowRefundDetail(refundTransactionId);
+            if(result.IsSuccess)
+                return Ok(result);
+            return MatchError(result.Errors,ModelState);
+        }
     }
 }
+
