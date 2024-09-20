@@ -8,6 +8,9 @@ using Newtonsoft.Json;
 using DiamondShop.Infrastructure.Services.Payments.Paypals.Models.Generals;
 using Microsoft.AspNetCore.Http;
 using FluentResults;
+using System.Net.Http;
+using DiamondShop.Infrastructure.Services.Payments.Paypals.Constants;
+using DiamondShop.Domain.Common.ValueObjects;
 namespace DiamondShop.Infrastructure.Services.Payments.Paypals
 {
     public class PaypalClient
@@ -19,7 +22,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Paypals
             _options = options;
         }
         
-        public async Task<PaypalCreateOrderResult> CreateOrder(PaypalCreateOrderBody paypalCreateOrderBody)
+        public async Task<Result<PaypalCreateOrderResult>> CreateOrder(PaypalCreateOrderBody paypalCreateOrderBody)
         {
             PaypalOption paypalOption = _options.Value;
             string accessToken = await GetAccessToken();
@@ -39,6 +42,11 @@ namespace DiamondShop.Infrastructure.Services.Payments.Paypals
                 if(result.IsSuccessStatusCode) 
                 {
                     var value = await result.Content.ReadFromJsonAsync<PaypalCreateOrderResult>();
+                    var status = value.Status;
+                    if(status != PaypalOrderStatus.CREATED) 
+                    {
+                        return Result.Fail("paypal order is created but the status is : " + status);
+                    }
                     return value;
                 }
                 var value2 = await result.Content.ReadAsStringAsync();
@@ -68,7 +76,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Paypals
 
         }
 
-        public async Task<string> CaptureOrder(string paypalGivenId)
+        public async Task<Result<PaypalOrderDetail>> CaptureOrder(string paypalGivenId)
         {
             ArgumentNullException.ThrowIfNull(paypalGivenId);
             PaypalOption paypalOption = _options.Value;
@@ -82,25 +90,32 @@ namespace DiamondShop.Infrastructure.Services.Payments.Paypals
                 var result = await httpClient.SendAsync(requestMessage);
                 if (result.IsSuccessStatusCode)
                 {
-                    var value = await result.Content.ReadAsStringAsync();
+                    var value = await result.Content.ReadFromJsonAsync<PaypalOrderDetail>();
                     return value;
                 }
                 var message = result.Content.ReadAsStringAsync().Result;
-                return message;
+                return Result.Fail(message);
             }
         }
-        public async Task RefundOrder(string paypalGivenId, PaypalRefundOrderBody paypalRefundOrderBody)
+        public async Task<Result<PaypalRefundDetail>> RefundTransaction(string paypalGivenId, PaypalRefundOrderBody paypalRefundOrderBody)
         {
             ArgumentNullException.ThrowIfNull(paypalGivenId);
             PaypalOption paypalOption = _options.Value;
+            if (paypalRefundOrderBody.Amount.currency_code != Money.USD)
+                return Result.Fail("curreny is forced to be : "+ Money.USD+ "| this is paypal purpose");
             string accessToken = await GetAccessToken();
-            string captureOrderUri = "/v2/checkout/orders/" + paypalGivenId + "/capture";
+            string captureOrderUri = "/v2/payments/captures/" + paypalGivenId + "/refund";
             using (var httpsClient = new HttpClient()) 
             {
                 var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(paypalOption.Url + captureOrderUri));
                 httpRequest.Headers.Add("Authorization", "Bearer " + accessToken);
                 httpRequest.Content = new StringContent(JsonConvert.SerializeObject(paypalRefundOrderBody),null, "application/json");
-
+                var result = await httpsClient.SendAsync(httpRequest);
+                if (result.IsSuccessStatusCode)
+                {
+                    return Result.Ok(await result.Content.ReadFromJsonAsync<PaypalRefundDetail>());
+                }
+                return Result.Fail($"fail with status code: {result.StatusCode} ,and have body: {await result.Content.ReadAsStringAsync()}");
             }
         }
         public async Task<Result<PaypalRefundDetail>> ShowRefundDetail(string paypalRefundId)

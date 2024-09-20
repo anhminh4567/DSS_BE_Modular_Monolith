@@ -33,7 +33,9 @@ namespace DiamondShop.Api.Controllers.ThirdParties
         {
             var paypalClient = new PaypalClient(_paypal);
             var result = await paypalClient.CreateOrder(paypalCreateOrderBody);
-            return Ok(result);
+            if (result.IsSuccess)
+                return Ok(result.Value);
+            return MatchError(result.Errors, ModelState);
         }
         [Route("/paypalOrderId")]
         [HttpGet]
@@ -43,13 +45,27 @@ namespace DiamondShop.Api.Controllers.ThirdParties
             var result = await paypalClient.ShowOrderDetail(paypalOrderId);
             return Ok(result);
         }
-        [Route("/paypalCaptureOrder")]
+        [Route("/paypalCapturePayment")]
         [HttpGet]
-        public async Task<ActionResult> paypalCaptureOrder([FromQuery] string paypalOrderId)
+        public async Task<ActionResult> paypalCapturePayment([FromQuery] string paypalOrderId)
         {
             var paypalClient = new PaypalClient(_paypal);
             var result = await paypalClient.CaptureOrder(paypalOrderId);
-            return Ok(result);
+            if (result.IsSuccess)
+                return Ok(result.Value);
+            return MatchError(result.Errors, ModelState);
+        }
+        [Route("/paypalRefundTransaction")]
+        [HttpPost]
+        public async Task<ActionResult> paypalRefundTransaction([FromQuery] string paypalTransactionId, [FromBody] PaypalRefundOrderBody paypalRefundOrderBody)
+        {
+            var paypalClient = new PaypalClient(_paypal);
+            var result = await paypalClient.RefundTransaction(paypalTransactionId, paypalRefundOrderBody);
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+            return MatchError(result.Errors, ModelState);
         }
         [Route("/paypalShowPaymentDetail")]
         [HttpGet]
@@ -58,7 +74,7 @@ namespace DiamondShop.Api.Controllers.ThirdParties
             var paypalClient = new PaypalClient(_paypal);
             var result = await paypalClient.ShowCapturedPaymentDetail(paypalOrderId);
             if (result.IsSuccess)
-                return Ok(result);
+                return Ok(result.Value);
             return MatchError(result.Errors, ModelState);
         }
         [Route("/paypalShowRefundDetail")]
@@ -68,7 +84,7 @@ namespace DiamondShop.Api.Controllers.ThirdParties
             var paypalClient = new PaypalClient(_paypal);
             var result = await paypalClient.ShowRefundDetail(refundTransactionId);
             if (result.IsSuccess)
-                return Ok(result);
+                return Ok(result.Value);
             return MatchError(result.Errors, ModelState);
         }
     }
