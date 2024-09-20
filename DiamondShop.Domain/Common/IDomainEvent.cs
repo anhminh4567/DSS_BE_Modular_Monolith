@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BeatvisionRemake.Domain.Common
+namespace DiamondShop.Domain.Common
 {
     public interface IDomainEvent : INotification
     {

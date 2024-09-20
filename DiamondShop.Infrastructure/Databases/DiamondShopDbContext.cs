@@ -1,7 +1,23 @@
 ﻿using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
+using DiamondShop.Domain.Models.Blogs;
+using DiamondShop.Domain.Models.DiamondPrices;
+using DiamondShop.Domain.Models.DiamondPrices.Entities;
+using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.Jewelries;
+using DiamondShop.Domain.Models.Jewelries.Entities;
+using DiamondShop.Domain.Models.JewelryModels;
+using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.News;
+using DiamondShop.Domain.Models.Notifications;
+using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Entities;
+using DiamondShop.Domain.Models.Promotions;
+using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.RoleAggregate;
-using DiamondShop.Infrastructure.Databases.Configurations;
+using DiamondShop.Domain.Models.Transactions;
+using DiamondShop.Domain.Models.Transactions.Entities;
+using DiamondShop.Infrastructure.Databases.Configurations.AccountConfig;
 using DiamondShop.Infrastructure.Databases.Interceptors;
 using DiamondShop.Infrastructure.Identity.Models;
 using DiamondShop.Infrastructure.Outbox;
@@ -37,6 +53,7 @@ namespace DiamondShop.Infrastructure.Databases
         // Outbox Related //
         internal DbSet<OutboxMessages> OutboxMessages { get; set; }
         //Roles Related//
+        #region Dbset
         public DbSet<AccountRole> AccountRoles { get; set; }
 
         //Roles Related//
@@ -44,6 +61,37 @@ namespace DiamondShop.Infrastructure.Databases
         //Application//
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Address> Addresses { get; set; }
+        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<DiamondPrice> DiamondPrices { get; set; }
+        public DbSet<DiamondCriteria> DiamondCriteria { get; set; }
+        public DbSet<DiamondShape> DiamondShapes { get; set; }
+        public DbSet<Jewelry> Jewelrys { get; set; }
+        public DbSet<JewelryReview> JewelryReviews { get; set; }
+        public DbSet<JewelryReviewMedia> JewelryReviewMedias { get; set; }
+        public DbSet<JewelrySideDiamond> JewelrySideDiamonds { get; set; }
+        public DbSet<JewelryWarranty> JewelryWarrantys { get; set; }
+        public DbSet<MainDiamond> MainDiamonds { get; set; }
+        public DbSet<MainDiamondShape> MainDiamondShapes { get; set; }
+        public DbSet<SideDiamond> SideDiamonds { get; set; }
+        public DbSet<SideDiamondReq> SideDiamondReqs { get; set; }
+        public DbSet<JewelryModelCategory> JewelryModelCategories { get; set; }
+        public DbSet<JewelryModel> JewelryModels { get; set; }
+        public DbSet<Metal> Metals { get; set; }
+        public DbSet<Size> Sizes { get; set; }
+        public DbSet<SizeMetal> SizeMetals { get; set; }
+        public DbSet<News> News { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<OrderItemDetail> OrderItemDetails { get; set; }
+        public DbSet<Discount> Discounts { get; set; }
+        public DbSet<Gift> Gifts { get; set; }
+        public DbSet<PromoReq> PromoReqs { get; set; }
+        public DbSet<PromoReqShape> PromoReqShapes { get; set; }
+        public DbSet<Promotion> Promotions { get; set; }
+        public DbSet<PaymentMethod> PaymentMethods { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
+        #endregion
         //Application//
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
