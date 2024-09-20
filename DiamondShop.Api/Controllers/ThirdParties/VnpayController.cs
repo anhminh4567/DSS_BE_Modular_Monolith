@@ -1,10 +1,13 @@
 ﻿using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services.Payments.Vnpays;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Options;
 
-namespace DiamondShop.Api.Controllers
+namespace DiamondShop.Api.Controllers.ThirdParties
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -25,7 +28,9 @@ namespace DiamondShop.Api.Controllers
         {
             var vnpayClient = new VnpayPaymentUrlBuilder(_vnpayOption, _httpContextAccessor, null);
             //paypalClient.GetPaymentUrl();
-            return Ok(vnpayClient.GetPaymentUrl().Value);
+            //return Ok(vnpayClient.GetPaymentUrl($"{Request.Scheme}://{Request.Host}{Request.PathBase}/VnpayReturnUrl").Value);
+            return Ok(vnpayClient.GetPaymentUrl($"https://mk492n6q-7160.asse.devtunnels.ms/VnpayReturnUrl").Value);
+
         }
         [Route("/VnpayReturnUrl")]
         [HttpGet]
@@ -42,8 +47,8 @@ namespace DiamondShop.Api.Controllers
         public async Task<ActionResult> VnpayReturnIPN()
         {
             var vnpayClient = new VnpayReturnIPN(_vnpayOption, _httpContextAccessor);
-            var result = vnpayClient.Execute();
-            return Ok();
+            var result = await vnpayClient.Execute();
+            return Ok(result);
         }
         [Route("/VnpayQuery")]
         [HttpGet]

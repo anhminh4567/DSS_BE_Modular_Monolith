@@ -26,9 +26,9 @@ namespace DiamondShop.Infrastructure.Services.Payments.Vnpays
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
         }
-        public Result<string> GetPaymentUrl()
+        public Result<string> GetPaymentUrl(string returnUrl)
         {
-            string vnp_Returnurl = _vnpayOption.Vnp_Return_Url; //URL nhan ket qua tra ve 
+            string vnp_Returnurl = returnUrl;//_vnpayOption.Vnp_Return_Url; //URL nhan ket qua tra ve 
             string vnp_Url = _vnpayOption.Vnp_Url; //URL thanh toan cua VNPAY 
             string vnp_TmnCode = _vnpayOption.Vnp_TmnCode; //Ma website
             string vnp_HashSecret = _vnpayOption.Vnp_HashSecret; //Chuoi bi mat

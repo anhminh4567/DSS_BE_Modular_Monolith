@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
-namespace DiamondShop.Api.Controllers
+namespace DiamondShop.Api.Controllers.ThirdParties
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -67,9 +67,9 @@ namespace DiamondShop.Api.Controllers
         {
             var paypalClient = new PaypalClient(_paypal);
             var result = await paypalClient.ShowRefundDetail(refundTransactionId);
-            if(result.IsSuccess)
+            if (result.IsSuccess)
                 return Ok(result);
-            return MatchError(result.Errors,ModelState);
+            return MatchError(result.Errors, ModelState);
         }
     }
 }

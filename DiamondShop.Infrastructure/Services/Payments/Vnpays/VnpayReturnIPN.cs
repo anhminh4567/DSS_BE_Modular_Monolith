@@ -25,7 +25,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Vnpays
             _options = options;
             _contextAccessor = contextAccessor;
         }
-        public async Task Execute()
+        public async Task<string> Execute()
         {
             VnpayOption vnpayOption = _options.Value;
             HttpContext httpContext = _contextAccessor.HttpContext is null
@@ -100,6 +100,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Vnpays
                                 //Thêm code Thực hiện cập nhật vào Database 
                                 //Update Database
                                 returnContent = "{\"RspCode\":\"00\",\"Message\":\"Confirm Success\"}";
+                                
                             }
                             else
                             {
@@ -127,9 +128,9 @@ namespace DiamondShop.Infrastructure.Services.Payments.Vnpays
                 returnContent = "{\"RspCode\":\"99\",\"Message\":\"Input data required\"}";
             }
 
-
-            httpContext.Response.Clear();
-            await httpContext.Response.WriteAsync(returnContent);
+            return returnContent;
+            //httpContext.Response.Clear();
+            //await httpContext.Response.WriteAsync(returnContent);
         }
     }
 }

@@ -79,6 +79,5 @@ namespace DiamondShopSystem.Controllers
             Console.WriteLine("Hello world, calling from vnpay");
             return Ok();
         }
-        
     }
 }
