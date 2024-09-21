@@ -2,7 +2,9 @@
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services.Payments.Vnpayment;
+using DiamondShop.Infrastructure.Services.Payments.Vnpays.Constants;
 using DiamondShop.Infrastructure.Services.Payments.Vnpays.Models;
+using FluentResults;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -87,15 +89,29 @@ namespace DiamondShop.Infrastructure.Services.Payments.Vnpays
             {
                 //vnpayClient.DefaultRequestHeaders.Add("Content-Type", "application/json");
                 HttpContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");//(jsonData);
-
                 var response = vnpayClient.PostAsync(NullString, content).Result;
                 var contentBody = response.Content.ReadFromJsonAsync<VnpayRefundResult>().Result;
                 return contentBody;
             }
-        }
-        public void HandleRefundResponse(VnpayRefundResult result)
-        {
 
+        }
+        public async Task<Result<VnpayRefundResult>> MOCK_VnpayRefund(VnpRefundData vnpRefundData)
+        {
+            var transactionId = vnpRefundData.vnp_TxnRef;
+            var createDate = vnpRefundData.vnp_CreateDate;
+            var refundType = vnpRefundData.vnp_TransactionType;
+            var amount = vnpRefundData.vnp_Amount;
+
+            if(refundType.Equals(VnpayTransactionType.HOAN_TIEN_FULL))
+            {
+
+            }
+            if (refundType.Equals(VnpayTransactionType.HOAN_TIEN_1_PHAN))
+            {
+
+            }
+
+            return Result.Ok();
         }
     }
 }
