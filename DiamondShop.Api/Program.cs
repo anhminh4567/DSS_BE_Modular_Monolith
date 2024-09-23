@@ -51,6 +51,15 @@ internal class Program
         });
         builder.Services.AddSingleton<ProblemDetailsFactory, DiamonShopProblemDetailsFactory>();
         builder.Services.AddScoped<CustomExeptionHandlerMiddleware>();
+        builder.Services.AddCors(setup => 
+        {
+            setup.AddDefaultPolicy(policy => 
+            {
+                policy.AllowAnyOrigin();
+                policy.AllowAnyMethod();
+                policy.AllowAnyHeader();
+            });
+        });
 
         builder.Services.AddInfrastructure(builder.Configuration);
         builder.Services.AddApplication(builder.Configuration);
@@ -64,7 +73,7 @@ internal class Program
         }
         app.UseSwagger();
         app.UseSwaggerUI();
-
+        app.UseCors();
         app.UseMiddleware<CustomExeptionHandlerMiddleware>();
 
         app.UseAuthentication();

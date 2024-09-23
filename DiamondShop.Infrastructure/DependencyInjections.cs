@@ -39,7 +39,6 @@ namespace DiamondShop.Infrastructure
             services.AddMyIdentity(configuration);
             services.AddSecurity(configuration);
             services.AddBackgroundJobs(configuration);
-            services.AddHttpClientAndRefit(configuration);
             services.AddPayments(configuration);
             return services;
         }
@@ -120,13 +119,7 @@ namespace DiamondShop.Infrastructure
             });
             return services;
         }
-        internal static IServiceCollection AddHttpClientAndRefit(this IServiceCollection services, IConfiguration configuration)
-        {
-            
-            //services.AddRefitClient<IPaypalClient>()
-            //    .ConfigureHttpClient( (sp , httpClient) => {});
-            return services;
-        }
+
         internal static IServiceCollection AddPayments(this IServiceCollection services, IConfiguration configuration) 
         {
             services.AddSingleton<PaypalClient>();

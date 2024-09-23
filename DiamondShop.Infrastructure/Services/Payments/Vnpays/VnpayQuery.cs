@@ -4,6 +4,7 @@ using DiamondShop.Infrastructure.Services.Payments.Vnpays.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using RestSharp;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Services.Payments.Vnpays
 {
-    internal class VnpayQuery
+    public class VnpayQuery
     {
         private readonly IOptions<VnpayOption> _options;
 
@@ -26,7 +27,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Vnpays
         public VnpayQueryResult? Query(string txtRef, long transactionDate)
         {
             var vnpayOpt = _options.Value;
-            var vnp_Api = vnpayOpt.Vnp_Query_Url;
+            var vnp_Api = vnpayOpt.Vnp_Api;
             var vnp_HashSecret = vnpayOpt.Vnp_HashSecret; //Secret KEy
             var vnp_TmnCode = vnpayOpt.Vnp_TmnCode; // Terminal Id
 
@@ -57,7 +58,6 @@ namespace DiamondShop.Infrastructure.Services.Payments.Vnpays
 
             };
             var jsonData = JsonConvert.SerializeObject(qdrData);//.Serialize(qdrData);
-
             using (var vnpayClient = new HttpClient() { BaseAddress = new Uri(vnp_Api), })
             {
                 //vnpayClient.DefaultRequestHeaders.Add("Content-Type", "application/json");
