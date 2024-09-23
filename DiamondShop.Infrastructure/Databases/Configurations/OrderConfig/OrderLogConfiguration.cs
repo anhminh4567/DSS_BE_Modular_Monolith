@@ -19,6 +19,14 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
                 .HasConversion(
                     o => o.Value,
                     dbValue => OrderLogId.Parse(dbValue));
+            builder.Property(o => o.OrderId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => OrderId.Parse(dbValue));
+            builder.Property(o => o.PreviousLogId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => OrderLogId.Parse(dbValue));
             builder.HasOne(o => o.PreviousLog).WithOne().HasForeignKey<OrderLog>(o => o.PreviousLogId).IsRequired(false);
             builder.HasKey(o => o.Id);
         }

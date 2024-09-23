@@ -10,16 +10,20 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig.MainDiamondConfig
 {
-    internal class MainDiamondConfiguration : IEntityTypeConfiguration<MainDiamond>
+    internal class MainDiamondReqConfiguration : IEntityTypeConfiguration<MainDiamondReq>
     {
-        public void Configure(EntityTypeBuilder<MainDiamond> builder)
+        public void Configure(EntityTypeBuilder<MainDiamondReq> builder)
         {
-            builder.ToTable("MainDiamond");
+            builder.ToTable("MainDiamondReq");
             builder.Property(o => o.Id)
                .HasConversion(
                    Id => Id.Value,
-                   dbValue => MainDiamondId.Parse(dbValue));
-            builder.HasMany(o => o.DiamondShapes).WithOne().HasForeignKey(p => p.MainDiamondId).IsRequired();
+                   dbValue => MainDiamondReqId.Parse(dbValue));
+            builder.Property(o => o.ModelId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => JewelryModelId.Parse(dbValue));
+            builder.HasMany(o => o.Shapes).WithOne().HasForeignKey(p => p.MainDiamondReqId).IsRequired();
             builder.Property(o => o.SettingType).HasConversion<string>();
             builder.HasKey(o => o.Id);
         }

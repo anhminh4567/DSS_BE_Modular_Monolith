@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.JewelryModels;
+﻿using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
+using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using Microsoft.EntityFrameworkCore;
@@ -20,12 +21,21 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
                 .HasConversion(
                     Id => Id.Value,
                     dbValue => SideDiamondReqId.Parse(dbValue));
-            builder.HasOne(o => o.DiamondShape).WithOne().HasForeignKey<SideDiamondReq>(p => p.DiamondShapeId).IsRequired();
+            builder.Property(o => o.ModelId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => JewelryModelId.Parse(dbValue));
+            builder.Property(o => o.ShapeId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => DiamondShapeId.Parse(dbValue));
+            builder.HasOne(o => o.Shape).WithOne().HasForeignKey<SideDiamondReq>(p => p.ShapeId).IsRequired();
             builder.Property(o => o.SettingType).HasConversion<string>().IsRequired();
             builder.Property(o => o.ColorMin).HasConversion<string>().IsRequired();
             builder.Property(o => o.ColorMax).HasConversion<string>().IsRequired();
             builder.Property(o => o.ClarityMin).HasConversion<string>().IsRequired();
             builder.Property(o => o.ClarityMax).HasConversion<string>().IsRequired();
+            builder.HasMany(o => o.SideDiamondOpts).WithOne().HasForeignKey(p => p.SideDiamondReqId).IsRequired();
             builder.HasKey(o => o.Id);
         }
     }

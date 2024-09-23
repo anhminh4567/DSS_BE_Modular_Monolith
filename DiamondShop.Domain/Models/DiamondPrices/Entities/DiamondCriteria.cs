@@ -16,5 +16,6 @@ namespace DiamondShop.Domain.Models.DiamondPrices.Entities
         public Color Color { get; set; }
         public float CaratFrom { get; set; }
         public float CaratTo { get; set; }
+        public DiamondCriteria() { }
     }
 }

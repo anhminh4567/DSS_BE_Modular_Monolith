@@ -10,10 +10,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.Jewelries.Entities
 {
-    public class JewelryReview : Entity<JewelryReviewId>
+    public class JewelryReview : Entity<JewelryId>
     {
-        public JewelryId JewelryId { get; set; }
-        public Jewelry Jewelry { get; set; }
         public AccountId AccountId { get; set; }
         public Account Account { get; set; }
         public string Content { get; set; }
@@ -21,6 +19,7 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
         public bool IsHidden { get; set; }
-        public List<JewelryReviewMedia> Medias { get; set; } = new();
+       /* public List<JewelryReviewMedia> Medias { get; set; } = new();*/
+        public JewelryReview() { }
     }
 }

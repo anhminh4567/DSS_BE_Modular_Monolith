@@ -2,6 +2,7 @@
 using DiamondShop.Domain.Models.Diamonds.Entities;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -22,6 +23,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondConfig
                 .HasConversion(
                     Id => Id.Value,
                     dbValue => DiamondId.Parse(dbValue));
+            builder.Property(o => o.DiamondShapeId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => DiamondShapeId.Parse(dbValue));
             builder.HasOne(o => o.DiamondShape)
                 .WithOne()
                 .HasForeignKey<Diamond>(c => c.DiamondShapeId)

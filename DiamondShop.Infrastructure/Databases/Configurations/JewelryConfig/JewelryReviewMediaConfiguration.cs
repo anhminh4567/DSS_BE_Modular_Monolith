@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryConfig
 {
-    internal class JewelryReviewMediaConfiguration : IEntityTypeConfiguration<JewelryReviewMedia>
+/*    internal class JewelryReviewMediaConfiguration : IEntityTypeConfiguration<JewelryReviewMedia>
     {
         public void Configure(EntityTypeBuilder<JewelryReviewMedia> builder)
         {
@@ -22,5 +22,5 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryConfig
             builder.HasKey(o => o.Id);
             builder.HasIndex(o => o.Id);
         }
-    }
+    }*/
 }

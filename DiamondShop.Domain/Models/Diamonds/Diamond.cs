@@ -36,5 +36,6 @@ namespace DiamondShop.Domain.Models.Diamonds
         public Culet Culet { get; set; }
         public Fluorescence Fluorescence { get; set; }
         public string Measurement { get; set; }
+        public Diamond() { }
     }
 }

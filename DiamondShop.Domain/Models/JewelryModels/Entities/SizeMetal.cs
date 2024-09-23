@@ -17,5 +17,6 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
         public JewelryModelId ModelId { get; set; }
         public JewelryModel Model { get; set; }
         public float Weight { get; set; }
+        public SizeMetal() { }
     }
 }

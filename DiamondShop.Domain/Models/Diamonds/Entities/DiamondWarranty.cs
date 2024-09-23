@@ -17,5 +17,6 @@ namespace DiamondShop.Domain.Models.Diamonds.Entities
         public DateTime ExpiredDate { get; set; }
         public WarrantyType WarrantyType { get; set; }
         public string WarrantyPath { get; set; }
+        public DiamondWarranty() { }
     }
 }

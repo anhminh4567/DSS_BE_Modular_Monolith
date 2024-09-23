@@ -19,5 +19,6 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public UnitType UnitType { get; set; }
         public string UnitValue { get; set; }
         public decimal Amount { get; set; }
+        public Gift() { }
     }
 }

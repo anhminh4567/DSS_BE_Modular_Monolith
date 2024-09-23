@@ -22,9 +22,10 @@ namespace DiamondShop.Domain.Models.JewelryModels
         public BackType? BackType { get; set; }
         public ClaspType? ClaspType { get; set; }
         public ChainType? ChainType { get; set; }
-        public List<MainDiamond> MainDiamonds { get; set; } = new ();
-        public List<SideDiamond> SideDiamonds { get; set; } = new();
+        public List<MainDiamondReq> MainDiamonds { get; set; } = new ();
+        public List<SideDiamondReq> SideDiamonds { get; set; } = new();
         public List<SizeMetal> SizeMetals { get; set; } = new();
         /*public List<JewelryModelMedia> Medias { get; set; } = new();*/
+        public JewelryModel() { }
     }
 }

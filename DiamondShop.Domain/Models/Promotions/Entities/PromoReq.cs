@@ -23,8 +23,8 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public Operator Operator { get; set; }
         public decimal Amount { get; set; }
         public int Quantity { get; set; }
-        public JewelryModelId? JewelryModelId { get; set; }
-        public JewelryModel? JewelryModel { get; set; }
+        public JewelryModelId? ModelId { get; set; }
+        public JewelryModel? Model { get; set; }
         public DiamondOrigin? DiamondOrigin { get; set; }
         public float? CaratFrom { get; set; }
         public float? CaratTo { get; set; }
@@ -35,5 +35,6 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public Color? ColorFrom { get; set; }
         public Color? ColorTo { get; set; }
         public List<PromoReqShape> PromoReqShapes { get; set; } = new();
+        public PromoReq() { }
     }
 }

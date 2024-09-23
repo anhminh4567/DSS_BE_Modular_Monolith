@@ -20,5 +20,6 @@ namespace DiamondShop.Domain.Models.Promotions
         public RedemptionMode RedemptionMode { get; set; }
         public List<PromoReq> PromoReqs { get; set; } = new ();
         public List<Gift> Gifts { get; set; } = new ();
+        public Promotion() { }
     }
 }

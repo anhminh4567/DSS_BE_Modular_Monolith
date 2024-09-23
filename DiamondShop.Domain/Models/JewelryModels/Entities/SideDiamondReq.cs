@@ -14,15 +14,16 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
 {
     public class SideDiamondReq: Entity<SideDiamondReqId>
     {
-        public SideDiamondId SideDiamondId { get; set; }
-        public DiamondShapeId DiamondShapeId { get; set; }
-        public DiamondShape DiamondShape { get; set; }
-        public SettingType SettingType { get; set; }
+        public JewelryModelId ModelId { get; set; }
+        public JewelryModel Model { get; set; }
+        public DiamondShapeId ShapeId { get; set; }
+        public DiamondShape Shape { get; set; }
         public Color ColorMin { get; set; }
         public Color ColorMax { get; set; }
         public Clarity ClarityMin { get; set; }
         public Clarity ClarityMax { get; set; }
-        public float CaratWeight { get; set; }
-        public int Quantity { get; set; }
+        public SettingType SettingType { get; set; }
+        public List<SideDiamondOpt> SideDiamondOpts { get; set; } = new ();
+        public SideDiamondReq() { }
     }
 }

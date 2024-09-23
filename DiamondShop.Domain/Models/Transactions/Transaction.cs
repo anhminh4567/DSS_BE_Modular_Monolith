@@ -23,5 +23,6 @@ namespace DiamondShop.Domain.Models.Transactions
         public TransactionId? RefundedTransacId { get; set; }
         public Transaction? RefundedTransac { get; set; }
         public List<Order> Orders { get; set; } = new ();
+        public Transaction() { }
     }
 }

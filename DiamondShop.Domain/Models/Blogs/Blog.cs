@@ -20,5 +20,6 @@ namespace DiamondShop.Domain.Models.Blogs
         public string Content { get; set; }
         public DateTime CreatedDate { get; set; }
         public List<BlogMedia> Medias { get; set; } = new ();
+        public Blog() { }
     }
 }

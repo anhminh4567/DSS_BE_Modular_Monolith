@@ -17,5 +17,6 @@ namespace DiamondShop.Domain.Models.DiamondPrices
         public DiamondCriteriaId CriteriaId { get; set; }
         public DiamondCriteria Criteria { get; set; }
         public decimal Price { get; set; }
+        public DiamondPrice() { }
     }
 }

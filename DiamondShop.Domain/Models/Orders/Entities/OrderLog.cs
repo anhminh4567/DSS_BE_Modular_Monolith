@@ -15,5 +15,6 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public DateTime CreatedDate { get; set; }
         public OrderLogId PreviousLogId { get; set; }
         public OrderLog PreviousLog { get; set; }
+        public OrderLog() { }
     }
 }

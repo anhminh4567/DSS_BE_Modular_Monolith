@@ -16,5 +16,6 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
         public bool IsGeneral { get; set; }
         public JewelryModelCategoryId? ParentCategoryId { get; set; }
         public JewelryModelCategory? ParentCategory { get; set; }
+        public JewelryModelCategory() { }
     }
 }

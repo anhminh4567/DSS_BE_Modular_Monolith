@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.Blogs;
+﻿using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.Blogs;
 using DiamondShop.Domain.Models.Blogs.Entities;
 using DiamondShop.Domain.Models.Blogs.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
@@ -22,6 +23,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.BlogConfig
                .HasConversion(
                    Id => Id.Value,
                    dbValue => BlogId.Parse(dbValue));
+            builder.Property(o => o.AccountId)
+               .HasConversion(
+                   Id => Id.Value,
+                   dbValue => AccountId.Parse(dbValue));
             builder.Property(o => o.Tags).IsRequired(false).HasConversion(
                 v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
                 dbValue => JsonConvert.DeserializeObject<List<BlogTag>>(dbValue, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore })

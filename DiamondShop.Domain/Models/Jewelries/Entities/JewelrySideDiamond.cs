@@ -20,5 +20,6 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
         public Clarity ClarityMin { get; set; }
         public Clarity ClarityMax { get; set; }
         public SettingType SettingType { get; set; }
+        public JewelrySideDiamond() { }
     }
 }

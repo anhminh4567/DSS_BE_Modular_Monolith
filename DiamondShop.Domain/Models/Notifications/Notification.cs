@@ -21,6 +21,7 @@ namespace DiamondShop.Domain.Models.Notifications
         public string Content { get; set; }
         public DateTime CreatedDate { get; set; }
         public bool IsRead { get; set; }
+        public Notification() { }
 
     }
 }

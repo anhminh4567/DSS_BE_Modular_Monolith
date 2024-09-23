@@ -19,6 +19,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
                 .HasConversion(
                     Id => Id.Value,
                     dbValue => JewelryModelCategoryId.Parse(dbValue));
+            builder.Property(o => o.ParentCategoryId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => JewelryModelCategoryId.Parse(dbValue));
             builder.HasOne(o => o.ParentCategory).WithOne().HasForeignKey<JewelryModelCategory>(o => o.ParentCategoryId).IsRequired(false);
             builder.HasKey(o => o.Id);
         }

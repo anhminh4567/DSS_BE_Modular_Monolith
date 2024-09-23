@@ -1,5 +1,7 @@
 ﻿using DiamondShop.Domain.Models.AccountAggregate;
+using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -15,9 +17,17 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
         public void Configure(EntityTypeBuilder<MainDiamondShape> builder)
         {
             builder.ToTable("MainDiamondShape");
-            builder.HasOne(o => o.DiamondShape).WithOne().HasForeignKey<MainDiamondShape>(o => o.DiamondShapeId).IsRequired();
-            builder.HasOne(o => o.MainDiamond).WithOne().HasForeignKey<MainDiamondShape>(o => o.MainDiamondId).IsRequired();
-            builder.HasKey(o => new { o.MainDiamondId, o.DiamondShapeId });
+            builder.Property(o => o.MainDiamondReqId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => MainDiamondReqId.Parse(dbValue));
+            builder.Property(o => o.ShapeId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => DiamondShapeId.Parse(dbValue));
+            builder.HasOne(o => o.Shape).WithOne().HasForeignKey<MainDiamondShape>(o => o.ShapeId).IsRequired();
+            builder.HasOne(o => o.MainDiamondReq).WithOne().HasForeignKey<MainDiamondShape>(o => o.MainDiamondReqId).IsRequired();
+            builder.HasKey(o => new { o.MainDiamondReqId, o.ShapeId });
         }
     }
 }

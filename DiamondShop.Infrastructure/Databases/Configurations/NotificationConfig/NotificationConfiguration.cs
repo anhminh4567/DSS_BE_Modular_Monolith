@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using DiamondShop.Domain.Models.Notifications.ValueObjects;
 using DiamondShop.Domain.Models.Notifications;
+using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.Orders.ValueObjects;
 
 namespace DiamondShop.Infrastructure.Databases.Configurations.NotificationConfig
 {
@@ -19,6 +21,14 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.NotificationConfig
                 .HasConversion(
                     o => o.Value,
                     dbValue => NotificationId.Parse(dbValue));
+            builder.Property(o => o.AccountId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => AccountId.Parse(dbValue));
+            builder.Property(o => o.OrderId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => OrderId.Parse(dbValue));
             builder.HasOne(o => o.Account).WithOne().HasForeignKey<Notification>(o => o.AccountId).IsRequired();
             builder.HasOne(o => o.Order).WithOne().HasForeignKey<Notification>(o => o.OrderId).IsRequired();
             builder.HasKey(o => o.Id);

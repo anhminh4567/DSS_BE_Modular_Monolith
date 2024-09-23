@@ -13,5 +13,6 @@ namespace DiamondShop.Domain.Models.Transactions.Entities
         public string MethodName { get; set; }
         public string MethodThumbnailPath { get; set; }
         public bool Status { get; set; }
+        public PaymentMethod() { }
     }
 }

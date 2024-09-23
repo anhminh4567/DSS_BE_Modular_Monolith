@@ -10,11 +10,12 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.JewelryModels.Entities
 {
-    public class MainDiamond : Entity<MainDiamondId>
+    public class MainDiamondReq : Entity<MainDiamondReqId>
     {
-        public JewelryModelId JewelryModelId { get; set; }
-        public List<MainDiamondShape> DiamondShapes { get; set; } = new ();
+        public JewelryModelId ModelId { get; set; }
+        public List<MainDiamondShape> Shapes { get; set; } = new ();
         public SettingType SettingType { get; set; }
         public int Quantity { get; set; }
+        public MainDiamondReq() { }
     }
 }

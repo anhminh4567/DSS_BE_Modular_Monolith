@@ -13,7 +13,8 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
     {
         public PromoReqId PromoReqId { get; set; }
         public PromoReq PromoReq { get; set; }
-        public DiamondShapeId DiamondShapeId { get; set; }
-        public DiamondShape DiamondShape { get; set; }
+        public DiamondShapeId ShapeId { get; set; }
+        public DiamondShape Shape { get; set; }
+        public PromoReqShape() { }
     }
 }

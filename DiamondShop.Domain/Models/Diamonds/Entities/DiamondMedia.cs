@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.Diamonds.Entities
 {
-    public class DiamondMedia : Entity<DiamondMediaId>
+  /*  public class DiamondMedia : Entity<DiamondMediaId>
     {   
         public DiamondId DiamondId { get; set; }
         public string MediaName { get; set; }
         public string MediaPath { get; set; }
-    }
+    }*/
 }

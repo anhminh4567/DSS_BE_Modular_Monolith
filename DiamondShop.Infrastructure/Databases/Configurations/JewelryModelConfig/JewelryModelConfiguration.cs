@@ -20,9 +20,13 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
                 .HasConversion(
                     Id => Id.Value,
                     dbValue => JewelryModelId.Parse(dbValue));
+            builder.Property(o => o.CategoryId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => JewelryModelCategoryId.Parse(dbValue));
             builder.HasOne(o => o.Category).WithOne().HasForeignKey<JewelryModel>(p => p.CategoryId);
-            builder.HasMany(o => o.MainDiamonds).WithOne().HasForeignKey(o => o.JewelryModelId).IsRequired();
-            builder.HasMany(o => o.SideDiamonds).WithOne().HasForeignKey(o => o.JewelryModelId).IsRequired();
+            builder.HasMany(o => o.MainDiamonds).WithOne().HasForeignKey(p => p.ModelId).IsRequired();
+            builder.HasMany(o => o.SideDiamonds).WithOne().HasForeignKey(p => p.ModelId).IsRequired();
             /*builder.HasMany(o => o.Medias).WithOne().HasForeignKey(o => o.ModelId);*/
             builder.Property(o => o.Width).IsRequired(false);
             builder.Property(o => o.Length).IsRequired(false);

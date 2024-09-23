@@ -11,11 +11,12 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
 {
     public class MainDiamondShape
     {
-        public MainDiamondId MainDiamondId { get; set; }
-        public MainDiamond MainDiamond { get; set; }
-        public DiamondShapeId DiamondShapeId { get; set; }
-        public DiamondShape DiamondShape { get; set; }
+        public MainDiamondReqId MainDiamondReqId { get; set; }
+        public MainDiamondReq MainDiamondReq { get; set; }
+        public DiamondShapeId ShapeId { get; set; }
+        public DiamondShape Shape { get; set; }
         public float CaratFrom { get; set; }
         public float CaratTo { get; set; }
+        public MainDiamondShape() { }
     }
 }

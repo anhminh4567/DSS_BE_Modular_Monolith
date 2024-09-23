@@ -67,12 +67,12 @@ namespace DiamondShop.Infrastructure.Databases
         public DbSet<DiamondShape> DiamondShapes { get; set; }
         public DbSet<Jewelry> Jewelrys { get; set; }
         public DbSet<JewelryReview> JewelryReviews { get; set; }
-        public DbSet<JewelryReviewMedia> JewelryReviewMedias { get; set; }
+       
         public DbSet<JewelrySideDiamond> JewelrySideDiamonds { get; set; }
         public DbSet<JewelryWarranty> JewelryWarrantys { get; set; }
-        public DbSet<MainDiamond> MainDiamonds { get; set; }
+        public DbSet<MainDiamondReq> MainDiamonds { get; set; }
         public DbSet<MainDiamondShape> MainDiamondShapes { get; set; }
-        public DbSet<SideDiamond> SideDiamonds { get; set; }
+        public DbSet<SideDiamondOpt> SideDiamondOpts { get; set; }
         public DbSet<SideDiamondReq> SideDiamondReqs { get; set; }
         public DbSet<JewelryModelCategory> JewelryModelCategories { get; set; }
         public DbSet<JewelryModel> JewelryModels { get; set; }
@@ -83,7 +83,6 @@ namespace DiamondShop.Infrastructure.Databases
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
-        public DbSet<OrderItemDetail> OrderItemDetails { get; set; }
         public DbSet<Discount> Discounts { get; set; }
         public DbSet<Gift> Gifts { get; set; }
         public DbSet<PromoReq> PromoReqs { get; set; }
@@ -109,9 +108,9 @@ namespace DiamondShop.Infrastructure.Databases
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            /*System.Diagnostics.Debugger.Launch();*/
             IdentityConfiguration.ApplyIdentityConfiguration(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(DiamondShopDbContext).Assembly);
-            
         }
 
     }

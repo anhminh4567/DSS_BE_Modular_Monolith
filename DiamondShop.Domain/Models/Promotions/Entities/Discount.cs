@@ -17,5 +17,6 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public bool IsActive { get; set; }
         public string DiscountCode { get; set; }
         public int DiscountPercent { get; set; }
+        public Discount() { }
     }
 }

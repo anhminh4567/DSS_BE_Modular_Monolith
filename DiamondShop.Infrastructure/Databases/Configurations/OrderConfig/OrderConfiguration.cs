@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
+using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.Transactions.ValueObjects;
 
 namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
 {
@@ -20,7 +22,14 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
                 .HasConversion(
                     o => o.Value,
                     dbValue => OrderId.Parse(dbValue));
-            builder.HasOne(o => o.Account).WithOne().HasForeignKey<Order>(o => o.AccountId).IsRequired();
+            builder.Property(o => o.AccountId).HasConversion(
+                o => o.Value,
+                dbValue => AccountId.Parse(dbValue));
+            builder.Property(o => o.TransactionId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => TransactionId.Parse(dbValue));
+            builder.HasOne(o => o.Account).WithMany().HasForeignKey(o => o.AccountId).IsRequired();
             builder.Property(o => o.Status).HasConversion<string>();
             builder.Property(o => o.PaymentStatus).HasConversion<string>();
             builder.HasOne(o => o.Transaction).WithMany(p => p.Orders).HasForeignKey(o => o.TransactionId).IsRequired(false);

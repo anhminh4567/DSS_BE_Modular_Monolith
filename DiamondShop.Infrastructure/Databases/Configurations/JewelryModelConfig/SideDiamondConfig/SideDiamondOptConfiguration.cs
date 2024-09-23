@@ -10,16 +10,19 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig.SideDiamondConfig
 {
-    internal class SideDiamondConfiguration : IEntityTypeConfiguration<SideDiamond>
+    internal class SideDiamondOptConfiguration : IEntityTypeConfiguration<SideDiamondOpt>
     {
-        public void Configure(EntityTypeBuilder<SideDiamond> builder)
+        public void Configure(EntityTypeBuilder<SideDiamondOpt> builder)
         {
-            builder.ToTable("SideDiamond");
+            builder.ToTable("SideDiamondOpt");
             builder.Property(o => o.Id)
                .HasConversion(
                    Id => Id.Value,
-                   dbValue => SideDiamondId.Parse(dbValue));
-            builder.HasMany(o => o.SideDiamondReqs).WithOne().HasForeignKey(p => p.SideDiamondId).IsRequired();
+                   dbValue => SideDiamondOptId.Parse(dbValue));
+            builder.Property(o => o.SideDiamondReqId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => SideDiamondReqId.Parse(dbValue));
             builder.HasKey(o => o.Id);
         }
     }

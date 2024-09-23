@@ -16,5 +16,6 @@ namespace DiamondShop.Domain.Models.News
         public string Content { get; set; }
         public PriorityLevel PriorityLevel { get; set; }
         public DateTime CreatedDate { get; set; }
+        public News() { }
     }
 }

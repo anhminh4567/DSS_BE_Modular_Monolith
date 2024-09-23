@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
+using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -20,6 +21,22 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryConfig
                 .HasConversion(
                     o => o.Value,
                     dbValue => JewelryId.Parse(dbValue));
+            builder.Property(o => o.ModelId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => JewelryModelId.Parse(dbValue));
+            builder.Property(o => o.SizeId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => SizeId.Parse(dbValue));
+            builder.Property(o => o.MetalId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => MetalId.Parse(dbValue));
+            builder.Property(o => o.ReviewId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => JewelryReviewId.Parse(dbValue));
             builder.HasMany(o => o.Diamonds).WithOne().HasForeignKey(p => p.JewelryId);
             builder.HasOne(o => o.Model).WithOne().HasForeignKey<Jewelry>(o => o.ModelId);
             builder.HasOne(o => o.Size).WithOne().HasForeignKey<Jewelry>(o => o.SizeId);

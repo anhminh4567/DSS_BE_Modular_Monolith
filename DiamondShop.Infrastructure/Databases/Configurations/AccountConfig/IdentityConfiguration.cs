@@ -18,12 +18,13 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.AccountConfig
             builder.Entity<CustomIdentityUserToken>().ToTable("UserToken");
             builder.Entity<CustomIdentityUser>(b =>
             {
+                //Test declare primary key
+                /*b.HasKey(e => e.Id);*/
                 // Each User can have many UserClaims
                 b.HasMany(e => e.UserClaims)
                     .WithOne()
                     .HasForeignKey(uc => uc.UserId)
                     .IsRequired();
-
                 // Each User can have many UserLogins
                 b.HasMany(e => e.UserLogins)
                     .WithOne()

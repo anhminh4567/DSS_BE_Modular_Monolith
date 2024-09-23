@@ -23,6 +23,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.AccountConfig
             builder.OwnsOne(o => o.FullName,
                 fullname =>
                 {
+                    fullname.WithOwner();
                     fullname.Property(n => n.FirstName).HasColumnName("FirstName");  // Maps to FirstName column
                     fullname.Property(n => n.LastName).HasColumnName("LastName");
                     fullname.Ignore(n => n.Value);

@@ -19,6 +19,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryConfig
                 .HasConversion(
                 o => o.Value,
                 dbValue => JewelrySideDiamondId.Parse(dbValue));
+            builder.Property(o => o.JewelryId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => JewelryId.Parse(dbValue));
             builder.Property(o => o.ColorMin).HasConversion<string>();
             builder.Property(o => o.ColorMax).HasConversion<string>();
             builder.Property(o => o.ClarityMin).HasConversion<string>();

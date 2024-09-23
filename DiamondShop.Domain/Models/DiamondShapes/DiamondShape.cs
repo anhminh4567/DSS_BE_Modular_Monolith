@@ -12,6 +12,7 @@ namespace DiamondShop.Domain.Models.DiamondShapes
     public class DiamondShape : Entity<DiamondShapeId> , IAggregateRoot
     {
         public string Shape { get; private set; }
+        public DiamondShape() { }
         public static DiamondShape Create(string shape)
         {
             return new DiamondShape() 

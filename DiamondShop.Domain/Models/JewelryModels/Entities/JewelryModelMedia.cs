@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.JewelryModels.Entities
 {
-    public class JewelryModelMedia : Entity<JewelryModelMediaId>
+    /*public class JewelryModelMedia : Entity<JewelryModelMediaId>
     {
         public JewelryModelId ModelId { get; set; }
         public MetalId MetalId { get; set; }
         public string MediaName { get; set; }
         public string MediaPath { get; set; }
         public MainDiamond MainDiamond { get; set; }
-    }
+    }*/
 }

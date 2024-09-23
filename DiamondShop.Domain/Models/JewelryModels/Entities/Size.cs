@@ -12,5 +12,6 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
     {
         public string Unit { get; set; }
         public float Value { get; set; }
+        public Size() { }
     }
 }

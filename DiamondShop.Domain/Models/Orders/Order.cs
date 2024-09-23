@@ -36,5 +36,6 @@ namespace DiamondShop.Domain.Models.Orders
         public List<OrderLog> Logs { get; set; }
         public TransactionId? TransactionId { get; set; }
         public Transaction? Transaction { get; set; }
+        public Order() { }
     }
 }

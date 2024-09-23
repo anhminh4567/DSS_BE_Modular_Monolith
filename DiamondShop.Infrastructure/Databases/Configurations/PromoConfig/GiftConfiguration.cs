@@ -19,6 +19,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.PromoConfig
                 .HasConversion(
                     o => o.Value,
                     dbValue => GiftId.Parse(dbValue));
+            builder.Property(o => o.PromotionId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => PromotionId.Parse(dbValue));
             builder.Property(o => o.TargetType).HasConversion<string>();
             builder.Property(o => o.UnitType).HasConversion<string>();
             builder.HasKey(o => o.Id);

@@ -19,6 +19,14 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.TransactionConfig
                 .HasConversion(
                     o => o.Value,
                     dbValue => TransactionId.Parse(dbValue));
+            builder.Property(o => o.PayMethodId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => PaymentMethodId.Parse(dbValue));
+            builder.Property(o => o.RefundedTransacId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => TransactionId.Parse(dbValue));
             builder.Property(o => o.TransactionType).HasConversion<string>();
             builder.HasOne(o => o.PayMethod).WithOne().HasForeignKey<Transaction>(o => o.PayMethodId).IsRequired();
             builder.HasOne(o => o.RefundedTransac).WithOne().HasForeignKey<Transaction>(o => o.RefundedTransacId).IsRequired(false);

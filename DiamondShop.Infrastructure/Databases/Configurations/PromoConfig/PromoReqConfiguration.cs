@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
+using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 
 namespace DiamondShop.Infrastructure.Databases.Configurations.PromoConfig
 {
@@ -19,8 +20,20 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.PromoConfig
                 .HasConversion(
                     o => o.Value,
                     dbValue => PromoReqId.Parse(dbValue));
+            builder.Property(o => o.PromotionId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => PromotionId.Parse(dbValue));
+            builder.Property(o => o.DiscountId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => DiscountId.Parse(dbValue));
+            builder.Property(o => o.ModelId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => JewelryModelId.Parse(dbValue));
             builder.HasOne(o => o.Discount).WithMany().HasForeignKey(o => o.DiscountId).IsRequired();
-            builder.HasOne(o => o.JewelryModel).WithMany().HasForeignKey(o => o.JewelryModelId).IsRequired(false);
+            builder.HasOne(o => o.Model).WithMany().HasForeignKey(o => o.ModelId).IsRequired(false);
             builder.Property(o => o.TargetType).HasConversion<string>();
             builder.Property(o => o.Operator).HasConversion<string>();
             builder.Property(o => o.DiamondOrigin).HasConversion<string>();
