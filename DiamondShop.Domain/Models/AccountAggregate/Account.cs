@@ -9,6 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Localization;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
+using DiamondShop.Domain.Models.Blogs;
+using DiamondShop.Domain.Models.Jewelries.Entities;
+using DiamondShop.Domain.Models.Orders;
 
 namespace DiamondShop.Domain.Models.AccountAggregate
 {
@@ -19,7 +22,11 @@ namespace DiamondShop.Domain.Models.AccountAggregate
         public List<Address> Addresses { get; private set; }
         public FullName FullName { get; private set; }
         public string Email { get; private set; }
-        
+
+        public List<Blog> Blogs { get; private set; }
+        public List<JewelryReview> JewelryReviews { get; private set; }
+        public List<Order> Orders { get; private set; }
+
         private Account(AccountId accountId, FullName fullName, string email) : base(accountId)
         {
             FullName = fullName;

@@ -11,21 +11,19 @@ namespace DiamondShop.Domain.Models.DiamondShapes
 {
     public class DiamondShape : Entity<DiamondShapeId> , IAggregateRoot
     {
-        public string ShapeName { get; private set; }
-        public string? IconPath { get; private set; }
-        public static DiamondShape Create(string shapeName, string? relativeIconPath)
+        public string Shape { get; private set; }
+        public DiamondShape() { }
+        public static DiamondShape Create(string shape)
         {
             return new DiamondShape() 
             {
                 Id = DiamondShapeId.Create(),
-                ShapeName = shapeName,
-                IconPath = relativeIconPath
+                Shape = shape
             };
         }
-        public void Update(string? shapeName, string? relativeIconPath)
+        public void Update(string shape)
         {
-            ShapeName = shapeName == null ? ShapeName : shapeName;
-            IconPath = relativeIconPath == null ? IconPath : relativeIconPath;
+            Shape = shape;
         }
     }
 }

@@ -94,6 +94,1034 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.ToTable("Address", (string)null);
                 });
 
+            modelBuilder.Entity("DiamondShop.Domain.Models.Blogs.Blog", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AccountId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Medias")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Tags")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("Blog", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.DiamondPrices.DiamondPrice", b =>
+                {
+                    b.Property<string>("ShapeId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CriteriaId")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("ShapeId", "CriteriaId");
+
+                    b.HasIndex("CriteriaId");
+
+                    b.ToTable("DiamondPrice", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.DiamondPrices.Entities.DiamondCriteria", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<float>("CaratFrom")
+                        .HasColumnType("real");
+
+                    b.Property<float>("CaratTo")
+                        .HasColumnType("real");
+
+                    b.Property<string>("Clarity")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Cut")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DiamondCriteria", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.DiamondShapes.DiamondShape", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Shape")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Id");
+
+                    b.ToTable("Diamond_Shape", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Diamonds.Diamond", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<float>("Carat")
+                        .HasColumnType("real");
+
+                    b.Property<string>("Clarity")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Culet")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Cut")
+                        .HasColumnType("text");
+
+                    b.Property<float>("Depth")
+                        .HasColumnType("real");
+
+                    b.Property<string>("DiamondShapeId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Fluorescence")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Girdle")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("HasGIACert")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsLabDiamond")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("JewelryId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Measurement")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Polish")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Symmetry")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<float>("Table")
+                        .HasColumnType("real");
+
+                    b.Property<float>("WidthLengthRatio")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiamondShapeId")
+                        .IsUnique();
+
+                    b.HasIndex("Id");
+
+                    b.HasIndex("JewelryId");
+
+                    b.ToTable("Diamond", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Diamonds.Entities.DiamondWarranty", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("EffectiveDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiredDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("WarrantyPath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("WarrantyType")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DiamondWarranty", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Entities.JewelryReview", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AccountId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("AccountId1")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("StarRating")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("AccountId1");
+
+                    b.ToTable("JewelryReview", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Entities.JewelrySideDiamond", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<float>("Carat")
+                        .HasColumnType("real");
+
+                    b.Property<int>("ClarityMax")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ClarityMin")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ColorMax")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ColorMin")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("JewelryId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SettingType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Id");
+
+                    b.HasIndex("JewelryId");
+
+                    b.ToTable("JewelrySideDiamond", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Entities.JewelryWarranty", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("EffectiveDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiredDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("WarrantyPath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Id");
+
+                    b.ToTable("JewelryWarranty", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Jewelry", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsAwaiting")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSold")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("MetalId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModelId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReviewId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SerialCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SizeId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<float>("Weight")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Id");
+
+                    b.HasIndex("MetalId")
+                        .IsUnique();
+
+                    b.HasIndex("ModelId")
+                        .IsUnique();
+
+                    b.HasIndex("SizeId")
+                        .IsUnique();
+
+                    b.ToTable("Jewelry", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.JewelryModelCategory", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsGeneral")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ParentCategoryId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ThumbnailPath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentCategoryId")
+                        .IsUnique();
+
+                    b.ToTable("JewelryModelCategory", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.MainDiamondReq", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModelId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SettingType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ModelId");
+
+                    b.ToTable("MainDiamondReq", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.MainDiamondShape", b =>
+                {
+                    b.Property<string>("MainDiamondReqId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ShapeId")
+                        .HasColumnType("text");
+
+                    b.Property<float>("CaratFrom")
+                        .HasColumnType("real");
+
+                    b.Property<float>("CaratTo")
+                        .HasColumnType("real");
+
+                    b.Property<string>("MainDiamondReqId1")
+                        .HasColumnType("text");
+
+                    b.HasKey("MainDiamondReqId", "ShapeId");
+
+                    b.HasIndex("MainDiamondReqId")
+                        .IsUnique();
+
+                    b.HasIndex("MainDiamondReqId1");
+
+                    b.HasIndex("ShapeId")
+                        .IsUnique();
+
+                    b.ToTable("MainDiamondShape", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.Metal", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Metal", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.SideDiamondOpt", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<float>("CaratWeight")
+                        .HasColumnType("real");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SideDiamondReqId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SideDiamondReqId1")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SideDiamondReqId");
+
+                    b.HasIndex("SideDiamondReqId1");
+
+                    b.ToTable("SideDiamondOpt", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.SideDiamondReq", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClarityMax")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClarityMin")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ColorMax")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ColorMin")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModelId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModelId1")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SettingType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ShapeId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ModelId");
+
+                    b.HasIndex("ModelId1");
+
+                    b.HasIndex("ShapeId")
+                        .IsUnique();
+
+                    b.ToTable("SideDiamondReq", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.Size", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<float>("Value")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Size", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.SizeMetal", b =>
+                {
+                    b.Property<string>("SizeId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MetalId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModelId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("JewelryModelId")
+                        .HasColumnType("text");
+
+                    b.Property<float>("Weight")
+                        .HasColumnType("real");
+
+                    b.HasKey("SizeId", "MetalId", "ModelId");
+
+                    b.HasIndex("JewelryModelId");
+
+                    b.HasIndex("MetalId");
+
+                    b.HasIndex("ModelId");
+
+                    b.ToTable("SizeMetal", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.JewelryModel", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BackType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CategoryId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ChainType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClaspType")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsEngravable")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsRhodiumFinish")
+                        .HasColumnType("boolean");
+
+                    b.Property<float?>("Length")
+                        .HasColumnType("real");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<float?>("Width")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId")
+                        .IsUnique();
+
+                    b.HasIndex("Id");
+
+                    b.ToTable("JewelryModel", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.News.News", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PriorityLevel")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("News", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Notifications.Notification", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AccountId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("OrderId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId")
+                        .IsUnique();
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.ToTable("Notification", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderItem", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DiamondId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DiscountCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("DiscountPercent")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("EngravedFont")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("EngravedText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("JewelryId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OrderId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PromoCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("PromoPercent")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("PurchasedPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiamondId")
+                        .IsUnique();
+
+                    b.HasIndex("JewelryId")
+                        .IsUnique();
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderItem", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderLog", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OrderId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PreviousLogId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("PreviousLogId")
+                        .IsUnique();
+
+                    b.ToTable("OrderLog", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Order", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AccountId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("AccountId1")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("CancelledDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CancelledReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpectedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ShippedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ShippingAddress")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("ShippingFee")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("TotalFine")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("TotalRefund")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("TransactionId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("AccountId1");
+
+                    b.HasIndex("TransactionId");
+
+                    b.ToTable("Order", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Promotions.Entities.Discount", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DiscountCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("DiscountPercent")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Discount", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Promotions.Entities.Gift", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("ItemId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PromotionId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UnitType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UnitValue")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PromotionId");
+
+                    b.ToTable("Gift", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Promotions.Entities.PromoReq", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<float?>("CaratFrom")
+                        .HasColumnType("real");
+
+                    b.Property<float?>("CaratTo")
+                        .HasColumnType("real");
+
+                    b.Property<string>("ClarityFrom")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClarityTo")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ColorFrom")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ColorTo")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CutFrom")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CutTo")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DiamondOrigin")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DiscountId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModelId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Operator")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PromotionId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiscountId");
+
+                    b.HasIndex("ModelId");
+
+                    b.HasIndex("PromotionId");
+
+                    b.ToTable("PromoReq", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Promotions.Entities.PromoReqShape", b =>
+                {
+                    b.Property<string>("PromoReqId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ShapeId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PromoReqId1")
+                        .HasColumnType("text");
+
+                    b.HasKey("PromoReqId", "ShapeId");
+
+                    b.HasIndex("PromoReqId1");
+
+                    b.HasIndex("ShapeId");
+
+                    b.ToTable("PromoReqShape", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Promotions.Promotion", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsExcludeQualifierProduct")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RedemptionMode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Promotion", (string)null);
+                });
+
             modelBuilder.Entity("DiamondShop.Domain.Models.RoleAggregate.AccountRole", b =>
                 {
                     b.Property<string>("Id")
@@ -168,6 +1196,68 @@ namespace DiamondShop.Infrastructure.Migrations
                             RoleName = "admin",
                             RoleType = 1
                         });
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Transactions.Entities.PaymentMethod", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MethodName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MethodThumbnailPath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PaymentMethod", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Transactions.Transaction", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("PayDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PayMethodId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("RefundedTransacId")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("TransactionAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("TransactionCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TransactionType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PayMethodId")
+                        .IsUnique();
+
+                    b.HasIndex("RefundedTransacId")
+                        .IsUnique();
+
+                    b.ToTable("Transaction", (string)null);
                 });
 
             modelBuilder.Entity("DiamondShop.Infrastructure.Identity.Models.CustomIdentityRole", b =>
@@ -468,6 +1558,393 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("DiamondShop.Domain.Models.Blogs.Blog", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", "Account")
+                        .WithMany("Blogs")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.DiamondPrices.DiamondPrice", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.DiamondPrices.Entities.DiamondCriteria", "Criteria")
+                        .WithMany()
+                        .HasForeignKey("CriteriaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.DiamondShapes.DiamondShape", "Shape")
+                        .WithMany()
+                        .HasForeignKey("ShapeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Criteria");
+
+                    b.Navigation("Shape");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Diamonds.Diamond", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.DiamondShapes.DiamondShape", "DiamondShape")
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.Diamonds.Diamond", "DiamondShapeId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.Jewelries.Jewelry", null)
+                        .WithMany("Diamonds")
+                        .HasForeignKey("JewelryId");
+
+                    b.Navigation("DiamondShape");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Diamonds.Entities.DiamondWarranty", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.Diamonds.Diamond", null)
+                        .WithOne("Warranty")
+                        .HasForeignKey("DiamondShop.Domain.Models.Diamonds.Entities.DiamondWarranty", "Id");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Entities.JewelryReview", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", null)
+                        .WithMany("JewelryReviews")
+                        .HasForeignKey("AccountId1");
+
+                    b.HasOne("DiamondShop.Domain.Models.Jewelries.Jewelry", null)
+                        .WithOne("Review")
+                        .HasForeignKey("DiamondShop.Domain.Models.Jewelries.Entities.JewelryReview", "Id");
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Entities.JewelrySideDiamond", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.Jewelries.Jewelry", null)
+                        .WithMany("SideDiamonds")
+                        .HasForeignKey("JewelryId");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Entities.JewelryWarranty", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.Jewelries.Jewelry", null)
+                        .WithOne("Warranty")
+                        .HasForeignKey("DiamondShop.Domain.Models.Jewelries.Entities.JewelryWarranty", "Id");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Jewelry", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.Entities.Metal", "Metal")
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.Jewelries.Jewelry", "MetalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.JewelryModel", "Model")
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.Jewelries.Jewelry", "ModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.Entities.Size", "Size")
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.Jewelries.Jewelry", "SizeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Metal");
+
+                    b.Navigation("Model");
+
+                    b.Navigation("Size");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.JewelryModelCategory", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.Entities.JewelryModelCategory", "ParentCategory")
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.JewelryModels.Entities.JewelryModelCategory", "ParentCategoryId");
+
+                    b.Navigation("ParentCategory");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.MainDiamondReq", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.JewelryModel", null)
+                        .WithMany("MainDiamonds")
+                        .HasForeignKey("ModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.MainDiamondShape", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.Entities.MainDiamondReq", "MainDiamondReq")
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.JewelryModels.Entities.MainDiamondShape", "MainDiamondReqId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.Entities.MainDiamondReq", null)
+                        .WithMany("Shapes")
+                        .HasForeignKey("MainDiamondReqId1");
+
+                    b.HasOne("DiamondShop.Domain.Models.DiamondShapes.DiamondShape", "Shape")
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.JewelryModels.Entities.MainDiamondShape", "ShapeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MainDiamondReq");
+
+                    b.Navigation("Shape");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.SideDiamondOpt", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.Entities.SideDiamondReq", null)
+                        .WithMany("SideDiamondOpts")
+                        .HasForeignKey("SideDiamondReqId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.Entities.SideDiamondReq", "SideDiamondReq")
+                        .WithMany()
+                        .HasForeignKey("SideDiamondReqId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SideDiamondReq");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.SideDiamondReq", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.JewelryModel", null)
+                        .WithMany("SideDiamonds")
+                        .HasForeignKey("ModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.JewelryModel", "Model")
+                        .WithMany()
+                        .HasForeignKey("ModelId1");
+
+                    b.HasOne("DiamondShop.Domain.Models.DiamondShapes.DiamondShape", "Shape")
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.JewelryModels.Entities.SideDiamondReq", "ShapeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Model");
+
+                    b.Navigation("Shape");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.SizeMetal", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.JewelryModel", null)
+                        .WithMany("SizeMetals")
+                        .HasForeignKey("JewelryModelId");
+
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.Entities.Metal", "Metal")
+                        .WithMany()
+                        .HasForeignKey("MetalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.JewelryModel", "Model")
+                        .WithMany()
+                        .HasForeignKey("ModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.Entities.Size", "Size")
+                        .WithMany()
+                        .HasForeignKey("SizeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Metal");
+
+                    b.Navigation("Model");
+
+                    b.Navigation("Size");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.JewelryModel", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.Entities.JewelryModelCategory", "Category")
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.JewelryModels.JewelryModel", "CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Notifications.Notification", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", "Account")
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.Notifications.Notification", "AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.Orders.Order", "Order")
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.Notifications.Notification", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderItem", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.Diamonds.Diamond", "Diamond")
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.Orders.Entities.OrderItem", "DiamondId");
+
+                    b.HasOne("DiamondShop.Domain.Models.Jewelries.Jewelry", "Jewelry")
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.Orders.Entities.OrderItem", "JewelryId");
+
+                    b.HasOne("DiamondShop.Domain.Models.Orders.Order", null)
+                        .WithMany("Items")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Diamond");
+
+                    b.Navigation("Jewelry");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderLog", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.Orders.Order", null)
+                        .WithMany("Logs")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.Orders.Entities.OrderLog", "PreviousLog")
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.Orders.Entities.OrderLog", "PreviousLogId");
+
+                    b.Navigation("PreviousLog");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Order", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", null)
+                        .WithMany("Orders")
+                        .HasForeignKey("AccountId1");
+
+                    b.HasOne("DiamondShop.Domain.Models.Transactions.Transaction", "Transaction")
+                        .WithMany("Orders")
+                        .HasForeignKey("TransactionId");
+
+                    b.Navigation("Account");
+
+                    b.Navigation("Transaction");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Promotions.Entities.Gift", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.Promotions.Promotion", "Promotion")
+                        .WithMany("Gifts")
+                        .HasForeignKey("PromotionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Promotion");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Promotions.Entities.PromoReq", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.Promotions.Entities.Discount", "Discount")
+                        .WithMany()
+                        .HasForeignKey("DiscountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.JewelryModel", "Model")
+                        .WithMany()
+                        .HasForeignKey("ModelId");
+
+                    b.HasOne("DiamondShop.Domain.Models.Promotions.Promotion", "Promotion")
+                        .WithMany("PromoReqs")
+                        .HasForeignKey("PromotionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Discount");
+
+                    b.Navigation("Model");
+
+                    b.Navigation("Promotion");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Promotions.Entities.PromoReqShape", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.Promotions.Entities.PromoReq", "PromoReq")
+                        .WithMany()
+                        .HasForeignKey("PromoReqId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.Promotions.Entities.PromoReq", null)
+                        .WithMany("PromoReqShapes")
+                        .HasForeignKey("PromoReqId1");
+
+                    b.HasOne("DiamondShop.Domain.Models.DiamondShapes.DiamondShape", "Shape")
+                        .WithMany()
+                        .HasForeignKey("ShapeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PromoReq");
+
+                    b.Navigation("Shape");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Transactions.Transaction", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.Transactions.Entities.PaymentMethod", "PayMethod")
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.Transactions.Transaction", "PayMethodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.Transactions.Transaction", "RefundedTransac")
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.Transactions.Transaction", "RefundedTransacId");
+
+                    b.Navigation("PayMethod");
+
+                    b.Navigation("RefundedTransac");
+                });
+
             modelBuilder.Entity("DiamondShop.Infrastructure.Identity.Models.CustomIdentityUserClaims", b =>
                 {
                     b.HasOne("DiamondShop.Infrastructure.Identity.Models.CustomIdentityUser", null)
@@ -524,6 +2001,72 @@ namespace DiamondShop.Infrastructure.Migrations
             modelBuilder.Entity("DiamondShop.Domain.Models.AccountAggregate.Account", b =>
                 {
                     b.Navigation("Addresses");
+
+                    b.Navigation("Blogs");
+
+                    b.Navigation("JewelryReviews");
+
+                    b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Diamonds.Diamond", b =>
+                {
+                    b.Navigation("Warranty")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Jewelry", b =>
+                {
+                    b.Navigation("Diamonds");
+
+                    b.Navigation("Review");
+
+                    b.Navigation("SideDiamonds");
+
+                    b.Navigation("Warranty");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.MainDiamondReq", b =>
+                {
+                    b.Navigation("Shapes");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.SideDiamondReq", b =>
+                {
+                    b.Navigation("SideDiamondOpts");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.JewelryModel", b =>
+                {
+                    b.Navigation("MainDiamonds");
+
+                    b.Navigation("SideDiamonds");
+
+                    b.Navigation("SizeMetals");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Order", b =>
+                {
+                    b.Navigation("Items");
+
+                    b.Navigation("Logs");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Promotions.Entities.PromoReq", b =>
+                {
+                    b.Navigation("PromoReqShapes");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Promotions.Promotion", b =>
+                {
+                    b.Navigation("Gifts");
+
+                    b.Navigation("PromoReqs");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Transactions.Transaction", b =>
+                {
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("DiamondShop.Infrastructure.Identity.Models.CustomIdentityRole", b =>

@@ -7,12 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\Promotion\**" />
+    <EmbeddedResource Remove="Models\Promotion\**" />
+    <None Remove="Models\Promotion\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MediatR" Version="12.4.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="BusinessRules\" />
-    <Folder Include="Models\Promotion\" />
+    <Folder Include="Models\Notifications\Enum\" />
     <Folder Include="Services\" />
   </ItemGroup>
 
