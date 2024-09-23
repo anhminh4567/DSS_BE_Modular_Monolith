@@ -1,17 +1,16 @@
-﻿using DiamondShop.Domain.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BeatvisionRemake.Domain.Common
+namespace DiamondShop.Domain.Common
 {
     public abstract class Entity<TId> : IHasDomainEvent where TId : notnull
     {
 
-        protected Entity(TId id) 
+        protected Entity(TId id)
         {
             Id = id;
         }

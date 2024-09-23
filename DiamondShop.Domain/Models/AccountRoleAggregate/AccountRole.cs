@@ -1,4 +1,4 @@
-﻿using BeatvisionRemake.Domain.Common;
+﻿using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountRoleAggregate;
 using DiamondShop.Domain.Models.AccountRoleAggregate.ValueObjects;

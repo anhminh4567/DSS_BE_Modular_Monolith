@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.DiamondShapes.ValueObjects
 {
-    public record DiamondShapeId ( string value)
+    public record DiamondShapeId ( string Value)
     {
         public static DiamondShapeId Parse(string id)
         {
-            return new DiamondShapeId(id) { value = id };
+            return new DiamondShapeId(id) { Value = id };
         }
         public static DiamondShapeId Create()
         {

@@ -1,5 +1,4 @@
 ﻿using BeatvisionRemake.Application.Services.Interfaces;
-using BeatvisionRemake.Domain.Common;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.RoleAggregate;
@@ -17,7 +16,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BeatvisionRemake.Infrastructure.Services
+namespace DiamondShop.Infrastructure.Services
 {
     internal class JwtTokenProvider : IJwtTokenProvider
     {
@@ -68,7 +67,7 @@ namespace BeatvisionRemake.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError("exception in getting principle in jwt token handler, when trying to parse the principle " +
-                    "from existing access token, with message: {1} ",ex.Message);
+                    "from existing access token, with message: {1} ", ex.Message);
                 return null;
             }
             var jwtSecurityToken = securityToken as JwtSecurityToken;
@@ -82,9 +81,9 @@ namespace BeatvisionRemake.Infrastructure.Services
         public List<Claim> GetUserClaims(List<AccountRole> roles, string email, string identityid, string userId, string fullname)
         {
             var claims = new List<Claim>();
-            foreach(var role in roles)
+            foreach (var role in roles)
             {
-                claims.Add(new Claim(IJwtTokenProvider.ROLE_CLAIM_NAME, role.Id.Value.ToString()) );
+                claims.Add(new Claim(IJwtTokenProvider.ROLE_CLAIM_NAME, role.Id.Value.ToString()));
             }
             claims.Add(new Claim(IJwtTokenProvider.EMAIL_CLAIM_NAME, email));
             claims.Add(new Claim(IJwtTokenProvider.USERNAME_CLAIM_NAME, fullname));
