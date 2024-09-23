@@ -27,6 +27,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         public Clarity Clarity { get; set;}
         public Color Color { get; set;}
         public Cut? Cut { get; set;}
+        public decimal PriceOffset { get; set;}
         public float Carat { get; set; } 
         public bool HasGIACert { get; set;}
         public bool IsLabDiamond { get; set;}
