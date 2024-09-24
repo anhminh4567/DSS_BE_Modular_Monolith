@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Repositories
 {
-    public interface IDiamondCriteria : IBaseRepository<DiamondCriteria>
+    public interface IDiamondCriteriaRepository : IBaseRepository<DiamondCriteria>
     {
     }
 }

@@ -1,4 +1,6 @@
 ﻿using DiamondShop.Application.Commons.PipelineBehavior;
+using DiamondShop.Domain.Services.Implementations;
+using DiamondShop.Domain.Services.interfaces;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +22,12 @@ namespace DiamondShop.Application
                 config.AddOpenBehavior(typeof(ValidationBehavior<,>));
 
             });
-            
+            services.AddDomain(configuration);
+            return services;
+        }
+        private static IServiceCollection AddDomain(this IServiceCollection services, IConfiguration configuration) 
+        {
+            services.AddScoped<IDiamondServices, DiamondServices>();
             return services;
         }
     }

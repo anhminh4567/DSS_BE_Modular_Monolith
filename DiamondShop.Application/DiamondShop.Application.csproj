@@ -13,7 +13,9 @@
 
   <ItemGroup>
     <Folder Include="Dtos\" />
-    <Folder Include="Usecases\Diamonds\" />
+    <Folder Include="Usecases\DiamondPrices\Commands\" />
+    <Folder Include="Usecases\DiamondPrices\Queries\" />
+    <Folder Include="Usecases\Diamonds\Queries\GetAll\" />
   </ItemGroup>
 
   <ItemGroup>

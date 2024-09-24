@@ -1,8 +1,12 @@
 ﻿using DiamondShop.Application.Services.Data;
+using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
 using MediatR;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,18 +18,24 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail
     public record GetDiamondDetail(string diamondId ) : IRequest<Result<Diamond>>;
     internal class GetDiamondDetailQueryHandler : IRequestHandler<GetDiamondDetail, Result<Diamond>>
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IDiamondRepository _diamondRepository;
+        private readonly ILogger<GetDiamondDetail> _logger;
 
-        public GetDiamondDetailQueryHandler(IUnitOfWork unitOfWork, IDiamondRepository diamondRepository)
+        public GetDiamondDetailQueryHandler(IDiamondRepository diamondRepository, ILogger<GetDiamondDetail> logger)
         {
-            _unitOfWork = unitOfWork;
             _diamondRepository = diamondRepository;
+            _logger = logger;
         }
 
-        public Task<Result<Diamond>> Handle(GetDiamondDetail request, CancellationToken cancellationToken)
+        public async Task<Result<Diamond>> Handle(GetDiamondDetail request, CancellationToken cancellationToken)
         {
-            return 
+            _logger.LogDebug("called from getDiamondDetail");
+            var getResult = await _diamondRepository.GetById(DiamondId.Parse(request.diamondId));
+            if (getResult == null)
+            {
+                return Result.Fail(new NotFoundError());
+            }
+            return Result.Ok(getResult);
         }
     }
 }
