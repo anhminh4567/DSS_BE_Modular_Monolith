@@ -1080,6 +1080,23 @@ namespace DiamondShop.Infrastructure.Migrations
                     { "4", "customer_gold", "customer_gold", 0 }
                 });
 
+            migrationBuilder.InsertData(
+                table: "Diamond_Shape",
+                columns: new[] { "Id", "Shape" },
+                values: new object[,]
+                {
+                    { "1", "Round" },
+                    { "10", "Pear" },
+                    { "2", "Princess" },
+                    { "3", "Cushion" },
+                    { "4", "Emerald" },
+                    { "5", "Oval" },
+                    { "6", "Radiant" },
+                    { "7", "Asscher" },
+                    { "8", "Marquise" },
+                    { "9", "Heart" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Account_Id",
                 table: "Account",

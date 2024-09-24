@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiamondShop.Infrastructure.Migrations
 {
     [DbContext(typeof(DiamondShopDbContext))]
-    [Migration("20240924035647_Initial")]
+    [Migration("20240924054330_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -190,6 +190,58 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.HasIndex("Id");
 
                     b.ToTable("Diamond_Shape", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "1",
+                            Shape = "Round"
+                        },
+                        new
+                        {
+                            Id = "2",
+                            Shape = "Princess"
+                        },
+                        new
+                        {
+                            Id = "3",
+                            Shape = "Cushion"
+                        },
+                        new
+                        {
+                            Id = "4",
+                            Shape = "Emerald"
+                        },
+                        new
+                        {
+                            Id = "5",
+                            Shape = "Oval"
+                        },
+                        new
+                        {
+                            Id = "6",
+                            Shape = "Radiant"
+                        },
+                        new
+                        {
+                            Id = "7",
+                            Shape = "Asscher"
+                        },
+                        new
+                        {
+                            Id = "8",
+                            Shape = "Marquise"
+                        },
+                        new
+                        {
+                            Id = "9",
+                            Shape = "Heart"
+                        },
+                        new
+                        {
+                            Id = "10",
+                            Shape = "Pear"
+                        });
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Diamonds.Diamond", b =>
@@ -2019,8 +2071,7 @@ namespace DiamondShop.Infrastructure.Migrations
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Diamonds.Diamond", b =>
                 {
-                    b.Navigation("Warranty")
-                        .IsRequired();
+                    b.Navigation("Warranty");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Jewelry", b =>

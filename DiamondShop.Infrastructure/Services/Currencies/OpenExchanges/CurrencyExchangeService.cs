@@ -8,7 +8,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Infrastructure.Services.Currencies
+namespace DiamondShop.Infrastructure.Services.Currencies.OpenExchanges
 {
 
     public class CurrencyExchangeService
@@ -19,10 +19,10 @@ namespace DiamondShop.Infrastructure.Services.Currencies
         public static string Url = "https://openexchangerates.org";
         public async Task<Result> ConvertCurrency(Money source)
         {
-            using (var httpClient = new  HttpClient()) 
+            using (var httpClient = new HttpClient())
             {
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                httpClient.DefaultRequestHeaders.Add("Authorization","Token "+APP_ID);
+                httpClient.DefaultRequestHeaders.Add("Authorization", "Token " + APP_ID);
                 var httpRequest = new HttpRequestMessage(HttpMethod.Get, new Uri($"{Url}/api/convert/{source.Value}/{VND}/{USD}"));
                 var response = await httpClient.SendAsync(httpRequest);
                 if (response.IsSuccessStatusCode)

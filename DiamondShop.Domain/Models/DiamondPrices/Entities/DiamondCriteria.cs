@@ -16,6 +16,22 @@ namespace DiamondShop.Domain.Models.DiamondPrices.Entities
         public Color Color { get; set; }
         public float CaratFrom { get; set; }
         public float CaratTo { get; set; }
-        public DiamondCriteria() { }
+        public static DiamondCriteria Create(Cut cut, Clarity clarity, Color color, float fromCarat ,float toCarat)
+        {
+            if(fromCarat > toCarat)
+            {
+                throw new ArgumentException("from carat is greater than to carat");
+            }
+            return new DiamondCriteria
+            {
+                Id = DiamondCriteriaId.Create(),
+                Cut = cut,
+                Clarity = clarity,
+                Color = color,
+                CaratFrom = fromCarat,
+                CaratTo = toCarat,
+            };
+        }
+        private DiamondCriteria() { }
     }
 }
