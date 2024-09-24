@@ -13,6 +13,9 @@ namespace DiamondShop.Domain.Repositories
 
         Task<TEntity> GetById( params object[] ids);
         IQueryable<TEntity> GetQuery();
+        IQueryable<TEntity> QueryFilter(IQueryable<TEntity> query, Expression<Func<TEntity, bool>> filter = null);
+        IQueryable<TEntity> QueryOrderBy(IQueryable<TEntity> query, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null);
+
         Task Create(TEntity entity, CancellationToken token = default);
         Task Update(TEntity entity, CancellationToken token = default);
         Task Delete(TEntity entity, CancellationToken token = default);

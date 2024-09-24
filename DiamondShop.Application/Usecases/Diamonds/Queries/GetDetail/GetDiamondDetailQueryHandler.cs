@@ -19,11 +19,13 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail
     internal class GetDiamondDetailQueryHandler : IRequestHandler<GetDiamondDetail, Result<Diamond>>
     {
         private readonly IDiamondRepository _diamondRepository;
+        private readonly IDiamondPriceRepository _diamondPriceRepository;
         private readonly ILogger<GetDiamondDetail> _logger;
 
-        public GetDiamondDetailQueryHandler(IDiamondRepository diamondRepository, ILogger<GetDiamondDetail> logger)
+        public GetDiamondDetailQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, ILogger<GetDiamondDetail> logger)
         {
             _diamondRepository = diamondRepository;
+            _diamondPriceRepository = diamondPriceRepository;
             _logger = logger;
         }
 

@@ -19,10 +19,11 @@ namespace DiamondShop.Application.Usecases.DiamondShapes.Queries.GetAll
             _diamondShapeRepository = diamondShapeRepository;
         }
 
-        public async Task<List<DiamondShape>> IRequestHandler<GetAllDiamondShapeQuery, List<DiamondShape>>.Handle(GetAllDiamondShapeQuery request, CancellationToken cancellationToken)
+        public async Task<List<DiamondShape>> Handle(GetAllDiamondShapeQuery request, CancellationToken cancellationToken)
         {
             var query = _diamondShapeRepository.GetQuery();
-            return  query.ToList();
+            return query.ToList();
+            //throw new NotImplementedException();
         }
     }
 }
