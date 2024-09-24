@@ -753,6 +753,7 @@ namespace DiamondShop.Infrastructure.Migrations
                     Clarity = table.Column<string>(type: "text", nullable: false),
                     Color = table.Column<string>(type: "text", nullable: false),
                     Cut = table.Column<string>(type: "text", nullable: true),
+                    PriceOffset = table.Column<decimal>(type: "numeric", nullable: false),
                     Carat = table.Column<float>(type: "real", nullable: false),
                     HasGIACert = table.Column<bool>(type: "boolean", nullable: false),
                     IsLabDiamond = table.Column<bool>(type: "boolean", nullable: false),

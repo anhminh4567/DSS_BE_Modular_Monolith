@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiamondShop.Infrastructure.Migrations
 {
     [DbContext(typeof(DiamondShopDbContext))]
-    [Migration("20240923040303_Initial")]
+    [Migration("20240924035647_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -246,6 +246,9 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<string>("Polish")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<decimal>("PriceOffset")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("Symmetry")
                         .IsRequired()
@@ -1554,11 +1557,13 @@ namespace DiamondShop.Infrastructure.Migrations
 
             modelBuilder.Entity("DiamondShop.Domain.Models.AccountAggregate.Entities.Address", b =>
                 {
-                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", null)
+                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", "Account")
                         .WithMany("Addresses")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Blogs.Blog", b =>
