@@ -244,6 +244,9 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<decimal>("PriceOffset")
+                        .HasColumnType("numeric");
+
                     b.Property<string>("Symmetry")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1551,11 +1554,13 @@ namespace DiamondShop.Infrastructure.Migrations
 
             modelBuilder.Entity("DiamondShop.Domain.Models.AccountAggregate.Entities.Address", b =>
                 {
-                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", null)
+                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", "Account")
                         .WithMany("Addresses")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Blogs.Blog", b =>
