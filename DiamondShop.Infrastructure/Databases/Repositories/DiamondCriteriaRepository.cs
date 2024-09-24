@@ -14,5 +14,11 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         public DiamondCriteriaRepository(DiamondShopDbContext dbContext) : base(dbContext)
         {
         }
+
+        public Task CreateMany(List<DiamondCriteria> diamondCriterias)
+        {
+            return _set.AddRangeAsync(diamondCriterias);
+
+        }
     }
 }

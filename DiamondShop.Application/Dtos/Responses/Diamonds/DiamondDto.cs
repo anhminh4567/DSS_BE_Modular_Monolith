@@ -13,6 +13,7 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
 {
     public class DiamondDto
     {
+        public string Id { get; set; }
         public string? JewelryId { get; set; }
         public string DiamondShapeId { get; set; }
         public DiamondShapeDto DiamondShape { get; set; }

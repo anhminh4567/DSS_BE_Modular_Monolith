@@ -16,17 +16,17 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         public DiamondShapeRepository(DiamondShopDbContext dbContext) : base(dbContext)
         {
         }
-        public override Task<DiamondShape?> GetById(params object[] ids)
+        public override async Task<DiamondShape?> GetById(params object[] ids)
         {
             DiamondShapeId id = (DiamondShapeId)ids[0];
-            return _set.Include(d => d.Shape).FirstOrDefaultAsync(s => s.Id.Value == id.Value);
+            return await _set.FirstOrDefaultAsync(s => s.Id == id);
         }
-        public async Task<bool> IsAnyItemHaveThisShape(DiamondShapeId diamondShapeId)
+        public async Task<bool> IsAnyItemHaveThisShape(DiamondShapeId diamondShapeId, CancellationToken cancellationToken = default)
         {
-            var anyPrice = _dbContext.DiamondPrices.AnyAsync(p => p.ShapeId.Equals(diamondShapeId));
-            var anyDiamond = _dbContext.MainDiamondShapes.AnyAsync(p => p.ShapeId.Equals(diamondShapeId));
-            var anySideDiamond = _dbContext.SideDiamondReqs.AnyAsync(p => p.ShapeId.Equals(diamondShapeId));
-            var anyPromoShape = _dbContext.PromoReqShapes.AnyAsync(p => p.ShapeId.Equals(diamondShapeId));
+            var anyPrice = _dbContext.DiamondPrices.AnyAsync(p => p.ShapeId.Equals(diamondShapeId), cancellationToken);
+            var anyDiamond = _dbContext.MainDiamondShapes.AnyAsync(p => p.ShapeId.Equals(diamondShapeId), cancellationToken);
+            var anySideDiamond = _dbContext.SideDiamondReqs.AnyAsync(p => p.ShapeId.Equals(diamondShapeId), cancellationToken);
+            var anyPromoShape = _dbContext.PromoReqShapes.AnyAsync(p => p.ShapeId.Equals(diamondShapeId), cancellationToken);
             var results =await Task.WhenAll(anyPrice, anyDiamond, anySideDiamond, anyPromoShape);
             foreach(var isOk in results) 
             {

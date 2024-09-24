@@ -9,5 +9,6 @@ namespace DiamondShop.Domain.Repositories
 {
     public interface IDiamondCriteriaRepository : IBaseRepository<DiamondCriteria>
     {
+        Task CreateMany(List<DiamondCriteria> diamondCriterias);
     }
 }

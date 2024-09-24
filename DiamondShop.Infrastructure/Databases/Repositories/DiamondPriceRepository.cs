@@ -1,5 +1,7 @@
 ﻿using DiamondShop.Domain.Models.DiamondPrices;
+using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -18,7 +20,17 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         {
             _cache = cache;
         }
-        public override async Task<IEnumerable<DiamondPrice>> GetAll(CancellationToken token = default)
+        public override Task<DiamondPrice?> GetById(params object[] ids)
+        {
+            DiamondShapeId shapeId = (DiamondShapeId) ids[0];
+            DiamondCriteriaId criteriaId  = (DiamondCriteriaId)ids[1];
+            return _set.FirstOrDefaultAsync(d => d.CriteriaId == criteriaId && d.ShapeId == shapeId);
+        }
+        public Task<DiamondPrice?> GetById(DiamondShapeId shapeId, DiamondCriteriaId criteriaId, CancellationToken cancellationToken = default)
+        {
+            return _set.Include(p => p.Criteria).Include(p => p.Shape).FirstOrDefaultAsync(d => d.CriteriaId == criteriaId && d.ShapeId == shapeId,cancellationToken);
+        }
+        public override async Task<List<DiamondPrice>> GetAll(CancellationToken token = default)
         {
             var getFromDb = await _dbContext.DiamondPrices.Include(p => p.Criteria).ToListAsync() ;
             return getFromDb;
@@ -47,6 +59,11 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                 return get;
             }
             return tryGet;
+        }
+
+        public Task CreateMany(List<DiamondPrice> prices)
+        {
+            return _set.AddRangeAsync(prices);
         }
     }
 }

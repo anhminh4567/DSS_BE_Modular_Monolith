@@ -1,5 +1,7 @@
-﻿using DiamondShop.Application.Commons.Constants;
+﻿using DiamondShop.Application.Commons;
 using DiamondShop.Application.Dtos.Responses.Diamonds;
+using DiamondShop.Domain.Models.DiamondPrices;
+using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Entities;
 using DiamondShop.Domain.Models.DiamondShapes;
@@ -19,16 +21,26 @@ namespace DiamondShop.Application.Mappers
         {
             config.NewConfig<Diamond, DiamondDto>()
                 .Map(dest => dest.DiamondShapeId, src => src.DiamondShapeId.Value)
-                .Map(dest => dest.JewelryId, src => src.JewelryId.Value);
+                .Map(dest => dest.JewelryId, src => src.JewelryId.Value)
+                .Map(dest => dest.Id, src => src.Id.Value);
+
 
             config.NewConfig<DiamondShape, DiamondShapeDto>()
-                .Map(dest => dest.ShapeName, src => src.Shape);
+                .Map(dest => dest.ShapeName, src => src.Shape)
+                .Map(dest => dest.Id, src => src.Id.Value);
+
             config.NewConfig<DiamondWarranty, DiamondWarrantyDto>()
                 .Map(dest => dest.CreatedDate, src => src.CreatedDate.ToString(DateTimeResponseFormat.DATE_TIME_FORMAT))
                 .Map(dest => dest.ExpiredDate, src => src.ExpiredDate.ToString(DateTimeResponseFormat.DATE_TIME_FORMAT))
                 .Map(dest => dest.EffectiveDate, src => src.EffectiveDate.ToString(DateTimeResponseFormat.DATE_TIME_FORMAT))
                 .Map(dest => dest.WarrantyType, src => src.WarrantyType.ToString());
 
+            config.NewConfig<DiamondCriteria, DiamondCriteriaDto>()
+                .Map(dest => dest.Id, src => src.Id.Value);
+
+            config.NewConfig<DiamondPrice, DiamondPriceDto>()
+                .Map(dest => dest.ShapeId, src => src.ShapeId.Value)
+                .Map(dest => dest.CriteriaId, src => src.CriteriaId.Value);
 
         }
     }

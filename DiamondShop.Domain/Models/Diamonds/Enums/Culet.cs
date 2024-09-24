@@ -8,6 +8,6 @@ namespace DiamondShop.Domain.Models.Diamonds.Enums
 {
     public enum Culet
     {
-        None, Very_Small, Small, Medium, Slightly_Large, Large, Very_Large, Extremely_Large
+        None = 1, Very_Small = 2, Small = 3, Medium = 4, Slightly_Large = 5, Large = 6 , Very_Large = 7, Extremely_Large = 8
     }
 }
