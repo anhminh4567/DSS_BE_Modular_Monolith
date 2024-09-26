@@ -30,7 +30,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             _logger = logger;
         }
 
-        public static async Task GetBanks()
+        public static async Task<Dictionary<string, List<ZalopayBankDTO>>> GetBanks()
         {
             var reqtime = ZalopayUtils.GetTimeStamp().ToString();
 
@@ -53,25 +53,32 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                     Console.WriteLine("{0}. {1} - {2}", pmcid, bank.bankcode, bank.name);
                 }
             }
+            return result.banks;
         }
-        public static async Task CreateOrder()
+        public static async Task<Dictionary<string, object>> CreateOrder(ZalopayCreateOrderBody body, string redirectUrl, string callbackUrl)
         {
             Random rnd = new Random();
-            var embed_data = new { };
-            var items = new[] { new { } };
+            //var embed_data = new { };
+            //var items = new[] { new { } };
+            var embed_data = new ZalopayEmbeddedData
+            {
+                columninfo = "",
+                redirecturl = redirectUrl,
+                preferred_payment_method = ["domestic_card", "account"],
+            };
             var param = new Dictionary<string, string>();
-            var app_trans_id = rnd.Next(1000000); // Generate a random order's ID.
+            var app_trans_id = DateTime.UtcNow.ToString("yyyyMMddHHmmSS"); //rnd.Next(100000000); // Generate a random order's ID.
 
             param.Add("app_id", appid);
-            param.Add("app_user", "user123");
+            param.Add("app_user", body.app_user);
             param.Add("app_time", ZalopayUtils.GetTimeStamp().ToString());
             param.Add("amount", "50000");
             param.Add("app_trans_id", DateTime.Now.ToString("yyMMdd") + "_" + app_trans_id); // mã giao dich có định dạng yyMMdd_xxxx
             param.Add("embed_data", JsonConvert.SerializeObject(embed_data));
-            param.Add("item", JsonConvert.SerializeObject(items));
+            param.Add("item", JsonConvert.SerializeObject(body.item));
             param.Add("description", "Lazada - Thanh toán đơn hàng #" + app_trans_id);
-            param.Add("bank_code", "zalopayapp");
-
+            param.Add("bank_code", "" );
+            param.Add("callback_url", callbackUrl);
             var data = appid + "|" + param["app_trans_id"] + "|" + param["app_user"] + "|" + param["amount"] + "|"
                 + param["app_time"] + "|" + param["embed_data"] + "|" + param["item"];
             param.Add("mac", HmacHelper.Compute(ZaloPayHMAC.HMACSHA256, key1, data));
@@ -82,6 +89,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             {
                 Console.WriteLine("{0} = {1}", entry.Key, entry.Value);
             }
+            return result;
         }
         public async Task<Dictionary<string, object>> Callback()
         {
@@ -128,7 +136,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             // thông báo kết quả cho ZaloPay server
             return result;
         }
-        public static async Task GetTransactionDetail(string app_transaction_id)
+        public static async Task<Dictionary<string,object>> GetTransactionDetail(string app_transaction_id)
         {
            // var app_trans_id = "<app_trans_id>";  // Input your app_trans_id
 
@@ -145,6 +153,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             {
                 Console.WriteLine("{0} = {1}", entry.Key, entry.Value);
             }
+            return result;
         }
     }
 }
