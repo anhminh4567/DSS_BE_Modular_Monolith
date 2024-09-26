@@ -27,6 +27,7 @@ using DiamondShop.Infrastructure.Outbox;
 using DiamondShop.Infrastructure.Databases.Interceptors;
 using Quartz;
 using DiamondShop.Infrastructure.Services.Payments.Paypals;
+using DiamondShop.Infrastructure.Services.Payments.Zalopays;
 
 namespace DiamondShop.Infrastructure
 {
@@ -132,6 +133,7 @@ namespace DiamondShop.Infrastructure
         internal static IServiceCollection AddPayments(this IServiceCollection services, IConfiguration configuration) 
         {
             services.AddSingleton<PaypalClient>();
+            services.AddSingleton<ZalopayClient>();
             return services;
         }
 

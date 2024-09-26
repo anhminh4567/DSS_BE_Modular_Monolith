@@ -12,9 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Usecases\DiamondPrices\Commands\" />
-    <Folder Include="Usecases\DiamondPrices\Queries\" />
-    <Folder Include="Usecases\Diamonds\Queries\GetAll\" />
+    <Folder Include="Usecases\DiamondPrices\Commands\Update\" />
   </ItemGroup>
 
   <ItemGroup>

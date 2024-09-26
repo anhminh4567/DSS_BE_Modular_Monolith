@@ -2,7 +2,14 @@
 {
     public enum Clarity
     {
-        S12, S11, VS2, VS1 , VVS2 , VVS1 , IF, FL
+        S12 = 1, 
+        S11 = 2,
+        VS2 = 3,
+        VS1 = 4 ,
+        VVS2 = 5,
+        VVS1 = 6 ,
+        IF = 7,
+        FL = 8
     }
 
 }

@@ -17,6 +17,17 @@ namespace DiamondShop.Domain.Models.DiamondPrices
         public DiamondCriteriaId CriteriaId { get; set; }
         public DiamondCriteria Criteria { get; set; }
         public decimal Price { get; set; }
-        public DiamondPrice() { }
+        public static DiamondPrice Create(DiamondShapeId diamondShapeId, DiamondCriteriaId diamondCriteriaId, decimal price)
+        {
+            if (price <= 0)
+                throw new Exception();
+            return new DiamondPrice
+            {
+                ShapeId = diamondShapeId,
+                CriteriaId = diamondCriteriaId,
+                Price = price,
+            };
+        }
+        private DiamondPrice() { }
     }
 }

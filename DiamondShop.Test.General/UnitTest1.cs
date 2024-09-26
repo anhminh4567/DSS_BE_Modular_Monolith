@@ -13,6 +13,11 @@ namespace DiamondShop.Test.General
 
         }
         [Fact]
+        public void TestJson()
+        {
+            
+        }
+        [Fact]
         public async void TestCurrency()
         {
             CurrencyExchangeService currencyExchangeService = new CurrencyExchangeService();

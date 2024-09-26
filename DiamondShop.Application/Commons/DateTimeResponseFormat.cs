@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Commons.Constants
+namespace DiamondShop.Application.Commons
 {
     internal class DateTimeResponseFormat
     {

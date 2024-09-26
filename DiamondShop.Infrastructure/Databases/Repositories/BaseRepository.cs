@@ -31,7 +31,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             _set.Remove(entity);
         }
 
-        public virtual async Task<IEnumerable<T>> GetAll(CancellationToken token = default)
+        public virtual async Task<List<T>> GetAll(CancellationToken token = default)
         {
             return await _set.ToListAsync(token);
         }
@@ -51,11 +51,17 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             return _set.AsQueryable();
         }
 
+
         public IQueryable<T> QueryFilter(IQueryable<T> query, Expression<Func<T,bool>> filter)
         {
             if (filter == null)
                 return query;
-            return query.Where(filter);
+            return query.Where(filter); 
+        }
+
+        public IQueryable<T> QueryInclude<TProperty>(IQueryable<T> query, Expression<Func<T, TProperty>> navigation)
+        {
+            return query.Include(navigation);
         }
 
         public IQueryable<T> QueryOrderBy(IQueryable<T> query, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null)

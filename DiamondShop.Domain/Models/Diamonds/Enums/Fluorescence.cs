@@ -8,6 +8,6 @@ namespace DiamondShop.Domain.Models.Diamonds.Enums
 {
     public enum Fluorescence
     {
-        None, Faint, Medium, Strong
+        None = 1, Faint = 2, Medium = 3, Strong = 4
     }
 }
