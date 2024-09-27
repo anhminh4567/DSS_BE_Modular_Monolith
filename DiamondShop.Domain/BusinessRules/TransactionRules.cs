@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.BusinessRules
 {
-    public class TransactionRules
+    public static class TransactionRules
     {
-        public long MinimumPerTransaction { get; set; } = 10000;// 10k
-        public long MaximumPerTransaction { get; set; } = 200000000;//200 million
-        public int TransactionDurationMinute { get; set; } = 15;
+        public static long MinimumPerTransaction { get; set; } = 10000;// 10k
+        public static long MaximumPerTransaction { get; set; } = 200000000;//200 million
+        public static int TransactionDurationMinute { get; set; } = 15;
     }
 }

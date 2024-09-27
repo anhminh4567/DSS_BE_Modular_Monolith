@@ -13,11 +13,7 @@
 
   <ItemGroup>
     <Folder Include="Usecases\DiamondPrices\Commands\Update\" />
-    <Folder Include="Usecases\PromotionGifts\" />
-    <Folder Include="Usecases\PromotionRequirements\Commands\Delete\" />
     <Folder Include="Usecases\PromotionRequirements\Commands\Update\" />
-    <Folder Include="Usecases\PromotionRequirements\Queries\" />
-    <Folder Include="Usecases\Promotions\" />
   </ItemGroup>
 
   <ItemGroup>

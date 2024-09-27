@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Repositories.PromotionsRepo
 {
-    public interface IRequirementRepository : IBaseRepository<PromoReq>
+    public interface IGiftRepository : IBaseRepository<Gift>
     {
-        Task CreateRange(List<PromoReq> promoReqs, CancellationToken cancellationToken = default);
-        Task<List<PromoReq>> GetRange(List<PromoReqId> ids, CancellationToken cancellationToken = default);
+        Task CreateRange(List<Gift> gifts, CancellationToken cancellationToken = default);
+        Task<List<Gift>> GetRange(List<GiftId> ids, CancellationToken cancellationToken = default); 
     }
 }

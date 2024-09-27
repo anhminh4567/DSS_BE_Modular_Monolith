@@ -1,24 +1,24 @@
 ﻿using DiamondShop.Domain.Models.Promotions.Enum;
 using FluentValidation;
 
-namespace DiamondShop.Application.Usecases.PromotionRequirements.Commands.Create
+namespace DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany
 {
-    public class CreateRequirementCommandValidator : AbstractValidator<CreateRequirementCommand>
+    public class CreateGiftCommandValidator : AbstractValidator<CreateGiftCommand>
     {
-        public CreateRequirementCommandValidator()
+        public CreateGiftCommandValidator()
         {
-            RuleForEach(x => x.Requirements).SetValidator(new RequirementSpecValidator());
+            RuleForEach(x => x.giftSpecs).SetValidator(new GiftSpecValidator());
         }
     }
-    public class RequirementSpecValidator : AbstractValidator<RequirementSpec>
+    public class GiftSpecValidator : AbstractValidator<GiftSpec>
     {
-        public RequirementSpecValidator()
+        public GiftSpecValidator()
         {
             RuleFor(x => x.Name).NotEmpty().MinimumLength(2);
             RuleFor(x => x.TargetType).IsInEnum().WithMessage("TargetType is not valid.");
-            RuleFor(x => x.Operator).IsInEnum().WithMessage("Operator is not valid.");
-            RuleFor(x => x.MoneyAmount).GreaterThan(1000)
-                .When(x => x.MoneyAmount.HasValue).WithMessage("MoneyAmount should be greater than 1000.");
+            RuleFor(x => x.UnitType).IsInEnum();
+            RuleFor(x => x.UnitValue).GreaterThan(0);
+
             When(x => x.TargetType == TargetType.Diamond, () =>
             {
                 RuleFor(x => x.DiamondRequirementSpec).NotNull();
@@ -34,7 +34,7 @@ namespace DiamondShop.Application.Usecases.PromotionRequirements.Commands.Create
             });
             When(x => x.TargetType == TargetType.Jewelry_Model, () =>
             {
-                RuleFor(x => x.JewelryModelID).NotNull().Must(x => x.Any());
+                RuleFor(x => x.itemId).NotNull();
             });
         }
     }
