@@ -14,10 +14,10 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
 {
     public class PromoReq : Entity<PromoReqId>
     {
-        public PromotionId PromotionId { get; set; }
-        public Promotion Promotion { get; set; }
-        public DiscountId DiscountId { get; set; }
-        public Discount Discount { get; set; }
+        public PromotionId? PromotionId { get; set; }
+        public Promotion? Promotion { get; set; }
+        public DiscountId? DiscountId { get; set; }
+        public Discount? Discount { get; set; }
         public string Name { get; set; }
         public TargetType TargetType { get; set; }
         public Operator Operator { get; set; }
@@ -35,6 +35,13 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public Color? ColorFrom { get; set; }
         public Color? ColorTo { get; set; }
         public List<PromoReqShape> PromoReqShapes { get; set; } = new();
+        public static PromoReq CreateJewelryPromotionRequirement()
+        {
+            return new PromoReq()
+            {
+                
+            };
+        }
         public PromoReq() { }
     }
 }

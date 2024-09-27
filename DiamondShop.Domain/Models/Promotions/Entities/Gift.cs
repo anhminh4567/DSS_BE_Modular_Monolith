@@ -11,8 +11,8 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
 {
     public class Gift : Entity<GiftId>
     {
-        public PromotionId PromotionId { get; set; }
-        public Promotion Promotion { get; set; }
+        public PromotionId? PromotionId { get; set; }
+        public Promotion? Promotion { get; set; }
         public string Name { get; set; }
         public TargetType TargetType { get; set; }
         public string ItemId { get; set; }
