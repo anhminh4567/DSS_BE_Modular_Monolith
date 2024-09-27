@@ -1,7 +1,7 @@
-﻿namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
+﻿namespace DiamondShop.Infrastructure.Services.Payments.Zalopays.Models.Responses
 {
 
-    public class ZalopayBankDTO
+    public class ZalopayBankResponse
     {
         public string bankcode { get; set; }
         public string name { get; set; }

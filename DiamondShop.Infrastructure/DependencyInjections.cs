@@ -148,6 +148,7 @@ namespace DiamondShop.Infrastructure
             services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.Section));
             services.Configure<VnpayOption>(configuration.GetSection(VnpayOption.Section));
             services.Configure<PaypalOption>(configuration.GetSection(PaypalOption.Section));
+            services.Configure<UrlOptions>(configuration.GetSection(UrlOptions.Section));
             // this also exist throughout the app life, but it is configured at the end of dependency injection,
             // allow it to inject other or override settings , also more cleaner moduler code
             services.ConfigureOptions<JwtBearerOptionSetup>();
