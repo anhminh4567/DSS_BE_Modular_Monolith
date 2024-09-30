@@ -8,6 +8,6 @@ namespace DiamondShop.Domain.Models.Diamonds.Enums
 {
     public enum Polish
     {
-        Poor, Fair, Good, Very_Good, Excellent,
+        Poor = 1, Fair = 2, Good = 3, Very_Good = 4, Excellent = 5,
     }
 }

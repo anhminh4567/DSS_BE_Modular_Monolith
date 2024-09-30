@@ -31,7 +31,7 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
 
         public Task Execute(IJobExecutionContext context)
         {
-            _logger.LogInformation("background job is called");
+            //_logger.LogInformation("background job is called");
             return Task.CompletedTask;
         }
     }

@@ -2,7 +2,7 @@
 {
     public enum Color
     {
-        K , J , I , H , G , F , E , D
+        K = 1, J = 2 , I = 3 , H = 4 , G = 5 , F = 6 , E = 7 , D = 8
     }
 
 }

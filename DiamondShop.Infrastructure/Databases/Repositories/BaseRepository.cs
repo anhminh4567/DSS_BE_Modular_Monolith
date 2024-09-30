@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,7 +31,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             _set.Remove(entity);
         }
 
-        public virtual async Task<IEnumerable<T>> GetAll(CancellationToken token = default)
+        public virtual async Task<List<T>> GetAll(CancellationToken token = default)
         {
             return await _set.ToListAsync(token);
         }
@@ -48,6 +49,26 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         public virtual IQueryable<T> GetQuery()
         {
             return _set.AsQueryable();
+        }
+
+
+        public IQueryable<T> QueryFilter(IQueryable<T> query, Expression<Func<T,bool>> filter)
+        {
+            if (filter == null)
+                return query;
+            return query.Where(filter); 
+        }
+
+        public IQueryable<T> QueryInclude<TProperty>(IQueryable<T> query, Expression<Func<T, TProperty>> navigation)
+        {
+            return query.Include(navigation);
+        }
+
+        public IQueryable<T> QueryOrderBy(IQueryable<T> query, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null)
+        {
+            if (orderBy == null)
+                return query;
+            return orderBy(query);
         }
 
         public virtual Task Update(T entity, CancellationToken token = default)

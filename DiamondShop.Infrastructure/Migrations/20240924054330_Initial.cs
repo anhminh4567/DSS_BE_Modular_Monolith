@@ -753,6 +753,7 @@ namespace DiamondShop.Infrastructure.Migrations
                     Clarity = table.Column<string>(type: "text", nullable: false),
                     Color = table.Column<string>(type: "text", nullable: false),
                     Cut = table.Column<string>(type: "text", nullable: true),
+                    PriceOffset = table.Column<decimal>(type: "numeric", nullable: false),
                     Carat = table.Column<float>(type: "real", nullable: false),
                     HasGIACert = table.Column<bool>(type: "boolean", nullable: false),
                     IsLabDiamond = table.Column<bool>(type: "boolean", nullable: false),
@@ -1077,6 +1078,23 @@ namespace DiamondShop.Infrastructure.Migrations
                     { "3", "customer_silver", "customer_silver", 0 },
                     { "33", "admin", "admin", 1 },
                     { "4", "customer_gold", "customer_gold", 0 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Diamond_Shape",
+                columns: new[] { "Id", "Shape" },
+                values: new object[,]
+                {
+                    { "1", "Round" },
+                    { "10", "Pear" },
+                    { "2", "Princess" },
+                    { "3", "Cushion" },
+                    { "4", "Emerald" },
+                    { "5", "Oval" },
+                    { "6", "Radiant" },
+                    { "7", "Asscher" },
+                    { "8", "Marquise" },
+                    { "9", "Heart" }
                 });
 
             migrationBuilder.CreateIndex(

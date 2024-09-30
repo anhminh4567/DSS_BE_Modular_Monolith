@@ -37,7 +37,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.AccountConfig
                 .WithMany(a => a.Accounts);
 
             builder.HasMany(a => a.Addresses)
-                .WithOne()
+                .WithOne(aa => aa.Account)
                 .HasForeignKey(aa => aa.AccountId);
 
             builder.HasKey(o => o.Id);

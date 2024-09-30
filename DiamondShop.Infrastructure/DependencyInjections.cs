@@ -27,6 +27,7 @@ using DiamondShop.Infrastructure.Outbox;
 using DiamondShop.Infrastructure.Databases.Interceptors;
 using Quartz;
 using DiamondShop.Infrastructure.Services.Payments.Paypals;
+using DiamondShop.Infrastructure.Services.Payments.Zalopays;
 
 namespace DiamondShop.Infrastructure
 {
@@ -39,13 +40,15 @@ namespace DiamondShop.Infrastructure
             services.AddMyIdentity(configuration);
             services.AddSecurity(configuration);
             services.AddBackgroundJobs(configuration);
-            services.AddHttpClientAndRefit(configuration);
             services.AddPayments(configuration);
+
             return services;
         }
         public static IServiceCollection AddPersistance(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IDateTimeProvider, DateTimeProvider>();
+
+            services.AddMemoryCache();
 
             services.AddDbContext<DiamondShopDbContext>(opt =>
             {
@@ -56,6 +59,12 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAccountRoleRepository, AccountRoleRepository>();
+
+            services.AddScoped<IDiamondRepository, DiamondRepository>();
+            services.AddScoped<IDiamondShapeRepository, DiamondShapeRepository>();
+            services.AddScoped<IDiamondCriteriaRepository, DiamondCriteriaRepository>();
+            services.AddScoped<IDiamondPriceRepository, DiamondPriceRepository>();
+
             // file service persist
             services.AddSingleton((serviceProvider) =>
             {
@@ -120,18 +129,14 @@ namespace DiamondShop.Infrastructure
             });
             return services;
         }
-        internal static IServiceCollection AddHttpClientAndRefit(this IServiceCollection services, IConfiguration configuration)
-        {
-            
-            //services.AddRefitClient<IPaypalClient>()
-            //    .ConfigureHttpClient( (sp , httpClient) => {});
-            return services;
-        }
+
         internal static IServiceCollection AddPayments(this IServiceCollection services, IConfiguration configuration) 
         {
             services.AddSingleton<PaypalClient>();
+            services.AddSingleton<ZalopayClient>();
             return services;
         }
+
         public static IServiceCollection AddMyOptionsConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
             // this configure for current time, exist throughout the app life

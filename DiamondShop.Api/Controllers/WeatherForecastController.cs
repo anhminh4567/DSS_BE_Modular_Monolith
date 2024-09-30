@@ -4,6 +4,7 @@ using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services;
 using DiamondShop.Infrastructure.Services.Payments.Paypals;
 using DiamondShop.Infrastructure.Services.Payments.Paypals.Models;
+using DiamondShop.Infrastructure.Services.Payments.Vnpays;
 using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -23,13 +24,16 @@ namespace DiamondShopSystem.Controllers
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBlobFileServices _blobFileServices;
         private readonly IOptions<PaypalOption> _paypal;
-
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IDateTimeProvider dateTimeProvider, IBlobFileServices blobFileServices, IOptions<PaypalOption> paypal)
+        private readonly IOptions<VnpayOption> _vnpayOption;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IDateTimeProvider dateTimeProvider, IBlobFileServices blobFileServices, IOptions<PaypalOption> paypal, IOptions<VnpayOption> vnpayOption, IHttpContextAccessor httpContextAccessor)
         {
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
             _blobFileServices = blobFileServices;
             _paypal = paypal;
+            _vnpayOption = vnpayOption;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -74,25 +78,6 @@ namespace DiamondShopSystem.Controllers
         {
             Console.WriteLine("Hello world, calling from vnpay");
             return Ok();
-        }
-        [Route("/exception")]
-        [HttpGet]
-        public async Task<ActionResult> exception()
-        {
-            throw new Exception();
-        }
-        [Route("/badrequest")]
-        [HttpGet]
-        public async Task<ActionResult> basdreqiest()
-        {
-            return MatchError(new List<IError>(), ModelState); 
-        }
-        [Route("/paypalresponse")]
-        [HttpGet]
-        public async Task<ActionResult> paypal()
-        {
-            var paypalClient = new PaypalClient(_paypal);
-            return Ok( await paypalClient.GetAccessToken());
         }
     }
 }

@@ -19,7 +19,6 @@
   <ItemGroup>
     <Folder Include="BusinessRules\" />
     <Folder Include="Models\Notifications\Enum\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
   <ItemGroup>
