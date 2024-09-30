@@ -6,6 +6,7 @@ namespace DiamondShop.Api.Controllers.ThirdParties
     public record ConversionBody(decimal amount, DateOnly? dateToExchange);
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class CurrencyExchangeController : ApiControllerBase
     {
         [Route("/ConvertToUSD")]

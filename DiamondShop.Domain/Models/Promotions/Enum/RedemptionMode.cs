@@ -8,6 +8,6 @@ namespace DiamondShop.Domain.Models.Promotions.Enum
 {
     public enum RedemptionMode
     {
-        Single, Multiple
+        Single = 1, Multiple = 2
     }
 }

@@ -8,6 +8,6 @@ namespace DiamondShop.Domain.Models.Promotions.Enum
 {
     public enum TargetType
     {
-        Jewelry_Model, Diamond
+        Jewelry_Model = 1, Diamond = 2 , Order = 3
     }
 }
