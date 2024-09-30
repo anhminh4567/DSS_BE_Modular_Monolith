@@ -15,13 +15,13 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
 {
     public record CreateDiamondCommand(Diamond_4C diamond4c, Diamond_Details details, Diamond_Measurement measurement, bool hasGIA, string shapeId) :IRequest<Result<Diamond>>;
-    internal class CreateDiamondCommmandHandler : IRequestHandler<CreateDiamondCommand, Result<Diamond>>
+    internal class CreateDiamondCommandHandler : IRequestHandler<CreateDiamondCommand, Result<Diamond>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDiamondRepository _diamondRepository;
         private readonly IDiamondShapeRepository _diamondShapeRepository;
 
-        public CreateDiamondCommmandHandler(IUnitOfWork unitOfWork, IDiamondRepository diamondRepository, IDiamondShapeRepository diamondShapeRepository)
+        public CreateDiamondCommandHandler(IUnitOfWork unitOfWork, IDiamondRepository diamondRepository, IDiamondShapeRepository diamondShapeRepository)
         {
             _unitOfWork = unitOfWork;
             _diamondRepository = diamondRepository;

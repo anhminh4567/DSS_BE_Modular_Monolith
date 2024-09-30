@@ -1,6 +1,8 @@
 ﻿using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.Deliveries;
+using DiamondShop.Domain.Models.Deliveries.ValueObjects;
 using DiamondShop.Domain.Models.Notifications.ValueObjects;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
@@ -36,6 +38,8 @@ namespace DiamondShop.Domain.Models.Orders
         public List<OrderLog> Logs { get; set; }
         public TransactionId? TransactionId { get; set; }
         public Transaction? Transaction { get; set; }
+        public DeliveryId DeliveryId { get; set; }
+        public Delivery Delivery { get; set; }
         public Order() { }
     }
 }

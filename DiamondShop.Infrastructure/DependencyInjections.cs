@@ -30,6 +30,8 @@ using DiamondShop.Infrastructure.Services.Payments.Paypals;
 using DiamondShop.Infrastructure.Services.Payments.Zalopays;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo;
+using DiamondShop.Domain.Repositories.JewelryModelRepo;
+using DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo;
 
 namespace DiamondShop.Infrastructure
 {
@@ -73,6 +75,7 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IRequirementRepository, RequirementRepository>();
             services.AddScoped<IDiscountRepository, DiscountRepository>();
 
+            services.AddScoped<IMetalRepository, MetalRepository>();
             // file service persist
             services.AddSingleton((serviceProvider) =>
             {
