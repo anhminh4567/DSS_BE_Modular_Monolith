@@ -8,6 +8,6 @@ namespace DiamondShop.Domain.Models.Promotions.Enum
 {
     public enum UnitType
     {
-        Percent, Fix_Price, Free_Gift
+        Percent = 1, Fix_Price = 2, Free_Gift = 3
     }
 }

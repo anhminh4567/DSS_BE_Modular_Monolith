@@ -1,5 +1,6 @@
 ﻿
 using DiamondShop.Commons;
+using FluentResults;
 using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
@@ -45,11 +46,20 @@ namespace DiamondShop.Application.Commons.PipelineBehavior
 
                 validationFailure
                     .ForEach(input =>
-                        validationErrors.Add( input.PropertyName,input.ErrorMessage )
-                        ) ;
+                        {
+                            //var isExist = validationErrors[input.PropertyName];
+                            if (validationErrors.ContainsKey(input.PropertyName))
+                            {
+                                var errorList = (List<object>) validationErrors[input.PropertyName] ;
+                                errorList.Add(input.ErrorMessage);
+                            }
+                            else
+                                validationErrors.Add(input.PropertyName, new List<object> { input.ErrorMessage });
+                        }
+                    ) ;
 
                 ValidationError validationError = new ValidationError($"validation error ",validationErrors);
-                return (dynamic)validationError;
+                return (dynamic)Result.Fail(validationError);
             }
             else
             {

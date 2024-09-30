@@ -1022,11 +1022,37 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
+                    b.Property<int>("Amount")
+                        .HasColumnType("integer");
+
+                    b.Property<float?>("CaratFrom")
+                        .HasColumnType("real");
+
+                    b.Property<float?>("CaratTo")
+                        .HasColumnType("real");
+
+                    b.Property<string>("ClarityFrom")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClarityTo")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ColorFrom")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ColorTo")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CutFrom")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CutTo")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DiamondOrigin")
+                        .HasColumnType("text");
 
                     b.Property<string>("ItemId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
@@ -1034,7 +1060,6 @@ namespace DiamondShop.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PromotionId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("TargetType")
@@ -1045,9 +1070,8 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("UnitValue")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<decimal>("UnitValue")
+                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
@@ -1061,7 +1085,7 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<decimal>("Amount")
+                    b.Property<decimal?>("Amount")
                         .HasColumnType("numeric");
 
                     b.Property<float?>("CaratFrom")
@@ -1092,7 +1116,6 @@ namespace DiamondShop.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("DiscountId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("ModelId")
@@ -1107,10 +1130,9 @@ namespace DiamondShop.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PromotionId")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Quantity")
+                    b.Property<int?>("Quantity")
                         .HasColumnType("integer");
 
                     b.Property<string>("TargetType")
@@ -1153,6 +1175,10 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -1161,6 +1187,10 @@ namespace DiamondShop.Infrastructure.Migrations
 
                     b.Property<bool>("IsExcludeQualifierProduct")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
@@ -1931,8 +1961,32 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.HasOne("DiamondShop.Domain.Models.Promotions.Promotion", "Promotion")
                         .WithMany("Gifts")
                         .HasForeignKey("PromotionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.OwnsMany("DiamondShop.Domain.Models.DiamondShapes.ValueObjects.DiamondShapeId", "DiamondGiftShapes", b1 =>
+                        {
+                            b1.Property<string>("GiftId")
+                                .HasColumnType("text");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("GiftId", "Id");
+
+                            b1.ToTable("Gift");
+
+                            b1.ToJson("DiamondGiftShapes");
+
+                            b1.WithOwner()
+                                .HasForeignKey("GiftId");
+                        });
+
+                    b.Navigation("DiamondGiftShapes");
 
                     b.Navigation("Promotion");
                 });
@@ -1940,20 +1994,19 @@ namespace DiamondShop.Infrastructure.Migrations
             modelBuilder.Entity("DiamondShop.Domain.Models.Promotions.Entities.PromoReq", b =>
                 {
                     b.HasOne("DiamondShop.Domain.Models.Promotions.Entities.Discount", "Discount")
-                        .WithMany()
+                        .WithMany("DiscountReq")
                         .HasForeignKey("DiscountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("DiamondShop.Domain.Models.JewelryModels.JewelryModel", "Model")
                         .WithMany()
-                        .HasForeignKey("ModelId");
+                        .HasForeignKey("ModelId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("DiamondShop.Domain.Models.Promotions.Promotion", "Promotion")
                         .WithMany("PromoReqs")
                         .HasForeignKey("PromotionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Discount");
 
@@ -2106,6 +2159,11 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Navigation("Items");
 
                     b.Navigation("Logs");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Promotions.Entities.Discount", b =>
+                {
+                    b.Navigation("DiscountReq");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Promotions.Entities.PromoReq", b =>

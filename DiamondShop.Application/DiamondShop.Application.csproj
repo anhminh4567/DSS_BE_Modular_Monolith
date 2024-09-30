@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <Folder Include="Usecases\DiamondPrices\Commands\Update\" />
+    <Folder Include="Usecases\PromotionRequirements\Commands\Update\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -19,8 +19,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.PromoConfig
                 .HasConversion(
                     o => o.Value,
                     dbValue => PromotionId.Parse(dbValue));
-            builder.HasMany(o => o.PromoReqs).WithOne(p => p.Promotion).HasForeignKey(p => p.PromotionId);
-            builder.HasMany(o => o.Gifts).WithOne(p => p.Promotion).HasForeignKey(p => p.PromotionId);
+            builder.HasMany(o => o.Gifts).WithOne(p => p.Promotion).HasForeignKey(p => p.PromotionId).IsRequired(false).OnDelete(DeleteBehavior.Cascade);
             builder.Property(o => o.RedemptionMode).HasConversion<string>();
             builder.HasKey(o => o.Id);
         }

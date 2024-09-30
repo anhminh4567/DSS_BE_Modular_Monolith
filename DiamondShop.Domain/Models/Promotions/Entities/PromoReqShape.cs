@@ -15,6 +15,15 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public PromoReq PromoReq { get; set; }
         public DiamondShapeId ShapeId { get; set; }
         public DiamondShape Shape { get; set; }
+        public static PromoReqShape Create(PromoReqId reqId , DiamondShapeId shapeId)
+        {
+            return new PromoReqShape
+            {
+                PromoReqId = reqId,
+                ShapeId = shapeId
+            };
+
+        }
         public PromoReqShape() { }
     }
 }

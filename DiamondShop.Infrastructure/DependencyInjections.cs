@@ -28,6 +28,8 @@ using DiamondShop.Infrastructure.Databases.Interceptors;
 using Quartz;
 using DiamondShop.Infrastructure.Services.Payments.Paypals;
 using DiamondShop.Infrastructure.Services.Payments.Zalopays;
+using DiamondShop.Domain.Repositories.PromotionsRepo;
+using DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo;
 
 namespace DiamondShop.Infrastructure
 {
@@ -64,6 +66,12 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IDiamondShapeRepository, DiamondShapeRepository>();
             services.AddScoped<IDiamondCriteriaRepository, DiamondCriteriaRepository>();
             services.AddScoped<IDiamondPriceRepository, DiamondPriceRepository>();
+
+
+            services.AddScoped<IPromotionRepository, PromotionRepository>();
+            services.AddScoped<IGiftRepository, GiftRepository>();
+            services.AddScoped<IRequirementRepository, RequirementRepository>();
+            services.AddScoped<IDiscountRepository, DiscountRepository>();
 
             // file service persist
             services.AddSingleton((serviceProvider) =>
@@ -148,6 +156,7 @@ namespace DiamondShop.Infrastructure
             services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.Section));
             services.Configure<VnpayOption>(configuration.GetSection(VnpayOption.Section));
             services.Configure<PaypalOption>(configuration.GetSection(PaypalOption.Section));
+            services.Configure<UrlOptions>(configuration.GetSection(UrlOptions.Section));
             // this also exist throughout the app life, but it is configured at the end of dependency injection,
             // allow it to inject other or override settings , also more cleaner moduler code
             services.ConfigureOptions<JwtBearerOptionSetup>();

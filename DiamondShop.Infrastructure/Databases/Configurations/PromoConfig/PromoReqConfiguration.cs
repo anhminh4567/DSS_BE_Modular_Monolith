@@ -32,8 +32,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.PromoConfig
             .HasConversion(
                 Id => Id.Value,
                 dbValue => JewelryModelId.Parse(dbValue));
-            builder.HasOne(o => o.Discount).WithMany().HasForeignKey(o => o.DiscountId).IsRequired();
-            builder.HasOne(o => o.Model).WithMany().HasForeignKey(o => o.ModelId).IsRequired(false);
+            builder.HasOne(o => o.Discount).WithMany(o => o.DiscountReq).HasForeignKey(o => o.DiscountId).IsRequired(false).OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(o => o.Promotion).WithMany(o => o.PromoReqs).HasForeignKey(o => o.PromotionId).IsRequired(false).OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(o => o.Model).WithMany().HasForeignKey(o => o.ModelId).IsRequired(false).OnDelete(DeleteBehavior.Cascade);
+
             builder.Property(o => o.TargetType).HasConversion<string>();
             builder.Property(o => o.Operator).HasConversion<string>();
             builder.Property(o => o.DiamondOrigin).HasConversion<string>();

@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="BusinessRules\" />
     <Folder Include="Models\Notifications\Enum\" />
   </ItemGroup>
 
