@@ -8,6 +8,7 @@ namespace DiamondShop.Domain.Models.Promotions.Enum
 {
     public enum Operator
     {
-       Smaller, Equal_Or_Smaller, Equal, Equal_Or_Larger, Larger
+        //Smaller, Equal_Or_Smaller, Equal, Equal_Or_Larger, Larger
+        Equal_Or_Larger = 1, Larger = 2
     }
 }

@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Commons;
 using DiamondShop.Application.Dtos.Responses.Diamonds;
+using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Models.Diamonds;
@@ -30,9 +31,9 @@ namespace DiamondShop.Application.Mappers
                 .Map(dest => dest.Id, src => src.Id.Value);
 
             config.NewConfig<DiamondWarranty, DiamondWarrantyDto>()
-                .Map(dest => dest.CreatedDate, src => src.CreatedDate.ToString(DateTimeResponseFormat.DATE_TIME_FORMAT))
-                .Map(dest => dest.ExpiredDate, src => src.ExpiredDate.ToString(DateTimeResponseFormat.DATE_TIME_FORMAT))
-                .Map(dest => dest.EffectiveDate, src => src.EffectiveDate.ToString(DateTimeResponseFormat.DATE_TIME_FORMAT))
+                .Map(dest => dest.CreatedDate, src => src.CreatedDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat))
+                .Map(dest => dest.ExpiredDate, src => src.ExpiredDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat))
+                .Map(dest => dest.EffectiveDate, src => src.EffectiveDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat))
                 .Map(dest => dest.WarrantyType, src => src.WarrantyType.ToString());
 
             config.NewConfig<DiamondCriteria, DiamondCriteriaDto>()

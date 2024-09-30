@@ -9,6 +9,7 @@ namespace DiamondShop.Api.Controllers.ThirdParties
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class PaypalController : ApiControllerBase
     {
         private readonly IOptions<PaypalOption> _paypal;

@@ -8,6 +8,6 @@ namespace DiamondShop.Domain.Models.Promotions.Enum
 {
     public enum DiamondOrigin
     {
-        Natural, Lab, Both
+        Natural = 1, Lab = 2, Both = 3
     }
 }

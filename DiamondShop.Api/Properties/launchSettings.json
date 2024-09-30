@@ -1,11 +1,21 @@
 {
   "profiles": {
-    "httpsLocal": {
+    "MinhTranMachine": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Minhtran"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:7160;http://localhost:80"
+    },
+    "QuangThaiMachine": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "QuangThai"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:7160;http://localhost:80"
@@ -30,14 +40,6 @@
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7160;http://localhost:5194"
     },
-    //"IIS Express": {
-    //  "commandName": "IISExpress",
-    //  "launchBrowser": true,
-    //  "launchUrl": "swagger",
-    //  "environmentVariables": {
-    //    "ASPNETCORE_ENVIRONMENT": "Development"
-    //  }
-    //},
     "Container (Dockerfile)": {
       "commandName": "Docker",
       "launchBrowser": true,
