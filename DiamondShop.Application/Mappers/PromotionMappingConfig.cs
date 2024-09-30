@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Promotions;
+using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
@@ -16,7 +17,9 @@ namespace DiamondShop.Application.Mappers
         public void Register(TypeAdapterConfig config)
         {
             config.NewConfig<Promotion, PromotionDto>()
-                .Map(dest => dest.Id, src => src.Id.Value);
+                .Map(dest => dest.Id, src => src.Id.Value)
+                .Map(dest => dest.StartDate, src => src.StartDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat))
+                .Map(dest => dest.EndDate, src => src.EndDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat));
 
             config.NewConfig<PromoReq, RequirementDto>()
                 .Map(dest => dest.Id, src => src.Id.Value)
@@ -32,6 +35,12 @@ namespace DiamondShop.Application.Mappers
                 .Map(dest => dest.Id, src => src.Id.Value)
                 .Map(dest => dest.PromotionId, src => (src.PromotionId == null) ? null : src.PromotionId.Value)
                 .Map(dest => dest.DiamondGiftShapes, src => src.DiamondGiftShapes.Select(x => x.Value));
+
+            config.NewConfig<Discount, DiscountDto>()
+                .Map(dest => dest.Id, src => src.Id.Value)
+                .Map(dest => dest.StartDate, src => src.StartDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat))
+                .Map(dest => dest.EndDate, src => src.EndDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat));
+
         }
     }
 }

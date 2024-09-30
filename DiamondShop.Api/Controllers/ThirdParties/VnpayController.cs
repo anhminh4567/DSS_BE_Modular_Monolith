@@ -11,6 +11,7 @@ namespace DiamondShop.Api.Controllers.ThirdParties
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class VnpayController : ApiControllerBase
     {
         private readonly IOptions<VnpayOption> _vnpayOption;

@@ -18,7 +18,10 @@ namespace DiamondShop.Api.Controllers
                     var metaError = error.Metadata;
                     foreach (var errAtt in metaError)
                     {
-                        modelState.AddModelError(errAtt.Key,(string)errAtt.Value);
+                        var messageList = errAtt.Value as List<object>;
+                        foreach(var errMess in messageList)
+                            modelState.AddModelError(errAtt.Key, (string)errMess);
+                        //modelState.AddModelError(errAtt.Key,(string)errAtt.Value);
                     }
                 }
                 return ValidationProblem(modelStateDictionary: modelState, detail: "Validation Error");

@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.BusinessRules;
+﻿using DiamondShop.Application.Commons;
+using DiamondShop.Domain.BusinessRules;
 using FluentValidation;
 using System.Globalization;
 
@@ -13,10 +14,10 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Create
             RuleFor(x => x.RedemptionMode).IsInEnum();
 
             RuleFor(x => x.startDateTime).NotEmpty()
-                .Must(BeAValidDate).WithMessage("Invalid Start Date format.");
+                .Must(DateTimeUtil.BeAValidDate).WithMessage("Invalid Start Date format.");
 
             RuleFor(x => x.endDateTime).NotEmpty()
-                .Must(BeAValidDate).WithMessage("Invalid End Date format.");
+                .Must(DateTimeUtil.BeAValidDate).WithMessage("Invalid End Date format.");
 
             // Compare the dates after parsing
             RuleFor(x => x)
@@ -33,10 +34,6 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Create
                 .WithMessage("The Start Date must be before the End Date, and the promotion must meet the minimum duration.");
         }
 
-        private bool BeAValidDate(string dateString)
-        {
-            // Simple date format validation
-            return DateTime.TryParseExact(dateString,DateTimeFormatingRules.DateTimeFormat, null,DateTimeStyles.None ,out _);
-        }
+
     }
 }

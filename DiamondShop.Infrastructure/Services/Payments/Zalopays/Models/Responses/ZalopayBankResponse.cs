@@ -7,6 +7,8 @@
         public string name { get; set; }
         public int displayorder { get; set; }
         public int pmcid { get; set; }
+        public long  minamount { get; set; }
+        public long maxamount { get; set; } 
     }
 }
 
