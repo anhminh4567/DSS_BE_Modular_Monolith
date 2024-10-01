@@ -34,6 +34,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondConfig
                 .OnDelete(DeleteBehavior.SetNull);
             builder.HasOne(o => o.Warranty).WithOne().HasForeignKey<DiamondWarranty>(p => p.Id).IsRequired(false);
             /*builder.HasMany(o => o.Medias).WithOne().HasForeignKey(p => p.DiamondId);*/
+            builder.OwnsOne(o => o.Thumbnail, childBuilder =>
+            {
+                childBuilder.ToJson();
+            });
             builder.Property(o => o.JewelryId).IsRequired(false);
             builder.Property(o => o.Clarity).HasConversion<string>();
             builder.Property(o => o.Color).HasConversion<string>();

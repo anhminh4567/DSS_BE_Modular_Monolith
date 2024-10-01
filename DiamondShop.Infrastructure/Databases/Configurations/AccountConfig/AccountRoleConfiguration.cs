@@ -36,6 +36,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.AccountConfig
                 AccountRole.Staff,
                 AccountRole.Manager,
                 AccountRole.Admin,
+                AccountRole.Deliverer,
             };
         public void Configure(EntityTypeBuilder<AccountRole> builder)
         {

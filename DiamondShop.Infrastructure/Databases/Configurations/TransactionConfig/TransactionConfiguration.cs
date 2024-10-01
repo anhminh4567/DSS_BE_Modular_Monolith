@@ -29,7 +29,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.TransactionConfig
                 dbValue => TransactionId.Parse(dbValue));
             builder.Property(o => o.TransactionType).HasConversion<string>();
             builder.HasOne(o => o.PayMethod).WithOne().HasForeignKey<Transaction>(o => o.PayMethodId).IsRequired();
-            builder.HasOne(o => o.RefundedTransac).WithOne().HasForeignKey<Transaction>(o => o.RefundedTransacId).IsRequired(false);
+            builder.HasOne(o => o.RefundedTransaction).WithOne().HasForeignKey<Transaction>(o => o.RefundedTransacId).IsRequired(false);
             builder.HasKey(o => o.Id);
         }
     }

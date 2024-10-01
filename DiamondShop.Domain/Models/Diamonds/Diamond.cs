@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds.Entities;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
@@ -40,7 +41,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         public Culet Culet { get; set; }
         public Fluorescence Fluorescence { get; set; }
         public string Measurement { get; set; }
-
+        public MediaImage? Thumbnail { get; set; }
         public static Diamond Create(DiamondShape shape, Diamond_4C diamond_4C, Diamond_Details diamond_Details, bool hasGIA,
            Diamond_Measurement diamond_Measurement) 
         {

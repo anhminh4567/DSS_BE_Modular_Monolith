@@ -36,6 +36,10 @@ namespace DiamondShop.Domain.Models.Orders
         public List<OrderLog> Logs { get; set; }
         public TransactionId? TransactionId { get; set; }
         public Transaction? Transaction { get; set; }
+
+        public OrderId? ParentOrderId { get; set; } // for replacement order
+        public DeliveryPackageId? DeliveryPackageId { get; set; }
+
         public Order() { }
     }
 }

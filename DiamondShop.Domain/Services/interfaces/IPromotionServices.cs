@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Domain.Models.Transactions.Enum
+namespace DiamondShop.Domain.Services.interfaces
 {
-    public enum TransactionType
+    public interface IPromotionServices
     {
-        Pay = 1, Refund = 2, Partial_Refund = 3
+        
     }
 }

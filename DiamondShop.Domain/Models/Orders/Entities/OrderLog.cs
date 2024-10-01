@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using System;
 using System.Collections.Generic;
@@ -13,8 +14,11 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public OrderId OrderId { get; set; }
         public string Message { get; set; }
         public DateTime CreatedDate { get; set; }
-        public OrderLogId PreviousLogId { get; set; }
-        public OrderLog PreviousLog { get; set; }
+        public OrderLogId? PreviousLogId { get; set; }
+        public OrderLog? PreviousLog { get; set; }
+
+        public List<MediaImage>? LogImages { get; set; }
+        public DeliveryPackageId? DeliveryPackageId { get; set; }
         public OrderLog() { }
     }
 }

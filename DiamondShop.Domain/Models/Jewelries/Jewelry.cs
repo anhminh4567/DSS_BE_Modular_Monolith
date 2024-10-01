@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
@@ -31,6 +32,7 @@ namespace DiamondShop.Domain.Models.Jewelries
         public JewelryReviewId? ReviewId { get; set; }
         public JewelryReview? Review { get; set; }
 
+        public MediaImage? Thumbnail { get; set; }
         public Jewelry() { }
     }
 }
