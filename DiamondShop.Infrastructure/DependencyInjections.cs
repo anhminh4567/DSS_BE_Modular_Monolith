@@ -76,7 +76,11 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IDiscountRepository, DiscountRepository>();
 
             services.AddScoped<IJewelryModelRepository, JewelryModelRepository>();
+            services.AddScoped<IMainDiamondRepository, MainDiamondRepository>();
+            services.AddScoped<ISideDiamondRepository, SideDiamondRepository>();
+            services.AddScoped<ISizeRepository, SizeRepository>();
             services.AddScoped<IMetalRepository, MetalRepository>();
+            services.AddScoped<ISizeMetalRepository, SizeMetalRepository>();
             // file service persist
             services.AddSingleton((serviceProvider) =>
             {

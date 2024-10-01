@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Dtos.Responses.JewelryModels;
+using DiamondShop.Application.Usecases.JewelryModels.Commands.Create;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll;
 using MapsterMapper;
 using MediatR;
@@ -25,6 +26,16 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             var result = await _sender.Send(new GetAllJewelryModelQuery());
             var mappedResult = _mapper.Map<List<JewelryModelDto>>(result);
             return Ok(mappedResult);
+        }
+        [HttpPost("Create")]
+        public async Task<ActionResult> Create([FromBody] CreateJewelryModelCommand command)
+        {
+            var result = await _sender.Send(command);
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+            return MatchError(result.Errors, ModelState);
         }
     }
 }

@@ -13,8 +13,9 @@
 
   <ItemGroup>
     <Folder Include="Usecases\DiamondPrices\Commands\Update\" />
+    <Folder Include="Usecases\JewelryModels\Commands\Delete\" />
+    <Folder Include="Usecases\JewelryModels\Commands\Update\" />
     <Folder Include="Usecases\PromotionRequirements\Commands\Update\" />
-    <Folder Include="Usecases\JewelryModels\Commands\" />
     <Folder Include="Usecases\Sizes\Commands\" />
     <Folder Include="Usecases\Sizes\Queries\" />
   </ItemGroup>

@@ -12,7 +12,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.JewelryModels.Entities
 {
-    public class SideDiamondReq: Entity<SideDiamondReqId>
+    public record SideDiamondSpec(string ShapeId, Color ColorMin, Color ColorMax, Clarity ClarityMin, Clarity ClarityMax, SettingType SettingType, List<SideDiamondOptSpec> OptSpecs, string ModelId = null);
+    public class SideDiamondReq : Entity<SideDiamondReqId>
     {
         public JewelryModelId ModelId { get; set; }
         public JewelryModel Model { get; set; }
@@ -23,7 +24,21 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
         public Clarity ClarityMin { get; set; }
         public Clarity ClarityMax { get; set; }
         public SettingType SettingType { get; set; }
-        public List<SideDiamondOpt> SideDiamondOpts { get; set; } = new ();
+        public List<SideDiamondOpt> SideDiamondOpts { get; set; } = new();
         public SideDiamondReq() { }
+        public static SideDiamondReq Create(JewelryModelId modelId, DiamondShapeId shapeId, Color colorMin, Color colorMax, Clarity clarityMin, Clarity clarityMax, SettingType settingType, SideDiamondReqId givenId = null)
+        {
+            return new SideDiamondReq()
+            {
+                Id = givenId is null? SideDiamondReqId.Create() : givenId,
+                ModelId = modelId,
+                ShapeId = shapeId,
+                ColorMin = colorMin,
+                ColorMax = colorMax,
+                ClarityMin = clarityMin,
+                ClarityMax = clarityMax,
+                SettingType = settingType,
+            };
+        }
     }
 }

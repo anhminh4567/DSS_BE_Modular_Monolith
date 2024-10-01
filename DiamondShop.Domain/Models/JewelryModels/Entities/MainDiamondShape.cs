@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.JewelryModels.Entities
 {
+    public record MainDiamondShapeSpec(string ShapeId, float CaratFrom, float CaratTo, string MainDiamondReq = null);
     public class MainDiamondShape
     {
         public MainDiamondReqId MainDiamondReqId { get; set; }
@@ -18,5 +19,15 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
         public float CaratFrom { get; set; }
         public float CaratTo { get; set; }
         public MainDiamondShape() { }
+        public static MainDiamondShape Create(MainDiamondReqId mainDiamondReqId, DiamondShapeId shapeId, float caratFrom, float caratTo)
+        {
+            return new MainDiamondShape()
+            {
+                MainDiamondReqId = mainDiamondReqId,
+                ShapeId = shapeId,
+                CaratFrom = caratFrom,
+                CaratTo = caratTo,
+            }; 
+        }
     }
 }
