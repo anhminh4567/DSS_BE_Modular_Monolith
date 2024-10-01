@@ -19,7 +19,7 @@ namespace DiamondShop.Domain.Models.Diamonds
     public record Diamond_Details( Polish Polish, Symmetry Symmetry, Girdle Girdle, Fluorescence Fluorescence, Culet Culet);
     public class Diamond : Entity<DiamondId> , IAggregateRoot
     {  
-        public JewelryId? JewelryId { get;  set;}
+        public JewelryId? JewelryId { get;  set; }
         public DiamondShapeId DiamondShapeId { get; set;}
         public DiamondShape DiamondShape { get; set;}
         public DiamondWarranty? Warranty { get; set;}

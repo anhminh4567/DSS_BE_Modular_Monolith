@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +14,6 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
         public string Unit { get; set; }
         public float Value { get; set; }
         public Size() { }
+        public static Size Create(float value, string unit = "milimeters", SizeId givenId = null) => new Size() { Id = givenId is null ? SizeId.Create() : givenId, Unit = unit, Value = value };
     }
 }
