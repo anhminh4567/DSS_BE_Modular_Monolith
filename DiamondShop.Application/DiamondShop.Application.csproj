@@ -12,6 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Usecases\Carts\Commands\Delete\" />
+    <Folder Include="Usecases\Carts\Commands\Update\" />
     <Folder Include="Usecases\DiamondPrices\Commands\UpdateMany\" />
     <Folder Include="Usecases\PromotionRequirements\Commands\Update\" />
   </ItemGroup>

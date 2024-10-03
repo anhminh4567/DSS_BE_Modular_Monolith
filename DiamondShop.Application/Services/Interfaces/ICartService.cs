@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Common;
+﻿using DiamondShop.Domain.Common.Carts;
+using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using System;
 using System.Collections.Generic;
@@ -10,8 +11,8 @@ namespace DiamondShop.Application.Services.Interfaces
 {
     public interface ICartService
     {
-        Task<List<CartProduct>> AddProduct(AccountId accountId,CartProduct cartProduct);
-        Task<List<CartProduct>> RemoveProduct(AccountId accountId,CartProduct cartProduct);
-        Task<List<CartProduct>> GetCartModel(AccountId accountId);
+        Task<List<CartItem>> AddProduct(AccountId accountId,CartItem cartProduct);
+        Task<List<CartItem>> RemoveProduct(AccountId accountId, CartItem cartProduct);
+        Task<List<CartItem>> GetCartModel(AccountId accountId);
     }
 }
