@@ -31,6 +31,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
             {
                 childBuilder.ToJson();
             });
+            builder.OwnsMany(o => o.Gallery, childBuilder =>
+            {
+                childBuilder.ToJson();
+            });
             /*builder.HasMany(o => o.Medias).WithOne().HasForeignKey(o => o.ModelId);*/
             builder.Property(o => o.Width).IsRequired(false);
             builder.Property(o => o.Length).IsRequired(false);

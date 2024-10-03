@@ -17,7 +17,7 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public OrderLogId? PreviousLogId { get; set; }
         public OrderLog? PreviousLog { get; set; }
 
-        public List<MediaImage>? LogImages { get; set; }
+        public List<Media>? LogImages { get; set; }
         public DeliveryPackageId? DeliveryPackageId { get; set; }
         public OrderLog() { }
     }

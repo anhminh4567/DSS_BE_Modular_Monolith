@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Models\Diamonds\Entities\" />
     <Folder Include="Models\Notifications\Enum\" />
   </ItemGroup>
 

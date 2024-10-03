@@ -16,7 +16,8 @@ namespace DiamondShop.Domain.Models.DiamondPrices.Entities
         public Color Color { get; set; }
         public float CaratFrom { get; set; }
         public float CaratTo { get; set; }
-        public static DiamondCriteria Create(Cut cut, Clarity clarity, Color color, float fromCarat ,float toCarat)
+        public bool IsLabGrown { get; set; }
+        public static DiamondCriteria Create(Cut cut, Clarity clarity, Color color, float fromCarat ,float toCarat, bool isLabGrown)
         {
             if(fromCarat > toCarat)
             {
@@ -30,6 +31,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices.Entities
                 Color = color,
                 CaratFrom = fromCarat,
                 CaratTo = toCarat,
+                IsLabGrown = isLabGrown,
             };
         }
         private DiamondCriteria() { }

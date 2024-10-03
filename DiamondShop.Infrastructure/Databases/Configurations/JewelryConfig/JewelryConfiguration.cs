@@ -42,7 +42,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryConfig
             builder.HasOne(o => o.Size).WithOne().HasForeignKey<Jewelry>(o => o.SizeId);
             builder.HasOne(o => o.Metal).WithOne().HasForeignKey<Jewelry>(o => o.MetalId);
             builder.HasOne(o => o.Review).WithOne().HasForeignKey<JewelryReview>(o => o.Id).IsRequired(false);
-            builder.HasOne(o => o.Warranty).WithOne().HasForeignKey<JewelryWarranty>(o => o.Id).IsRequired(false);
+            //builder.HasOne(o => o.Warranty).WithOne().HasForeignKey<JewelryWarranty>(o => o.Id).IsRequired(false);
             builder.HasMany(o => o.SideDiamonds).WithOne().HasForeignKey(o => o.JewelryId).IsRequired(false);
             builder.OwnsOne(o => o.Thumbnail, childBuilder =>
             {

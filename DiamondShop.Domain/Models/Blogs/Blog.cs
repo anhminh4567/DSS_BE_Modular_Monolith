@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Blogs.Entities;
@@ -16,10 +17,11 @@ namespace DiamondShop.Domain.Models.Blogs
         public List<BlogTag> Tags { get; set; } = new ();
         public AccountId AccountId { get; set; }
         public Account Account { get; set; }
+        public Media? Thumbnail { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
         public DateTime CreatedDate { get; set; }
-        public List<BlogMedia> Medias { get; set; } = new ();
+        public List<BlogMedia>? Medias { get; set; } = new ();
         public Blog() { }
     }
 }

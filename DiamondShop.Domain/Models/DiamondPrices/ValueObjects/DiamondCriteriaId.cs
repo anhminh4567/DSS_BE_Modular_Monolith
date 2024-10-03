@@ -14,7 +14,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices.ValueObjects
         }
         public static DiamondCriteriaId Create()
         {
-            return new DiamondCriteriaId(Guid.NewGuid().ToString());
+            return new DiamondCriteriaId(DateTime.UtcNow.Ticks.ToString());
         }
     }
 }

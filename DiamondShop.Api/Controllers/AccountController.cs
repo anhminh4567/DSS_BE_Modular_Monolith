@@ -1,4 +1,6 @@
-﻿using DiamondShop.Application.Services.Interfaces;
+﻿using DiamondShop.Application.Commons.Responses;
+using DiamondShop.Application.Dtos.Responses.Accounts;
+using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Accounts.Commands.BanAccount;
 using DiamondShop.Application.Usecases.Accounts.Commands.Login;
 using DiamondShop.Application.Usecases.Accounts.Commands.RefreshingToken;
@@ -13,6 +15,7 @@ using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
 using FluentResults;
+using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -26,17 +29,22 @@ namespace DiamondShop.Api.Controllers
     public class AccountController : ApiControllerBase
     {
         private readonly ISender _sender;
+        private readonly IMapper _mapper;
         private readonly IAuthenticationService _authenticationService;
 
-        public AccountController(ISender sender, IAuthenticationService authenticationService)
+        public AccountController(ISender sender, IMapper mapper, IAuthenticationService authenticationService)
         {
             _sender = sender;
+            _mapper = mapper;
             _authenticationService = authenticationService;
         }
 
         [HttpPost("Register")]
         [Consumes("application/json")]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(AccountDto),200)]
+        [ProducesResponseType(301)]
+
         public async Task<ActionResult> Register([FromBody] RegisterCustomerCommand? registerCustomerCommand, [FromQuery] string? externalProviderName, CancellationToken cancellationToken = default)
         {
             if (externalProviderName == null && registerCustomerCommand is not null)
@@ -45,7 +53,8 @@ namespace DiamondShop.Api.Controllers
                 var result = await _sender.Send(command);
                 if (result.IsSuccess is false)
                     return MatchError(result.Errors, ModelState);
-                return Ok(result.Value);
+                var mappedResult = _mapper.Map<AccountDto>(result.Value);
+                return Ok(mappedResult);
             }
             else
             {
@@ -62,6 +71,8 @@ namespace DiamondShop.Api.Controllers
         [HttpPost("Login")]
         [Consumes("application/json")]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(AuthenticationResultDto), 200)]
+        [ProducesResponseType(301)]
         public async Task<ActionResult> Login([FromBody] LoginCommand? loginCommand, [FromQuery] string? externalProviderName, CancellationToken cancellationToken = default)
         {
             if (externalProviderName == null && loginCommand is not null)
@@ -82,6 +93,8 @@ namespace DiamondShop.Api.Controllers
         [HttpPost("LoginStaff")]
         [Consumes("application/json")]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(AuthenticationResultDto), 200)]
+
         public async Task<ActionResult> LoginStaff([FromBody] LoginCommand loginCommand, CancellationToken cancellationToken = default)
         {
             var result = await _sender.Send(loginCommand, cancellationToken);
@@ -91,21 +104,25 @@ namespace DiamondShop.Api.Controllers
         }
         [HttpPost("RegisterStaff")]
         [Consumes("application/json")]
+        [ProducesResponseType(typeof(AccountDto), 200)]
         public async Task<ActionResult> RegisterStaff([FromBody] RegisterCommand registerCommand, CancellationToken cancellationToken = default)
         {
             var result = await _sender.Send(registerCommand, cancellationToken);
             if (result.IsSuccess is false)
                 return MatchError(result.Errors, ModelState);
-            return Ok(result.Value);
+            var mappedResult = _mapper.Map<AccountDto>(result.Value);
+            return Ok(mappedResult);
         }
         [HttpPost("RegisterAdmin")]
         [Consumes("application/json")]
+        [ProducesResponseType(typeof(AccountDto), 200)]
         public async Task<ActionResult> RegisterAdmin([FromBody] RegisterAdminCommand registerAdminCommand, CancellationToken cancellationToken = default)
         {
             var result = await _sender.Send(registerAdminCommand, cancellationToken);
             if (result.IsSuccess is false)
                 return MatchError(result.Errors, ModelState);
-            return Ok(result.Value);
+            var mappedResult = _mapper.Map<AccountDto>(result.Value);
+            return Ok(mappedResult);
         }
         [HttpGet("external-register-callback-url")]
         public async Task<ActionResult> ExternalRegisterCallback()
@@ -128,10 +145,10 @@ namespace DiamondShop.Api.Controllers
         
         [HttpPut("RefreshToken")]
         [Authorize]
+        [ProducesResponseType(typeof(AuthenticationResultDto), 200)]
         public async Task<ActionResult> RefreshingToken([FromQuery] string refreshToken, CancellationToken cancellationToken = default)
         {
             var result = await _sender.Send(new RefreshingTokenCommand(refreshToken),cancellationToken);
-
             if (result.IsSuccess is false)
                 return MatchError(result.Errors, ModelState);
             return Ok(result.Value);
@@ -164,13 +181,17 @@ namespace DiamondShop.Api.Controllers
         }
 
         [HttpGet("Paging")]
+        [ProducesResponseType(typeof(List<AccountDto>),200)]
         public async Task<ActionResult> GetPaging([FromQuery] GetAccountPagingQuery getCustomerPageQuery)
         {
-            return Ok((await _sender.Send(getCustomerPageQuery)).Value);
+            var result = await _sender.Send(getCustomerPageQuery);
+            var mappedResult = _mapper.Map<PagingResponseDto<AccountDto>>(result.Value);
+            return Ok(mappedResult);
         }
 
 
         [HttpGet("{accountId}")]
+        [ProducesResponseType(typeof(AccountDto), 200)]
         //[Authorize]
         public async Task<ActionResult> GetDetail([FromRoute]string accountId, CancellationToken cancellationToken = default)
         {

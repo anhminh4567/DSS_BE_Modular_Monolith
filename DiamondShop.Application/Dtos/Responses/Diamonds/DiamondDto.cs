@@ -1,5 +1,4 @@
-﻿using DiamondShop.Domain.Models.Diamonds.Entities;
-using DiamondShop.Domain.Models.Diamonds.Enums;
+﻿using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
@@ -17,7 +16,7 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public string? JewelryId { get; set; }
         public string DiamondShapeId { get; set; }
         public DiamondShapeDto DiamondShape { get; set; }
-        public DiamondWarrantyDto? Warranty { get; set; }
+       // public DiamondWarrantyDto? Warranty { get; set; }
         /*public List<DiamondMedia> Medias { get; set;} = new();*/
         public Clarity Clarity { get; set; }
         public Color Color { get; set; }

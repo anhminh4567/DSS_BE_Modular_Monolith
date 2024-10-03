@@ -20,6 +20,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
                     Id => Id.Value,
                     dbValue => MetalId.Parse(dbValue));
             builder.HasKey(p => p.Id);
+            builder.OwnsOne(o => o.Thumbnail, childBuilder =>
+            {
+                childBuilder.ToJson();
+            });
         }
     }
 }

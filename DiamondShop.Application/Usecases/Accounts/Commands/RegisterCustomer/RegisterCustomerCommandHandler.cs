@@ -53,7 +53,8 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.RegisterCustomer
             }
             else
             {
-                var registerResult = await _authenticationService.Register(request.Email, request.Password, request.FullName, false, cancellationToken);
+                //  remember to change to false, for email verification
+                var registerResult = await _authenticationService.Register(request.Email, request.Password, request.FullName, true, cancellationToken);
                 if (registerResult.IsSuccess is false)
                 {
                     return Result.Fail(registerResult.Errors);

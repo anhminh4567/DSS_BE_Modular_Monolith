@@ -13,9 +13,10 @@ namespace DiamondShop.Domain.Common
 {
     public class CartModel
     {
-        public CheckoutPrice OrderPrices { get; set; }
-        public CartModelCounter OrderCounter { get; set; }
-        public CartModelValidation OrderValidation { get; set; }
+        public CheckoutPrice? OrderPrices { get; set; }
+        public ShippingPrice? ShippingPrice { get; set; }
+        public CartModelCounter? OrderCounter { get; set; }
+        public CartModelValidation? OrderValidation { get; set; }
         public List<CartProduct> Products { get; set; } = new();
     }
     public class CartProduct
@@ -39,7 +40,12 @@ namespace DiamondShop.Domain.Common
         public decimal DiscountPrice { get; set; }
         public decimal PromotionPrice { get; set; }
         public decimal FinalPrice { get; set; }
-        public decimal? OrderShippingPrice { get; set; }
+    }
+    public class ShippingPrice
+    {
+        public decimal DefaultPrice { get; set; }
+        public decimal PromotionPrice { get; set; }
+        public decimal FinalPrice { get; set; }
     }
     public class CartModelValidation
     {
@@ -60,4 +66,5 @@ namespace DiamondShop.Domain.Common
         public int TotalItem { get; set; }
         public int TotalInvalidItem { get; set; }
     }
+
 }

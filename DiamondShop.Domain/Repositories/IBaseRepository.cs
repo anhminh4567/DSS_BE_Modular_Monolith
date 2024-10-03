@@ -18,6 +18,7 @@ namespace DiamondShop.Domain.Repositories
         IQueryable<TEntity> QueryFilter(IQueryable<TEntity> query, Expression<Func<TEntity, bool>> filter = null);
         IQueryable<TEntity> QueryOrderBy(IQueryable<TEntity> query, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null);
         IQueryable<TEntity> QueryInclude<TProperty>(IQueryable<TEntity> query, Expression<Func<TEntity, TProperty>> navigation);
+        IQueryable<TEntity> QuerySplit(IQueryable<TEntity> query);
         Task Create(TEntity entity, CancellationToken token = default);
         Task Update(TEntity entity, CancellationToken token = default);
         Task Delete(TEntity entity, CancellationToken token = default);

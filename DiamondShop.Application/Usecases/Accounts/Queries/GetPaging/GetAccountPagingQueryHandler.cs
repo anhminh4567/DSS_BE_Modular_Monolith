@@ -24,7 +24,7 @@ namespace DiamondShop.Application.Usecases.Accounts.Queries.GetPaging
         {
             var query = _accountRepository.GetQuery();
             var trueCurrent = request.current * request.size;
-            query.Skip(trueCurrent).Take(request.size);
+            query = query.Skip(trueCurrent).Take(request.size);
 
             var result = query.ToList();
             var totalPage = _accountRepository.GetCount();

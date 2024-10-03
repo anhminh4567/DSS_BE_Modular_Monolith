@@ -27,7 +27,8 @@ namespace DiamondShop.Domain.Models.JewelryModels
         public List<SideDiamondReq> SideDiamonds { get; set; } = new();
         public List<SizeMetal> SizeMetals { get; set; } = new();
         /*public List<JewelryModelMedia> Medias { get; set; } = new();*/
-        public MediaImage? Thumbnail { get; set; }
+        public Media? Thumbnail { get; set; }
+        public List<Media>? Gallery { get; set; } = new();
         public JewelryModel() { }
     }
 }

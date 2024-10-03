@@ -20,7 +20,7 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
         public bool IsHidden { get; set; }
-        public List<MediaImage>? Images { get; set; } = new();
+        public List<Media>? Images { get; set; } = new();
        /* public List<JewelryReviewMedia> Medias { get; set; } = new();*/
         public JewelryReview() { }
     }

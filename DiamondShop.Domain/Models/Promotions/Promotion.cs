@@ -23,7 +23,7 @@ namespace DiamondShop.Domain.Models.Promotions
         public RedemptionMode RedemptionMode { get; set; }
         public List<PromoReq> PromoReqs { get; set; } = new ();
         public List<Gift> Gifts { get; set; } = new ();
-        public MediaImage? Thumbnail { get; set; }
+        public Media? Thumbnail { get; set; }
         public static Promotion Create(string name, string description, DateTime startDate, DateTime endDate, int priority , bool isExclude , RedemptionMode mode )
         {
             return new Promotion

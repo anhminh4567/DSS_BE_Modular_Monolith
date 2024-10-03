@@ -27,12 +27,11 @@ namespace DiamondShop.Domain.Models.Jewelries
         public bool IsAwaiting { get; set; }
         public bool IsSold { get; set; }
         public List<Diamond> Diamonds { get; set; } = new ();
-        public JewelryWarranty? Warranty { get; set; }
         public List<JewelrySideDiamond>? SideDiamonds { get; set; } = new ();
         public JewelryReviewId? ReviewId { get; set; }
         public JewelryReview? Review { get; set; }
 
-        public MediaImage? Thumbnail { get; set; }
+        public Media? Thumbnail { get; set; }
         public Jewelry() { }
     }
 }
