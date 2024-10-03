@@ -1,4 +1,7 @@
 ﻿using DiamondShop.Application.Services.Data;
+using DiamondShop.Application.Usecases.MainDiamonds.Commands.Create;
+using DiamondShop.Application.Usecases.SideDiamonds.Commands;
+using DiamondShop.Application.Usecases.SizeMetals.Commands.Create;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
@@ -14,23 +17,23 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
 {
-    public record ModelMetalSizeSpec(string MetalId, string SizeId);
     public record CreateJewelryModelCommand(ModelSpec ModelSpec, List<MainDiamondSpec> MainDiamondSpecs, List<SideDiamondSpec> SideDiamondSpecs, List<ModelMetalSizeSpec> MetalSizeSpecs) : IRequest<Result<JewelryModel>>;
     internal class CreateJewelryModelCommandHandler : IRequestHandler<CreateJewelryModelCommand, Result<JewelryModel>>
     {
+        private readonly ISender _sender;
         private readonly IJewelryModelRepository _jewelryModelRepository;
         private readonly IMainDiamondRepository _mainDiamondRepository;
         private readonly ISideDiamondRepository _sideDiamondRepository;
-        private readonly ISizeMetalRepository _sizeMetalRepository;
         private readonly IUnitOfWork _unitOfWork;
         public CreateJewelryModelCommandHandler(
+            ISender sender,
             IJewelryModelRepository jewelryModelRepository, 
             IMainDiamondRepository mainDiamondRepository,
             ISideDiamondRepository sideDiamondRepository,
-            ISizeMetalRepository sizeMetalRepository, IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork)
         {
+            _sender = sender;
             _jewelryModelRepository = jewelryModelRepository;
-            _sizeMetalRepository = sizeMetalRepository;
             _mainDiamondRepository = mainDiamondRepository;
             _sideDiamondRepository = sideDiamondRepository;
             _unitOfWork = unitOfWork;
@@ -42,26 +45,23 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
                 out List< SideDiamondSpec> SideDiamondSpecs, out List<ModelMetalSizeSpec> MetalSizeSpecs);
             var newModel = JewelryModel.Create(ModelSpec.Name, JewelryModelCategoryId.Parse(ModelSpec.CategoryId), ModelSpec.Width, ModelSpec.Length, ModelSpec.IsEngravable, ModelSpec.IsRhodiumFinish, ModelSpec.BackType, ModelSpec.ClaspType, ModelSpec.ChainType);
             await _jewelryModelRepository.Create(newModel, token);
-            
-            List<SizeMetal> listSizeMetal = MetalSizeSpecs.Select(p => SizeMetal.Create(newModel.Id, MetalId.Parse(p.MetalId), SizeId.Parse(p.SizeId))).ToList();
-            await _sizeMetalRepository.CreateRange(listSizeMetal, token);
+
+            var flag1 = await _sender.Send(new CreateSizeMetalCommand(newModel.Id, MetalSizeSpecs));
+            if (flag1.IsFailed) return Result.Fail(flag1.Errors);
 
             foreach(var mainDiamondSpec in MainDiamondSpecs)
             {
-                var mainDiamond = MainDiamondReq.Create(newModel.Id, mainDiamondSpec.SettingType, mainDiamondSpec.Quantity);
-                await _mainDiamondRepository.Create(mainDiamond, token);
-
-                List<MainDiamondShape> mainDiamondShapes = mainDiamond.Shapes.Select(p => MainDiamondShape.Create(mainDiamond.Id, p.ShapeId, p.CaratFrom, p.CaratTo)).ToList();
-                await _mainDiamondRepository.CreateShapes(mainDiamondShapes, token);
+                var flag2 = await _sender.Send(new CreateMainDiamondCommand(newModel.Id, mainDiamondSpec));
+                if (flag2.IsFailed) return Result.Fail(flag2.Errors);
             }
+
             foreach (var sideDiamondSpec in SideDiamondSpecs)
             {
-                var sideDiamond = SideDiamondReq.Create(newModel.Id, DiamondShapeId.Parse(sideDiamondSpec.ShapeId), sideDiamondSpec.ColorMin, sideDiamondSpec.ColorMax, sideDiamondSpec.ClarityMin, sideDiamondSpec.ClarityMax, sideDiamondSpec.SettingType);
-                await _sideDiamondRepository.Create(sideDiamond, token);
 
-                List<SideDiamondOpt> sideDiamondOpts = sideDiamondSpec.OptSpecs.Select(p => SideDiamondOpt.Create(sideDiamond.Id, p.CaratWeight, p.Quantity)).ToList();
-                await _sideDiamondRepository.CreateOpts(sideDiamondOpts, token);
+                var flag3 = await _sender.Send(new CreateSideDiamondCommand(newModel.Id, sideDiamondSpec));
+                if (flag3.IsFailed) return Result.Fail(flag3.Errors);
             }
+
             await _unitOfWork.SaveChangesAsync();
             return newModel;
         }

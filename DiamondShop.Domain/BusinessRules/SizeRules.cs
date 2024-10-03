@@ -9,5 +9,7 @@ namespace DiamondShop.Domain.BusinessRules
     public static class SizeRules
     {
         public static string DefaultUnit = "milimeter";
+        public static int MinRingSize = 3;
+        public static int MaxRingSize = 22;
     }
 }

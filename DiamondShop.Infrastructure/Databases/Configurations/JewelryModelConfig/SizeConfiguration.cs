@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.JewelryModels.Entities;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -34,6 +35,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
                     dbValue => SizeId.Parse(dbValue));
             builder.HasKey(p => p.Id);
             builder.HasIndex(p => p.Id);
+            builder.HasData(Enumerable.Range(SizeRules.MinRingSize, SizeRules.MaxRingSize).Select(p => Size.Create(p)));
             builder.HasData(SIZES);
         }
     }

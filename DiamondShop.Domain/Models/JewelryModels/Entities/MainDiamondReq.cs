@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.JewelryModels.Entities
 {
-    public record MainDiamondSpec(List<MainDiamondShapeSpec> ShapeSpecs, SettingType SettingType, int Quantity, string ModelId = null);
+    public record MainDiamondSpec(List<MainDiamondShapeSpec> ShapeSpecs, SettingType SettingType, int Quantity);
     public class MainDiamondReq : Entity<MainDiamondReqId>
     {
         public JewelryModelId ModelId { get; set; }

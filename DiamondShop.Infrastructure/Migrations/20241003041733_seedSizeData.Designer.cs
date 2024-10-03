@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiamondShop.Infrastructure.Migrations
 {
     [DbContext(typeof(DiamondShopDbContext))]
-    [Migration("20240930170029_AddDelivery")]
-    partial class AddDelivery
+    [Migration("20241003041733_seedSizeData")]
+    partial class seedSizeData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -130,7 +130,7 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.ToTable("Blog", (string)null);
                 });
 
-            modelBuilder.Entity("DiamondShop.Domain.Models.Deliveries.Delivery", b =>
+            modelBuilder.Entity("DiamondShop.Domain.Models.CustomizeRequests.CustomizeRequest", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -139,11 +139,23 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("CompletedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("EngravedFont")
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("DeliveringDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("EngravedText")
+                        .HasColumnType("text");
+
+                    b.Property<string>("JewelryModelId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MetalId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SizeId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -153,7 +165,92 @@ namespace DiamondShop.Infrastructure.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.ToTable("Delivery", (string)null);
+                    b.HasIndex("JewelryModelId");
+
+                    b.HasIndex("MetalId");
+
+                    b.HasIndex("SizeId");
+
+                    b.ToTable("CustomizeRequest");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.CustomizeRequests.Entities.DiamondRequest", b =>
+                {
+                    b.Property<string>("DiamondRequestId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CustomizeRequestId")
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("CaratFrom")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("CaratTo")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Clarity")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Color")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Culet")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Cut")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DiamondId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DiamondShapeId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Girdle")
+                        .HasColumnType("text");
+
+                    b.Property<bool?>("IsLabGrown")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Polish")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Symmetry")
+                        .HasColumnType("text");
+
+                    b.HasKey("DiamondRequestId", "CustomizeRequestId");
+
+                    b.HasIndex("CustomizeRequestId");
+
+                    b.HasIndex("DiamondId");
+
+                    b.HasIndex("DiamondShapeId");
+
+                    b.ToTable("DiamondRequest");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.CustomizeRequests.Entities.SideDiamondRequest", b =>
+                {
+                    b.Property<string>("SideDiamondReqId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CustomizeRequestId")
+                        .HasColumnType("text");
+
+                    b.Property<float>("CaratWeight")
+                        .HasColumnType("real");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.HasKey("SideDiamondReqId", "CustomizeRequestId");
+
+                    b.HasIndex("CustomizeRequestId");
+
+                    b.ToTable("SideDiamondRequest");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.DeliveryFees.DeliveryFee", b =>
@@ -161,22 +258,26 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<decimal>("Fee")
+                    b.Property<decimal>("Cost")
                         .HasColumnType("numeric");
 
-                    b.Property<int>("FromRange")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Method")
+                    b.Property<string>("DeliveryMethod")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("ToRange")
+                    b.Property<int>("FromKm")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("ToKm")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.ToTable("DeliveryFee", (string)null);
+                    b.ToTable("DeliveryFee");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.DiamondPrices.DiamondPrice", b =>
@@ -219,6 +320,9 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<string>("Cut")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsLabGrown")
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -373,35 +477,6 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.ToTable("Diamond", (string)null);
                 });
 
-            modelBuilder.Entity("DiamondShop.Domain.Models.Diamonds.Entities.DiamondWarranty", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("EffectiveDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("ExpiredDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("WarrantyPath")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("WarrantyType")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DiamondWarranty", (string)null);
-                });
-
             modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Entities.JewelryReview", b =>
                 {
                     b.Property<string>("Id")
@@ -409,9 +484,6 @@ namespace DiamondShop.Infrastructure.Migrations
 
                     b.Property<string>("AccountId")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("AccountId1")
                         .HasColumnType("text");
 
                     b.Property<string>("Content")
@@ -433,8 +505,6 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
-
-                    b.HasIndex("AccountId1");
 
                     b.ToTable("JewelryReview", (string)null);
                 });
@@ -479,39 +549,6 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.HasIndex("JewelryId");
 
                     b.ToTable("JewelrySideDiamond", (string)null);
-                });
-
-            modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Entities.JewelryWarranty", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("EffectiveDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("ExpiredDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("WarrantyPath")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Id");
-
-                    b.ToTable("JewelryWarranty", (string)null);
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Jewelry", b =>
@@ -661,7 +698,71 @@ namespace DiamondShop.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Id");
+
                     b.ToTable("Metal", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "9b1bbae2-d3de-452c-a699-75f777f28344",
+                            Name = "Platinum",
+                            Price = 778370m
+                        },
+                        new
+                        {
+                            Id = "96bd6ee3-5b53-41fc-aa4e-215644833b17",
+                            Name = "14K Yellow Gold",
+                            Price = 1217096m
+                        },
+                        new
+                        {
+                            Id = "0296db20-d597-483f-a835-3b8f5aeac260",
+                            Name = "14K White Gold",
+                            Price = 1217096m
+                        },
+                        new
+                        {
+                            Id = "158c188e-a635-441f-a6b5-ba92f5b4a8b2",
+                            Name = "14K Pink Gold",
+                            Price = 1217096m
+                        },
+                        new
+                        {
+                            Id = "d8013842-8f10-41f3-9cac-dfebfe197f87",
+                            Name = "16K Yellow Gold",
+                            Price = 1391318m
+                        },
+                        new
+                        {
+                            Id = "a032378e-1e03-4931-8a9d-b05448c96643",
+                            Name = "16K White Gold",
+                            Price = 1391318m
+                        },
+                        new
+                        {
+                            Id = "de9cfca6-260f-4025-b3db-b6e2e608df01",
+                            Name = "16K Pink Gold",
+                            Price = 1391318m
+                        },
+                        new
+                        {
+                            Id = "cf21d220-b836-4320-8a87-d0d15d0c8a78",
+                            Name = "18K Yellow Gold",
+                            Price = 1565233m
+                        },
+                        new
+                        {
+                            Id = "5b30aec8-7d40-44f1-831d-9bfe1f956e91",
+                            Name = "18K White Gold",
+                            Price = 1565233m
+                        },
+                        new
+                        {
+                            Id = "fca611bf-f706-4038-882a-651f5972ba6d",
+                            Name = "18K Pink Gold",
+                            Price = 1565233m
+                        });
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.SideDiamondOpt", b =>
@@ -754,7 +855,203 @@ namespace DiamondShop.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Id");
+
                     b.ToTable("Size", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "94068c81-13b1-4729-94db-fb21c1772359",
+                            Unit = "milimeter",
+                            Value = 3f
+                        },
+                        new
+                        {
+                            Id = "b8b13601-d7e9-47db-b924-6b9679dde510",
+                            Unit = "milimeter",
+                            Value = 4f
+                        },
+                        new
+                        {
+                            Id = "158ffe39-c486-4aef-b2b0-2d5f748d7399",
+                            Unit = "milimeter",
+                            Value = 5f
+                        },
+                        new
+                        {
+                            Id = "6e929733-ac78-44ea-bc5d-a78ea353796e",
+                            Unit = "milimeter",
+                            Value = 6f
+                        },
+                        new
+                        {
+                            Id = "af6e5c22-b7e7-4b47-ba08-9cf20cb90be3",
+                            Unit = "milimeter",
+                            Value = 7f
+                        },
+                        new
+                        {
+                            Id = "3ee87ad8-ecce-4615-bc46-404fda9a2716",
+                            Unit = "milimeter",
+                            Value = 8f
+                        },
+                        new
+                        {
+                            Id = "f36f9582-64e3-4008-95c1-6e2ca14d56c3",
+                            Unit = "milimeter",
+                            Value = 9f
+                        },
+                        new
+                        {
+                            Id = "26910ada-6d78-4749-a189-b9df8781823f",
+                            Unit = "milimeter",
+                            Value = 10f
+                        },
+                        new
+                        {
+                            Id = "874f136d-88d1-4d76-b1b7-e927e8ba60ec",
+                            Unit = "milimeter",
+                            Value = 11f
+                        },
+                        new
+                        {
+                            Id = "ca5c01a9-a9ac-41ef-bb9f-6de8d5a58de8",
+                            Unit = "milimeter",
+                            Value = 12f
+                        },
+                        new
+                        {
+                            Id = "fae5f221-86c7-4207-9bf8-7139cbc793b9",
+                            Unit = "milimeter",
+                            Value = 13f
+                        },
+                        new
+                        {
+                            Id = "80b8ada4-fbd8-46a7-9015-933da5a2c65a",
+                            Unit = "milimeter",
+                            Value = 14f
+                        },
+                        new
+                        {
+                            Id = "d5ec0c65-a84f-4f30-94af-db67f9a9ea85",
+                            Unit = "milimeter",
+                            Value = 15f
+                        },
+                        new
+                        {
+                            Id = "6fb280a4-aa0b-498b-b78a-7f0f93d64b45",
+                            Unit = "milimeter",
+                            Value = 16f
+                        },
+                        new
+                        {
+                            Id = "c87f7e47-5f7b-4248-aed2-3551bd46f205",
+                            Unit = "milimeter",
+                            Value = 17f
+                        },
+                        new
+                        {
+                            Id = "ce0587b5-0ec3-4ec4-8586-44757311d275",
+                            Unit = "milimeter",
+                            Value = 18f
+                        },
+                        new
+                        {
+                            Id = "d4698130-2b66-4ac6-ae0f-a64b11ea4cf3",
+                            Unit = "milimeter",
+                            Value = 19f
+                        },
+                        new
+                        {
+                            Id = "3b8a7a1e-d872-43fd-a6c9-6dca4a502dab",
+                            Unit = "milimeter",
+                            Value = 20f
+                        },
+                        new
+                        {
+                            Id = "67c6bb97-dcb4-4238-8adb-45caa873116b",
+                            Unit = "milimeter",
+                            Value = 21f
+                        },
+                        new
+                        {
+                            Id = "4326f493-9b50-453b-aef8-d7e44fae1004",
+                            Unit = "milimeter",
+                            Value = 22f
+                        },
+                        new
+                        {
+                            Id = "7fd5393f-07a4-41ee-b01a-3c094a26c26c",
+                            Unit = "milimeter",
+                            Value = 23f
+                        },
+                        new
+                        {
+                            Id = "1dbc2a5c-10ba-4f66-ac80-ef9ffd9ffc6e",
+                            Unit = "milimeter",
+                            Value = 24f
+                        },
+                        new
+                        {
+                            Id = "9da4b1f7-40df-4d63-bbb8-2dfe51a000d1",
+                            Unit = "milimeter",
+                            Value = 3f
+                        },
+                        new
+                        {
+                            Id = "2bedddec-7c52-4c27-9885-b0440c8ce6bc",
+                            Unit = "milimeter",
+                            Value = 4f
+                        },
+                        new
+                        {
+                            Id = "dcaa48e2-522a-447f-9d5b-66fa8bca3632",
+                            Unit = "milimeter",
+                            Value = 5f
+                        },
+                        new
+                        {
+                            Id = "92779a8d-2bc6-4040-a9e5-54ea06dba4f1",
+                            Unit = "milimeter",
+                            Value = 6f
+                        },
+                        new
+                        {
+                            Id = "58111f37-37bb-4cce-ad1d-bdb05cc79563",
+                            Unit = "milimeter",
+                            Value = 7f
+                        },
+                        new
+                        {
+                            Id = "b1b64c3d-d176-41bc-9fba-31cc9daf6b03",
+                            Unit = "milimeter",
+                            Value = 8f
+                        },
+                        new
+                        {
+                            Id = "4d794ca5-ab25-436d-b915-3aa46feb7bd8",
+                            Unit = "milimeter",
+                            Value = 9f
+                        },
+                        new
+                        {
+                            Id = "a3ccab2d-10b8-49f3-9fa5-fb048c8d0568",
+                            Unit = "milimeter",
+                            Value = 10f
+                        },
+                        new
+                        {
+                            Id = "1705b58b-7eb4-4625-97cc-d33540816461",
+                            Unit = "milimeter",
+                            Value = 11f
+                        },
+                        new
+                        {
+                            Id = "34c34cab-8aa0-42e5-8ed2-e45e43ccb61e",
+                            Unit = "milimeter",
+                            Value = 12f
+                        });
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.SizeMetal", b =>
@@ -888,6 +1185,33 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.ToTable("Notification", (string)null);
                 });
 
+            modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.DeliveryPackage", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CompleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DelivererId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DeliveryDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeliveryMethod")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DelivererId");
+
+                    b.ToTable("DeliveryPackage");
+                });
+
             modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderItem", b =>
                 {
                     b.Property<string>("Id")
@@ -945,6 +1269,47 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.ToTable("OrderItem", (string)null);
                 });
 
+            modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderItemWarranty", b =>
+                {
+                    b.Property<string>("OrderItemId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ItemId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("EffectiveDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiredDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("SoldPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("WarrantyCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("WarrantyPath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("WarrantyType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("OrderItemId", "ItemId");
+
+                    b.ToTable("OrderItemWarranty");
+                });
+
             modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderLog", b =>
                 {
                     b.Property<string>("Id")
@@ -952,6 +1317,9 @@ namespace DiamondShop.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeliveryPackageId")
+                        .HasColumnType("text");
 
                     b.Property<string>("Message")
                         .IsRequired()
@@ -965,6 +1333,8 @@ namespace DiamondShop.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeliveryPackageId");
 
                     b.HasIndex("OrderId");
 
@@ -983,9 +1353,6 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("AccountId1")
-                        .HasColumnType("text");
-
                     b.Property<DateTime?>("CancelledDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -995,12 +1362,17 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("DeliveryId")
-                        .IsRequired()
+                    b.Property<string>("CustomizeRequestId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DeliveryPackageId")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("ExpectedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ParentOrderId")
+                        .HasColumnType("text");
 
                     b.Property<string>("PaymentStatus")
                         .IsRequired()
@@ -1036,9 +1408,13 @@ namespace DiamondShop.Infrastructure.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.HasIndex("AccountId1");
+                    b.HasIndex("CustomizeRequestId")
+                        .IsUnique();
 
-                    b.HasIndex("DeliveryId");
+                    b.HasIndex("DeliveryPackageId");
+
+                    b.HasIndex("ParentOrderId")
+                        .IsUnique();
 
                     b.HasIndex("TransactionId");
 
@@ -1338,6 +1714,13 @@ namespace DiamondShop.Infrastructure.Migrations
                             RoleDescription = "admin",
                             RoleName = "admin",
                             RoleType = 1
+                        },
+                        new
+                        {
+                            Id = "44",
+                            RoleDescription = "deliverer",
+                            RoleName = "deliverer",
+                            RoleType = 1
                         });
                 });
 
@@ -1367,9 +1750,16 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<string>("Note")
+                    b.Property<string>("AppTransactionCode")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("FineAmount")
+                        .HasColumnType("numeric");
 
                     b.Property<DateTime>("PayDate")
                         .HasColumnType("timestamp with time zone");
@@ -1378,15 +1768,19 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("PaygateTransactionCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("RefundedTransacId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TimeStampe")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<decimal>("TransactionAmount")
                         .HasColumnType("numeric");
-
-                    b.Property<string>("TransactionCode")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("TransactionType")
                         .IsRequired()
@@ -1401,6 +1795,34 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Transaction", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Warranties.Warranty", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Warranty");
                 });
 
             modelBuilder.Entity("DiamondShop.Infrastructure.Identity.Models.CustomIdentityRole", b =>
@@ -1706,23 +2128,101 @@ namespace DiamondShop.Infrastructure.Migrations
             modelBuilder.Entity("DiamondShop.Domain.Models.Blogs.Blog", b =>
                 {
                     b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", "Account")
-                        .WithMany("Blogs")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-                });
-
-            modelBuilder.Entity("DiamondShop.Domain.Models.Deliveries.Delivery", b =>
-                {
-                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", "Account")
                         .WithMany()
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.OwnsOne("DiamondShop.Domain.Common.ValueObjects.Media", "Thumbnail", b1 =>
+                        {
+                            b1.Property<string>("BlogId")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("ContentType")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaName")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaPath")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("BlogId");
+
+                            b1.ToTable("Blog");
+
+                            b1.ToJson("Thumbnail");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BlogId");
+                        });
+
                     b.Navigation("Account");
+
+                    b.Navigation("Thumbnail");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.CustomizeRequests.CustomizeRequest", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.JewelryModel", null)
+                        .WithMany()
+                        .HasForeignKey("JewelryModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.Entities.Metal", null)
+                        .WithMany()
+                        .HasForeignKey("MetalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.Entities.Size", null)
+                        .WithMany()
+                        .HasForeignKey("SizeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.CustomizeRequests.Entities.DiamondRequest", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.CustomizeRequests.CustomizeRequest", null)
+                        .WithMany("DiamondRequests")
+                        .HasForeignKey("CustomizeRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.Diamonds.Diamond", null)
+                        .WithMany()
+                        .HasForeignKey("DiamondId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("DiamondShop.Domain.Models.DiamondShapes.DiamondShape", null)
+                        .WithMany()
+                        .HasForeignKey("DiamondShapeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.CustomizeRequests.Entities.SideDiamondRequest", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.CustomizeRequests.CustomizeRequest", null)
+                        .WithMany("SideDiamondRequests")
+                        .HasForeignKey("CustomizeRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiamondShop.Domain.Models.JewelryModels.Entities.SideDiamondReq", null)
+                        .WithMany()
+                        .HasForeignKey("SideDiamondReqId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.DiamondPrices.DiamondPrice", b =>
@@ -1756,14 +2256,67 @@ namespace DiamondShop.Infrastructure.Migrations
                         .WithMany("Diamonds")
                         .HasForeignKey("JewelryId");
 
-                    b.Navigation("DiamondShape");
-                });
+                    b.OwnsMany("DiamondShop.Domain.Common.ValueObjects.Media", "Gallery", b1 =>
+                        {
+                            b1.Property<string>("DiamondId")
+                                .HasColumnType("text");
 
-            modelBuilder.Entity("DiamondShop.Domain.Models.Diamonds.Entities.DiamondWarranty", b =>
-                {
-                    b.HasOne("DiamondShop.Domain.Models.Diamonds.Diamond", null)
-                        .WithOne("Warranty")
-                        .HasForeignKey("DiamondShop.Domain.Models.Diamonds.Entities.DiamondWarranty", "Id");
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("ContentType")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaName")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaPath")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("DiamondId", "Id");
+
+                            b1.ToTable("Diamond");
+
+                            b1.ToJson("Gallery");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DiamondId");
+                        });
+
+                    b.OwnsOne("DiamondShop.Domain.Common.ValueObjects.Media", "Thumbnail", b1 =>
+                        {
+                            b1.Property<string>("DiamondId")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("ContentType")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaName")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaPath")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("DiamondId");
+
+                            b1.ToTable("Diamond");
+
+                            b1.ToJson("Thumbnail");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DiamondId");
+                        });
+
+                    b.Navigation("DiamondShape");
+
+                    b.Navigation("Gallery");
+
+                    b.Navigation("Thumbnail");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Entities.JewelryReview", b =>
@@ -1774,15 +2327,43 @@ namespace DiamondShop.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", null)
-                        .WithMany("JewelryReviews")
-                        .HasForeignKey("AccountId1");
-
                     b.HasOne("DiamondShop.Domain.Models.Jewelries.Jewelry", null)
                         .WithOne("Review")
                         .HasForeignKey("DiamondShop.Domain.Models.Jewelries.Entities.JewelryReview", "Id");
 
+                    b.OwnsMany("DiamondShop.Domain.Common.ValueObjects.Media", "Images", b1 =>
+                        {
+                            b1.Property<string>("JewelryReviewId")
+                                .HasColumnType("text");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("ContentType")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaName")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaPath")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("JewelryReviewId", "Id");
+
+                            b1.ToTable("JewelryReview");
+
+                            b1.ToJson("Images");
+
+                            b1.WithOwner()
+                                .HasForeignKey("JewelryReviewId");
+                        });
+
                     b.Navigation("Account");
+
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Entities.JewelrySideDiamond", b =>
@@ -1790,13 +2371,6 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.HasOne("DiamondShop.Domain.Models.Jewelries.Jewelry", null)
                         .WithMany("SideDiamonds")
                         .HasForeignKey("JewelryId");
-                });
-
-            modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Entities.JewelryWarranty", b =>
-                {
-                    b.HasOne("DiamondShop.Domain.Models.Jewelries.Jewelry", null)
-                        .WithOne("Warranty")
-                        .HasForeignKey("DiamondShop.Domain.Models.Jewelries.Entities.JewelryWarranty", "Id");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Jewelry", b =>
@@ -1819,11 +2393,39 @@ namespace DiamondShop.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.OwnsOne("DiamondShop.Domain.Common.ValueObjects.Media", "Thumbnail", b1 =>
+                        {
+                            b1.Property<string>("JewelryId")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("ContentType")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaName")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaPath")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("JewelryId");
+
+                            b1.ToTable("Jewelry");
+
+                            b1.ToJson("Thumbnail");
+
+                            b1.WithOwner()
+                                .HasForeignKey("JewelryId");
+                        });
+
                     b.Navigation("Metal");
 
                     b.Navigation("Model");
 
                     b.Navigation("Size");
+
+                    b.Navigation("Thumbnail");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.JewelryModelCategory", b =>
@@ -1865,6 +2467,35 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Navigation("MainDiamondReq");
 
                     b.Navigation("Shape");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.Metal", b =>
+                {
+                    b.OwnsOne("DiamondShop.Domain.Common.ValueObjects.Media", "Thumbnail", b1 =>
+                        {
+                            b1.Property<string>("MetalId")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("ContentType")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaName")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaPath")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("MetalId");
+
+                            b1.ToTable("Metal");
+
+                            b1.WithOwner()
+                                .HasForeignKey("MetalId");
+                        });
+
+                    b.Navigation("Thumbnail");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.SideDiamondOpt", b =>
@@ -1946,7 +2577,67 @@ namespace DiamondShop.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.OwnsMany("DiamondShop.Domain.Common.ValueObjects.Media", "Gallery", b1 =>
+                        {
+                            b1.Property<string>("JewelryModelId")
+                                .HasColumnType("text");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("ContentType")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaName")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaPath")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("JewelryModelId", "Id");
+
+                            b1.ToTable("JewelryModel");
+
+                            b1.ToJson("Gallery");
+
+                            b1.WithOwner()
+                                .HasForeignKey("JewelryModelId");
+                        });
+
+                    b.OwnsOne("DiamondShop.Domain.Common.ValueObjects.Media", "Thumbnail", b1 =>
+                        {
+                            b1.Property<string>("JewelryModelId")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("ContentType")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaName")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaPath")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("JewelryModelId");
+
+                            b1.ToTable("JewelryModel");
+
+                            b1.ToJson("Thumbnail");
+
+                            b1.WithOwner()
+                                .HasForeignKey("JewelryModelId");
+                        });
+
                     b.Navigation("Category");
+
+                    b.Navigation("Gallery");
+
+                    b.Navigation("Thumbnail");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Notifications.Notification", b =>
@@ -1966,6 +2657,16 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Navigation("Account");
 
                     b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.DeliveryPackage", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", "Deliverer")
+                        .WithMany()
+                        .HasForeignKey("DelivererId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Deliverer");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderItem", b =>
@@ -1989,8 +2690,21 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Navigation("Jewelry");
                 });
 
+            modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderItemWarranty", b =>
+                {
+                    b.HasOne("DiamondShop.Domain.Models.Orders.Entities.OrderItem", null)
+                        .WithMany("Warranties")
+                        .HasForeignKey("OrderItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderLog", b =>
                 {
+                    b.HasOne("DiamondShop.Domain.Models.Orders.Entities.DeliveryPackage", null)
+                        .WithMany()
+                        .HasForeignKey("DeliveryPackageId");
+
                     b.HasOne("DiamondShop.Domain.Models.Orders.Order", null)
                         .WithMany("Logs")
                         .HasForeignKey("OrderId")
@@ -2000,6 +2714,38 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.HasOne("DiamondShop.Domain.Models.Orders.Entities.OrderLog", "PreviousLog")
                         .WithOne()
                         .HasForeignKey("DiamondShop.Domain.Models.Orders.Entities.OrderLog", "PreviousLogId");
+
+                    b.OwnsMany("DiamondShop.Domain.Common.ValueObjects.Media", "LogImages", b1 =>
+                        {
+                            b1.Property<string>("OrderLogId")
+                                .HasColumnType("text");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("ContentType")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaName")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaPath")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("OrderLogId", "Id");
+
+                            b1.ToTable("OrderLog");
+
+                            b1.ToJson("LogImages");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderLogId");
+                        });
+
+                    b.Navigation("LogImages");
 
                     b.Navigation("PreviousLog");
                 });
@@ -2012,15 +2758,18 @@ namespace DiamondShop.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", null)
-                        .WithMany("Orders")
-                        .HasForeignKey("AccountId1");
+                    b.HasOne("DiamondShop.Domain.Models.CustomizeRequests.CustomizeRequest", null)
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.Orders.Order", "CustomizeRequestId");
 
-                    b.HasOne("DiamondShop.Domain.Models.Deliveries.Delivery", "Delivery")
-                        .WithMany("Orders")
-                        .HasForeignKey("DeliveryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("DiamondShop.Domain.Models.Orders.Entities.DeliveryPackage", null)
+                        .WithMany()
+                        .HasForeignKey("DeliveryPackageId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DiamondShop.Domain.Models.Orders.Order", null)
+                        .WithOne()
+                        .HasForeignKey("DiamondShop.Domain.Models.Orders.Order", "ParentOrderId");
 
                     b.HasOne("DiamondShop.Domain.Models.Transactions.Transaction", "Transaction")
                         .WithMany("Orders")
@@ -2028,9 +2777,38 @@ namespace DiamondShop.Infrastructure.Migrations
 
                     b.Navigation("Account");
 
-                    b.Navigation("Delivery");
-
                     b.Navigation("Transaction");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Promotions.Entities.Discount", b =>
+                {
+                    b.OwnsOne("DiamondShop.Domain.Common.ValueObjects.Media", "Thumbnail", b1 =>
+                        {
+                            b1.Property<string>("DiscountId")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("ContentType")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaName")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaPath")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("DiscountId");
+
+                            b1.ToTable("Discount");
+
+                            b1.ToJson("Thumbnail");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DiscountId");
+                        });
+
+                    b.Navigation("Thumbnail");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Promotions.Entities.Gift", b =>
@@ -2115,6 +2893,37 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Navigation("Shape");
                 });
 
+            modelBuilder.Entity("DiamondShop.Domain.Models.Promotions.Promotion", b =>
+                {
+                    b.OwnsOne("DiamondShop.Domain.Common.ValueObjects.Media", "Thumbnail", b1 =>
+                        {
+                            b1.Property<string>("PromotionId")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("ContentType")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaName")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MediaPath")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("PromotionId");
+
+                            b1.ToTable("Promotion");
+
+                            b1.ToJson("Thumbnail");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PromotionId");
+                        });
+
+                    b.Navigation("Thumbnail");
+                });
+
             modelBuilder.Entity("DiamondShop.Domain.Models.Transactions.Transaction", b =>
                 {
                     b.HasOne("DiamondShop.Domain.Models.Transactions.Entities.PaymentMethod", "PayMethod")
@@ -2123,13 +2932,13 @@ namespace DiamondShop.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DiamondShop.Domain.Models.Transactions.Transaction", "RefundedTransac")
+                    b.HasOne("DiamondShop.Domain.Models.Transactions.Transaction", "RefundedTransaction")
                         .WithOne()
                         .HasForeignKey("DiamondShop.Domain.Models.Transactions.Transaction", "RefundedTransacId");
 
                     b.Navigation("PayMethod");
 
-                    b.Navigation("RefundedTransac");
+                    b.Navigation("RefundedTransaction");
                 });
 
             modelBuilder.Entity("DiamondShop.Infrastructure.Identity.Models.CustomIdentityUserClaims", b =>
@@ -2188,22 +2997,13 @@ namespace DiamondShop.Infrastructure.Migrations
             modelBuilder.Entity("DiamondShop.Domain.Models.AccountAggregate.Account", b =>
                 {
                     b.Navigation("Addresses");
-
-                    b.Navigation("Blogs");
-
-                    b.Navigation("JewelryReviews");
-
-                    b.Navigation("Orders");
                 });
 
-            modelBuilder.Entity("DiamondShop.Domain.Models.Deliveries.Delivery", b =>
+            modelBuilder.Entity("DiamondShop.Domain.Models.CustomizeRequests.CustomizeRequest", b =>
                 {
-                    b.Navigation("Orders");
-                });
+                    b.Navigation("DiamondRequests");
 
-            modelBuilder.Entity("DiamondShop.Domain.Models.Diamonds.Diamond", b =>
-                {
-                    b.Navigation("Warranty");
+                    b.Navigation("SideDiamondRequests");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Jewelry", b =>
@@ -2213,8 +3013,6 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Navigation("Review");
 
                     b.Navigation("SideDiamonds");
-
-                    b.Navigation("Warranty");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.MainDiamondReq", b =>
@@ -2234,6 +3032,11 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Navigation("SideDiamonds");
 
                     b.Navigation("SizeMetals");
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderItem", b =>
+                {
+                    b.Navigation("Warranties");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Order", b =>

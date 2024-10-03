@@ -11,7 +11,11 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
     {
         public CreateJewelryModelCommandValidator()
         {
-
+            RuleFor(c => c.ModelSpec).NotEmpty()
+                .ChildRules(items =>
+                {
+                    items.RuleFor(c => c.Name).NotEmpty();
+                });
         }
     }
 }

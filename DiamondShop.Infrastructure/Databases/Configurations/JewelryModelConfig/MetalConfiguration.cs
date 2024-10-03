@@ -36,10 +36,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
             builder.HasKey(p => p.Id);
             builder.HasIndex(p => p.Id);
             builder.HasData(METALS);
-            builder.OwnsOne(o => o.Thumbnail, childBuilder =>
-            {
-                childBuilder.ToJson();
-            });
+            builder.OwnsOne(o => o.Thumbnail);
         }
     }
 }

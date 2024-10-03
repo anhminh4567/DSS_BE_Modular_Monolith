@@ -702,61 +702,61 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "c4f99f89-6bb3-44fe-972f-08b98592f6b9",
+                            Id = "9b1bbae2-d3de-452c-a699-75f777f28344",
                             Name = "Platinum",
                             Price = 778370m
                         },
                         new
                         {
-                            Id = "6fed2316-cd50-42f6-9d3c-51a1f1452ed7",
+                            Id = "96bd6ee3-5b53-41fc-aa4e-215644833b17",
                             Name = "14K Yellow Gold",
                             Price = 1217096m
                         },
                         new
                         {
-                            Id = "c5f331c6-e99f-4637-afec-aaa5264a184e",
+                            Id = "0296db20-d597-483f-a835-3b8f5aeac260",
                             Name = "14K White Gold",
                             Price = 1217096m
                         },
                         new
                         {
-                            Id = "cbedf605-3f46-4cfa-bb55-59afa7b65a66",
+                            Id = "158c188e-a635-441f-a6b5-ba92f5b4a8b2",
                             Name = "14K Pink Gold",
                             Price = 1217096m
                         },
                         new
                         {
-                            Id = "92e59433-6dd8-4ed6-bb7e-77baed54f682",
+                            Id = "d8013842-8f10-41f3-9cac-dfebfe197f87",
                             Name = "16K Yellow Gold",
                             Price = 1391318m
                         },
                         new
                         {
-                            Id = "c07e4ee6-e592-4da6-b6c9-1c541674adf7",
+                            Id = "a032378e-1e03-4931-8a9d-b05448c96643",
                             Name = "16K White Gold",
                             Price = 1391318m
                         },
                         new
                         {
-                            Id = "154a9226-9717-447b-9179-de17473857af",
+                            Id = "de9cfca6-260f-4025-b3db-b6e2e608df01",
                             Name = "16K Pink Gold",
                             Price = 1391318m
                         },
                         new
                         {
-                            Id = "466c8fdd-2d9e-457e-a1b7-9243c127190b",
+                            Id = "cf21d220-b836-4320-8a87-d0d15d0c8a78",
                             Name = "18K Yellow Gold",
                             Price = 1565233m
                         },
                         new
                         {
-                            Id = "784508a2-4516-4147-a209-62f9d77a4e0a",
+                            Id = "5b30aec8-7d40-44f1-831d-9bfe1f956e91",
                             Name = "18K White Gold",
                             Price = 1565233m
                         },
                         new
                         {
-                            Id = "22ed1207-1680-45a6-b5c6-ad0dddaad8d6",
+                            Id = "fca611bf-f706-4038-882a-651f5972ba6d",
                             Name = "18K Pink Gold",
                             Price = 1565233m
                         });
@@ -852,7 +852,203 @@ namespace DiamondShop.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Id");
+
                     b.ToTable("Size", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "94068c81-13b1-4729-94db-fb21c1772359",
+                            Unit = "milimeter",
+                            Value = 3f
+                        },
+                        new
+                        {
+                            Id = "b8b13601-d7e9-47db-b924-6b9679dde510",
+                            Unit = "milimeter",
+                            Value = 4f
+                        },
+                        new
+                        {
+                            Id = "158ffe39-c486-4aef-b2b0-2d5f748d7399",
+                            Unit = "milimeter",
+                            Value = 5f
+                        },
+                        new
+                        {
+                            Id = "6e929733-ac78-44ea-bc5d-a78ea353796e",
+                            Unit = "milimeter",
+                            Value = 6f
+                        },
+                        new
+                        {
+                            Id = "af6e5c22-b7e7-4b47-ba08-9cf20cb90be3",
+                            Unit = "milimeter",
+                            Value = 7f
+                        },
+                        new
+                        {
+                            Id = "3ee87ad8-ecce-4615-bc46-404fda9a2716",
+                            Unit = "milimeter",
+                            Value = 8f
+                        },
+                        new
+                        {
+                            Id = "f36f9582-64e3-4008-95c1-6e2ca14d56c3",
+                            Unit = "milimeter",
+                            Value = 9f
+                        },
+                        new
+                        {
+                            Id = "26910ada-6d78-4749-a189-b9df8781823f",
+                            Unit = "milimeter",
+                            Value = 10f
+                        },
+                        new
+                        {
+                            Id = "874f136d-88d1-4d76-b1b7-e927e8ba60ec",
+                            Unit = "milimeter",
+                            Value = 11f
+                        },
+                        new
+                        {
+                            Id = "ca5c01a9-a9ac-41ef-bb9f-6de8d5a58de8",
+                            Unit = "milimeter",
+                            Value = 12f
+                        },
+                        new
+                        {
+                            Id = "fae5f221-86c7-4207-9bf8-7139cbc793b9",
+                            Unit = "milimeter",
+                            Value = 13f
+                        },
+                        new
+                        {
+                            Id = "80b8ada4-fbd8-46a7-9015-933da5a2c65a",
+                            Unit = "milimeter",
+                            Value = 14f
+                        },
+                        new
+                        {
+                            Id = "d5ec0c65-a84f-4f30-94af-db67f9a9ea85",
+                            Unit = "milimeter",
+                            Value = 15f
+                        },
+                        new
+                        {
+                            Id = "6fb280a4-aa0b-498b-b78a-7f0f93d64b45",
+                            Unit = "milimeter",
+                            Value = 16f
+                        },
+                        new
+                        {
+                            Id = "c87f7e47-5f7b-4248-aed2-3551bd46f205",
+                            Unit = "milimeter",
+                            Value = 17f
+                        },
+                        new
+                        {
+                            Id = "ce0587b5-0ec3-4ec4-8586-44757311d275",
+                            Unit = "milimeter",
+                            Value = 18f
+                        },
+                        new
+                        {
+                            Id = "d4698130-2b66-4ac6-ae0f-a64b11ea4cf3",
+                            Unit = "milimeter",
+                            Value = 19f
+                        },
+                        new
+                        {
+                            Id = "3b8a7a1e-d872-43fd-a6c9-6dca4a502dab",
+                            Unit = "milimeter",
+                            Value = 20f
+                        },
+                        new
+                        {
+                            Id = "67c6bb97-dcb4-4238-8adb-45caa873116b",
+                            Unit = "milimeter",
+                            Value = 21f
+                        },
+                        new
+                        {
+                            Id = "4326f493-9b50-453b-aef8-d7e44fae1004",
+                            Unit = "milimeter",
+                            Value = 22f
+                        },
+                        new
+                        {
+                            Id = "7fd5393f-07a4-41ee-b01a-3c094a26c26c",
+                            Unit = "milimeter",
+                            Value = 23f
+                        },
+                        new
+                        {
+                            Id = "1dbc2a5c-10ba-4f66-ac80-ef9ffd9ffc6e",
+                            Unit = "milimeter",
+                            Value = 24f
+                        },
+                        new
+                        {
+                            Id = "9da4b1f7-40df-4d63-bbb8-2dfe51a000d1",
+                            Unit = "milimeter",
+                            Value = 3f
+                        },
+                        new
+                        {
+                            Id = "2bedddec-7c52-4c27-9885-b0440c8ce6bc",
+                            Unit = "milimeter",
+                            Value = 4f
+                        },
+                        new
+                        {
+                            Id = "dcaa48e2-522a-447f-9d5b-66fa8bca3632",
+                            Unit = "milimeter",
+                            Value = 5f
+                        },
+                        new
+                        {
+                            Id = "92779a8d-2bc6-4040-a9e5-54ea06dba4f1",
+                            Unit = "milimeter",
+                            Value = 6f
+                        },
+                        new
+                        {
+                            Id = "58111f37-37bb-4cce-ad1d-bdb05cc79563",
+                            Unit = "milimeter",
+                            Value = 7f
+                        },
+                        new
+                        {
+                            Id = "b1b64c3d-d176-41bc-9fba-31cc9daf6b03",
+                            Unit = "milimeter",
+                            Value = 8f
+                        },
+                        new
+                        {
+                            Id = "4d794ca5-ab25-436d-b915-3aa46feb7bd8",
+                            Unit = "milimeter",
+                            Value = 9f
+                        },
+                        new
+                        {
+                            Id = "a3ccab2d-10b8-49f3-9fa5-fb048c8d0568",
+                            Unit = "milimeter",
+                            Value = 10f
+                        },
+                        new
+                        {
+                            Id = "1705b58b-7eb4-4625-97cc-d33540816461",
+                            Unit = "milimeter",
+                            Value = 11f
+                        },
+                        new
+                        {
+                            Id = "34c34cab-8aa0-42e5-8ed2-e45e43ccb61e",
+                            Unit = "milimeter",
+                            Value = 12f
+                        });
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.SizeMetal", b =>
@@ -1216,8 +1412,6 @@ namespace DiamondShop.Infrastructure.Migrations
 
                     b.HasIndex("ParentOrderId")
                         .IsUnique();
-
-                    b.HasIndex("DeliveryId");
 
                     b.HasIndex("TransactionId");
 
@@ -2028,17 +2222,6 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DiamondShop.Domain.Models.Deliveries.Delivery", b =>
-                {
-                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", "Account")
-                        .WithMany()
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-                });
-
             modelBuilder.Entity("DiamondShop.Domain.Models.DiamondPrices.DiamondPrice", b =>
                 {
                     b.HasOne("DiamondShop.Domain.Models.DiamondPrices.Entities.DiamondCriteria", "Criteria")
@@ -2304,8 +2487,6 @@ namespace DiamondShop.Infrastructure.Migrations
                             b1.HasKey("MetalId");
 
                             b1.ToTable("Metal");
-
-                            b1.ToJson("Thumbnail");
 
                             b1.WithOwner()
                                 .HasForeignKey("MetalId");
@@ -2587,19 +2768,11 @@ namespace DiamondShop.Infrastructure.Migrations
                         .WithOne()
                         .HasForeignKey("DiamondShop.Domain.Models.Orders.Order", "ParentOrderId");
 
-                    b.HasOne("DiamondShop.Domain.Models.Deliveries.Delivery", "Delivery")
-                        .WithMany("Orders")
-                        .HasForeignKey("DeliveryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("DiamondShop.Domain.Models.Transactions.Transaction", "Transaction")
                         .WithMany("Orders")
                         .HasForeignKey("TransactionId");
 
                     b.Navigation("Account");
-
-                    b.Navigation("Delivery");
 
                     b.Navigation("Transaction");
                 });

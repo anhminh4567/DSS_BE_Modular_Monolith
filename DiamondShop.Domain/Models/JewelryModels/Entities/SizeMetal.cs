@@ -19,6 +19,6 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
         public JewelryModel Model { get; set; }
         public float Weight { get; set; }
         public SizeMetal() { }
-        public static SizeMetal Create(JewelryModelId modelId, MetalId metalId, SizeId sizeId) => new SizeMetal() { ModelId = modelId, MetalId = metalId, SizeId = sizeId };
+        public static SizeMetal Create(JewelryModelId modelId, MetalId metalId, SizeId sizeId, float weight) => new SizeMetal() { ModelId = modelId, MetalId = metalId, SizeId = sizeId, Weight = weight };
     }
 }
