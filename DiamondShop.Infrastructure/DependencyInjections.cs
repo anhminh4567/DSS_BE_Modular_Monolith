@@ -76,6 +76,7 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IDiscountRepository, DiscountRepository>();
 
             services.AddScoped<IJewelryModelRepository, JewelryModelRepository>();
+            services.AddScoped<IJewelryModelCategoryRepository, JewelryModelCategoryRepository>();
             services.AddScoped<IMainDiamondRepository, MainDiamondRepository>();
             services.AddScoped<ISideDiamondRepository, SideDiamondRepository>();
             services.AddScoped<ISizeRepository, SizeRepository>();

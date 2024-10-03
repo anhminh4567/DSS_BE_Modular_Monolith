@@ -36,6 +36,11 @@ namespace DiamondShop.Application.Mappers
                 .Map(dest => dest.Id, src => src.Id.Value)
                 .Map(dest => dest.ModelId, src => src.ModelId.Value)
                 .Map(dest => dest.ShapeId, src => src.ShapeId.Value);
+
+            config.NewConfig<JewelryModelCategory, JewelryModelCategoryDto>()
+                .Map(dest => dest.Id, src => src.Id.Value)
+                .Map(dest => dest.ParentCategoryId, src => src.ParentCategoryId.Value);
+
         }
     }
 }

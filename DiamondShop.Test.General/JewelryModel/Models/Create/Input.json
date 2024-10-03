@@ -1,0 +1,52 @@
+﻿{
+  "modelSpec": {
+    "name": "Test Model",
+    "categoryId": "abc",
+    "width": 0,
+    "length": 0,
+    "isEngravable": true,
+    "isRhodiumFinish": true,
+    "backType": 0,
+    "claspType": 0,
+    "chainType": 0
+  },
+  "mainDiamondSpecs": [
+    {
+      "shapeSpecs": [
+        {
+          "shapeId": "string",
+          "mainDiamondReqId": "string",
+          "caratFrom": 0,
+          "caratTo": 0
+        }
+      ],
+      "settingType": 0,
+      "quantity": 0
+    }
+  ],
+  "sideDiamondSpecs": [
+    {
+      "shapeId": "string",
+      "colorMin": 1,
+      "colorMax": 1,
+      "clarityMin": 1,
+      "clarityMax": 1,
+      "settingType": 0,
+      "optSpecs": [
+        {
+          "caratWeight": 0,
+          "quantity": 0,
+          "sideDiamondReqId": "string"
+        }
+      ],
+      "modelId": "string"
+    }
+  ],
+  "metalSizeSpecs": [
+    {
+      "metalId": "string",
+      "sizeId": "string",
+      "weight": 0
+    }
+  ]
+}
