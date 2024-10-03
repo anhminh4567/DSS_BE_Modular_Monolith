@@ -11,6 +11,11 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.JewelryModels
 {
+    public record ModelSpec(
+        string Name, string CategoryId, float Width, float Length, 
+        bool IsEngravable, bool IsRhodiumFinish,
+        BackType? BackType, ClaspType? ClaspType, ChainType? ChainType
+        );
     public class JewelryModel : Entity<JewelryModelId>, IAggregateRoot
     {
         public string Name { get; set; }
@@ -30,5 +35,37 @@ namespace DiamondShop.Domain.Models.JewelryModels
         public Media? Thumbnail { get; set; }
         public List<Media>? Gallery { get; set; } = new();
         public JewelryModel() { }
+        /*public static JewelryModel Create(ModelSpec modelSpec, JewelryModelId givenId = null)
+        {
+            return new JewelryModel()
+            {
+                Id = givenId is null ? JewelryModelId.Create() : givenId,
+                Name = modelSpec.Name,
+                CategoryId = JewelryModelCategoryId.Parse(modelSpec.CategoryId),
+                Width = modelSpec.Width,
+                Length = modelSpec.Length,
+                IsEngravable = modelSpec.IsEngravable,
+                IsRhodiumFinish = modelSpec.IsRhodiumFinish,
+                BackType = modelSpec.BackType,
+                ClaspType = modelSpec.ClaspType,
+                ChainType = modelSpec.ChainType,
+            };
+        }*/
+        public static JewelryModel Create(string name, JewelryModelCategoryId categoryId, float width, float length, bool isEngravable, bool isRhodiumFinish, BackType? backType, ClaspType? claspType, ChainType? chainType, JewelryModelId givenId = null)
+        {
+            return new JewelryModel()
+            {
+                Id = givenId is null ? JewelryModelId.Create() : givenId,
+                Name = name,
+                CategoryId = categoryId,
+                Width = width,
+                Length = length,
+                IsEngravable = isEngravable,
+                IsRhodiumFinish = isRhodiumFinish,
+                BackType = backType,
+                ClaspType = claspType,
+                ChainType = chainType,
+            };
+        } 
     }
 }
