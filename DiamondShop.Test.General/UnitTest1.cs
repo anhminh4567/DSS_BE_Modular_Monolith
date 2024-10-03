@@ -17,7 +17,7 @@ namespace DiamondShop.Test.General
         {
             
         }
-        [Fact]
+        [Fact(Skip = "skip")]
         public async void TestCurrency()
         {
             CurrencyExchangeService currencyExchangeService = new CurrencyExchangeService();

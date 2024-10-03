@@ -1,12 +1,14 @@
 ﻿using DiamondShop.Commons;
 using FluentResults;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Text.Json.Serialization;
 
 namespace DiamondShop.Api.Controllers
 {
+    [ProducesResponseType(typeof(ValidationProblemDetailsDocumentation), 400)]
+    [ProducesResponseType(typeof(ProblemDetailDocumentation), 500)]
+
     public class ApiControllerBase : ControllerBase
     {
         protected ActionResult MatchError(List<IError> errors, ModelStateDictionary modelState)
@@ -55,6 +57,19 @@ namespace DiamondShop.Api.Controllers
         //    }
         //    return ValidationProblem(modelStateDictionary: modelStateDictionary);
         //}
+        private class ProblemDetailDocumentation
+        {
+            public string? type { get; set; }
+            public string? title { get; set; }
+            public int? status { get; set; }
+            public string? detail { get; set; }
+            public string? instance { get; set; }
+        }
+        private class ValidationProblemDetailsDocumentation : ProblemDetailDocumentation
+        {
+            [JsonPropertyName("errors")]
+            public IDictionary<string, string[]> Errors { get; set; }
+        }
     }
 }
 

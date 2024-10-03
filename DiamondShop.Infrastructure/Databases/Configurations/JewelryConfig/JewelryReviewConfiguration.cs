@@ -25,6 +25,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryConfig
                 Id => Id.Value,
                 dbValue => AccountId.Parse(dbValue));
             builder.HasOne(o => o.Account).WithMany().HasForeignKey(o => o.AccountId);
+            builder.OwnsMany(o => o.Images, childNavigation =>
+            {
+                childNavigation.ToJson();
+            });
            /* builder.HasMany(o => o.Medias).WithOne().HasForeignKey(p => p.JewelryReviewId);*/
             builder.HasKey(o => o.Id);
         }

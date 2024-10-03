@@ -1,5 +1,4 @@
 ﻿using DiamondShop.Domain.Models.Diamonds;
-using DiamondShop.Domain.Models.Diamonds.Entities;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
@@ -32,8 +31,17 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondConfig
                 .HasForeignKey<Diamond>(c => c.DiamondShapeId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.SetNull);
-            builder.HasOne(o => o.Warranty).WithOne().HasForeignKey<DiamondWarranty>(p => p.Id).IsRequired(false);
+            //builder.HasOne(o => o.Warranty).WithOne().HasForeignKey<DiamondWarranty>(p => p.Id).IsRequired(false);
             /*builder.HasMany(o => o.Medias).WithOne().HasForeignKey(p => p.DiamondId);*/
+            builder.OwnsOne(o => o.Thumbnail, childBuilder =>
+            {
+                childBuilder.ToJson();
+            });
+            builder.OwnsMany(o => o.Gallery, childBuilder =>
+            {
+                childBuilder.ToJson();
+            });
+
             builder.Property(o => o.JewelryId).IsRequired(false);
             builder.Property(o => o.Clarity).HasConversion<string>();
             builder.Property(o => o.Color).HasConversion<string>();

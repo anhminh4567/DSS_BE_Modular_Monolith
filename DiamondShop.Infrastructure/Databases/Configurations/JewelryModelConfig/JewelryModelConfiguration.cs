@@ -27,6 +27,14 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
             builder.HasOne(o => o.Category).WithOne().HasForeignKey<JewelryModel>(p => p.CategoryId);
             builder.HasMany(o => o.MainDiamonds).WithOne().HasForeignKey(p => p.ModelId).IsRequired();
             builder.HasMany(o => o.SideDiamonds).WithOne().HasForeignKey(p => p.ModelId).IsRequired();
+            builder.OwnsOne(o => o.Thumbnail, childBuilder =>
+            {
+                childBuilder.ToJson();
+            });
+            builder.OwnsMany(o => o.Gallery, childBuilder =>
+            {
+                childBuilder.ToJson();
+            });
             /*builder.HasMany(o => o.Medias).WithOne().HasForeignKey(o => o.ModelId);*/
             builder.Property(o => o.Width).IsRequired(false);
             builder.Property(o => o.Length).IsRequired(false);

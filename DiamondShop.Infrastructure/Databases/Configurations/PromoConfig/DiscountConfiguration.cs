@@ -19,6 +19,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.PromoConfig
              .HasConversion(
                  o => o.Value,
                  dbValue => DiscountId.Parse(dbValue));
+            builder.OwnsOne(o => o.Thumbnail, childBuilder =>
+            {
+                childBuilder.ToJson();
+            });
             builder.HasKey(o => o.Id);
         }
     }

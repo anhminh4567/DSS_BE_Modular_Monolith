@@ -28,6 +28,7 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public int DiscountPercent { get; set; }
         public string PromoCode { get; set; }
         public int PromoPercent { get; set; }
+        public List<OrderItemWarranty>? Warranties { get; set; } = new();
         public OrderItem() { }
     }
 }
