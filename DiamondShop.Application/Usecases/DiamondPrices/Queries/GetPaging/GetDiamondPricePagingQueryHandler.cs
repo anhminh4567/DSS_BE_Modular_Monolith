@@ -6,6 +6,7 @@ using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore; 
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -44,9 +45,9 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPaging
 
             query = _diamondPriceRepository.QueryInclude(query, include1 => include1.Shape);
             query = _diamondPriceRepository.QueryInclude(query, include2 => include2.Criteria);
-
-            query.Skip(request.pageSize * request.start);
-            query.Take(request.pageSize);
+            query = _diamondPriceRepository.QuerySplit(query);
+            query = query.Skip(request.pageSize * request.start);
+            query = query.Take(request.pageSize);
             
             var result = query.ToList();
             //var totalCount = _diamondPriceRepository

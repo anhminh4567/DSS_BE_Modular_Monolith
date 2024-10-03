@@ -1,11 +1,6 @@
 ﻿using Syncfusion.Drawing;
 using Syncfusion.XlsIO;
-using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Services
 {
@@ -72,23 +67,71 @@ namespace DiamondShop.Infrastructure.Services
                 throw new Exception("this file is not excel type");
             return excelApp.Workbooks.Open(fileStream);
         }
-        public static IWorksheet WriteLine<T>(this IWorksheet worksheet,T objectToWrite, int columnIndex)
+        public static T ReadLine<T>(IWorksheet worksheet, int rowIndex, int columnStart) where T : class, new()
+        {
+            PropertyInfo[] propertyInfo = typeof(T).GetProperties();
+            var propertiesCount = propertyInfo.Length;
+                
+            //var row0 = worksheet.Rows[0];
+            var row  = worksheet.Rows[rowIndex ];
+            T result = new T();
+            for (int i = 0; i < propertiesCount; i++)
+            {
+                var cell = row.Columns[i ];
+                //var cell = row[ rowIndex + 1,  i + 1];
+                var text = cell.Text;
+                var property = propertyInfo[i + columnStart];
+                object convertedValue = null;
+                if (property.PropertyType.IsEnum)
+                {
+                    // Convert the cell value to the corresponding enum value
+                    convertedValue = Enum.Parse(property.PropertyType, text, true);
+                }
+                else
+                {
+                    // Convert the cell value to the property type (e.g., int, string, DateTime, etc.)
+                    convertedValue = Convert.ChangeType(text, property.PropertyType);
+                }
+                //var convertedValue = Convert.ChangeType(text, property.PropertyType);
+                property.SetValue(result, convertedValue);
+            }
+            return result;
+        }
+        public static IWorksheet WritePropertiesName(this IWorksheet worksheet, Type type, int row)
+        {
+            PropertyInfo[] propertyInfo = type.GetProperties();
+            for (int i = 0; i < propertyInfo.Length; i++)
+            {
+                var range = worksheet.Range[1, i + 1];
+                range.Text = propertyInfo[i].Name;
+            }
+            return worksheet;
+        }
+        public static IWorksheet WriteLine<T>(this IWorksheet worksheet,T objectToWrite, int row)
         {
             //init red front
             IFont redTextBold = worksheet.Workbook.CreateFont();
             redTextBold.RGBColor = Color.Red;
             redTextBold.Bold = true;
 
-            PropertyInfo[] propertyInfo = objectToWrite.GetType().GetProperties(); 
+            PropertyInfo[] propertyInfo = objectToWrite.GetType().GetProperties();
+            for (int i = 0; i < propertyInfo.Length; i++)
+            {
+                var range = worksheet.Range[1, i + 1];
+                range.Text = propertyInfo[i].Name;
+                
+            }
             for (int i = 0; i < propertyInfo.Length; i ++)
             {
+              
                 PropertyInfo property = propertyInfo[i];
-                var value = property.GetValue(property);
+                var value = property.GetValue(objectToWrite);
                 string thingsTobeWrittent = null;
+
                 if (value is null)
                 {
                     thingsTobeWrittent = "NULL!";
-                    IRange range = worksheet.Range[columnIndex, i];
+                    IRange range = worksheet.Range[row, i];
                     range.Text = thingsTobeWrittent;
                     IRichTextString richText = range.RichText;
                     richText.SetFont(0,range.Text.Length,redTextBold);
@@ -97,7 +140,9 @@ namespace DiamondShop.Infrastructure.Services
                 else
                 {
                     thingsTobeWrittent = value.ToString();
-                    worksheet.Range[columnIndex, i].Text = thingsTobeWrittent;
+                    var range = worksheet.Range[row + 2 , i + 1];
+                    //worksheet.Range[columnIndex, i].Text = thingsTobeWrittent;
+                    range.Text = thingsTobeWrittent;
                 }
             }
             return worksheet;

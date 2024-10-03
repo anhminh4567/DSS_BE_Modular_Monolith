@@ -32,6 +32,7 @@ namespace DiamondShop.Api.Controllers.Promotions
        
      
         [HttpGet()]
+        [ProducesResponseType(typeof(List<PromotionDto>),200)]
         public async Task<ActionResult> GetAllPromotion()
         {
             var result = await _sender.Send(new GetAllPromotionQuery());
@@ -39,6 +40,7 @@ namespace DiamondShop.Api.Controllers.Promotions
             return Ok(mappedResult);
         }
         [HttpPost()]
+        [ProducesResponseType(typeof(PromotionDto), 200)]
         public async Task<ActionResult> CreatePromotion(CreatePromotionCommand createPromotionCommand)
         {
             var result = await _sender.Send(createPromotionCommand);
@@ -69,6 +71,7 @@ namespace DiamondShop.Api.Controllers.Promotions
             return MatchError(result.Errors, ModelState);
         }
         [HttpDelete("{promotionId}")]
+        [ProducesResponseType(typeof(PromotionDto), 200)]
         public async Task<ActionResult> DeletePromotion(string promotionId)
         {
             var result = await _sender.Send(new DeletePromotionCommand(promotionId));

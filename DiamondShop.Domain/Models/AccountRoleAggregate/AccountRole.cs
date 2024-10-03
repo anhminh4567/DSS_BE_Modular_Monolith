@@ -31,9 +31,12 @@ namespace DiamondShop.Domain.Models.RoleAggregate
         public const string StaffId = "11";
         public const string ManagerId = "22";
         public const string AdminId = "33";
+        public const string DelivererId = "44";
         public static AccountRole Staff = new AccountRole(AccountRoleId.Create(StaffId), AccountRoleType.Staff, "staff", "staff");
         public static AccountRole Manager = new AccountRole(AccountRoleId.Create(ManagerId), AccountRoleType.Staff, "manager", "manager");
         public static AccountRole Admin = new AccountRole(AccountRoleId.Create(AdminId), AccountRoleType.Staff, "admin", "admin");
+        public static AccountRole Deliverer = new AccountRole(AccountRoleId.Create(DelivererId), AccountRoleType.Staff, "deliverer", "deliverer");
+
         public const string CustomerId = "1";
         public const string CustomerBronzeId = "2";
         public const string CustomerSilverId = "3";

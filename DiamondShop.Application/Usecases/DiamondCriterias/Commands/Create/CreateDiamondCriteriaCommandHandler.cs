@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.Create
 {
-    public record CreateDiamondCriteriaCommand(Cut Cut, Color Color , Clarity Clarity, float caratFrom, float caratTo) : IRequest<Result<DiamondCriteria>>;
+    public record CreateDiamondCriteriaCommand(Cut Cut, Color Color , Clarity Clarity, float caratFrom, float caratTo, bool isLabGrown = true) : IRequest<Result<DiamondCriteria>>;
     internal class CreateDiamondCriteriaCommandHandler : IRequestHandler<CreateDiamondCriteriaCommand, Result<DiamondCriteria>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -26,7 +26,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.Create
 
         public async Task<Result<DiamondCriteria>> Handle(CreateDiamondCriteriaCommand request, CancellationToken cancellationToken)
         {
-            DiamondCriteria diamondCriteria = DiamondCriteria.Create(request.Cut,request.Clarity,request.Color,request.caratFrom,request.caratTo);
+            DiamondCriteria diamondCriteria = DiamondCriteria.Create(request.Cut,request.Clarity,request.Color,request.caratFrom,request.caratTo,request.isLabGrown);
             await _diamondCriteriaRepository.Create(diamondCriteria);
             await _unitOfWork.SaveChangesAsync();
             return diamondCriteria;

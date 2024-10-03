@@ -31,6 +31,7 @@ namespace DiamondShop.Infrastructure.Databases
             if (_transaction is not null)
             {
                 await _transaction.CommitAsync(cancellationToken);
+                _transaction = null;
             }
         }
 
@@ -39,6 +40,7 @@ namespace DiamondShop.Infrastructure.Databases
             if (_transaction is not null)
             {
                 await _transaction.RollbackAsync(cancellationToken);
+                _transaction = null;
             }
         }
 

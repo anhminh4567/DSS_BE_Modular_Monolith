@@ -30,7 +30,8 @@ namespace DiamondShop.Application
         }
         private static IServiceCollection AddDomain(this IServiceCollection services, IConfiguration configuration) 
         {
-            services.AddScoped<IDiamondServices, DiamondServices>();
+            services.AddSingleton<IDiamondServices, DiamondServices>();
+            services.AddSingleton<IOrderTransactionService, OrderTransactionService>();
             return services;
         }
         private static IServiceCollection AddMapping(this IServiceCollection services, IConfiguration configuration)

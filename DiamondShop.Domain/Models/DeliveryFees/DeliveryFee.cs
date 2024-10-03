@@ -1,5 +1,4 @@
 ﻿using DiamondShop.Domain.Common;
-using DiamondShop.Domain.Models.DeliveryFees.Enum;
 using DiamondShop.Domain.Models.DeliveryFees.ValueObjects;
 using System;
 using System.Collections.Generic;
@@ -11,10 +10,14 @@ namespace DiamondShop.Domain.Models.DeliveryFees
 {
     public class DeliveryFee : Entity<DeliveryFeeId>
     {
-        public DeliveryMethod Method { get; set; }
-        public decimal Fee { get; set; }
-        public int FromRange { get; set; }
-        public int ToRange { get; set; }
-        public DeliveryFee() { }
+        public string DeliveryMethod { get; set; }
+        public string Name { get; set; }
+        public decimal Cost { get; set; }
+        public int FromKm { get; set; }
+        public int ToKm { get; set; }
+
+        private DeliveryFee()
+        {
+        }
     }
 }

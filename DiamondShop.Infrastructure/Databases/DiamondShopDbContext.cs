@@ -69,7 +69,6 @@ namespace DiamondShop.Infrastructure.Databases
         public DbSet<JewelryReview> JewelryReviews { get; set; }
        
         public DbSet<JewelrySideDiamond> JewelrySideDiamonds { get; set; }
-        public DbSet<JewelryWarranty> JewelryWarrantys { get; set; }
         public DbSet<MainDiamondReq> MainDiamonds { get; set; }
         public DbSet<MainDiamondShape> MainDiamondShapes { get; set; }
         public DbSet<SideDiamondOpt> SideDiamondOpts { get; set; }

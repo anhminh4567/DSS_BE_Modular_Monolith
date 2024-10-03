@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.Models.DeliveryFees;
 using DiamondShop.Domain.Models.DeliveryFees.ValueObjects;
+using DiamondShop.Domain.Models.Diamonds;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -14,12 +15,11 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DeliveryFeeConfig
     {
         public void Configure(EntityTypeBuilder<DeliveryFee> builder)
         {
-            builder.ToTable("DeliveryFee");
             builder.Property(o => o.Id)
-                .HasConversion(
-                    o => o.Value,
-                    dbValue => new DeliveryFeeId(dbValue));
-            builder.Property(o => o.Method).HasConversion<string>();
+            .HasConversion(
+                 Id => Id.Value,
+                 dbValue => DeliveryFeeId.Parse(dbValue));
+
             builder.HasKey(o => o.Id);
         }
     }

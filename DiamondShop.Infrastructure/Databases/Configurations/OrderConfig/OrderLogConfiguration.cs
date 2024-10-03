@@ -27,7 +27,18 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
             .HasConversion(
                 Id => Id.Value,
                 dbValue => OrderLogId.Parse(dbValue));
+            builder.Property(o => o.DeliveryPackageId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => DeliveryPackageId.Parse(dbValue));
+            builder.OwnsMany(o => o.LogImages, childBuilder =>
+            {
+                childBuilder.WithOwner();
+                childBuilder.ToJson();
+            });
             builder.HasOne(o => o.PreviousLog).WithOne().HasForeignKey<OrderLog>(o => o.PreviousLogId).IsRequired(false);
+            builder.HasOne<DeliveryPackage>().WithMany().HasForeignKey(o => o.DeliveryPackageId).IsRequired(false);
+
             builder.HasKey(o => o.Id);
         }
     }

@@ -23,9 +23,9 @@ namespace DiamondShop.Domain.Models.AccountAggregate
         public FullName FullName { get; private set; }
         public string Email { get; private set; }
 
-        public List<Blog> Blogs { get; private set; }
-        public List<JewelryReview> JewelryReviews { get; private set; }
-        public List<Order> Orders { get; private set; }
+        //public List<Blog> Blogs { get; private set; }
+        //public List<JewelryReview> JewelryReviews { get; private set; }
+        //public List<Order> Orders { get; private set; }
 
         private Account(AccountId accountId, FullName fullName, string email) : base(accountId)
         {

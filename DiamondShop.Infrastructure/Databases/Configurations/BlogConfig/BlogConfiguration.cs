@@ -35,6 +35,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.BlogConfig
                 v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
                 dbValue => JsonConvert.DeserializeObject<List<BlogMedia>>(dbValue, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore })
                 );
+            builder.OwnsOne(o => o.Thumbnail, childBuilder =>
+            {
+                childBuilder.ToJson();
+            });
             builder.HasKey(o => o.Id);
         }
     }

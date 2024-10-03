@@ -10,6 +10,8 @@ using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Transactions.ValueObjects;
+using DiamondShop.Domain.Models.CustomizeRequests;
+using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 
 namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
 {
@@ -29,12 +31,27 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
             .HasConversion(
                 Id => Id.Value,
                 dbValue => TransactionId.Parse(dbValue));
+            builder.Property(p => p.DeliveryPackageId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => DeliveryPackageId.Parse(dbValue));
+            builder.Property(p => p.CustomizeRequestId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => CustomizeRequestId.Parse(dbValue));
+
             builder.HasOne(o => o.Account).WithMany().HasForeignKey(o => o.AccountId).IsRequired();
+
             builder.Property(o => o.Status).HasConversion<string>();
             builder.Property(o => o.PaymentStatus).HasConversion<string>();
+            
             builder.HasOne(o => o.Transaction).WithMany(p => p.Orders).HasForeignKey(o => o.TransactionId).IsRequired(false);
             builder.HasMany(o => o.Items).WithOne().HasForeignKey(p => p.OrderId).IsRequired();
             builder.HasMany(o => o.Logs).WithOne().HasForeignKey(p => p.OrderId).IsRequired();
+            
+            builder.HasOne<Order>().WithOne().HasForeignKey<Order>(o => o.ParentOrderId).IsRequired(false);
+            builder.HasOne<DeliveryPackage>().WithMany().HasForeignKey(o => o.DeliveryPackageId).IsRequired(false).OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne<CustomizeRequest>().WithOne().HasForeignKey<Order>(o => o.CustomizeRequestId).IsRequired(false);
             builder.HasKey(o => o.Id);
         }
     }

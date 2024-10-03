@@ -16,12 +16,16 @@ namespace DiamondShop.Domain.Models.Transactions
         public PaymentMethodId PayMethodId { get; set; }
         public PaymentMethod PayMethod { get; set; }
         public TransactionType TransactionType { get; set; }
-        public string Note { get; set; }
+        public string Description { get; set; }
         public DateTime PayDate { get; set; }
-        public string TransactionCode { get; set; }
+        public string AppTransactionCode { get; set; }
+        public string PaygateTransactionCode { get; set; }
+        public string TimeStampe { get; set; }
         public decimal TransactionAmount { get; set; }
+        public decimal FineAmount { get; set; }
+
         public TransactionId? RefundedTransacId { get; set; }
-        public Transaction? RefundedTransac { get; set; }
+        public Transaction? RefundedTransaction { get; set; }
         public List<Order> Orders { get; set; } = new ();
         public Transaction() { }
     }

@@ -30,8 +30,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Delete
             var getDiamond = await _diamondRepository.GetById(diamondId);
             if (getDiamond == null)
                 return Result.Fail(new NotFoundError("not found this diamond"));
-            if (getDiamond.Warranty is not null)
-                return Result.Fail(new ConflictError("this diamond seems to have a warranty set to it, so it is bought already, cannot delelte"));
+            //if (getDiamond.Warranty is not null)
+            //    return Result.Fail(new ConflictError("this diamond seems to have a warranty set to it, so it is bought already, cannot delelte"));
             if(getDiamond.JewelryId is not null)
                 return Result.Fail(new ConflictError("this diamond seems to have a jewelry set to it, so it is used already, cannot delelte"));
             await _diamondRepository.Delete(getDiamond);

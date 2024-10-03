@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using FluentResults;
 using System;
@@ -20,6 +21,7 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public string DiscountCode { get; set; }
         public int DiscountPercent { get; set; }
         public List<PromoReq> DiscountReq { get; set; } = new();
+        public Media? Thumbnail { get; set; }
         public static Discount Create(string name, DateTime startDate, DateTime endDate, int percent, string? code)
         {
             return new Discount()

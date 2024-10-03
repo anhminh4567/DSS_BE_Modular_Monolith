@@ -1,8 +1,7 @@
 ﻿using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
-using DiamondShop.Domain.Models.Deliveries;
-using DiamondShop.Domain.Models.Deliveries.ValueObjects;
+using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Models.Notifications.ValueObjects;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
@@ -13,15 +12,16 @@ using DiamondShop.Domain.Models.Transactions.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text; 
+using System.Threading.Tasks; 
 
 namespace DiamondShop.Domain.Models.Orders
 {
     public class Order : Entity<OrderId>, IAggregateRoot
     {
         public AccountId AccountId { get; set; }
-        public Account Account { get; set; }
+        public Account? Account { get; set; }
+        public CustomizeRequestId? CustomizeRequestId { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime ExpectedDate { get; set; }
         public DateTime? ShippedDate { get; set; }
@@ -38,8 +38,10 @@ namespace DiamondShop.Domain.Models.Orders
         public List<OrderLog> Logs { get; set; }
         public TransactionId? TransactionId { get; set; }
         public Transaction? Transaction { get; set; }
-        public DeliveryId DeliveryId { get; set; }
-        public Delivery Delivery { get; set; }
+
+        public OrderId? ParentOrderId { get; set; } // for replacement order
+        public DeliveryPackageId? DeliveryPackageId { get; set; }
+
         public Order() { }
     }
 }

@@ -4,7 +4,6 @@ using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Models.Diamonds;
-using DiamondShop.Domain.Models.Diamonds.Entities;
 using DiamondShop.Domain.Models.DiamondShapes;
 using Mapster;
 using System;
@@ -30,11 +29,11 @@ namespace DiamondShop.Application.Mappers
                 .Map(dest => dest.ShapeName, src => src.Shape)
                 .Map(dest => dest.Id, src => src.Id.Value);
 
-            config.NewConfig<DiamondWarranty, DiamondWarrantyDto>()
-                .Map(dest => dest.CreatedDate, src => src.CreatedDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat))
-                .Map(dest => dest.ExpiredDate, src => src.ExpiredDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat))
-                .Map(dest => dest.EffectiveDate, src => src.EffectiveDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat))
-                .Map(dest => dest.WarrantyType, src => src.WarrantyType.ToString());
+            //config.NewConfig<DiamondWarranty, DiamondWarrantyDto>()
+            //    .Map(dest => dest.CreatedDate, src => src.CreatedDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat))
+            //    .Map(dest => dest.ExpiredDate, src => src.ExpiredDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat))
+            //    .Map(dest => dest.EffectiveDate, src => src.EffectiveDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat))
+            //    .Map(dest => dest.WarrantyType, src => src.WarrantyType.ToString());
 
             config.NewConfig<DiamondCriteria, DiamondCriteriaDto>()
                 .Map(dest => dest.Id, src => src.Id.Value);

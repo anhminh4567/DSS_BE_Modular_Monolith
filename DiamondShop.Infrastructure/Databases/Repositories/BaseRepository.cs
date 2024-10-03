@@ -71,6 +71,11 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             return orderBy(query);
         }
 
+        public IQueryable<T> QuerySplit(IQueryable<T> query)
+        {
+            return query.AsSplitQuery();
+        }
+
         public virtual Task Update(T entity, CancellationToken token = default)
         {
             _set.Update(entity);

@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
@@ -22,6 +23,7 @@ namespace DiamondShop.Domain.Models.Promotions
         public RedemptionMode RedemptionMode { get; set; }
         public List<PromoReq> PromoReqs { get; set; } = new ();
         public List<Gift> Gifts { get; set; } = new ();
+        public Media? Thumbnail { get; set; }
         public static Promotion Create(string name, string description, DateTime startDate, DateTime endDate, int priority , bool isExclude , RedemptionMode mode )
         {
             return new Promotion
