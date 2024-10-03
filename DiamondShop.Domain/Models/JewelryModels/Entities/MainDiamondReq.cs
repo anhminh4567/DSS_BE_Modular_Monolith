@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.JewelryModels.Entities
 {
+    public record MainDiamondSpec(List<MainDiamondShapeSpec> ShapeSpecs, SettingType SettingType, int Quantity);
     public class MainDiamondReq : Entity<MainDiamondReqId>
     {
         public JewelryModelId ModelId { get; set; }
@@ -17,5 +18,14 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
         public SettingType SettingType { get; set; }
         public int Quantity { get; set; }
         public MainDiamondReq() { }
+        public static MainDiamondReq Create(JewelryModelId modelId, SettingType settingType, int quantity, MainDiamondReqId givenId = null)
+        {
+            return new MainDiamondReq()
+            {
+                Id = givenId is null ? MainDiamondReqId.Create() : givenId,
+                SettingType = settingType,
+                Quantity = quantity
+            };
+        } 
     }
 }

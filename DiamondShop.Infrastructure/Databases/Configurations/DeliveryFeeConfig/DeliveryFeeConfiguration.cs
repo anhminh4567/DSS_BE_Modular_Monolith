@@ -19,7 +19,6 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DeliveryFeeConfig
             .HasConversion(
                  Id => Id.Value,
                  dbValue => DeliveryFeeId.Parse(dbValue));
-
             builder.HasKey(o => o.Id);
         }
     }
