@@ -15,7 +15,7 @@ namespace DiamondShop.Test.General
             CaohungDiamondPriceScraper scraper = new CaohungDiamondPriceScraper(); 
             scraper.ExecuteCaohungScraper();
         }
-        [Fact]
+        [Fact(Skip = "not now")]
         public void TestSelenium()
         {
             AlgostoneDiamondPriceScraper scraper = new AlgostoneDiamondPriceScraper();

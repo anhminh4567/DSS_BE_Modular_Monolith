@@ -12,7 +12,7 @@ namespace DiamondShop.Application.Services.Interfaces
     public interface ICartService
     {
         Task<List<CartItem>> AddProduct(AccountId accountId,CartItem cartProduct);
-        Task<List<CartItem>> RemoveProduct(AccountId accountId, CartItem cartProduct);
+        Task<List<CartItem>> RemoveProduct(AccountId accountId, CartItemId cartProduct);
         Task<List<CartItem>> GetCartModel(AccountId accountId);
     }
 }

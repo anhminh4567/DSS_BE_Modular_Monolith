@@ -14,7 +14,7 @@ namespace DiamondShop.Domain.Models.AccountAggregate.ValueObjects
         }
         public static CartItemId Create()
         {
-            return new CartItemId(DateTime.UtcNow.Ticks.ToString());
+            return new CartItemId( (new Random().Next(1_000_000,9_999_999).ToString()));
         }
     }
 }

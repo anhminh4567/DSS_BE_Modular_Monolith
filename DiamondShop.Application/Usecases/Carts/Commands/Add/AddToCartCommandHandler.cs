@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Commons;
 using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
@@ -6,6 +7,7 @@ using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Services.interfaces;
+using FluentResults;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -16,11 +18,11 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.Carts.Commands.Add
 {
     public record AddJewelry(string jewelryId,string? EngravedText, string? EngravedFont);
-    public record AddDiamond(string diamondId);
+    public record AddDiamond(string diamondId, string? jewelryModelId);
     public record AddJewelryModel(string jewelryModelId, string sizeId, string metalId, Dictionary<string, string>? sideDiamondsChoices, string? EngravedText, string? EngravedFont);
 
-    public record AddToCartCommand(string userId, AddJewelry? Jewelry, AddDiamond? Diamond, AddJewelryModel? JewelryModel) : IRequest<List<CartProduct>>;
-    internal class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, List<CartProduct>>
+    public record AddToCartCommand(string userId, AddJewelry? Jewelry, AddDiamond? Diamond, AddJewelryModel? JewelryModel) : IRequest<Result<List<CartItem>>>;
+    internal class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result<List<CartItem>>>
     {
         private readonly ICartService _cartService;
         private readonly IDiamondServices _diamondServices;
@@ -31,7 +33,7 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.Add
             _diamondServices = diamondServices;
         }
 
-        public async Task<List<CartProduct>> Handle(AddToCartCommand request, CancellationToken cancellationToken)
+        public async Task<Result<List<CartItem>>> Handle(AddToCartCommand request, CancellationToken cancellationToken)
         {
             var accountId = AccountId.Parse(request.userId);
             CartItem item = null;
@@ -41,8 +43,10 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.Add
             }
             else if (request.Diamond != null)
             {
-                item = CartItem.CreateDiamond(DiamondId.Parse(request.Diamond.diamondId));
-
+                if (request.Diamond.jewelryModelId != null)
+                    item = CartItem.CreateDiamond(DiamondId.Parse(request.Diamond.diamondId), JewelryModelId.Parse(request.Diamond.jewelryModelId));
+                else
+                    item = CartItem.CreateDiamond(DiamondId.Parse(request.Diamond.diamondId),null);
             }
             else if (request.JewelryModel != null)
             {
@@ -51,10 +55,13 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.Add
                     mappedChoices = request.JewelryModel.sideDiamondsChoices.Select(kvp => new KeyValuePair<SideDiamondReqId,SideDiamondOptId>( SideDiamondReqId.Parse(kvp.Key),SideDiamondOptId.Parse(kvp.Value) )).ToDictionary();
                 item = CartItem.CreateJewelryModel(JewelryModelId.Parse(request.JewelryModel.jewelryModelId), MetalId.Parse(request.JewelryModel.metalId), SizeId.Parse(request.JewelryModel.sizeId), mappedChoices);    
             }
-
-
+            else
+            {
+                return Result.Fail(new ConflictError("unknown what item to add, all the necessary field are null"));
+            }
             var addResult = await _cartService.AddProduct(accountId,item);
-            return new();
+            
+            return Result.Ok(addResult);
         }
     }
 }

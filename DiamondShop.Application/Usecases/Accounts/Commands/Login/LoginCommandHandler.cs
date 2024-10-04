@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Accounts.Commands.Login
 {
-    public record LoginCommand(string? email, string? password, bool isExternalLogin = false, bool isStaffLogin = false) : IRequest<Result<AuthenticationResultDto>>;
+    public record LoginCommand(string? email, string? password, bool isExternalLogin = false, bool? isStaffLogin= false) : IRequest<Result<AuthenticationResultDto>>;
     internal class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthenticationResultDto>>
     {
         private readonly IAuthenticationService _authenticationService;

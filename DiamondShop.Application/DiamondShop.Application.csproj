@@ -7,20 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Usecases\Sizes\**" />
+    <EmbeddedResource Remove="Usecases\Sizes\**" />
+    <None Remove="Usecases\Sizes\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DiamondShop.Commons\DiamondShop.Commons.csproj" />
     <ProjectReference Include="..\DiamondShop.Domain\DiamondShop.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Usecases\Carts\Commands\Delete\" />
-    <Folder Include="Usecases\Carts\Commands\Update\" />
     <Folder Include="Usecases\DiamondPrices\Commands\Update\" />
     <Folder Include="Usecases\JewelryModels\Commands\Delete\" />
     <Folder Include="Usecases\JewelryModels\Commands\Update\" />
     <Folder Include="Usecases\DiamondPrices\Commands\UpdateMany\" />
     <Folder Include="Usecases\PromotionRequirements\Commands\Update\" />
-    <Folder Include="Usecases\Sizes\Commands\" />
-    <Folder Include="Usecases\Sizes\Queries\" />
   </ItemGroup>
 
   <ItemGroup>

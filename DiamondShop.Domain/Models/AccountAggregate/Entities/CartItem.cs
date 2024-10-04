@@ -33,9 +33,9 @@ namespace DiamondShop.Domain.Models.AccountAggregate.Entities
         {
            return new CartItem { JewelryModelId = jewelryModelId, MetalId = metalId, SizeId = sizeId, SideDiamondChoices = SideDiamondChoices };
         }
-        public static CartItem CreateDiamond(DiamondId diamondId)
+        public static CartItem CreateDiamond(DiamondId diamondId, JewelryModelId? jewelryModelId)
         {
-            return new CartItem { DiamondId = diamondId };
+            return new CartItem { DiamondId = diamondId , JewelryModelId = jewelryModelId != null ? jewelryModelId : null  };
         }
     }
 }

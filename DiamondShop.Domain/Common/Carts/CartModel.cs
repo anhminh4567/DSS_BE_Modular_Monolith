@@ -11,7 +11,8 @@ namespace DiamondShop.Domain.Common.Carts
 {
     public class CartModel
     {
-        public CheckoutPrice? OrderPrices { get; set; }
+        public CartModelPromotion Promotion { get; set; } = new CartModelPromotion() ;
+        public CheckoutPrice OrderPrices { get; set; } = new();
         public ShippingPrice? ShippingPrice { get; set; }
         public CartModelCounter? OrderCounter { get; set; }
         public CartModelValidation? OrderValidation { get; set; }

@@ -36,10 +36,12 @@ namespace DiamondShop.Infrastructure.Services
             return GetCart(accountId) ;
         }
 
-        public async Task<List<CartItem>> RemoveProduct(AccountId accountId,CartItem cartProduct)
+        public async Task<List<CartItem>> RemoveProduct(AccountId accountId,CartItemId cartItemId)
         {
             var cartModel = GetCart(accountId);
-            cartModel.Remove(cartProduct);
+            var itemToRemove= cartModel.FirstOrDefault(c => c.Id == cartItemId);
+            if(itemToRemove is not null)
+                cartModel.Remove(itemToRemove);
             var key = Cart_Key.Replace("userid", accountId.Value);
             _memoryCache.Remove(key);
             return _memoryCache.Set(key, cartModel);
