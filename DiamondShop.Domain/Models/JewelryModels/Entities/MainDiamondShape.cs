@@ -1,15 +1,9 @@
 ﻿using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.JewelryModels.Entities
 {
-    public record MainDiamondShapeSpec(string ShapeId, string MainDiamondReqId, float CaratFrom, float CaratTo);
     public class MainDiamondShape
     {
         public MainDiamondReqId MainDiamondReqId { get; set; }

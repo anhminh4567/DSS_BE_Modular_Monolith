@@ -18,6 +18,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
         { 
             _cache = cache;
         }
+
         public override async Task<JewelryModel?> GetById(params object[] ids)
         {
             JewelryModelId id = (JewelryModelId)ids[0];

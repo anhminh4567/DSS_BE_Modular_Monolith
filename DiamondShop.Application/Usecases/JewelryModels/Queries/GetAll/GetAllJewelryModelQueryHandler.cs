@@ -12,14 +12,14 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll
     public record GetAllJewelryModelQuery : IRequest<List<JewelryModel>>;
     internal class GetAllJewelryModelQueryHandler : IRequestHandler<GetAllJewelryModelQuery, List<JewelryModel>>
     {
-        private readonly IJewelryModelRepository _jewelryModelRepository;
+        private readonly IJewelryModelRepository _jewelryRepository;
         public GetAllJewelryModelQueryHandler(IJewelryModelRepository jewelryModelRepository)
         {
-            _jewelryModelRepository = jewelryModelRepository;
+            _jewelryRepository = jewelryModelRepository;
         }
         public async Task<List<JewelryModel>> Handle(GetAllJewelryModelQuery request, CancellationToken token)
         {
-            var query = _jewelryModelRepository.GetQuery();
+            var query = _jewelryRepository.GetQuery();
             return query.ToList();
         }
     }

@@ -15,6 +15,7 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         public string Description { get; set; }
         public string ThumbnailPath { get; set; }
         public bool IsGeneral { get; set; }
+        public string ParentCategoryId { get; set; }
         public JewelryModelCategoryDto ParentCategory { get; set; }
     }
 }

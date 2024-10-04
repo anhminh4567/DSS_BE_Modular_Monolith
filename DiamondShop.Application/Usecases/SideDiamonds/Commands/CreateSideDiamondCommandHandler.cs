@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Services.Data;
+﻿using DiamondShop.Application.Dtos.Requests.JewelryModels;
+using DiamondShop.Application.Services.Data;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.SideDiamonds.Commands
 {
-    public record CreateSideDiamondCommand(JewelryModelId ModelId, SideDiamondSpec SideDiamondSpecs) : IRequest<Result>;
+    public record CreateSideDiamondCommand(JewelryModelId ModelId, SideDiamondRequestDto SideDiamondSpecs) : IRequest<Result>;
     internal class CreateSideDiamondCommandHandler : IRequestHandler<CreateSideDiamondCommand, Result>
     {
         private readonly ISideDiamondRepository _sideDiamondRepository;
@@ -30,7 +31,7 @@ namespace DiamondShop.Application.Usecases.SideDiamonds.Commands
         public async Task<Result> Handle(CreateSideDiamondCommand request, CancellationToken token)
         {
             await _unitOfWork.BeginTransactionAsync(token);
-            request.Deconstruct(out JewelryModelId modelId, out SideDiamondSpec sideDiamondSpec);
+            request.Deconstruct(out JewelryModelId modelId, out SideDiamondRequestDto sideDiamondSpec);
             var sideDiamond = SideDiamondReq.Create(modelId, DiamondShapeId.Parse(sideDiamondSpec.ShapeId), sideDiamondSpec.ColorMin, sideDiamondSpec.ColorMax, sideDiamondSpec.ClarityMin, sideDiamondSpec.ClarityMax, sideDiamondSpec.SettingType);
             await _sideDiamondRepository.Create(sideDiamond, token);
 

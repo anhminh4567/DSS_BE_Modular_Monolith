@@ -11,11 +11,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.JewelryModels
 {
-    public record ModelSpec(
-        string Name, string CategoryId, float Width, float Length, 
-        bool IsEngravable, bool IsRhodiumFinish,
-        BackType? BackType, ClaspType? ClaspType, ChainType? ChainType
-        );
+   
     public class JewelryModel : Entity<JewelryModelId>, IAggregateRoot
     {
         public string Name { get; set; }
@@ -51,7 +47,7 @@ namespace DiamondShop.Domain.Models.JewelryModels
                 ChainType = modelSpec.ChainType,
             };
         }*/
-        public static JewelryModel Create(string name, JewelryModelCategoryId categoryId, float width, float length, bool isEngravable, bool isRhodiumFinish, BackType? backType, ClaspType? claspType, ChainType? chainType, JewelryModelId givenId = null)
+        public static JewelryModel Create(string name, JewelryModelCategoryId categoryId, float? width, float? length, bool isEngravable, bool isRhodiumFinish, BackType? backType, ClaspType? claspType, ChainType? chainType, JewelryModelId givenId = null)
         {
             return new JewelryModel()
             {

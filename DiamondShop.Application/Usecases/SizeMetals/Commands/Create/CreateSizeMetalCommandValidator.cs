@@ -24,7 +24,7 @@ namespace DiamondShop.Application.Usecases.SizeMetals.Commands.Create
                         .NotEmpty();
 
                     p.RuleFor(p => p.Weight)
-                        .NotEmpty()
+                        .NotNull()
                         .GreaterThan(0f);
                 });
         }

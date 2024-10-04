@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.JewelryModels.Entities
 {
-    public record SideDiamondOptSpec(float CaratWeight, int Quantity, string SideDiamondReqId = null);
     public class SideDiamondOpt : Entity<SideDiamondOptId>
     {
         public float CaratWeight { get; set; }

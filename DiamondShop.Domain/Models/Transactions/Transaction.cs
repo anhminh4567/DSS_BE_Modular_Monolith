@@ -3,11 +3,6 @@ using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Transactions.Entities;
 using DiamondShop.Domain.Models.Transactions.Enum;
 using DiamondShop.Domain.Models.Transactions.ValueObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.Transactions
 {

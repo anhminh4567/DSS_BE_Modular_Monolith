@@ -18,6 +18,18 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
         public bool IsGeneral { get; set; }
         public JewelryModelCategoryId? ParentCategoryId { get; set; }
         public JewelryModelCategory? ParentCategory { get; set; }
-        public JewelryModelCategory() { }
+        private JewelryModelCategory() { }
+        public static JewelryModelCategory Create(string name, string description, string thumbnailPath, bool isGeneral, JewelryModelCategoryId? parentCategoryId, JewelryModelCategoryId givenId = null)
+        {
+            return new JewelryModelCategory()
+            {
+                Id = givenId is null ? JewelryModelCategoryId.Create() : givenId,
+                Name = name,
+                Description = description,
+                ThumbnailPath = thumbnailPath,
+                IsGeneral = isGeneral,
+                ParentCategoryId = parentCategoryId,
+            };
+        }
     }
 }

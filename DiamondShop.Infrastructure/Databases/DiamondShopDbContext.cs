@@ -42,6 +42,7 @@ namespace DiamondShop.Infrastructure.Databases
         CustomIdentityUserToken>
     {
         private readonly DomainEventsPublishserInterceptors _domainEventsInterceptor;
+
         public DiamondShopDbContext(DbContextOptions options, DomainEventsPublishserInterceptors interceptors) : base(options)
         {
             _domainEventsInterceptor = interceptors;
