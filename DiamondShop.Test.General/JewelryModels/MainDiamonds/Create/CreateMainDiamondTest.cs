@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Services.Data;
+﻿using DiamondShop.Application.Dtos.Requests.JewelryModels;
+using DiamondShop.Application.Services.Data;
 using DiamondShop.Application.Usecases.MainDiamonds.Commands.Create;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.Enum;
@@ -21,9 +22,9 @@ namespace DiamondShop.Test.General.JewelryModels.MainDiamonds.Create
         /*      [Fact]
               public async Task Handle_Should_ReturnFailure_WhenQuantityIsBelowOrLowerThan0()
               {
-                  List<MainDiamondShapeSpec> shapes = new()
+                  List<MainDiamondShapeRequestDto> shapes = new()
                   {
-                      new MainDiamondShapeSpec("1",0.3f, 0.5f),
+                      new MainDiamondShapeRequestDto("1",0.3f, 0.5f),
                   };
                   MainDiamondSpec spec = new(shapes,SettingType.Prong,0);
                   var command = new CreateMainDiamondCommand(JewelryModelId.Create(), spec);
@@ -37,11 +38,11 @@ namespace DiamondShop.Test.General.JewelryModels.MainDiamonds.Create
         [Fact]
         public void Handle_Should_ReturnFailure_WhenQuantityIsBelowOrLowerThan0()
         {
-            List<MainDiamondShapeSpec> shapes = new()
+            List<MainDiamondShapeRequestDto> shapes = new()
                 {
-                    new MainDiamondShapeSpec("1",0.3f, 0.5f),
+                    new MainDiamondShapeRequestDto("1",0.3f, 0.5f),
                 };
-            MainDiamondSpec spec = new(shapes, SettingType.Prong, 0);
+            MainDiamondRequestDto spec = new(shapes, SettingType.Prong, 0);
             var command = new CreateMainDiamondCommand(JewelryModelId.Create(), spec);
             var validator = new CreateMainDiamondCommandValidator();
 
@@ -53,11 +54,11 @@ namespace DiamondShop.Test.General.JewelryModels.MainDiamonds.Create
         [Fact]
         public void Handle_Should_ReturnFailure_WhenOneShapeHasNegativeOr0Carat()
         {
-            List<MainDiamondShapeSpec> shapes = new()
+            List<MainDiamondShapeRequestDto> shapes = new()
                 {
-                    new MainDiamondShapeSpec("1",-0.03f, -0.5f),
+                    new MainDiamondShapeRequestDto("1",-0.03f, -0.5f),
                 };
-            MainDiamondSpec spec = new(shapes, SettingType.Prong, 1);
+            MainDiamondRequestDto spec = new(shapes, SettingType.Prong, 1);
             var command = new CreateMainDiamondCommand(JewelryModelId.Create(), spec);
             var validator = new CreateMainDiamondCommandValidator();
 
@@ -71,11 +72,11 @@ namespace DiamondShop.Test.General.JewelryModels.MainDiamonds.Create
         [Fact]
         public void Handle_Should_ReturnFailure_WhenCaratFromIsGreaterThanCaratTo()
         {
-            List<MainDiamondShapeSpec> shapes = new()
+            List<MainDiamondShapeRequestDto> shapes = new()
                 {
-                    new MainDiamondShapeSpec("1",0.8f, 0.5f),
+                    new MainDiamondShapeRequestDto("1",0.8f, 0.5f),
                 };
-            MainDiamondSpec spec = new(shapes, SettingType.Prong, 1);
+            MainDiamondRequestDto spec = new(shapes, SettingType.Prong, 1);
             var command = new CreateMainDiamondCommand(JewelryModelId.Create(), spec);
             var validator = new CreateMainDiamondCommandValidator();
 
@@ -88,11 +89,11 @@ namespace DiamondShop.Test.General.JewelryModels.MainDiamonds.Create
         [Fact]
         public void Handle_Should_ReturnSuccess_WhenCaratFromIsSmallerThanCaratTo()
         {
-            List<MainDiamondShapeSpec> shapes = new()
+            List<MainDiamondShapeRequestDto> shapes = new()
                 {
-                    new MainDiamondShapeSpec("1",0.3f, 0.5f),
+                    new MainDiamondShapeRequestDto("1",0.3f, 0.5f),
                 };
-            MainDiamondSpec spec = new(shapes, SettingType.Prong, 1);
+            MainDiamondRequestDto spec = new(shapes, SettingType.Prong, 1);
             var command = new CreateMainDiamondCommand(JewelryModelId.Create(), spec);
             var validator = new CreateMainDiamondCommandValidator();
 

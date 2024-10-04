@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Services.Data;
+﻿using DiamondShop.Application.Dtos.Requests.JewelryModels;
+using DiamondShop.Application.Services.Data;
 using DiamondShop.Application.Usecases.SideDiamonds.Commands;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
@@ -27,12 +28,12 @@ namespace DiamondShop.Test.General.JewelryModels.SideDiamonds.Create
         [Fact]
         public void Handle_Should_ReturnFailure_WhenColorMinIsGreaterThanColorMax()
         {
-            List<SideDiamondOptSpec> opts = new()
+            List<SideDiamondOptRequestDto> opts = new()
                 {
-                    new SideDiamondOptSpec(2.4f,2),
+                    new SideDiamondOptRequestDto(2.4f,2),
                 };
             //Sua lai sau khi doi cho Color
-            SideDiamondSpec spec = new("1",Color.D,Color.K,Clarity.S11, Clarity.S11, SettingType.Prong,opts);
+            SideDiamondRequestDto spec = new("1",Color.D,Color.K,Clarity.S11, Clarity.S11, SettingType.Prong,opts);
             var command = new CreateSideDiamondCommand(JewelryModelId.Create(), spec);
             var validator = new CreateSideDiamondCommandValidator();
 
@@ -45,11 +46,11 @@ namespace DiamondShop.Test.General.JewelryModels.SideDiamonds.Create
         [Fact]
         public void Handle_Should_ReturnSuccess_WhenColorMinIsSmallerThanColorMax()
         {
-            List<SideDiamondOptSpec> opts = new()
+            List<SideDiamondOptRequestDto> opts = new()
                 {
-                    new SideDiamondOptSpec(2.4f,2),
+                    new SideDiamondOptRequestDto(2.4f,2),
                 };
-            SideDiamondSpec spec = new("1",Color.K,Color.D,Clarity.S11, Clarity.S11, SettingType.Prong,opts);
+            SideDiamondRequestDto spec = new("1",Color.K,Color.D,Clarity.S11, Clarity.S11, SettingType.Prong,opts);
             var command = new CreateSideDiamondCommand(JewelryModelId.Create(), spec);
             var validator = new CreateSideDiamondCommandValidator();
 

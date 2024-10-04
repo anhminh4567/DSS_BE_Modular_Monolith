@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Api.Controllers.JewelryModels;
+using DiamondShop.Application.Dtos.Requests.JewelryModels;
 using DiamondShop.Application.Services.Data;
 using DiamondShop.Application.Usecases.JewelryModels.Commands.Create;
 using DiamondShop.Application.Usecases.MainDiamonds.Commands.Create;
@@ -29,10 +30,10 @@ namespace DiamondShop.Test.General.JewelryModels.Models.Create
         private readonly Mock<IJewelryModelRepository> _modelRepo;
         private readonly Mock<IUnitOfWork> _unitOfWork;
 
-        private List<MainDiamondShapeSpec> mainShapes;
-        private MainDiamondSpec mainSpec;
-        List<SideDiamondOptSpec> sideOpts;
-        SideDiamondSpec sideSpec;
+        private List<MainDiamondShapeRequestDto> mainShapes;
+        private MainDiamondRequestDto mainSpec;
+        List<SideDiamondOptRequestDto> sideOpts;
+        SideDiamondRequestDto sideSpec;
         ModelMetalSizeRequestDto sizeMetalSpec;
         public CreateModelTest()
         {
@@ -41,13 +42,13 @@ namespace DiamondShop.Test.General.JewelryModels.Models.Create
             _unitOfWork = new Mock<IUnitOfWork>();
             mainShapes = new()
                 {
-                    new MainDiamondShapeSpec("1",0.3f, 0.5f),
+                    new MainDiamondShapeRequestDto("1",0.3f, 0.5f),
                 };
             mainSpec = new(mainShapes, SettingType.Prong, 0);
 
             sideOpts = new()
                 {
-                    new SideDiamondOptSpec(2.4f,2),
+                    new SideDiamondOptRequestDto(2.4f,2),
                 };
             sideSpec = new("1", Color.K, Color.D, Clarity.S11, Clarity.S11, SettingType.Prong, sideOpts);
 
@@ -56,7 +57,7 @@ namespace DiamondShop.Test.General.JewelryModels.Models.Create
         [Fact]
         public async Task Handle_Should_CallAllNestedCommands()
         {
-            ModelSpec modelSpec = new("Test_Ring", "1", null, null, true, true, null, null, null);
+            JewelryModelRequestDto modelSpec = new("Test_Ring", "1", null, null, true, true, null, null, null);
             var command = new CreateJewelryModelCommand(modelSpec, new() { mainSpec }, new() { sideSpec }, new() { sizeMetalSpec });
             var handler = new CreateJewelryModelCommandHandler(_sender.Object, _modelRepo.Object, _unitOfWork.Object);
 
