@@ -16,7 +16,7 @@ using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Test.General.JewelryModel.Categories.Create
+namespace DiamondShop.Test.General.JewelryModels.Categories.Create
 {
     public class CreateModelCategoryTest
     {

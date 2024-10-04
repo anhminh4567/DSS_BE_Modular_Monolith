@@ -22,20 +22,14 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
     {
         private readonly ISender _sender;
         private readonly IJewelryModelRepository _jewelryModelRepository;
-        private readonly IMainDiamondRepository _mainDiamondRepository;
-        private readonly ISideDiamondRepository _sideDiamondRepository;
         private readonly IUnitOfWork _unitOfWork;
         public CreateJewelryModelCommandHandler(
             ISender sender,
             IJewelryModelRepository jewelryModelRepository, 
-            IMainDiamondRepository mainDiamondRepository,
-            ISideDiamondRepository sideDiamondRepository,
             IUnitOfWork unitOfWork)
         {
             _sender = sender;
             _jewelryModelRepository = jewelryModelRepository;
-            _mainDiamondRepository = mainDiamondRepository;
-            _sideDiamondRepository = sideDiamondRepository;
             _unitOfWork = unitOfWork;
         }
         public async Task<Result<JewelryModel>> Handle(CreateJewelryModelCommand request, CancellationToken token)

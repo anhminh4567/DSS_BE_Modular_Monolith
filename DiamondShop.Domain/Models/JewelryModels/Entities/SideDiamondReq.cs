@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.JewelryModels.Entities
 {
-    public record SideDiamondSpec(string ShapeId, Color ColorMin, Color ColorMax, Clarity ClarityMin, Clarity ClarityMax, SettingType SettingType, List<SideDiamondOptSpec> OptSpecs, string ModelId = null);
+    public record SideDiamondSpec(string ShapeId, Color ColorMin, Color ColorMax, Clarity ClarityMin, Clarity ClarityMax, SettingType SettingType, List<SideDiamondOptSpec> OptSpecs);
     public class SideDiamondReq : Entity<SideDiamondReqId>
     {
         public JewelryModelId ModelId { get; set; }

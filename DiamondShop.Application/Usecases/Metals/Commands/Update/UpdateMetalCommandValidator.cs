@@ -11,7 +11,8 @@ namespace DiamondShop.Application.Usecases.Metals.Commands.Update
     {
         public UpdateMetalCommandValidator() 
         { 
-            RuleFor(c => c.price).NotEmpty().GreaterThanOrEqualTo(0).WithMessage("Price can't be below 0");
+            RuleFor(c => c.price)
+                .NotNull().GreaterThanOrEqualTo(0);
         }
     }
 }
