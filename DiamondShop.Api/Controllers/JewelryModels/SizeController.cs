@@ -2,7 +2,6 @@
 using DiamondShop.Application.Usecases.Sizes.Queries.GetAll;
 using MapsterMapper;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiamondShop.Api.Controllers.JewelryModels

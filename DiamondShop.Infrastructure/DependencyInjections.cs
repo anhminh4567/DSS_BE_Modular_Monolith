@@ -32,6 +32,10 @@ using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo;
+using DiamondShop.Domain.Repositories.JewelryRepo;
+using DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo;
+using DiamondShop.Domain.Repositories.OrderRepo;
+using DiamondShop.Infrastructure.Databases.Repositories.OrderRepo;
 
 namespace DiamondShop.Infrastructure
 {
@@ -74,6 +78,13 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IGiftRepository, GiftRepository>();
             services.AddScoped<IRequirementRepository, RequirementRepository>();
             services.AddScoped<IDiscountRepository, DiscountRepository>();
+
+            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+            services.AddScoped<IOrderLogRepository, OrderLogRepository>();
+            services.AddScoped<IDeliveryPackageRepository, DeliveryPackageRepository>();
+
+            services.AddScoped<IJewelryRepository, JewelryRepository>();
 
             services.AddScoped<IJewelryModelRepository, JewelryModelRepository>();
             services.AddScoped<IJewelryModelCategoryRepository, JewelryModelCategoryRepository>();

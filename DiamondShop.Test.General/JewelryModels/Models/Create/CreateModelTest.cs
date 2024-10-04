@@ -33,7 +33,7 @@ namespace DiamondShop.Test.General.JewelryModels.Models.Create
         private MainDiamondSpec mainSpec;
         List<SideDiamondOptSpec> sideOpts;
         SideDiamondSpec sideSpec;
-        ModelMetalSizeSpec sizeMetalSpec;
+        ModelMetalSizeRequestDto sizeMetalSpec;
         public CreateModelTest()
         {
             _sender = new Mock<ISender>();

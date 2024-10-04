@@ -11,11 +11,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.JewelryModels
 {
-    public record ModelSpec(
-        string Name, string CategoryId, float? Width, float? Length, 
-        bool IsEngravable, bool IsRhodiumFinish,
-        BackType? BackType, ClaspType? ClaspType, ChainType? ChainType
-        );
+   
     public class JewelryModel : Entity<JewelryModelId>, IAggregateRoot
     {
         public string Name { get; set; }

@@ -1,11 +1,8 @@
 ﻿using DiamondShop.Application.Dtos.Responses.JewelryModels;
 using DiamondShop.Application.Usecases.JewelryModelCategories.Commands.Create;
 using DiamondShop.Application.Usecases.JewelryModelCategories.Queries.GetAll;
-using DiamondShop.Application.Usecases.JewelryModels.Commands.Create;
-using DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll;
 using MapsterMapper;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiamondShop.Api.Controllers.JewelryModels

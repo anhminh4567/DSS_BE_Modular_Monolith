@@ -1,14 +1,12 @@
-﻿using DiamondShop.Domain.Common;
-using DiamondShop.Domain.Models.Orders;
+﻿using DiamondShop.Application.Dtos.Responses.Orders;
 using DiamondShop.Domain.Models.Transactions.Entities;
 using DiamondShop.Domain.Models.Transactions.Enum;
-using DiamondShop.Domain.Models.Transactions.ValueObjects;
 
-namespace DiamondShop.Domain.Models.Transactions
+namespace DiamondShop.Application.Dtos.Responses.Transactions
 {
-    public class Transaction : Entity<TransactionId>, IAggregateRoot
+    public class TransactionDto
     {
-        public PaymentMethodId PayMethodId { get; set; }
+        public string PayMethodId { get; set; }
         public PaymentMethod PayMethod { get; set; }
         public TransactionType TransactionType { get; set; }
         public string Description { get; set; }
@@ -19,9 +17,9 @@ namespace DiamondShop.Domain.Models.Transactions
         public decimal TransactionAmount { get; set; }
         public decimal FineAmount { get; set; }
 
-        public TransactionId? RefundedTransacId { get; set; }
-        public Transaction? RefundedTransaction { get; set; }
-        public List<Order> Orders { get; set; } = new ();
-        public Transaction() { }
+        public string? RefundedTransacId { get; set; }
+        public TransactionDto? RefundedTransaction { get; set; }
+        public List<OrderDto> Orders { get; set; } = new();
+
     }
 }
