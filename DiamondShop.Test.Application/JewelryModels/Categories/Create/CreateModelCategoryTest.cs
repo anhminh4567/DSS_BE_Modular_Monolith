@@ -2,6 +2,8 @@
 using DiamondShop.Application.Usecases.JewelryModelCategories.Commands.Create;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
+using DiamondShop.Infrastructure.Databases;
+using DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo;
 using FluentAssertions;
 using FluentResults;
 using MapsterMapper;
@@ -12,6 +14,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +23,15 @@ namespace DiamondShop.Test.General.JewelryModels.Categories.Create
 {
     public class CreateModelCategoryTest
     {
+
+        public class JewelryModelCategoryJSON
+        {
+            public string name { get; set; }
+            public string description { get; set; }
+            public bool isGeneral { get; set; }
+            public string parentCategoryId { get; set; }
+        }
+
         private readonly Mock<IJewelryModelCategoryRepository> _categoryRepo;
         private readonly Mock<IUnitOfWork> _unitOfWork;
         public CreateModelCategoryTest()
@@ -39,17 +51,13 @@ namespace DiamondShop.Test.General.JewelryModels.Categories.Create
 
             var result = await handler.Handle(command, default);
 
-            _categoryRepo.Verify(x => x.Create(It.Is<JewelryModelCategory>(p => p.Id == result.Value.Id), default),Times.Once);
+            _categoryRepo.Verify(x => x.Create(It.Is<JewelryModelCategory>(p => p.Id == result.Value.Id), default), Times.Once);
         }
 
         [Fact]
         public async Task Handle_Should_ReturnFailureResult_WhenNameIsNotUnique()
         {
             var command = new CreateJewelryCategoryCommand("Test_Category", "this is a testing category, don't use", true, null);
-            _categoryRepo.Setup(
-                x => x.CheckDuplicate(
-                    It.IsAny<string>()))
-                .ReturnsAsync(true);
 
             var handler = new CreateJewelryCategoryCommandHandler(_categoryRepo.Object, _unitOfWork.Object);
 
@@ -65,6 +73,7 @@ namespace DiamondShop.Test.General.JewelryModels.Categories.Create
         public async Task Handle_Should_ReturnSuccessResult_WhenNameIsNotUnique()
         {
             var command = new CreateJewelryCategoryCommand("Test_Category", "this is a testing category, don't use", true, null);
+            
             _categoryRepo.Setup(
                 x => x.CheckDuplicate(
                     It.IsAny<string>()))
@@ -80,5 +89,43 @@ namespace DiamondShop.Test.General.JewelryModels.Categories.Create
                 .Should().NotBeNull()
                 .And.BeOfType<JewelryModelCategory>();
         }
+        public static IEnumerable<object[]> GetTestData()
+        {
+            var jsonData = File.ReadAllText("Data/InputCategory.json");
+            var data = JsonConvert.DeserializeObject<List<JewelryModelCategoryJSON>>(jsonData);
+            foreach(var row in data)
+            {
+                yield return new object[] { row.name, row.description, row.isGeneral, row.parentCategoryId };
+            }
+        }
+        [Theory]
+        [MemberData(nameof(GetTestData))]
+        [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+        public async Task Handle_Should_ReturnSuccess_WhenCategoryAddToDb(string name, string desc, bool isGeneral, string parentId)
+        {
+            
+            DbContextOptions opt = new DbContextOptionsBuilder<DiamondShopDbContext>().UseInMemoryDatabase($"CategoryTest {new Guid().ToString()}").Options;
+            using (var context = new DiamondShopDbContext(opt, null))
+            {
+                var impl = new JewelryModelCategoryRepository(context);
+                //_categoryRepo.Setup(
+                //    x => x.CheckDuplicate(It.IsAny<string>()))
+                //    .Callback<string>(name =>
+                //    {
+                //        return await impl.CheckDuplicate(name);
+                //    });
+                var command = new CreateJewelryCategoryCommand(name, desc, isGeneral, parentId);
+                var handler = new CreateJewelryCategoryCommandHandler(_categoryRepo.Object, _unitOfWork.Object);
+
+
+                var result = await handler.Handle(command, default);
+
+                result.IsSuccess.Should().BeTrue();
+                result.Value
+                    .Should().NotBeNull()
+                    .And.BeOfType<JewelryModelCategory>();
+            }
+        }
+
     }
 }
