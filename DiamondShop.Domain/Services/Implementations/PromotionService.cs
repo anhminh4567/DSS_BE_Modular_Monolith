@@ -284,22 +284,23 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             decimal savedAmount = giftReq.UnitType switch
             {
-                UnitType.Percent => Math.Ceiling((product.ReviewPrice.DefaultPrice * giftReq.UnitValue) / 100),
+                // we take the money from the discount price and calculate base on that
+                UnitType.Percent => Math.Ceiling((product.ReviewPrice.DiscountPrice * giftReq.UnitValue) / 100),
                 UnitType.Fix_Price => giftReq.UnitValue,
                 UnitType.Free_Gift => product.ReviewPrice.DiscountPrice,
                 _ => throw new Exception("Major error, gift for product have not unit type ")
             };
-            product.ReviewPrice.PromotionAmountSaved += savedAmount;
+            product.ReviewPrice.PromotionAmountSaved = savedAmount;
         }
-        private void SetOrderPrice(CartModel cartModel)
+        public void SetOrderPrice(CartModel cartModel)
         {
             //the flow is, work on default -> discount -> promtoin -> final price
             //we += since we not sure if the previous amount exist
             var productList = cartModel.Products;
             foreach (var item in productList)
             {
-                cartModel.OrderPrices.DefaultPrice += item.ReviewPrice.DefaultPrice;
-                cartModel.OrderPrices.DiscountAmountSaved += item.ReviewPrice.DiscountAmountSaved;
+                //cartModel.OrderPrices.DefaultPrice += item.ReviewPrice.DefaultPrice;
+                //cartModel.OrderPrices.DiscountAmountSaved += item.ReviewPrice.DiscountAmountSaved;
                 cartModel.OrderPrices.PromotionAmountSaved += item.ReviewPrice.PromotionAmountSaved;
             }
         }
@@ -388,114 +389,6 @@ namespace DiamondShop.Domain.Services.Implementations
 
             return false;
         }
-        /// <summary>
-        /// these 2 are the final step to validate the price or amount, to see the requirements list if they have met the condition
-        /// </summary>
-        /// <param name="promoReq"></param>
-        /// <param name="requirementProducts"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        //private bool HandleFinalRequirementCheckAfterValidation(CartModel cartModel, PromoReq promoReq, Dictionary<int, CartProduct> requirementProducts)
-        //{
-        //    var promoTarget = promoReq.TargetType;
-
-        //    bool CheckIfValid(decimal? amount, int? quantity, PromoReq req)
-        //    {
-        //        if (amount is not null)
-        //        {
-        //            return (req.Operator) switch
-        //            {
-        //                (Operator.Equal_Or_Larger) => amount >= req.Amount,
-        //                (Operator.Larger) => amount > req.Amount,
-        //                _ => false
-        //            };
-        //        }
-        //        else if (quantity is not null)
-        //        {
-        //            return (req.Operator) switch
-        //            {
-        //                (Operator.Equal_Or_Larger) => quantity >= req.Quantity,
-        //                (Operator.Larger) => quantity > req.Quantity,
-        //                _ => false
-        //            };
-        //        }
-        //        return false;
-        //    }
-        //    switch (promoTarget)
-        //    {
-        //        case TargetType.Diamond:
-        //            if (promoReq.Amount is not null)
-        //            {
-        //                var totalDiamondsPrice = TotalProductAmountFromRequirements(Diamond4CRange.ParseFromRequirement(promoReq), null, requirementProducts);
-        //                return CheckIfValid(totalDiamondsPrice, null, promoReq);
-        //            }
-        //            else if (promoReq.Quantity is not null)
-        //            {
-        //                var totalDiamondsQuantity = TotalProductQuantityFromRequirements(Diamond4CRange.ParseFromRequirement(promoReq), null, requirementProducts);
-        //                return CheckIfValid(null, totalDiamondsQuantity, promoReq);
-        //            }
-        //            break;
-        //        case TargetType.Jewelry_Model:
-        //            if (promoReq.Amount is not null)
-        //            {
-        //                var totalJewelryModelsPrice = TotalProductAmountFromRequirements(null, promoReq.ModelId, requirementProducts);
-        //                return CheckIfValid(totalJewelryModelsPrice, null, promoReq);
-        //            }
-        //            else if (promoReq.Quantity is not null)
-        //            {
-        //                var totalJewelryModelsQuantity = TotalProductQuantityFromRequirements(null, promoReq.ModelId, requirementProducts);
-        //                return CheckIfValid(null, totalJewelryModelsQuantity, promoReq);
-        //            }
-        //            break;
-        //        case TargetType.Order:
-        //            return CheckIfValid(cartModel.OrderPrices.FinalPrice, null, promoReq);
-        //        default:
-        //            return false;
-        //    }
-        //    return false;
-        //}
-
-        private decimal? TotalProductAmountFromRequirements(Diamond4CRange? diamond4CRange, JewelryModelId? jewelryModelId, Dictionary<int, CartProduct> requirementProducts)
-        {
-            decimal total = 0;
-            if (diamond4CRange is not null)
-            {
-                total = requirementProducts.Values.Where(prod =>
-                {
-                    if (prod.Diamond is not null)
-                        return ValidateDiamond4C(prod.Diamond, diamond4CRange.CaratFrom, diamond4CRange.CaratTo, diamond4CRange.ColorFrom, diamond4CRange.ColorTo, diamond4CRange.ClarityFrom, diamond4CRange.ClarityTo, diamond4CRange.CutFrom, diamond4CRange.CutTo);
-                    else
-                        return false;
-
-                }).Sum(p => p.ReviewPrice.FinalPrice);
-            }
-            else if (jewelryModelId is not null)
-            {
-                total = requirementProducts.Values.Where(p => p.JewelryModel?.Id == jewelryModelId).Sum(p => p.ReviewPrice.FinalPrice);
-            }
-            return total;
-        }
-        private int? TotalProductQuantityFromRequirements(Diamond4CRange? diamond4CRange, JewelryModelId? jewelryModelId, Dictionary<int, CartProduct> requirementProducts)
-        {
-            int total = 0;
-            if (diamond4CRange is not null)
-            {
-                total = requirementProducts.Values.Where(prod =>
-                {
-                    if (prod.Diamond is not null)
-                        return ValidateDiamond4C(prod.Diamond, diamond4CRange.CaratFrom, diamond4CRange.CaratTo, diamond4CRange.ColorFrom, diamond4CRange.ColorTo, diamond4CRange.ClarityFrom, diamond4CRange.ClarityTo, diamond4CRange.CutFrom, diamond4CRange.CutTo);
-                    else
-                        return false;
-
-                }).Count();
-            }
-            else if (jewelryModelId is not null)
-            {
-                total = requirementProducts.Values.Where(p => p.JewelryModel?.Id == jewelryModelId).Count();
-            }
-            return total;
-        }
-
     }
     /// <summary>
     /// this is for internal usage for promotion only

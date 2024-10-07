@@ -33,7 +33,7 @@ namespace DiamondShop.Test.Domain
             };
         }
 
-        [Fact]
+        [Fact(DisplayName ="exclude qualifier")]
         public void ApplyPromotionOnCartModel_ShouldApplyPromotion_IsExcludeQualifier()
         {
             // Arrange
@@ -71,8 +71,8 @@ namespace DiamondShop.Test.Domain
             Assert.Equal(userCartModel.Products[promo.RequirementProductsIndex[0]].CartProductId, product1.CartProductId);
             Assert.Equal(userCartModel.Products[promo.GiftProductsIndex[0]].CartProductId, product2.CartProductId);
         }
-        [Fact]
-        public  void ApplyPromotionOnCartModel_ShouldApplyPromotion_NOTExcludeQualifier()
+        [Fact(DisplayName = "include qualifier")]
+        public void ApplyPromotionOnCartModel_ShouldApplyPromotion_NOTExcludeQualifier()
         {
             // Arrange
             List<CartItem> userCartItemWithDiamonds = new List<CartItem>()
@@ -94,7 +94,7 @@ namespace DiamondShop.Test.Domain
             Diamond diamond2 = Diamond.Create(_diamondShapes[1], new Diamond_4C(Cut.Very_Good, Color.I, Clarity.VVS1, 0.3f, true), new Diamond_Details(Polish.Good, Symmetry.Good, Girdle.Medium, Fluorescence.Medium, Culet.Medium), true, new Diamond_Measurement(2f, 22f, 2f, "whatever 2"));
 
             CartModel userCartModel = new CartModel();
-            CartProduct product1 = new CartProduct() { Diamond = diamond1, ReviewPrice = new CheckoutPrice() { DefaultPrice = 1000 } };
+            CartProduct product1 = new CartProduct() { Diamond = diamond1, ReviewPrice = new CheckoutPrice() { DefaultPrice = 1100 } };
             CartProduct product2 = new CartProduct() { Diamond = diamond2, ReviewPrice = new CheckoutPrice() { DefaultPrice = 2000 } };
             userCartModel.Products.Add(product1);
             userCartModel.Products.Add(product2);
@@ -108,6 +108,7 @@ namespace DiamondShop.Test.Domain
             Assert.Equal(userCartModel.Products[promo.RequirementProductsIndex[0]].CartProductId, product1.CartProductId);
             Assert.Equal(userCartModel.Products[promo.GiftProductsIndex[0]].CartProductId, product1.CartProductId);
             Assert.Equal(userCartModel.Products[promo.GiftProductsIndex[0]].CartProductId, userCartModel.Products[promo.RequirementProductsIndex[0]].CartProductId);
+            Assert.Equal(promo.GiftProductsIndex.Count, promo.RequirementProductsIndex.Count);
 
         }
         [Fact(Skip = "not now")]

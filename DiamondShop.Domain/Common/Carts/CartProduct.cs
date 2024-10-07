@@ -20,6 +20,7 @@ namespace DiamondShop.Domain.Common.Carts
 
         public DiscountId? DiscountId { get; set; }
         public int? DiscountPercent { get; set; }
+        public bool IsHavingDiscount { get => DiscountId is not null; }
         /////////////////////////////////
         public PromotionId? PromotionId { get; set; }
         public bool IsHavingPromotion { get => PromotionId is not null; }

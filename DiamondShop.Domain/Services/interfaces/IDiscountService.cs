@@ -1,5 +1,4 @@
 ﻿using DiamondShop.Domain.Common.Carts;
-using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using FluentResults;
 using System;
@@ -10,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Services.interfaces
 {
-    public interface IPromotionServices
+    public interface IDiscountService
     {
-        Result ApplyPromotionOnCartModel(CartModel cartModel, Promotion promotion);
+        Result ApplyDiscountOnCartModel(CartModel cartModel, Discount discount);
         void SetOrderPrice(CartModel cartModel);
     }
 }
