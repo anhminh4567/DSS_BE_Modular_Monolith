@@ -22,6 +22,7 @@ namespace DiamondShop.Api.Controllers.Promotions
             _mapper = mapper;
         }
         [HttpGet()]
+        [Produces(typeof(List<GiftDto>))]
         public async Task<ActionResult> GetAllGifts()
         {
             var result = await _sender.Send(new GetAllGiftQuery());
@@ -29,16 +30,19 @@ namespace DiamondShop.Api.Controllers.Promotions
             return Ok(mappedResult);
         }
         [HttpPost()]
+        [Produces(type: typeof(List<GiftDto>))]
         public async Task<ActionResult> CreateGift(CreateGiftCommand createGiftCommand)
         {
             var result = await _sender.Send(createGiftCommand);
             if (result.IsSuccess)
             {
-                return Ok(result.Value);
+                var mappedResult = _mapper.Map<List<GiftDto>>(result.Value);
+                return Ok(mappedResult);
             }
             return MatchError(result.Errors, ModelState);
         }
         [HttpDelete("{giftId}")]
+        [Produces(type: typeof(GiftDto))]
         public async Task<ActionResult> DeleteGift(string giftId)
         {
             var result = await _sender.Send(new DeleteGiftCommand(giftId));

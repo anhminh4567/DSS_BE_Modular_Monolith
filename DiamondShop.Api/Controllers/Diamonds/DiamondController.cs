@@ -29,6 +29,7 @@ namespace DiamondShop.Api.Controllers.Diamonds
             _mapper = mapper;
         }
         [HttpGet("All")]
+        [Produces(typeof(List<DiamondDto>))]
         public async Task<ActionResult> GetAll()
         {
             var result = await _sender.Send(new GetAllDiamondQuery());
@@ -36,6 +37,7 @@ namespace DiamondShop.Api.Controllers.Diamonds
             return Ok(mappedResult);
         }
         [HttpGet("{id}")]
+        [Produces(typeof(DiamondDto))]
         public async Task<ActionResult> Get([FromRoute] string id )
         {
             var command = new GetDiamondDetail(id);
@@ -48,20 +50,29 @@ namespace DiamondShop.Api.Controllers.Diamonds
             return MatchError(result.Errors, ModelState);
         }
         [HttpGet]
+        [Produces(typeof(PagingResponseDto<DiamondDto>))]
         public async Task<ActionResult> GetPaging([FromQuery]GetDiamondPagingQuery getDiamondPagingQuery)
         {
             var result = await _sender.Send(getDiamondPagingQuery);
-            if(result.IsSuccess) 
-                return Ok(result.Value);
+            if(result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<PagingResponseDto<DiamondDto>>(result.Value);
+                return Ok(mappedResult);
+            }
+                
             return MatchError(result.Errors, ModelState);
         }
         [HttpPost]
-        [Produces(typeof(Diamond))]
+        [Produces(typeof(DiamondDto))]
         public async Task<ActionResult> Create([FromForm] CreateDiamondCommand createDiamondCommand)
         {
             var result = await _sender.Send(createDiamondCommand);
             if (result.IsSuccess)
-                return Ok(result.Value);
+            {
+                var mappedResult = _mapper.Map<DiamondDto>(result.Value);
+                return Ok(mappedResult);
+            }
+
             return MatchError(result.Errors, ModelState);
         }
         [HttpDelete("{id}")]

@@ -25,7 +25,7 @@ namespace DiamondShop.Api.Controllers.Carts
             _mapper = mapper;
         }
         [HttpGet]
-        [Produces(typeof(List<CartItem>))]
+        [Produces(typeof(List<CartItemDto>))]
         public async Task<ActionResult> Get([FromQuery]GetUserCartQuery getUserCartQuery)
         {
             var result = await _sender.Send(getUserCartQuery);
@@ -33,30 +33,39 @@ namespace DiamondShop.Api.Controllers.Carts
             return Ok(mappedResult);
         }
         [HttpPost]
-        [Produces(typeof(List<CartItem>))]
+        [Produces(typeof(List<CartItemDto>))]
         public async Task<ActionResult> Add(AddToCartCommand addToCartCommand)
         {
             var result = await _sender.Send(addToCartCommand);
             if (result.IsSuccess)
-                return Ok(result.Value);
+            {
+                var mappedResult = _mapper.Map<List<CartItemDto>>(result);
+                return Ok(mappedResult);
+            }
             return MatchError(result.Errors,ModelState);
         }
         [HttpPut]
-        [Produces(typeof(List<CartItem>))]
+        [Produces(typeof(List<CartItemDto>))]
         public async Task<ActionResult> Update(UpdateCartItemCommand updateCartItemCommand)
         {
             var result = await _sender.Send(updateCartItemCommand);
             if (result.IsSuccess)
-                return Ok(result.Value);
+            {
+                var mappedResult = _mapper.Map<List<CartItemDto>>(result);
+                return Ok(mappedResult);
+            }
             return MatchError(result.Errors, ModelState);
         }
         [HttpDelete]
-        [Produces(typeof(List<CartItem>))]
+        [Produces(typeof(List<CartItemDto>))]
         public async Task<ActionResult> Remove(RemoveFromCartCommand removeFromCartCommand)
         {
             var result = await _sender.Send(removeFromCartCommand);
             if (result.IsSuccess)
-                return Ok(result.Value);
+            {
+                var mappedResult = _mapper.Map<List<CartItemDto>>(result);
+                return Ok(mappedResult);
+            }
             return MatchError(result.Errors, ModelState);
         }
         [HttpGet("{userId}/Checkout")]

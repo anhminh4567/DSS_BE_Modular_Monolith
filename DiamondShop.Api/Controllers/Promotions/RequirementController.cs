@@ -22,6 +22,7 @@ namespace DiamondShop.Api.Controllers.Promotions
             _mapper = mapper;
         }
         [HttpGet()]
+        [Produces(type: typeof(List<RequirementDto>))]
         public async Task<ActionResult> GetAllRequirements()
         {
             var result = await _sender.Send(new GetAllRequirementQuery());
@@ -29,16 +30,19 @@ namespace DiamondShop.Api.Controllers.Promotions
             return Ok(mappedResult);
         }
         [HttpPost()]
+        [Produces(type: typeof(List<RequirementDto>))]
         public async Task<ActionResult> CreateRequirement(CreateRequirementCommand createRequirementCommand)
         {
             var result = await _sender.Send(createRequirementCommand);
             if (result.IsSuccess)
             {
-                return Ok(result.Value);
+                var mappedResult = _mapper.Map<List<RequirementDto>>(result.Value);
+                return Ok(mappedResult);
             }
             return MatchError(result.Errors, ModelState);
         }
         [HttpDelete("{requirementId}")]
+        [Produces(type: typeof(RequirementDto))]
         public async Task<ActionResult> DeleteRequirement(string requirementId)
         {
             var result = await _sender.Send(new DeleteRequirementCommand(requirementId));

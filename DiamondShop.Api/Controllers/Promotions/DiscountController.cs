@@ -24,6 +24,7 @@ namespace DiamondShop.Api.Controllers.Promotions
             _mapper = mapper;
         }
         [HttpGet]
+        [Produces(type: typeof(List<DiscountDto>))]
         public async Task<ActionResult> GetAll()
         {
             var response = await _sender.Send(new GetAllDiscountQuery());
@@ -32,6 +33,7 @@ namespace DiamondShop.Api.Controllers.Promotions
         }
 
         [HttpGet("{discountId}")]
+        [Produces(type: typeof(DiscountDto))]
         public async Task<ActionResult> Get([FromRoute] string discountId)
         {
             var response = await _sender.Send(new GetDiscountDetailQuery(discountId));
@@ -39,6 +41,7 @@ namespace DiamondShop.Api.Controllers.Promotions
             return Ok(mappedResult);
         }
         [HttpPost]
+        [Produces(type: typeof(DiscountDto))]
         public async Task<ActionResult> Create(CreateDiscountCommand createDiscountCommand)
         {
             var result = await _sender.Send(createDiscountCommand);
@@ -50,6 +53,7 @@ namespace DiamondShop.Api.Controllers.Promotions
             return MatchError(result.Errors,ModelState);
         }
         [HttpPut("{discountId}")]
+        [Produces(type: typeof(DiscountDto))]
         public async Task<ActionResult> Update([FromRoute]string discountId, [FromBody] UpdateDiscountCommand updateDiscountCommand )
         {
             var command = updateDiscountCommand with { discountId = discountId };
@@ -73,6 +77,7 @@ namespace DiamondShop.Api.Controllers.Promotions
             return MatchError(result.Errors, ModelState);
         }
         [HttpDelete("{discountId}")]
+        [Produces(type: typeof(DiscountDto))]
         public async Task<ActionResult> Delete(string discountId )
         {
             var result = await _sender.Send(new DeleteDiscountCommand(discountId));
