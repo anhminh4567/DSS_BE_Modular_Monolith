@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
+using DiamondShop.Domain.Models.Promotions.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,8 @@ namespace DiamondShop.Domain.Models.DiamondShapes
     public class DiamondShape : Entity<DiamondShapeId> , IAggregateRoot
     {
         public string Shape { get; private set; }
+        public List<PromoReqShape> PromoReqShapes { get; set; } = new();
+
         public DiamondShape() { }
         //given id is for shape, because we might not change this often, the id is predictable
         //and should be as short as possible 

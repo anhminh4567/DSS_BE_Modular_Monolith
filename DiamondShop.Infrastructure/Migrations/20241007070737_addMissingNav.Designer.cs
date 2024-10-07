@@ -3,6 +3,7 @@ using System;
 using DiamondShop.Infrastructure.Databases;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiamondShop.Infrastructure.Migrations
 {
     [DbContext(typeof(DiamondShopDbContext))]
-    partial class DiamondShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241007070737_addMissingNav")]
+    partial class addMissingNav
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -832,135 +835,195 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "3",
+                            Id = "9cbf45f1-e76c-41c4-8489-ada66d5f6a6b",
                             Unit = "milimeter",
                             Value = 3f
                         },
                         new
                         {
-                            Id = "4",
+                            Id = "7513a30e-493e-4ccb-ad4c-5638b5ec2aaf",
                             Unit = "milimeter",
                             Value = 4f
                         },
                         new
                         {
-                            Id = "5",
+                            Id = "0ff62177-8a43-4b6a-b030-c61ca2a2a7fa",
                             Unit = "milimeter",
                             Value = 5f
                         },
                         new
                         {
-                            Id = "6",
+                            Id = "e97bd250-97b7-428a-8d37-bf430e5a280e",
                             Unit = "milimeter",
                             Value = 6f
                         },
                         new
                         {
-                            Id = "7",
+                            Id = "9b4ab47f-6fd9-40d6-b9f3-1c4988dfa066",
                             Unit = "milimeter",
                             Value = 7f
                         },
                         new
                         {
-                            Id = "8",
+                            Id = "1e4d3bdc-e750-4035-8d0c-96ebcb44b52a",
                             Unit = "milimeter",
                             Value = 8f
                         },
                         new
                         {
-                            Id = "9",
+                            Id = "d6aea828-a5e0-47ca-9cc3-6a6ae72ecacc",
                             Unit = "milimeter",
                             Value = 9f
                         },
                         new
                         {
-                            Id = "10",
+                            Id = "c5593cf5-e154-4113-8588-cca21286187c",
                             Unit = "milimeter",
                             Value = 10f
                         },
                         new
                         {
-                            Id = "11",
+                            Id = "2cf26de6-c5ed-48bb-b958-ed4ccfe0185d",
                             Unit = "milimeter",
                             Value = 11f
                         },
                         new
                         {
-                            Id = "12",
+                            Id = "860820eb-2a33-4577-a960-06da7a56eb71",
                             Unit = "milimeter",
                             Value = 12f
                         },
                         new
                         {
-                            Id = "13",
+                            Id = "9547adea-e1d8-4b94-97f9-4d5fb0949b02",
                             Unit = "milimeter",
                             Value = 13f
                         },
                         new
                         {
-                            Id = "14",
+                            Id = "8e5a6836-9f1f-460c-9f20-4c1b487f33f3",
                             Unit = "milimeter",
                             Value = 14f
                         },
                         new
                         {
-                            Id = "15",
+                            Id = "6f8397d3-c8f0-4567-8af7-673bba2c2350",
                             Unit = "milimeter",
                             Value = 15f
                         },
                         new
                         {
-                            Id = "16",
+                            Id = "5d5e3611-7a26-4669-b711-22c18e0ac509",
                             Unit = "milimeter",
                             Value = 16f
                         },
                         new
                         {
-                            Id = "17",
+                            Id = "044bce84-5489-4b29-a5c7-c8bad1d809e7",
                             Unit = "milimeter",
                             Value = 17f
                         },
                         new
                         {
-                            Id = "18",
+                            Id = "58f05627-64ff-4f42-ba16-885407606e1c",
                             Unit = "milimeter",
                             Value = 18f
                         },
                         new
                         {
-                            Id = "19",
+                            Id = "e7a2a6a9-8d98-4946-bfbd-4a53cbc26767",
                             Unit = "milimeter",
                             Value = 19f
                         },
                         new
                         {
-                            Id = "20",
+                            Id = "b3b433fa-f2c3-489d-9a79-35f35c3c265a",
                             Unit = "milimeter",
                             Value = 20f
                         },
                         new
                         {
-                            Id = "21",
+                            Id = "d239cf5a-6feb-4a61-bd65-b07f1881bf86",
                             Unit = "milimeter",
                             Value = 21f
                         },
                         new
                         {
-                            Id = "22",
+                            Id = "99de9fbd-56a8-413c-b6d2-db448f26e15f",
                             Unit = "milimeter",
                             Value = 22f
                         },
                         new
                         {
-                            Id = "23",
+                            Id = "9bd741d2-70f3-4a83-8ead-057e2ca9c3a0",
                             Unit = "milimeter",
                             Value = 23f
                         },
                         new
                         {
-                            Id = "24",
+                            Id = "f9602eac-5a21-48bb-a765-a7129d43b19d",
                             Unit = "milimeter",
                             Value = 24f
+                        },
+                        new
+                        {
+                            Id = "1",
+                            Unit = "milimeter",
+                            Value = 3f
+                        },
+                        new
+                        {
+                            Id = "2",
+                            Unit = "milimeter",
+                            Value = 4f
+                        },
+                        new
+                        {
+                            Id = "3",
+                            Unit = "milimeter",
+                            Value = 5f
+                        },
+                        new
+                        {
+                            Id = "4",
+                            Unit = "milimeter",
+                            Value = 6f
+                        },
+                        new
+                        {
+                            Id = "5",
+                            Unit = "milimeter",
+                            Value = 7f
+                        },
+                        new
+                        {
+                            Id = "6",
+                            Unit = "milimeter",
+                            Value = 8f
+                        },
+                        new
+                        {
+                            Id = "7",
+                            Unit = "milimeter",
+                            Value = 9f
+                        },
+                        new
+                        {
+                            Id = "8",
+                            Unit = "milimeter",
+                            Value = 10f
+                        },
+                        new
+                        {
+                            Id = "9",
+                            Unit = "milimeter",
+                            Value = 11f
+                        },
+                        new
+                        {
+                            Id = "10",
+                            Unit = "milimeter",
+                            Value = 12f
                         });
                 });
 

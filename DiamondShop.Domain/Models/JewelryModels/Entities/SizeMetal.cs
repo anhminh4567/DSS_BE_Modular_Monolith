@@ -1,11 +1,4 @@
-﻿using DiamondShop.Domain.Common;
-using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 
 namespace DiamondShop.Domain.Models.JewelryModels.Entities
 {

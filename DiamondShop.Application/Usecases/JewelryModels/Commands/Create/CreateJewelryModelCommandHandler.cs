@@ -39,7 +39,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
             var flagSizeMetal = await _sender.Send(new CreateSizeMetalCommand(newModel.Id, MetalSizeSpecs));
             if (flagSizeMetal.IsFailed) return Result.Fail(flagSizeMetal.Errors);
 
-            foreach(var mainDiamondSpec in MainDiamondSpecs)
+            foreach (var mainDiamondSpec in MainDiamondSpecs)
             {
                 var flagMainDiamond = await _sender.Send(new CreateMainDiamondCommand(newModel.Id, mainDiamondSpec));
                 if (flagMainDiamond.IsFailed) return Result.Fail(flagMainDiamond.Errors);
