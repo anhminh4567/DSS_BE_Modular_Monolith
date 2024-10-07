@@ -13,7 +13,7 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
     public class JewelrySideDiamond : Entity<JewelrySideDiamondId>
     {
         public JewelryId JewelryId { get; set; }
-        public float Carat {  get; set; }
+        public float Carat { get; set; }
         public int Quantity { get; set; }
         public Color ColorMin { get; set; }
         public Color ColorMax { get; set; }
@@ -21,5 +21,19 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
         public Clarity ClarityMax { get; set; }
         public SettingType SettingType { get; set; }
         public JewelrySideDiamond() { }
+        public static JewelrySideDiamond Create(JewelryId jewelryId, float carat, int quantity, Color colorMin, Color colorMax, Clarity clarityMin, Clarity clarityMax, SettingType settingType, JewelrySideDiamondId givenId = null)
+        {
+            return new JewelrySideDiamond()
+            {
+                Id = givenId is null ? JewelrySideDiamondId.Create() : givenId,
+                Carat = carat,
+                Quantity = quantity,
+                ColorMin = colorMin,
+                ColorMax = colorMax,
+                ClarityMin = clarityMin,
+                ClarityMax = clarityMax,
+                SettingType = settingType,
+            };
+        }
     }
 }

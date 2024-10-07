@@ -13,6 +13,7 @@ using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo;
+using DiamondShop.Test.General;
 using FluentAssertions;
 using FluentResults;
 using FluentValidation;
@@ -28,10 +29,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static DiamondShop.Test.General.JewelryModels.MainDiamonds.Create.CreateMainDiamondTest;
 
-namespace DiamondShop.Test.General.JewelryModels.Models.Create
+namespace DiamondShop.Test.Application.JewelryModels.Create
 {
+    [Trait(nameof(JewelryModels), "Model")]
     public class CreateModelTest
     {
 
@@ -93,7 +94,7 @@ namespace DiamondShop.Test.General.JewelryModels.Models.Create
         }
         public static IEnumerable<object[]> GetTestData()
         {
-            var jsonData = File.ReadAllText("Data/InputModel.json");
+            var jsonData = File.ReadAllText("Data/JewelryModel/InputModel.json");
             var data = JsonConvert.DeserializeObject<List<JewelryModelJSON>>(jsonData);
             foreach (var item in data)
             {

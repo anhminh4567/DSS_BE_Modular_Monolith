@@ -19,15 +19,30 @@ namespace DiamondShop.Domain.Models.Jewelries
         public Metal Metal { get; set; }
         public float Weight { get; set; }
         public string SerialCode { get; set; }
-        public bool IsAwaiting { get; set; }
         public bool IsSold { get; set; }
-        public List<Diamond> Diamonds { get; set; } = new ();
-        public List<JewelrySideDiamond>? SideDiamonds { get; set; } = new ();
+        public List<Diamond> Diamonds { get; set; } = new();
+        public List<JewelrySideDiamond>? SideDiamonds { get; set; } = new();
         public JewelryReviewId? ReviewId { get; set; }
         public JewelryReview? Review { get; set; }
         public bool IsActive { get; set; } = true;
 
         public Media? Thumbnail { get; set; }
         public Jewelry() { }
+        public static Jewelry Create(
+            JewelryModelId modelId, SizeId sizeId, MetalId metalId, 
+            float weight, string serialCode, bool isSold = false, bool isActive = true, JewelryId givenId = null)
+        {
+            return new Jewelry()
+            {
+                Id = givenId is null ? JewelryId.Create() : givenId,
+                ModelId = modelId,
+                SizeId = sizeId,
+                MetalId = metalId,
+                Weight = weight,
+                SerialCode = serialCode,
+                IsSold = isSold,
+                IsActive = isActive,
+            };
+        }
     }
 }

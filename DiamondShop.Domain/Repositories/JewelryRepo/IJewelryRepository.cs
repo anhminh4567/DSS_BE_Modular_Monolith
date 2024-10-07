@@ -9,5 +9,6 @@ namespace DiamondShop.Domain.Repositories.JewelryRepo
 {
     public interface IJewelryRepository : IBaseRepository<Jewelry>
     {
+        public Task<bool> CheckDuplicatedSerial(string serialNumber);
     }
 }

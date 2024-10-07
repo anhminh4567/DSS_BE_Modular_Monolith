@@ -17,7 +17,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Test.General.JewelryModels.Models.Create
+namespace DiamondShop.Test.Application.JewelryModels.Create
 {
     public class SizeMetalHolder()
     {
@@ -25,6 +25,7 @@ namespace DiamondShop.Test.General.JewelryModels.Models.Create
         public List<ModelMetalSizeRequestDto> metalSizeSpecs { get; set; }
         public bool expected { get; set; }
     }
+    [Trait(nameof(JewelryModels), "Size Metal")]
     public class CreateSizeMetalTest
     {
         private readonly Mock<ISizeMetalRepository> _sizeMetalRepo;
@@ -36,7 +37,7 @@ namespace DiamondShop.Test.General.JewelryModels.Models.Create
         }
         public static IEnumerable<object[]> GetTestData()
         {
-            var jsonData = File.ReadAllText("Data/InputSizeMetal.json");
+            var jsonData = File.ReadAllText("Data/JewelryModel/InputSizeMetal.json");
             var data = JsonConvert.DeserializeObject<List<SizeMetalHolder>>(jsonData);
             foreach (var item in data)
             {

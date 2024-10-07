@@ -85,6 +85,7 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IDeliveryPackageRepository, DeliveryPackageRepository>();
 
             services.AddScoped<IJewelryRepository, JewelryRepository>();
+            services.AddScoped<IJewelrySideDiamondRepository, JewelrySideDiamondRepository>();
 
             services.AddScoped<IJewelryModelRepository, JewelryModelRepository>();
             services.AddScoped<IJewelryModelCategoryRepository, JewelryModelCategoryRepository>();
