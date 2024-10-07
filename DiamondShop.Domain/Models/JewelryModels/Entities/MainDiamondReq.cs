@@ -7,6 +7,7 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
     public class MainDiamondReq : Entity<MainDiamondReqId>
     {
         public JewelryModelId ModelId { get; set; }
+        public JewelryModel Model { get; set; }
         public List<MainDiamondShape> Shapes { get; set; } = new ();
         public SettingType SettingType { get; set; }
         public int Quantity { get; set; }
@@ -16,6 +17,7 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
             return new MainDiamondReq()
             {
                 Id = givenId is null ? MainDiamondReqId.Create() : givenId,
+                ModelId = modelId,
                 SettingType = settingType,
                 Quantity = quantity
             };

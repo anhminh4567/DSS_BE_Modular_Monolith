@@ -35,7 +35,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
             //builder.Property(o => o.ColorMax).HasConversion<string>().IsRequired();
             //builder.Property(o => o.ClarityMin).HasConversion<string>().IsRequired();
             //builder.Property(o => o.ClarityMax).HasConversion<string>().IsRequired();
-            builder.HasMany(o => o.SideDiamondOpts).WithOne().HasForeignKey(p => p.SideDiamondReqId).IsRequired();
+            builder.HasMany(o => o.SideDiamondOpts).WithOne(p => p.SideDiamondReq).HasForeignKey(p => p.SideDiamondReqId).IsRequired();
             builder.HasKey(o => o.Id);
         }
     }

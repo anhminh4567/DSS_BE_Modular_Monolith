@@ -2,11 +2,6 @@
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
 {
@@ -29,7 +24,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
                 dbValue => JewelryModelId.Parse(dbValue));
             builder.HasOne(o => o.Size).WithMany().HasForeignKey(o => o.SizeId).IsRequired();
             builder.HasOne(o => o.Metal).WithMany().HasForeignKey(o => o.MetalId).IsRequired();
-            builder.HasOne(o => o.Model).WithMany().HasForeignKey(o => o.ModelId).IsRequired();
+            builder.HasOne(o => o.Model).WithMany(p => p.SizeMetals).HasForeignKey(o => o.ModelId).IsRequired();
             builder.HasKey(o => new { o.SizeId, o.MetalId, o.ModelId });
         }
     }

@@ -5,13 +5,32 @@ using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.Enum;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
+using DiamondShop.Infrastructure.Databases;
+using DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
+using Newtonsoft.Json;
 
 namespace DiamondShop.Test.General.JewelryModels.MainDiamonds.Create
 {
     public class CreateMainDiamondTest
     {
+        public class MainDiamondJSON
+        {
+            public MainDiamondShapeJSON[] shapeSpecs { get; set; }
+            public int settingType { get; set; }
+            public int quantity { get; set; }
+        }
+
+        public class MainDiamondShapeJSON
+        {
+            public string shapeId { get; set; }
+            public float caratFrom { get; set; }
+            public float caratTo { get; set; }
+        }
+
         private readonly Mock<IMainDiamondRepository> _mainDiamondRepo;
         private readonly Mock<IUnitOfWork> _unitOfWork;
         public CreateMainDiamondTest()
@@ -47,7 +66,7 @@ namespace DiamondShop.Test.General.JewelryModels.MainDiamonds.Create
             var validator = new CreateMainDiamondCommandValidator();
 
             var result = validator.Validate(command);
-            
+
             result.IsValid.Should().BeFalse();
             result.Errors.Should().ContainSingle(e => e.PropertyName == "MainDiamondSpec.Quantity" && e.ErrorMessage == "'Quantity' must be greater than '0'.");
         }
@@ -101,5 +120,6 @@ namespace DiamondShop.Test.General.JewelryModels.MainDiamonds.Create
 
             result.IsValid.Should().BeTrue();
         }
+    
     }
 }

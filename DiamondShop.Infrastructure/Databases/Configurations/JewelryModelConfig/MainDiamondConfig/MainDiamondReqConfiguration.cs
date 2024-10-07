@@ -23,7 +23,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
             .HasConversion(
                 Id => Id.Value,
                 dbValue => JewelryModelId.Parse(dbValue));
-            builder.HasMany(o => o.Shapes).WithOne().HasForeignKey(p => p.MainDiamondReqId).IsRequired();
+            builder.HasMany(o => o.Shapes).WithOne(p => p.MainDiamondReq).HasForeignKey(p => p.MainDiamondReqId).IsRequired();
             builder.Property(o => o.SettingType).HasConversion<string>();
             builder.HasKey(o => o.Id);
         }
