@@ -13,6 +13,7 @@ namespace DiamondShop.Application.Usecases.JewelryModelCategories.Commands.Creat
         {
             RuleFor(x => x.Name)
                 .NotEmpty();
+
         }
     }
 }

@@ -26,14 +26,6 @@ namespace DiamondShop.Test.General.JewelryModels.Categories.Create
     public class CreateModelCategoryTest
     {
 
-        public class JewelryModelCategoryJSON
-        {
-            public string name { get; set; }
-            public string description { get; set; }
-            public bool isGeneral { get; set; }
-            public string parentCategoryId { get; set; }
-        }
-
         private readonly Mock<IJewelryModelCategoryRepository> _categoryRepo;
         private readonly Mock<IUnitOfWork> _unitOfWork;
         public CreateModelCategoryTest()
@@ -94,10 +86,10 @@ namespace DiamondShop.Test.General.JewelryModels.Categories.Create
         public static IEnumerable<object[]> GetTestData()
         {
             var jsonData = File.ReadAllText("Data/InputCategory.json");
-            var data = JsonConvert.DeserializeObject<List<JewelryModelCategoryJSON>>(jsonData);
+            var data = JsonConvert.DeserializeObject<List<JewelryModelCategory>>(jsonData);
             foreach(var row in data)
             {
-                yield return new object[] { row.name, row.description, row.isGeneral, row.parentCategoryId };
+                yield return new object[] { row.Name, row.Description, row.IsGeneral, row.ParentCategory };
             }
         }
         [Theory]

@@ -1,1 +1,64 @@
-﻿
+﻿[
+  {
+    "modelId": "modelId",
+    "metalSizeSpecs": [
+      {
+        "metalId": "1",
+        "sizeId": "3",
+        "weight": 10
+      },
+      {
+        "metalId": "1",
+        "sizeId": "3",
+        "weight": 12
+      },
+      {
+        "metalId": "1",
+        "sizeId": "9",
+        "weight": 15
+      },
+      {
+        "metalId": "2",
+        "sizeId": "3",
+        "weight": 10
+      },
+      {
+        "metalId": "1",
+        "sizeId": "6",
+        "weight": 12
+      }
+    ],
+    "result": false
+  },
+  {
+    "modelId": "modelId",
+    "metalSizeSpecs": [
+      {
+        "metalId": "1",
+        "sizeId": "3",
+        "weight": 10
+      },
+      {
+        "metalId": "1",
+        "sizeId": "4",
+        "weight": 12
+      },
+      {
+        "metalId": "1",
+        "sizeId": "9",
+        "weight": 15
+      },
+      {
+        "metalId": "2",
+        "sizeId": "3",
+        "weight": 10
+      },
+      {
+        "metalId": "2",
+        "sizeId": "6",
+        "weight": 12
+      }
+    ],
+    "expected": true
+  }
+]

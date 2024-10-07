@@ -1,18 +1,17 @@
-﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DiamondShop.Application.Dtos.Requests.JewelryModels;
+using FluentValidation;
 
 namespace DiamondShop.Application.Usecases.SizeMetals.Commands.Create
 {
     public class CreateSizeMetalCommandValidator : AbstractValidator<CreateSizeMetalCommand>
     {
-        public CreateSizeMetalCommandValidator() 
+        public CreateSizeMetalCommandValidator()
         {
             RuleFor(c => c.ModelId)
                 .NotEmpty();
+            RuleFor(c => c.MetalSizeSpecs)
+                .NotEmpty()
+                .Must(CheckDuplicateItem).WithMessage("No duplicates allowed");
             RuleForEach(c => c.MetalSizeSpecs)
                 .NotEmpty()
                 .ChildRules(p =>
@@ -26,7 +25,19 @@ namespace DiamondShop.Application.Usecases.SizeMetals.Commands.Create
                     p.RuleFor(p => p.Weight)
                         .NotNull()
                         .GreaterThan(0f);
-                });
+                })
+                ;
+        }
+        private bool CheckDuplicateItem(List<ModelMetalSizeRequestDto> spec)
+        {
+            Dictionary<(string metal,string size),bool> set = new();
+            foreach(var item in spec)
+            {
+                (string metal, string size) holder = new(item.MetalId, item.SizeId);
+                if (set.ContainsKey(holder)) return false;
+                else set.Add(holder, true);
+            }
+            return true;
         }
     }
 }
