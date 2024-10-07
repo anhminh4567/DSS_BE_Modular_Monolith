@@ -31,10 +31,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
                 dbValue => DiamondShapeId.Parse(dbValue));
             builder.HasOne(o => o.Shape).WithOne().HasForeignKey<SideDiamondReq>(p => p.ShapeId).IsRequired();
             builder.Property(o => o.SettingType).HasConversion<string>().IsRequired();
-            builder.Property(o => o.ColorMin).HasConversion<string>().IsRequired();
-            builder.Property(o => o.ColorMax).HasConversion<string>().IsRequired();
-            builder.Property(o => o.ClarityMin).HasConversion<string>().IsRequired();
-            builder.Property(o => o.ClarityMax).HasConversion<string>().IsRequired();
+            //builder.Property(o => o.ColorMin).HasConversion<string>().IsRequired();
+            //builder.Property(o => o.ColorMax).HasConversion<string>().IsRequired();
+            //builder.Property(o => o.ClarityMin).HasConversion<string>().IsRequired();
+            //builder.Property(o => o.ClarityMax).HasConversion<string>().IsRequired();
             builder.HasMany(o => o.SideDiamondOpts).WithOne().HasForeignKey(p => p.SideDiamondReqId).IsRequired();
             builder.HasKey(o => o.Id);
         }

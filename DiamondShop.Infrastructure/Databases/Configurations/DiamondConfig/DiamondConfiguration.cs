@@ -42,15 +42,15 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondConfig
                 childBuilder.ToJson();
             });
 
-            builder.Property(o => o.JewelryId).IsRequired(false);
-            builder.Property(o => o.Clarity).HasConversion<string>();
-            builder.Property(o => o.Color).HasConversion<string>();
-            builder.Property(o => o.Cut).HasConversion<string>();
-            builder.Property(o => o.Polish).HasConversion<string>();
-            builder.Property(o => o.Symmetry).HasConversion<string>();
-            builder.Property(o => o.Girdle).HasConversion<string>();
-            builder.Property(o => o.Culet).HasConversion<string>();
-            builder.Property(o => o.Fluorescence).HasConversion<string>();
+            builder.Property(o => o.JewelryId).IsRequired(false); 
+            //builder.Property(o => o.Clarity).HasConversion<string>();
+            //builder.Property(o => o.Color).HasConversion<string>();
+            //builder.Property(o => o.Cut).HasConversion<string>();
+            //builder.Property(o => o.Polish).HasConversion<string>();
+            //builder.Property(o => o.Symmetry).HasConversion<string>();
+            //builder.Property(o => o.Girdle).HasConversion<string>();
+            //builder.Property(o => o.Culet).HasConversion<string>();
+            //builder.Property(o => o.Fluorescence).HasConversion<string>();
             builder.HasKey(o => o.Id);
             builder.HasIndex(o => o.Id);
         }

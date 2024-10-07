@@ -32,9 +32,9 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             request.Deconstruct(out int pageSize, out int start, out var diamond_4C, out var diamond_Details);
             var query = _diamondRepository.GetQuery();
             if (diamond_4C is not null)
-                Filtering4C(query, diamond_4C);
+                query  = Filtering4C(query, diamond_4C);
             if (diamond_Details is not null) 
-                FilteringDetail(query, diamond_Details);
+                query = FilteringDetail(query, diamond_Details);
             query.Skip(start* pageSize);
             query.Take(pageSize);
             var result = query.ToList();
@@ -47,30 +47,31 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
                 ) ;
             return response;
         }
-        private void Filtering4C(in IQueryable<Diamond> query, GetDiamond_4C diamond_4C)
+        private IQueryable<Diamond> Filtering4C( IQueryable<Diamond> query, GetDiamond_4C diamond_4C)
         {
             if (diamond_4C.cutFrom is not null || diamond_4C.cutTo is not null)
-                _diamondRepository.QueryFilter(query, d => d.Cut >= diamond_4C.cutFrom && d.Cut <= diamond_4C.cutTo);
+                query = _diamondRepository.QueryFilter(query, d => d.Cut >= diamond_4C.cutFrom && d.Cut <= diamond_4C.cutTo);
             if (diamond_4C.clarityFrom is not null || diamond_4C.clarityTo is not null)
-                _diamondRepository.QueryFilter(query, d => d.Clarity >= diamond_4C.clarityFrom && d.Clarity <= diamond_4C.clarityTo);
+                query = _diamondRepository.QueryFilter(query, d => d.Clarity >= diamond_4C.clarityFrom && d.Clarity <= diamond_4C.clarityTo);
             if (diamond_4C.colorFrom is not null || diamond_4C.colorTo is not null)
-                _diamondRepository.QueryFilter(query, d => d.Color >= diamond_4C.colorFrom && d.Color <= diamond_4C.colorTo);
+                query = _diamondRepository.QueryFilter(query, d => d.Color >= diamond_4C.colorFrom && d.Color <= diamond_4C.colorTo);
             if (diamond_4C.caratFrom is not null || diamond_4C.caratTo is not null)
-                _diamondRepository.QueryFilter(query, d => d.Carat >= diamond_4C.caratFrom && d.Carat <= diamond_4C.caratTo);
+                query = _diamondRepository.QueryFilter(query, d => d.Carat >= diamond_4C.caratFrom && d.Carat <= diamond_4C.caratTo);
+            return query;
         }
-        private void FilteringDetail(in IQueryable<Diamond> query, GetDiamond_Details diamond_Details)
+        private IQueryable<Diamond>  FilteringDetail( IQueryable<Diamond> query, GetDiamond_Details diamond_Details)
         {
             if (diamond_Details.Culet is not null)
-                _diamondRepository.QueryFilter(query,d => d.Culet == diamond_Details.Culet);
+                query = _diamondRepository.QueryFilter(query,d => d.Culet == diamond_Details.Culet);
             if (diamond_Details.isGIA)
-                _diamondRepository.QueryFilter(query, d => d.HasGIACert == diamond_Details.isGIA);
+                query = _diamondRepository.QueryFilter(query, d => d.HasGIACert == diamond_Details.isGIA);
             if (diamond_Details.Fluorescence is not null)
-                _diamondRepository.QueryFilter(query, d => d.Fluorescence == diamond_Details.Fluorescence);
+                query = _diamondRepository.QueryFilter(query, d => d.Fluorescence == diamond_Details.Fluorescence);
             if (diamond_Details.Polish is not null)
-                _diamondRepository.QueryFilter(query, d => d.Polish == diamond_Details.Polish);
+                query = _diamondRepository.QueryFilter(query, d => d.Polish == diamond_Details.Polish);
             if (diamond_Details.Girdle is not null)
-                _diamondRepository.QueryFilter(query, d => d.Girdle == diamond_Details.Girdle);
-
+                query = _diamondRepository.QueryFilter(query, d => d.Girdle == diamond_Details.Girdle);
+            return query;
         }
     }
 }

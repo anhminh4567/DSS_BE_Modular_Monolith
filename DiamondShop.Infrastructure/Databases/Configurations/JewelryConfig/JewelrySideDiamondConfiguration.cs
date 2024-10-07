@@ -23,10 +23,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryConfig
             .HasConversion(
                 Id => Id.Value,
                 dbValue => JewelryId.Parse(dbValue));
-            builder.Property(o => o.ColorMin).HasConversion<string>();
-            builder.Property(o => o.ColorMax).HasConversion<string>();
-            builder.Property(o => o.ClarityMin).HasConversion<string>();
-            builder.Property(o => o.ColorMax).HasConversion<string>();
+            //builder.Property(o => o.ColorMin).HasConversion<string>();
+            //builder.Property(o => o.ColorMax).HasConversion<string>();
+            //builder.Property(o => o.ClarityMin).HasConversion<string>();
+            //builder.Property(o => o.ColorMax).HasConversion<string>();
             builder.Property(o => o.SettingType).HasConversion<string>();
             builder.HasKey(o => o.Id);
             builder.HasIndex(o => o.Id);

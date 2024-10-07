@@ -150,6 +150,9 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Note")
+                        .HasColumnType("text");
+
                     b.Property<string>("SizeId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -185,17 +188,17 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<decimal?>("CaratTo")
                         .HasColumnType("numeric");
 
-                    b.Property<string>("Clarity")
-                        .HasColumnType("text");
+                    b.Property<int?>("Clarity")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("Color")
-                        .HasColumnType("text");
+                    b.Property<int?>("Color")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("Culet")
-                        .HasColumnType("text");
+                    b.Property<int?>("Culet")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("Cut")
-                        .HasColumnType("text");
+                    b.Property<int?>("Cut")
+                        .HasColumnType("integer");
 
                     b.Property<string>("DiamondId")
                         .HasColumnType("text");
@@ -203,20 +206,20 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<string>("DiamondShapeId")
                         .HasColumnType("text");
 
-                    b.Property<string>("Girdle")
-                        .HasColumnType("text");
+                    b.Property<int?>("Girdle")
+                        .HasColumnType("integer");
 
                     b.Property<bool?>("IsLabGrown")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Polish")
-                        .HasColumnType("text");
+                    b.Property<int?>("Polish")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Position")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Symmetry")
-                        .HasColumnType("text");
+                    b.Property<int?>("Symmetry")
+                        .HasColumnType("integer");
 
                     b.HasKey("DiamondRequestId", "CustomizeRequestId");
 
@@ -306,17 +309,14 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<float>("CaratTo")
                         .HasColumnType("real");
 
-                    b.Property<string>("Clarity")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Clarity")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Color")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("Cut")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Cut")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsLabGrown")
                         .HasColumnType("boolean");
@@ -402,20 +402,17 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<float>("Carat")
                         .HasColumnType("real");
 
-                    b.Property<string>("Clarity")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Clarity")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Color")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("Culet")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Culet")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("Cut")
-                        .HasColumnType("text");
+                    b.Property<int?>("Cut")
+                        .HasColumnType("integer");
 
                     b.Property<float>("Depth")
                         .HasColumnType("real");
@@ -424,15 +421,16 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Fluorescence")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Fluorescence")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("Girdle")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Girdle")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("HasGIACert")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsLabDiamond")
@@ -445,16 +443,14 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Polish")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Polish")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("PriceOffset")
                         .HasColumnType("numeric");
 
-                    b.Property<string>("Symmetry")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Symmetry")
+                        .HasColumnType("integer");
 
                     b.Property<float>("Table")
                         .HasColumnType("real");
@@ -517,17 +513,14 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<int>("ClarityMax")
                         .HasColumnType("integer");
 
-                    b.Property<string>("ClarityMin")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("ClarityMin")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("ColorMax")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("ColorMax")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("ColorMin")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("ColorMin")
+                        .HasColumnType("integer");
 
                     b.Property<string>("JewelryId")
                         .HasColumnType("text");
@@ -552,6 +545,9 @@ namespace DiamondShop.Infrastructure.Migrations
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsAwaiting")
                         .HasColumnType("boolean");
@@ -702,61 +698,61 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "9b1bbae2-d3de-452c-a699-75f777f28344",
+                            Id = "1",
                             Name = "Platinum",
                             Price = 778370m
                         },
                         new
                         {
-                            Id = "96bd6ee3-5b53-41fc-aa4e-215644833b17",
+                            Id = "2",
                             Name = "14K Yellow Gold",
                             Price = 1217096m
                         },
                         new
                         {
-                            Id = "0296db20-d597-483f-a835-3b8f5aeac260",
+                            Id = "3",
                             Name = "14K White Gold",
                             Price = 1217096m
                         },
                         new
                         {
-                            Id = "158c188e-a635-441f-a6b5-ba92f5b4a8b2",
+                            Id = "4",
                             Name = "14K Pink Gold",
                             Price = 1217096m
                         },
                         new
                         {
-                            Id = "d8013842-8f10-41f3-9cac-dfebfe197f87",
+                            Id = "5",
                             Name = "16K Yellow Gold",
                             Price = 1391318m
                         },
                         new
                         {
-                            Id = "a032378e-1e03-4931-8a9d-b05448c96643",
+                            Id = "6",
                             Name = "16K White Gold",
                             Price = 1391318m
                         },
                         new
                         {
-                            Id = "de9cfca6-260f-4025-b3db-b6e2e608df01",
+                            Id = "7",
                             Name = "16K Pink Gold",
                             Price = 1391318m
                         },
                         new
                         {
-                            Id = "cf21d220-b836-4320-8a87-d0d15d0c8a78",
+                            Id = "8",
                             Name = "18K Yellow Gold",
                             Price = 1565233m
                         },
                         new
                         {
-                            Id = "5b30aec8-7d40-44f1-831d-9bfe1f956e91",
+                            Id = "9",
                             Name = "18K White Gold",
                             Price = 1565233m
                         },
                         new
                         {
-                            Id = "fca611bf-f706-4038-882a-651f5972ba6d",
+                            Id = "10",
                             Name = "18K Pink Gold",
                             Price = 1565233m
                         });
@@ -795,21 +791,17 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<string>("ClarityMax")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("ClarityMax")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("ClarityMin")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("ClarityMin")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("ColorMax")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("ColorMax")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("ColorMin")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("ColorMin")
+                        .HasColumnType("integer");
 
                     b.Property<string>("ModelId")
                         .IsRequired()
@@ -859,193 +851,193 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "94068c81-13b1-4729-94db-fb21c1772359",
+                            Id = "4a0cd35c-4f4e-47cb-af78-8cbca797d511",
                             Unit = "milimeter",
                             Value = 3f
                         },
                         new
                         {
-                            Id = "b8b13601-d7e9-47db-b924-6b9679dde510",
+                            Id = "eee909fe-bb68-4090-a621-9cd148e5198e",
                             Unit = "milimeter",
                             Value = 4f
                         },
                         new
                         {
-                            Id = "158ffe39-c486-4aef-b2b0-2d5f748d7399",
+                            Id = "ef82fe7c-3921-48b6-b7aa-d9f2c01ade2e",
                             Unit = "milimeter",
                             Value = 5f
                         },
                         new
                         {
-                            Id = "6e929733-ac78-44ea-bc5d-a78ea353796e",
+                            Id = "75136cfd-a509-4d45-a0c9-7120caa75743",
                             Unit = "milimeter",
                             Value = 6f
                         },
                         new
                         {
-                            Id = "af6e5c22-b7e7-4b47-ba08-9cf20cb90be3",
+                            Id = "5894ca7c-e56c-461a-a155-9e03a423d8c3",
                             Unit = "milimeter",
                             Value = 7f
                         },
                         new
                         {
-                            Id = "3ee87ad8-ecce-4615-bc46-404fda9a2716",
+                            Id = "b82d80f8-2a15-49f1-aaa7-675046ffacc8",
                             Unit = "milimeter",
                             Value = 8f
                         },
                         new
                         {
-                            Id = "f36f9582-64e3-4008-95c1-6e2ca14d56c3",
+                            Id = "a1c94f37-324b-4fc4-b9c4-5f37af8edc39",
                             Unit = "milimeter",
                             Value = 9f
                         },
                         new
                         {
-                            Id = "26910ada-6d78-4749-a189-b9df8781823f",
+                            Id = "190d6400-af5a-47a6-9ded-3f6258b800cf",
                             Unit = "milimeter",
                             Value = 10f
                         },
                         new
                         {
-                            Id = "874f136d-88d1-4d76-b1b7-e927e8ba60ec",
+                            Id = "3a4e3119-bcf2-45b3-a1bb-6d51273646ca",
                             Unit = "milimeter",
                             Value = 11f
                         },
                         new
                         {
-                            Id = "ca5c01a9-a9ac-41ef-bb9f-6de8d5a58de8",
+                            Id = "60d44e05-0689-4161-8384-3bc7cf06bf05",
                             Unit = "milimeter",
                             Value = 12f
                         },
                         new
                         {
-                            Id = "fae5f221-86c7-4207-9bf8-7139cbc793b9",
+                            Id = "66350f7b-6600-4c64-83dc-c4f82da068c2",
                             Unit = "milimeter",
                             Value = 13f
                         },
                         new
                         {
-                            Id = "80b8ada4-fbd8-46a7-9015-933da5a2c65a",
+                            Id = "18f25077-96d2-46f0-bf46-314dbe2ad407",
                             Unit = "milimeter",
                             Value = 14f
                         },
                         new
                         {
-                            Id = "d5ec0c65-a84f-4f30-94af-db67f9a9ea85",
+                            Id = "3d9622ea-4448-4172-96a5-9c55eb6bdd1a",
                             Unit = "milimeter",
                             Value = 15f
                         },
                         new
                         {
-                            Id = "6fb280a4-aa0b-498b-b78a-7f0f93d64b45",
+                            Id = "827b229a-7bef-443e-be13-4502208c2caa",
                             Unit = "milimeter",
                             Value = 16f
                         },
                         new
                         {
-                            Id = "c87f7e47-5f7b-4248-aed2-3551bd46f205",
+                            Id = "36b167cc-d42f-4ab6-95cd-06453a15d773",
                             Unit = "milimeter",
                             Value = 17f
                         },
                         new
                         {
-                            Id = "ce0587b5-0ec3-4ec4-8586-44757311d275",
+                            Id = "17f683b8-f15d-41fb-9eb1-f33b06412e77",
                             Unit = "milimeter",
                             Value = 18f
                         },
                         new
                         {
-                            Id = "d4698130-2b66-4ac6-ae0f-a64b11ea4cf3",
+                            Id = "a5305a21-f3c0-4124-8dac-d2b6da162ea4",
                             Unit = "milimeter",
                             Value = 19f
                         },
                         new
                         {
-                            Id = "3b8a7a1e-d872-43fd-a6c9-6dca4a502dab",
+                            Id = "cd9f1304-b7f4-4080-93f5-19e5729ced51",
                             Unit = "milimeter",
                             Value = 20f
                         },
                         new
                         {
-                            Id = "67c6bb97-dcb4-4238-8adb-45caa873116b",
+                            Id = "e8504aaa-7048-4ac9-8a70-ca66ba865926",
                             Unit = "milimeter",
                             Value = 21f
                         },
                         new
                         {
-                            Id = "4326f493-9b50-453b-aef8-d7e44fae1004",
+                            Id = "d5f55296-ebbc-434c-8a6d-33214741b3dd",
                             Unit = "milimeter",
                             Value = 22f
                         },
                         new
                         {
-                            Id = "7fd5393f-07a4-41ee-b01a-3c094a26c26c",
+                            Id = "26efce5f-7952-4480-a05a-ce0a1334d715",
                             Unit = "milimeter",
                             Value = 23f
                         },
                         new
                         {
-                            Id = "1dbc2a5c-10ba-4f66-ac80-ef9ffd9ffc6e",
+                            Id = "8fa384d8-71f9-4861-b45e-87454c808bf6",
                             Unit = "milimeter",
                             Value = 24f
                         },
                         new
                         {
-                            Id = "9da4b1f7-40df-4d63-bbb8-2dfe51a000d1",
+                            Id = "1",
                             Unit = "milimeter",
                             Value = 3f
                         },
                         new
                         {
-                            Id = "2bedddec-7c52-4c27-9885-b0440c8ce6bc",
+                            Id = "2",
                             Unit = "milimeter",
                             Value = 4f
                         },
                         new
                         {
-                            Id = "dcaa48e2-522a-447f-9d5b-66fa8bca3632",
+                            Id = "3",
                             Unit = "milimeter",
                             Value = 5f
                         },
                         new
                         {
-                            Id = "92779a8d-2bc6-4040-a9e5-54ea06dba4f1",
+                            Id = "4",
                             Unit = "milimeter",
                             Value = 6f
                         },
                         new
                         {
-                            Id = "58111f37-37bb-4cce-ad1d-bdb05cc79563",
+                            Id = "5",
                             Unit = "milimeter",
                             Value = 7f
                         },
                         new
                         {
-                            Id = "b1b64c3d-d176-41bc-9fba-31cc9daf6b03",
+                            Id = "6",
                             Unit = "milimeter",
                             Value = 8f
                         },
                         new
                         {
-                            Id = "4d794ca5-ab25-436d-b915-3aa46feb7bd8",
+                            Id = "7",
                             Unit = "milimeter",
                             Value = 9f
                         },
                         new
                         {
-                            Id = "a3ccab2d-10b8-49f3-9fa5-fb048c8d0568",
+                            Id = "8",
                             Unit = "milimeter",
                             Value = 10f
                         },
                         new
                         {
-                            Id = "1705b58b-7eb4-4625-97cc-d33540816461",
+                            Id = "9",
                             Unit = "milimeter",
                             Value = 11f
                         },
                         new
                         {
-                            Id = "34c34cab-8aa0-42e5-8ed2-e45e43ccb61e",
+                            Id = "10",
                             Unit = "milimeter",
                             Value = 12f
                         });
@@ -1462,26 +1454,26 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<float?>("CaratTo")
                         .HasColumnType("real");
 
-                    b.Property<string>("ClarityFrom")
-                        .HasColumnType("text");
+                    b.Property<int?>("ClarityFrom")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("ClarityTo")
-                        .HasColumnType("text");
+                    b.Property<int?>("ClarityTo")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("ColorFrom")
-                        .HasColumnType("text");
+                    b.Property<int?>("ColorFrom")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("ColorTo")
-                        .HasColumnType("text");
+                    b.Property<int?>("ColorTo")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("CutFrom")
-                        .HasColumnType("text");
+                    b.Property<int?>("CutFrom")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("CutTo")
-                        .HasColumnType("text");
+                    b.Property<int?>("CutTo")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("DiamondOrigin")
-                        .HasColumnType("text");
+                    b.Property<int?>("DiamondOrigin")
+                        .HasColumnType("integer");
 
                     b.Property<string>("ItemId")
                         .HasColumnType("text");
@@ -1525,26 +1517,26 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<float?>("CaratTo")
                         .HasColumnType("real");
 
-                    b.Property<string>("ClarityFrom")
-                        .HasColumnType("text");
+                    b.Property<int?>("ClarityFrom")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("ClarityTo")
-                        .HasColumnType("text");
+                    b.Property<int?>("ClarityTo")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("ColorFrom")
-                        .HasColumnType("text");
+                    b.Property<int?>("ColorFrom")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("ColorTo")
-                        .HasColumnType("text");
+                    b.Property<int?>("ColorTo")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("CutFrom")
-                        .HasColumnType("text");
+                    b.Property<int?>("CutFrom")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("CutTo")
-                        .HasColumnType("text");
+                    b.Property<int?>("CutTo")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("DiamondOrigin")
-                        .HasColumnType("text");
+                    b.Property<int?>("DiamondOrigin")
+                        .HasColumnType("integer");
 
                     b.Property<string>("DiscountId")
                         .HasColumnType("text");

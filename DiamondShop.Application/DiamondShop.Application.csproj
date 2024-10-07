@@ -7,6 +7,12 @@
   </PropertyGroup>
 	
   <ItemGroup>
+    <Compile Remove="Usecases\Sizes\**" />
+    <EmbeddedResource Remove="Usecases\Sizes\**" />
+    <None Remove="Usecases\Sizes\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DiamondShop.Commons\DiamondShop.Commons.csproj" />
     <ProjectReference Include="..\DiamondShop.Domain\DiamondShop.Domain.csproj" />
   </ItemGroup>
@@ -20,7 +26,6 @@
     <Folder Include="Usecases\DiamondPrices\Commands\UpdateMany\" />
     <Folder Include="Usecases\Orders\Commands\" />
     <Folder Include="Usecases\PromotionRequirements\Commands\Update\" />
-    <Folder Include="Usecases\Sizes\Commands\" />
   </ItemGroup>
 
   <ItemGroup>

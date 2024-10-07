@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Common.Carts;
+using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -22,7 +23,7 @@ namespace DiamondShop.Infrastructure.Services
             _logger = logger;
         }
 
-        public async Task<List<CartProduct>> AddProduct(AccountId accountId, CartProduct cartProduct)
+        public async Task<List<CartItem>> AddProduct(AccountId accountId, CartItem cartProduct)
         {
             var cartModel = GetCart(accountId);
             cartModel.Add(cartProduct);
@@ -30,28 +31,30 @@ namespace DiamondShop.Infrastructure.Services
             _memoryCache.Remove(key);
             return _memoryCache.Set(key, cartModel);
         }
-        public async Task<List<CartProduct>> GetCartModel(AccountId accountId)
+        public async Task<List<CartItem>> GetCartModel(AccountId accountId)
         {
             return GetCart(accountId) ;
         }
 
-        public async Task<List<CartProduct>> RemoveProduct(AccountId accountId,CartProduct cartProduct)
+        public async Task<List<CartItem>> RemoveProduct(AccountId accountId,CartItemId cartItemId)
         {
             var cartModel = GetCart(accountId);
-            cartModel.Remove(cartProduct);
+            var itemToRemove= cartModel.FirstOrDefault(c => c.Id == cartItemId);
+            if(itemToRemove is not null)
+                cartModel.Remove(itemToRemove);
             var key = Cart_Key.Replace("userid", accountId.Value);
             _memoryCache.Remove(key);
             return _memoryCache.Set(key, cartModel);
         }
-        private List<CartProduct> GetCart(AccountId accountId)
+        private List<CartItem> GetCart(AccountId accountId)
         {
             var key = Cart_Key.Replace("userid", accountId.Value);
             var tryget = _memoryCache.Get(key);
             if(tryget == null) 
             {
-                return _memoryCache.Set(key, new List<CartProduct>());
+                return _memoryCache.Set(key, new List<CartItem>());
             }
-            return (List<CartProduct>)tryget;  
+            return (List<CartItem>)tryget;  
         }
     }
 }

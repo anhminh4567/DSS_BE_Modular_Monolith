@@ -181,7 +181,7 @@ namespace DiamondShop.Api.Controllers
         }
 
         [HttpGet("Paging")]
-        [ProducesResponseType(typeof(List<AccountDto>),200)]
+        [ProducesResponseType(typeof(PagingResponseDto<AccountDto>),200)]
         public async Task<ActionResult> GetPaging([FromQuery] GetAccountPagingQuery getCustomerPageQuery)
         {
             var result = await _sender.Send(getCustomerPageQuery);

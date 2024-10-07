@@ -20,6 +20,7 @@ namespace DiamondShop.Domain.Models.CustomizeRequests
         public MetalId MetalId { get; set; }
         public string? EngravedText { get; set; }
         public string? EngravedFont { get; set; }
+        public string? Note { get; set; }   
         public CustomizeDiamondRequestStatus Status { get; set; } 
         public List<DiamondRequest> DiamondRequests { get; set; } = new();
         public List<SideDiamondRequest> SideDiamondRequests { get; set; } = new();

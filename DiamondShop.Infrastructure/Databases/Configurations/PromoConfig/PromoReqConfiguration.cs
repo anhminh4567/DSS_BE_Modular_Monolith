@@ -38,13 +38,13 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.PromoConfig
 
             builder.Property(o => o.TargetType).HasConversion<string>();
             builder.Property(o => o.Operator).HasConversion<string>();
-            builder.Property(o => o.DiamondOrigin).HasConversion<string>();
-            builder.Property(o => o.ClarityFrom).HasConversion<string>();
-            builder.Property(o => o.ClarityTo).HasConversion<string>();
-            builder.Property(o => o.CutFrom).HasConversion<string>();
-            builder.Property(o => o.CutTo).HasConversion<string>();
-            builder.Property(o => o.ColorFrom).HasConversion<string>();
-            builder.Property(o => o.ColorTo).HasConversion<string>();
+            //builder.Property(o => o.DiamondOrigin).HasConversion<string>();
+            //builder.Property(o => o.ClarityFrom).HasConversion<string>();
+            //builder.Property(o => o.ClarityTo).HasConversion<string>();
+            //builder.Property(o => o.CutFrom).HasConversion<string>();
+            //builder.Property(o => o.CutTo).HasConversion<string>();
+            //builder.Property(o => o.ColorFrom).HasConversion<string>();
+            //builder.Property(o => o.ColorTo).HasConversion<string>();
             builder.HasKey(o => o.Id);
         }
     }
