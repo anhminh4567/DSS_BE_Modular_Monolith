@@ -3,6 +3,7 @@ using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.ValueObjects;
 
 namespace DiamondShop.Domain.Common.Carts
 {
@@ -12,14 +13,18 @@ namespace DiamondShop.Domain.Common.Carts
         public bool IsHavingPromotion { get => Promotion is not null;  }
         public List<int> RequirementProductsIndex { get; set; } = new();
         public List<int> GiftProductsIndex { get; set; } = new();
+        // the missing gift only happen if the promotion is for type product, and not order as gift
         public List<MissingGift> MissingGifts { get; set; } = new();
-        public PromoReq MissingRequirement { get; set; }
+        public PromoReq? MissingRequirement { get; set; }
         public bool IsPromotionValidTobeUsed { get => MissingRequirement != null; } 
         public class MissingGift
         {
-            public TargetType GiftType { get; set; }
-            public int MissingQuantity { get; set; }
-            public string? GiftId { get; set; }
+            public TargetType GiftType { get; set; } 
+            public int TotalQuantity { get; set; }
+            public int TakenQuantity { get; set; }
+            public int MissingQuantity { get => TotalQuantity - TakenQuantity; }
+            public List<int> GiftTakenProductIndex { get; set; } = new();
+            public GiftId? GiftId { get; set; }
             public MissingDiamondGift? DiamondGifts { get; set; }
 
         }

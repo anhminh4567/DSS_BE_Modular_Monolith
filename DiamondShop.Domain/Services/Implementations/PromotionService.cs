@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,56 +34,118 @@ namespace DiamondShop.Domain.Services.Implementations
         /// <exception cref="Exception"></exception>
         public Result ApplyPromotionOnCartModel(CartModel cartModel, Promotion promotion)
         {
-            var promotionRequirement = promotion.PromoReqs;
-            var promotionGift = promotion.Gifts;
+            //Init Data
+            // the Data is that , the product req and gift is sorted, so that the ORDER TYPE is the last one
+            var promotionRequirement = promotion.PromoReqs.OrderBy(r => r.TargetType).ToList();
+            var promotionGift = promotion.Gifts.OrderBy(r => r.TargetType).ToList();
             Dictionary<int, CartProduct> requirementProducts = new(); // int is index
             Dictionary<int, CartProduct> giftProducts = new();
-            var orderReq = promotionRequirement.FirstOrDefault(r => r.TargetType == TargetType.Order);
-            if(cartModel.Promotion.IsHavingPromotion is true)
-                 throw new Exception("already have a promotoin, stop doing things");
-            if (orderReq is not null)
-                HandleOrderRequirement(cartModel, promotion, orderReq);
-            else
-                HandleProductRequirement(cartModel,promotion, requirementProducts);
-            //now check if order have that promotion
-            if (cartModel.Promotion.IsHavingPromotion)
+            List<PromoReq> promoReqs = new();
+            //List<Gift> promoGifts = new();
+            bool IsRequirementMet = false;
+
+            //var orderReq = promotionRequirement.FirstOrDefault(r => r.TargetType == TargetType.Order);
+            if (cartModel.Promotion.IsHavingPromotion is true)
+                throw new Exception("already have a promotoin, stop doing things");
+            //Validate Requirements
+            for (int i = 0; i < promotionRequirement.Count; i++)
             {
-                bool isFinallyValid = true;
-                // for a promotion to be used, ALL REQUIREMENT MUST BE MET
-                foreach (var req in promotionRequirement)
+                var req = promotionRequirement[i];
+               
+                if (req.TargetType == TargetType.Order)
                 {
-                    isFinallyValid = HandleFinalRequirementCheckAfterValidation(cartModel, req, requirementProducts);
-                    if (isFinallyValid is false) 
-                    {
-                        cartModel.Promotion.MissingRequirement = req;
-                        break;
-                    }
-                }
-                if (isFinallyValid)
-                {
-                    var giftReq = promotionGift.FirstOrDefault(r => r.TargetType == TargetType.Order);
-                    if (giftReq is not null)
-                        HandleOrderGift(cartModel, promotion, giftReq);
-                    else
-                        HandleProductGift(cartModel, promotion, giftProducts);
-                    foreach (var prod in cartModel.Products)
-                    {
-                        cartModel.OrderPrices.DefaultPrice += prod.ReviewPrice.DefaultPrice;
-                        cartModel.OrderPrices.DiscountAmountSaved += prod.ReviewPrice.DiscountAmountSaved;
-                        cartModel.OrderPrices.PromotionAmountSaved += prod.ReviewPrice.PromotionAmountSaved;
-                    }
-                    return Result.Ok();
+                    var isValid = HandleOrderRequirement(cartModel, req);
+                    if (isValid) // if the requirement is valid in the order, then add the requirement to the recognize list
+                        promoReqs.Add(req);
                 }
                 else
                 {
-                    return Result.Fail("not all requirement are met with thise requirement id: " + cartModel.Promotion.MissingRequirement.Id + " || with name: "+ cartModel.Promotion.MissingRequirement.Name);
+                    Dictionary<int, CartProduct> scopedRequirementProducts = new();// create a scopred requirement product
+                    // so that if the handle products found requirement, BUT they are not valid to the promotion requirement
+                    // like not haveing enought price or quantity met, then we can ignore this requirement entirely, and keep the
+                    // original requirementProducts empty to add the real requirement that met the conditon
+                    // NOTE: the requirement IS THE DECISION MAKER, to decide whether you add the product to the requirement list or not
+                    var isAnyValid = HandleProductRequirement(cartModel, req, scopedRequirementProducts);
+                    if (isAnyValid)
+                    {
+                        var totalItemCount = scopedRequirementProducts.Count;
+                        var totalPrice = scopedRequirementProducts.Values.Sum(p => p.ReviewPrice.FinalPrice);
+                        Action<Dictionary<int, CartProduct>> addRequirementProducts = (products) =>
+                        {
+                            foreach (var item in products)
+                            {
+                                // it should be try add, some other might have the same index
+                                requirementProducts.TryAdd(item.Key, item.Value);
+                            }
+                            promoReqs.Add(req);
+                        };
+                        if (req.Amount != null)
+                        {
+                            if (totalPrice >= req.Amount)
+                            {
+                                addRequirementProducts(scopedRequirementProducts);
+                                continue;
+                            }
+                        }
+                        else if (req.Quantity != null)
+                        {
+                            if (totalItemCount >= req.Quantity)
+                            {
+                                addRequirementProducts(scopedRequirementProducts);
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Major error, requirement have no amount or quantity, at the requirement id: " + req.Id.Value + " with index: " + i);
+                        }
+                    }
                 }
-
+            }
+            if (promoReqs.Count >= promotionRequirement.Count)
+            {
+                IsRequirementMet = true;
+            }
+            if (IsRequirementMet is false)
+            {
+                var metRequirementId = promoReqs.Select(r => r.Id).ToList();
+                var missingRequirement = promotionRequirement.FirstOrDefault(r => !metRequirementId.Contains(r.Id));
+                cartModel.Promotion.MissingRequirement = missingRequirement;
+                return Result.Fail("Not all requirement are met");
             }
             else
-                return Result.Fail("No promotion is applied");
+            {
+                // to this step, the requirement met the condition, so no need to further check
+                cartModel.Promotion.Promotion = promotion;
+                cartModel.Promotion.RequirementProductsIndex = requirementProducts.Keys.ToList();
+            }
+            //var giftReq = promotionGift.FirstOrDefault(r => r.TargetType == TargetType.Order);
+            for (int i = 0; i < promotionGift.Count; i++)
+            {
+                var gift = promotionGift[i];
+                if (gift.TargetType == TargetType.Order)
+                {
+                    HandleOrderGift(cartModel, gift);
+                }
+                else
+                {
+                    Dictionary<int, CartProduct> scopedGiftProducts = new();
+                    HandleProductGift(cartModel,gift,promotion.IsExcludeQualifierProduct, scopedGiftProducts);
+                    foreach (var prod in scopedGiftProducts)
+                    {
+                        giftProducts.TryAdd(prod.Key, prod.Value);
+                    }
+
+                }
+            }
+            cartModel.Promotion.GiftProductsIndex = giftProducts.Keys.ToList();
+            SetOrderPrice(cartModel);
+            return Result.Ok();
         }
-        private void HandleOrderRequirement(CartModel cartModel,Promotion promotion, PromoReq orderRequirement)
+
+
+
+        private bool HandleOrderRequirement(CartModel cartModel, PromoReq orderRequirement)
         {
             var isValid = orderRequirement.Operator switch
             {
@@ -90,104 +153,135 @@ namespace DiamondShop.Domain.Services.Implementations
                 Operator.Equal_Or_Larger => cartModel.OrderPrices.FinalPrice >= orderRequirement.Amount,
                 _ => throw new Exception("Major error, requirement for order have not operator")
             };
-            if (isValid)
-                cartModel.Promotion.Promotion = promotion;
+            return isValid;
         }
-        private void HandleProductRequirement(CartModel cartModel, Promotion promotion, Dictionary<int, CartProduct> requirementProducts)
+        private bool HandleProductRequirement(CartModel cartModel, PromoReq requirement, Dictionary<int, CartProduct> requirementProducts)
         {
             var productList = cartModel.Products;
-            var promotionRequirement = promotion.PromoReqs;
+            //var promotionRequirement = promotion.PromoReqs;
+            bool isAnyValid = false;
             for (int i = 0; i < productList.Count; i++)
             {
+                //if(requirementProducts.Count >= )
                 var product = productList[i];
                 bool isApplied = false;
-                if (product.IsHavingPromotion )
+                if (product.IsHavingPromotion)
                     continue;
-                if (requirementProducts.Count >= promotionRequirement.Count)
+                if(requirementProducts.Count >= requirement.Quantity )// when the requirement quantity is met, then stop, so the other item can 
                 {
-                    // to this step, the requirement met the condition, so no need to further check
-                    cartModel.Promotion.Promotion = promotion;
-                    cartModel.Promotion.RequirementProductsIndex = requirementProducts.Keys.ToList();
                     break;
                 }
+                //if (product.IsReqirement == true) // if the product you about to check is already a requirement previously, then skip || THIS IS THE KEY COMPARISON
+                //                            // if you want to change the requirement later to take on extra requirement, then you need to change the logic here
+                //{
+                //    continue;
+                //}
                 if (product.Jewelry is not null)
-                {
-                    
-                    isApplied = CheckJewelryIsQualified(product.Jewelry, promotionRequirement);
+                    isApplied = CheckJewelryIsQualified(product.Jewelry, requirement);
 
-                }
                 else if (product.JewelryModel is not null)
-                {
-                    isApplied = CheckJewerlyModelIsQualified(product.JewelryModel.Id, promotionRequirement);
+                    isApplied = CheckJewerlyModelIsQualified(product.JewelryModel.Id, requirement);
 
-                }
                 else if (product.Diamond is not null)
-                {
-                    isApplied = CheckDiamondIsQualified(product.Diamond, promotionRequirement);
+                    isApplied = CheckDiamondIsQualified(product.Diamond, requirement);
 
-                }
                 if (isApplied)
                 {
-                    product.PromotionId = promotion.Id;
-                    product.IsReqirement = true;
+                    product.PromotionId = requirement.PromotionId;
+                    product.RequirementQualifedId = requirement.Id;
                     requirementProducts.Add(i, product);
+                    isAnyValid = true;
                 }
                 else
+                {
                     continue;
+                }
             }
+            return isAnyValid;
         }
-        private void HandleOrderGift(CartModel cartModel, Promotion promotion, Gift orderGift)
+        private void HandleOrderGift(CartModel cartModel, Gift orderGift)
         {
             if (orderGift.TargetType != TargetType.Order)
                 return;
-            // the price consist of default, discount saved, promtion saved and final
-            // now we count the promotion saved -> depend on default - discount amount saved from previous calculation
-            var orderPriceNow = cartModel.OrderPrices.DefaultPrice - cartModel.OrderPrices.DiscountAmountSaved;
+            var orderPriceNow = cartModel.OrderPrices.FinalPrice;//cartModel.OrderPrices.DefaultPrice - cartModel.OrderPrices.DiscountAmountSaved;
             decimal promotionPriceSavedAmount = orderGift.UnitType switch
             {
-                UnitType.Percent => Math.Ceiling( (orderPriceNow * orderGift.UnitValue) / 100), 
+                UnitType.Percent => Math.Ceiling((orderPriceNow * orderGift.UnitValue) / 100),
                 UnitType.Fix_Price => orderGift.UnitValue,
                 UnitType.Free_Gift => throw new Exception("Major error, gift for order have a type of freeGift ??? major error, check back flow "),
                 _ => throw new Exception("Major error, gift for order have not unit type ")
-            }  ;
-            SetOrderPrice(cartModel,promotion,promotionPriceSavedAmount);
+            };
+            cartModel.OrderPrices.PromotionAmountSaved += promotionPriceSavedAmount;
         }
-        private void HandleProductGift(CartModel cartModel, Promotion promotion, Dictionary<int, CartProduct> giftProducts)
+        /// <summary>
+        /// the function handle the interation over product, to check which is gift, which is not
+        /// if the product is gift, then set the price of the product to the gift price
+        /// if the product is already a gift, and ALSO valid for another gift req, THEN IT WILL ONLYYYYYYYYYYY take the first gift as discount
+        /// </summary>
+        /// <param name="cartModel"></param>
+        /// <param name="gift"></param>
+        /// <param name="IsExcludeQualifierProduct"></param>
+        /// <param name="giftProducts"></param>
+        private void HandleProductGift(CartModel cartModel, Gift gift,bool IsExcludeQualifierProduct, Dictionary<int, CartProduct> scopedGiftProducts)
         {
             var productList = cartModel.Products;
-            var promotionGift = promotion.Gifts;
+            //var promotionGift = promotion.Gifts;
+            var amount = gift.Amount;
             for (int i = 0; i < productList.Count; i++)
             {
                 var product = productList[i];
-                Gift? isThisGift = null;
-                if (promotion.IsExcludeQualifierProduct)
+                if (scopedGiftProducts.Count >= gift.Amount) // if the necessary amount is reach then stop
+                    break;
+                
+                if (IsExcludeQualifierProduct)
                 {
                     if (product.IsHavingPromotion && product.IsReqirement)
-                    {
                         continue;
-                    }
                 }
-                //if (product.IsValid == false)
-                //    continue;
-                if (product.Jewelry is not null)
-                    isThisGift = CheckIfJewelryIsGift(product.Jewelry, promotionGift);
-                else if (product.JewelryModel is not null)
-                    isThisGift = CheckIfJewelryModelIsGift(product.JewelryModel.Id, promotionGift);
-                else if (product.Diamond is not null)
-                    isThisGift = CheckIfDiamondIsGift(product.Diamond, promotionGift);
-                if (isThisGift is not null)
+                if(product.IsGift == true) // if the product you about to check is already a gift previously, then skip || THIS IS THE KEY COMPARISON
+                                           // if you want to change the gift later to take on extra gift, then you need to change the logic here
+                                           // also change the logic in the List<Gift> of product, so that the products knows which gift is asigned to it
                 {
-                    SetProductPrice(product,promotion,isThisGift);
-                    giftProducts.Add(i, product);
+                    continue;
+                }
+                bool isThisGift = false;
+                if (product.Jewelry is not null)
+                    isThisGift = CheckIfJewelryIsGift(product.Jewelry, gift);
+                else if (product.JewelryModel is not null)
+                    isThisGift = CheckIfJewelryModelIsGift(product.JewelryModel.Id, gift);
+                else if (product.Diamond is not null)
+                    isThisGift = CheckIfDiamondIsGift(product.Diamond, gift);
+                if (isThisGift)
+                {
+                    product.PromotionId = gift.PromotionId;
+                    product.GiftAssignedId = gift.Id;
+                    SetProductPriceFromGift(product, gift);
+                    scopedGiftProducts.Add(i, product);
                 }
                 else
+                {
                     continue;
+                }
+            }
+            // after the loop if the count still small, mean you are missing some gift
+            if (scopedGiftProducts.Count < amount)
+            {
+                cartModel.Promotion.MissingGifts.Add(new CartModelPromotion.MissingGift
+                {
+                    GiftId = gift.Id,
+                    GiftType = gift.TargetType,
+                    TotalQuantity = amount,
+                    TakenQuantity = scopedGiftProducts.Count,
+                    GiftTakenProductIndex = scopedGiftProducts.Keys.ToList()
+                });
+            }
+            else // else then the loop above is break; from the comparison amount, means you have all the gift assigned right in the cart
+            {
+                //do nothing
             }
         }
-        private void SetProductPrice(CartProduct product, Promotion promotion, Gift giftReq)
+        private void SetProductPriceFromGift(CartProduct product, Gift giftReq)
         {
-            product.PromotionId = promotion.Id;
-            product.IsGift = true;
             decimal savedAmount = giftReq.UnitType switch
             {
                 UnitType.Percent => Math.Ceiling((product.ReviewPrice.DefaultPrice * giftReq.UnitValue) / 100),
@@ -197,58 +291,53 @@ namespace DiamondShop.Domain.Services.Implementations
             };
             product.ReviewPrice.PromotionAmountSaved += savedAmount;
         }
-        private void SetOrderPrice(CartModel cartModel,Promotion promotion, decimal addedPromotionSavedAmount)
+        private void SetOrderPrice(CartModel cartModel)
         {
             //the flow is, work on default -> discount -> promtoin -> final price
             //we += since we not sure if the previous amount exist
-            cartModel.Promotion.Promotion = promotion;
-            cartModel.OrderPrices.PromotionAmountSaved += addedPromotionSavedAmount;
-        }
-        private bool CheckJewerlyModelIsQualified(JewelryModelId jewelryModelId, List<PromoReq> requirements)
-        {
-            foreach (var requirement in requirements)
+            var productList = cartModel.Products;
+            foreach (var item in productList)
             {
-                if (requirement.TargetType != TargetType.Jewelry_Model)
-                    continue;
-                if (requirement.ModelId == jewelryModelId)
-                {
-                    return true;
-                }
+                cartModel.OrderPrices.DefaultPrice += item.ReviewPrice.DefaultPrice;
+                cartModel.OrderPrices.DiscountAmountSaved += item.ReviewPrice.DiscountAmountSaved;
+                cartModel.OrderPrices.PromotionAmountSaved += item.ReviewPrice.PromotionAmountSaved;
+            }
+        }
+        private bool CheckJewerlyModelIsQualified(JewelryModelId jewelryModelId, PromoReq requirement)
+        {
+            if (requirement.TargetType != TargetType.Jewelry_Model)
+                return false;
+            if (requirement.ModelId == jewelryModelId)
+            {
+                return true;
             }
             return false;
         }
-        private bool CheckJewelryIsQualified(Jewelry jewelry, List<PromoReq> requirements)
+        private bool CheckJewelryIsQualified(Jewelry jewelry, PromoReq requirements)
         {
             return CheckJewerlyModelIsQualified(jewelry.ModelId, requirements);
         }
-        private bool CheckDiamondIsQualified(Diamond diamond, List<PromoReq> requirements)
+        private bool CheckDiamondIsQualified(Diamond diamond, PromoReq requirement)
         {
-            foreach (var requirement in requirements)
-            {
-                if (requirement.TargetType != TargetType.Diamond)
-                    continue;
-                if (requirement.DiamondOrigin == DiamondOrigin.Both)
-                {
-                    return CheckDiamond4C(diamond, requirement);
-                }
-                else if (requirement.DiamondOrigin ==DiamondOrigin.Natural && diamond.IsLabDiamond == false)
-                {
-                     return CheckDiamond4C(diamond, requirement);
-                }
-                else if(requirement.DiamondOrigin == DiamondOrigin.Lab && diamond.IsLabDiamond == true)
-                {
-                    return CheckDiamond4C(diamond, requirement);
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return false;
+
+            if (requirement.TargetType != TargetType.Diamond)
+                return false;
+            if (requirement.DiamondOrigin == DiamondOrigin.Both)
+                return CheckDiamond4C(diamond, requirement);
+
+            else if (requirement.DiamondOrigin == DiamondOrigin.Natural && diamond.IsLabDiamond == false)
+                return CheckDiamond4C(diamond, requirement);
+
+            else if (requirement.DiamondOrigin == DiamondOrigin.Lab && diamond.IsLabDiamond == true)
+                return CheckDiamond4C(diamond, requirement);
+
+            else
+                return false;
+
         }
         private bool CheckDiamond4C(Diamond diamond, PromoReq requirement)
         {
-            return ValidateDiamond4C(diamond,requirement.CaratFrom.Value,requirement.CaratTo.Value,requirement.ColorFrom.Value,requirement.ColorTo.Value,requirement.ClarityFrom.Value,requirement.ClarityTo.Value,requirement.CutFrom.Value,requirement.CutTo.Value);
+            return ValidateDiamond4C(diamond, requirement.CaratFrom.Value, requirement.CaratTo.Value, requirement.ColorFrom.Value, requirement.ColorTo.Value, requirement.ClarityFrom.Value, requirement.ClarityTo.Value, requirement.CutFrom.Value, requirement.CutTo.Value);
         }
         private bool CheckDiamond4CGift(Diamond diamond, Gift gift)
         {
@@ -271,53 +360,33 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             return false;
         }
-        private Gift? CheckIfDiamondIsGift(Diamond diamond, List<Gift> gifts)
+        private bool CheckIfDiamondIsGift(Diamond diamond, Gift gift)
         {
-            foreach (var gift in gifts)
-            {
-                bool isQualified = false;
-                if (gift.TargetType != TargetType.Diamond)
-                    continue;
-                if (gift.DiamondOrigin == DiamondOrigin.Both)
-                {
-                    isQualified= CheckDiamond4CGift(diamond, gift);
-                }
-                else if (gift.DiamondOrigin == DiamondOrigin.Natural && diamond.IsLabDiamond == false)
-                {
-                    isQualified = CheckDiamond4CGift(diamond, gift);
-                }
-                else if (gift.DiamondOrigin == DiamondOrigin.Lab && diamond.IsLabDiamond == true)
-                {
-                    isQualified =CheckDiamond4CGift(diamond, gift);
-                }
-                else
-                {
-                    return null;
-                }
-                //then check
-                if (isQualified)
-                {
-                    return gift;
-                }
-            }
-            return null;
+            bool isQualified = false;
+            if (gift.TargetType != TargetType.Diamond)
+                return false;
+            if (gift.DiamondOrigin == DiamondOrigin.Both)
+                isQualified = CheckDiamond4CGift(diamond, gift);
+
+            else if (gift.DiamondOrigin == DiamondOrigin.Natural && diamond.IsLabDiamond == false)
+                isQualified = CheckDiamond4CGift(diamond, gift);
+
+            else if (gift.DiamondOrigin == DiamondOrigin.Lab && diamond.IsLabDiamond == true)
+                isQualified = CheckDiamond4CGift(diamond, gift);
+            return isQualified;
         }
-        private Gift? CheckIfJewelryIsGift(Jewelry jewelry, List<Gift> gifts)
+        private bool CheckIfJewelryIsGift(Jewelry jewelry, Gift gift)
         {
-            return CheckIfJewelryModelIsGift(jewelry.ModelId, gifts);
+            return CheckIfJewelryModelIsGift(jewelry.ModelId, gift);
         }
-        private Gift? CheckIfJewelryModelIsGift(JewelryModelId jewelryModelId, List<Gift> gifts)
+        private bool CheckIfJewelryModelIsGift(JewelryModelId jewelryModelId, Gift gift)
         {
-            foreach (var gift in gifts)
-            {
-                if (gift.TargetType != TargetType.Jewelry_Model)
-                    continue;
-                if (gift.ItemId == jewelryModelId.Value)
-                {
-                    return gift;
-                }
-            }
-            return null;
+            if (gift.TargetType != TargetType.Jewelry_Model)
+                return false;
+            if (gift.ItemId == jewelryModelId.Value)           
+                return true;
+
+            return false;
         }
         /// <summary>
         /// these 2 are the final step to validate the price or amount, to see the requirements list if they have met the condition
@@ -326,70 +395,70 @@ namespace DiamondShop.Domain.Services.Implementations
         /// <param name="requirementProducts"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        private bool HandleFinalRequirementCheckAfterValidation(CartModel cartModel, PromoReq promoReq, Dictionary<int, CartProduct> requirementProducts) 
-        {
-            var promoTarget = promoReq.TargetType;
-            
-            bool CheckIfValid(decimal? amount , int? quantity,PromoReq req)
-            {
-                if(amount is not null)
-                {
-                    return ( req.Operator) switch
-                    {
-                        (Operator.Equal_Or_Larger) => amount >= req.Amount,
-                        (Operator.Larger) => amount > req.Amount,
-                        _ => false
-                    };
-                }
-                else if (quantity is not null)
-                {
-                    return (req.Operator) switch
-                    {
-                        (Operator.Equal_Or_Larger) => quantity >= req.Quantity,
-                        (Operator.Larger) => quantity > req.Quantity,
-                        _ => false
-                    };
-                }
-                return false;
-            }
-            switch (promoTarget)
-            {
-                case TargetType.Diamond:
-                    if(promoReq.Amount is not null)
-                    {
-                        var totalDiamondsPrice = TotalProductAmountFromRequirements(Diamond4CRange.ParseFromRequirement(promoReq),null, requirementProducts);
-                        return CheckIfValid(totalDiamondsPrice,null,promoReq);
-                    }
-                    else if (promoReq.Quantity is not null)
-                    {
-                        var totalDiamondsQuantity = TotalProductQuantityFromRequirements(Diamond4CRange.ParseFromRequirement(promoReq), null, requirementProducts);
-                        return CheckIfValid(null, totalDiamondsQuantity, promoReq);
-                    }
-                    break;
-                case TargetType.Jewelry_Model:
-                    if (promoReq.Amount is not null)
-                    {
-                        var totalJewelryModelsPrice = TotalProductAmountFromRequirements(null, promoReq.ModelId, requirementProducts);
-                        return CheckIfValid(totalJewelryModelsPrice, null, promoReq);
-                    }
-                    else if (promoReq.Quantity is not null)
-                    {
-                        var totalJewelryModelsQuantity = TotalProductQuantityFromRequirements(null, promoReq.ModelId, requirementProducts);
-                        return CheckIfValid(null, totalJewelryModelsQuantity, promoReq);
-                    }
-                    break;
-                case TargetType.Order:
-                    return CheckIfValid(cartModel.OrderPrices.FinalPrice,null,promoReq);
-                default:
-                    return false;
-            }
-            return false;
-        }
+        //private bool HandleFinalRequirementCheckAfterValidation(CartModel cartModel, PromoReq promoReq, Dictionary<int, CartProduct> requirementProducts)
+        //{
+        //    var promoTarget = promoReq.TargetType;
+
+        //    bool CheckIfValid(decimal? amount, int? quantity, PromoReq req)
+        //    {
+        //        if (amount is not null)
+        //        {
+        //            return (req.Operator) switch
+        //            {
+        //                (Operator.Equal_Or_Larger) => amount >= req.Amount,
+        //                (Operator.Larger) => amount > req.Amount,
+        //                _ => false
+        //            };
+        //        }
+        //        else if (quantity is not null)
+        //        {
+        //            return (req.Operator) switch
+        //            {
+        //                (Operator.Equal_Or_Larger) => quantity >= req.Quantity,
+        //                (Operator.Larger) => quantity > req.Quantity,
+        //                _ => false
+        //            };
+        //        }
+        //        return false;
+        //    }
+        //    switch (promoTarget)
+        //    {
+        //        case TargetType.Diamond:
+        //            if (promoReq.Amount is not null)
+        //            {
+        //                var totalDiamondsPrice = TotalProductAmountFromRequirements(Diamond4CRange.ParseFromRequirement(promoReq), null, requirementProducts);
+        //                return CheckIfValid(totalDiamondsPrice, null, promoReq);
+        //            }
+        //            else if (promoReq.Quantity is not null)
+        //            {
+        //                var totalDiamondsQuantity = TotalProductQuantityFromRequirements(Diamond4CRange.ParseFromRequirement(promoReq), null, requirementProducts);
+        //                return CheckIfValid(null, totalDiamondsQuantity, promoReq);
+        //            }
+        //            break;
+        //        case TargetType.Jewelry_Model:
+        //            if (promoReq.Amount is not null)
+        //            {
+        //                var totalJewelryModelsPrice = TotalProductAmountFromRequirements(null, promoReq.ModelId, requirementProducts);
+        //                return CheckIfValid(totalJewelryModelsPrice, null, promoReq);
+        //            }
+        //            else if (promoReq.Quantity is not null)
+        //            {
+        //                var totalJewelryModelsQuantity = TotalProductQuantityFromRequirements(null, promoReq.ModelId, requirementProducts);
+        //                return CheckIfValid(null, totalJewelryModelsQuantity, promoReq);
+        //            }
+        //            break;
+        //        case TargetType.Order:
+        //            return CheckIfValid(cartModel.OrderPrices.FinalPrice, null, promoReq);
+        //        default:
+        //            return false;
+        //    }
+        //    return false;
+        //}
 
         private decimal? TotalProductAmountFromRequirements(Diamond4CRange? diamond4CRange, JewelryModelId? jewelryModelId, Dictionary<int, CartProduct> requirementProducts)
         {
             decimal total = 0;
-            if ( diamond4CRange is not null)
+            if (diamond4CRange is not null)
             {
                 total = requirementProducts.Values.Where(prod =>
                 {
@@ -406,7 +475,7 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             return total;
         }
-        private int? TotalProductQuantityFromRequirements( Diamond4CRange? diamond4CRange, JewelryModelId? jewelryModelId, Dictionary<int, CartProduct> requirementProducts)
+        private int? TotalProductQuantityFromRequirements(Diamond4CRange? diamond4CRange, JewelryModelId? jewelryModelId, Dictionary<int, CartProduct> requirementProducts)
         {
             int total = 0;
             if (diamond4CRange is not null)
@@ -426,7 +495,7 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             return total;
         }
-         
+
     }
     /// <summary>
     /// this is for internal usage for promotion only
@@ -458,7 +527,7 @@ namespace DiamondShop.Domain.Services.Implementations
         public Cut CutTo { get; set; }
         public Color ColorFrom { get; set; }
         public Color ColorTo { get; set; }
-        public static Diamond4CRange ParseFromRequirement(PromoReq promoReq) 
+        public static Diamond4CRange ParseFromRequirement(PromoReq promoReq)
         {
             return new Diamond4CRange
             {

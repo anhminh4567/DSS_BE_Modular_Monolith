@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.JewelryModels;
+using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 
 namespace DiamondShop.Domain.Common.Carts
@@ -16,13 +17,16 @@ namespace DiamondShop.Domain.Common.Carts
         public string? EngravedFont { get; set; }
         //public decimal? PurchasedPrice { get; set; }
         public bool IsValid { get; set; }
-        public bool IsHavingPromotion { get => PromotionId is not null;  }
 
         public DiscountId? DiscountId { get; set; }
         public int? DiscountPercent { get; set; }
+        /////////////////////////////////
         public PromotionId? PromotionId { get; set; }
-        public bool IsReqirement { get; set; }
-        public bool IsGift { get; set; }    
+        public bool IsHavingPromotion { get => PromotionId is not null; }
+        public PromoReqId? RequirementQualifedId{ get; set; }
+        public bool IsReqirement { get => RequirementQualifedId is not null; }
+        public GiftId? GiftAssignedId { get; set; }
+        public bool IsGift { get => GiftAssignedId is not null; }
     }
 
 }
