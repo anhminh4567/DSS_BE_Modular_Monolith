@@ -40,4 +40,12 @@
     <ProjectReference Include="..\DiamondShop.Commons\DiamondShop.Commons.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+			<_Parameter1>DiamondShop.Test.Application</_Parameter1>
+		</AssemblyAttribute>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+			<_Parameter1>DiamondShop.Test.General</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
 </Project>

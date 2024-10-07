@@ -75,7 +75,7 @@ namespace DiamondShop.Test.General.JewelryModels.Models.Create
             _modelRepo.Verify(x => x.Create(It.Is<JewelryModel>(p => p.Id == result.Value.Id), default), Times.Once);
         }
         [Fact]
-        public async Task Handle_Should_ReturnSuccess_WhenModelIsValid()
+        public async Task Handle_Should_ReturnSuccess_WhenModelAddToDb()
         {
             JewelryModelRequestDto modelSpec = new("Test_Ring", "1", null, null, true, true, null, null, null);
             var command = new CreateJewelryModelCommand(modelSpec, new() { mainSpec }, new() { sideSpec }, new() { sizeMetalSpec });
