@@ -23,7 +23,6 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public Cut? Cut { get; set; }
         public decimal PriceOffset { get; set; }
         public float Carat { get; set; }
-        public bool HasGIACert { get; set; }
         public bool IsLabDiamond { get; set; }
         public float WidthLengthRatio { get; set; }
         public float Depth { get; set; }
