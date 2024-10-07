@@ -11,6 +11,7 @@ using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.Enum;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Infrastructure.Databases;
+using FluentAssertions;
 using FluentResults;
 using MapsterMapper;
 using MediatR;
@@ -72,6 +73,21 @@ namespace DiamondShop.Test.General.JewelryModels.Models.Create
             _sender.Verify(x => x.Send(It.IsAny<CreateMainDiamondCommand>(), default), Times.Once);
             _sender.Verify(x => x.Send(It.IsAny<CreateSideDiamondCommand>(), default), Times.Once);
             _modelRepo.Verify(x => x.Create(It.Is<JewelryModel>(p => p.Id == result.Value.Id), default), Times.Once);
+        }
+        [Fact]
+        public async Task Handle_Should_ReturnSuccess_WhenModelIsValid()
+        {
+            JewelryModelRequestDto modelSpec = new("Test_Ring", "1", null, null, true, true, null, null, null);
+            var command = new CreateJewelryModelCommand(modelSpec, new() { mainSpec }, new() { sideSpec }, new() { sizeMetalSpec });
+            var handler = new CreateJewelryModelCommandHandler(_sender.Object, _modelRepo.Object, _unitOfWork.Object);
+
+            _sender.Setup(s => s.Send(It.IsAny<CreateSizeMetalCommand>(), default)).ReturnsAsync(Result.Ok());
+            _sender.Setup(s => s.Send(It.IsAny<CreateMainDiamondCommand>(), default)).ReturnsAsync(Result.Ok());
+            _sender.Setup(s => s.Send(It.IsAny<CreateSideDiamondCommand>(), default)).ReturnsAsync(Result.Ok());
+
+            var result = await handler.Handle(command, default);
+
+            result.IsSuccess.Should().BeTrue();
         }
     }
 }

@@ -22,7 +22,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
         {
             return await _set.AnyAsync(p => p.Name == name);
         }
-
+        
         public override async Task<JewelryModelCategory?> GetById(params object[] ids)
         {
             JewelryModelCategoryId id = (JewelryModelCategoryId)ids[0];
