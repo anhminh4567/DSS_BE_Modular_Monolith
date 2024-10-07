@@ -34,7 +34,7 @@ namespace DiamondShop.Test.General.JewelryModels.Categories.Create
             _categoryRepo.Setup(
              x => x.CheckDuplicate(
                  It.IsAny<string>()))
-             .ReturnsAsync(true);
+             .ReturnsAsync(false);
             var handler = new CreateJewelryCategoryCommandHandler(_categoryRepo.Object, _unitOfWork.Object);
 
             var result = await handler.Handle(command, default);
@@ -49,7 +49,7 @@ namespace DiamondShop.Test.General.JewelryModels.Categories.Create
             _categoryRepo.Setup(
                 x => x.CheckDuplicate(
                     It.IsAny<string>()))
-                .ReturnsAsync(false);
+                .ReturnsAsync(true);
 
             var handler = new CreateJewelryCategoryCommandHandler(_categoryRepo.Object, _unitOfWork.Object);
 
@@ -68,7 +68,7 @@ namespace DiamondShop.Test.General.JewelryModels.Categories.Create
             _categoryRepo.Setup(
                 x => x.CheckDuplicate(
                     It.IsAny<string>()))
-                .ReturnsAsync(true);
+                .ReturnsAsync(false);
 
             var handler = new CreateJewelryCategoryCommandHandler(_categoryRepo.Object, _unitOfWork.Object);
 

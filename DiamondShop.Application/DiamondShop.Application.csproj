@@ -5,12 +5,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-	
-  <ItemGroup>
-    <Compile Remove="Usecases\Sizes\**" />
-    <EmbeddedResource Remove="Usecases\Sizes\**" />
-    <None Remove="Usecases\Sizes\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DiamondShop.Commons\DiamondShop.Commons.csproj" />
@@ -26,6 +20,7 @@
     <Folder Include="Usecases\DiamondPrices\Commands\UpdateMany\" />
     <Folder Include="Usecases\Orders\Commands\" />
     <Folder Include="Usecases\PromotionRequirements\Commands\Update\" />
+    <Folder Include="Usecases\Sizes\Commands\" />
   </ItemGroup>
 
   <ItemGroup>
