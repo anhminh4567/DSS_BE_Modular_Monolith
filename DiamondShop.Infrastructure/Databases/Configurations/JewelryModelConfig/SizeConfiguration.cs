@@ -15,16 +15,16 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
     {
         protected static List<Size> SIZES = new List<Size>
         {
-            Size.Create(3),
-            Size.Create(4),
-            Size.Create(5),
-            Size.Create(6),
-            Size.Create(7),
-            Size.Create(8),
-            Size.Create(9),
-            Size.Create(10),
-            Size.Create(11),
-            Size.Create(12),
+            Size.Create(3,null, SizeId.Parse(1.ToString())),
+            Size.Create(4,null, SizeId.Parse(2.ToString())),
+            Size.Create(5,null, SizeId.Parse(3.ToString())),
+            Size.Create(6,null, SizeId.Parse(4.ToString())),
+            Size.Create(7,null, SizeId.Parse(5.ToString())),
+            Size.Create(8,null, SizeId.Parse(6.ToString())),
+            Size.Create(9,null, SizeId.Parse(7.ToString())),
+            Size.Create(10,null, SizeId.Parse(8.ToString())),
+            Size.Create(11,null, SizeId.Parse(9.ToString())),
+            Size.Create(12,null, SizeId.Parse(10.ToString()))
         };
         public void Configure(EntityTypeBuilder<Size> builder)
         {

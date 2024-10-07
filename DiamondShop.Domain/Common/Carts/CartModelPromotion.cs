@@ -2,17 +2,19 @@
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
+using DiamondShop.Domain.Models.Promotions.Entities;
 
 namespace DiamondShop.Domain.Common.Carts
 {
-    public class CartModelPromotion : CartModel
+    public class CartModelPromotion 
     {
         public Promotion? Promotion { get; set; } 
         public bool IsHavingPromotion { get => Promotion is not null;  }
         public List<int> RequirementProductsIndex { get; set; } = new();
         public List<int> GiftProductsIndex { get; set; } = new();
         public List<MissingGift> MissingGifts { get; set; } = new();
-
+        public PromoReq MissingRequirement { get; set; }
+        public bool IsPromotionValidTobeUsed { get => MissingRequirement != null; } 
         public class MissingGift
         {
             public TargetType GiftType { get; set; }

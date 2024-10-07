@@ -11,7 +11,7 @@ namespace DiamondShop.Domain.Common.Carts
         public Jewelry? Jewelry { get; set; }
         public Diamond? Diamond { get; set; }
         public JewelryModel? JewelryModel { get; set; }
-        public CheckoutPrice? ReviewPrice { get; set; }
+        public CheckoutPrice ReviewPrice { get; set; } = new();
         public string? EngravedText { get; set; }
         public string? EngravedFont { get; set; }
         //public decimal? PurchasedPrice { get; set; }

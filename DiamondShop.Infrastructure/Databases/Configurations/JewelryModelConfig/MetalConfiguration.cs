@@ -15,16 +15,16 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
         //Price per gram
         protected static List<Metal> METALS = new List<Metal>
         {
-            Metal.Create("Platinum", 778_370),
-            Metal.Create("14K Yellow Gold", 1_217_096),
-            Metal.Create("14K White Gold", 1_217_096),
-            Metal.Create("14K Pink Gold", 1_217_096),
-            Metal.Create("16K Yellow Gold", 1_391_318),
-            Metal.Create("16K White Gold", 1_391_318),
-            Metal.Create("16K Pink Gold", 1_391_318),
-            Metal.Create("18K Yellow Gold", 1_565_233),
-            Metal.Create("18K White Gold", 1_565_233),
-            Metal.Create("18K Pink Gold", 1_565_233),
+            Metal.Create("Platinum", 778_370, MetalId.Parse(1.ToString())),
+            Metal.Create("14K Yellow Gold", 1_217_096, MetalId.Parse(2.ToString())),
+            Metal.Create("14K White Gold", 1_217_096, MetalId.Parse(3.ToString())),
+            Metal.Create("14K Pink Gold", 1_217_096, MetalId.Parse(4.ToString())),
+            Metal.Create("16K Yellow Gold", 1_391_318, MetalId.Parse(5.ToString())),
+            Metal.Create("16K White Gold", 1_391_318, MetalId.Parse(6.ToString())),
+            Metal.Create("16K Pink Gold", 1_391_318, MetalId.Parse(7.ToString())),
+            Metal.Create("18K Yellow Gold", 1_565_233, MetalId.Parse(8.ToString())),
+            Metal.Create("18K White Gold", 1_565_233, MetalId.Parse(9.ToString())),
+            Metal.Create("18K Pink Gold", 1_565_233, MetalId.Parse(10.ToString())),
         };
         public void Configure(EntityTypeBuilder<Metal> builder)
         {

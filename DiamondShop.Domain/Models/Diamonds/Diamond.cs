@@ -42,7 +42,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         public string Measurement { get; set; }
         public Media? Thumbnail { get; set; }
         public List<Media>? Gallery { get; set; } = new();
-
+        public bool IsActive { get; set; } = true;
         public static Diamond Create(DiamondShape shape, Diamond_4C diamond_4C, Diamond_Details diamond_Details, bool hasGIA,
            Diamond_Measurement diamond_Measurement) 
         {

@@ -19,9 +19,9 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondPriceConfig
                 .HasConversion(
                     o => o.Value,
                     dbValue => DiamondCriteriaId.Parse(dbValue));
-            builder.Property(o => o.Cut).HasConversion<string>();
-            builder.Property(o => o.Clarity).HasConversion<string>();
-            builder.Property(o => o.Color).HasConversion<string>();
+            //builder.Property(o => o.Cut).HasConversion<string>();
+            //builder.Property(o => o.Clarity).HasConversion<string>();
+            //builder.Property(o => o.Color).HasConversion<string>();
             builder.HasKey(o => o.Id);
         }
     }

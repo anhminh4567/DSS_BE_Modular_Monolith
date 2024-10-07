@@ -53,7 +53,7 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.Add
                 Dictionary<SideDiamondReqId, SideDiamondOptId> mappedChoices = null;
                 if(request.JewelryModel.sideDiamondsChoices != null)
                     mappedChoices = request.JewelryModel.sideDiamondsChoices.Select(kvp => new KeyValuePair<SideDiamondReqId,SideDiamondOptId>( SideDiamondReqId.Parse(kvp.Key),SideDiamondOptId.Parse(kvp.Value) )).ToDictionary();
-                item = CartItem.CreateJewelryModel(JewelryModelId.Parse(request.JewelryModel.jewelryModelId), MetalId.Parse(request.JewelryModel.metalId), SizeId.Parse(request.JewelryModel.sizeId), mappedChoices);    
+                item = CartItem.CreateJewelryModel(JewelryModelId.Parse(request.JewelryModel.jewelryModelId), MetalId.Parse(request.JewelryModel.metalId), SizeId.Parse(request.JewelryModel.sizeId), mappedChoices,request.JewelryModel.EngravedText,request.JewelryModel.EngravedFont);    
             }
             else
             {

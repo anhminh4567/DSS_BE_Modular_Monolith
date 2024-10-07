@@ -12,7 +12,7 @@ namespace DiamondShop.Application
 {
     public static class DependencyInjections
     {
-        public static Assembly CurrentAssembly = Assembly.GetExecutingAssembly();
+        public static Assembly CurrentAssembly = typeof(DependencyInjections).Assembly;//Assembly.GetExecutingAssembly();
         public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddHttpContextAccessor();

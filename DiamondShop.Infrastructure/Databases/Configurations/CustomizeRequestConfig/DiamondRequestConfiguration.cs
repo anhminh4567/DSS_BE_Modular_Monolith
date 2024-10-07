@@ -34,13 +34,13 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.CustomizeRequestCo
                 .HasConversion(
                     Id => Id.Value,
                     dbValue => DiamondId.Parse(dbValue));
-            builder.Property(o => o.Cut).HasConversion<string>();
-            builder.Property(o => o.Color).HasConversion<string>();
-            builder.Property(o => o.Clarity).HasConversion<string>();
-            builder.Property(o => o.Polish).HasConversion<string>();
-            builder.Property(o => o.Symmetry).HasConversion<string>();  
-            builder.Property(o => o.Girdle).HasConversion<string>();  
-            builder.Property(o => o.Culet).HasConversion<string>();
+            //builder.Property(o => o.Cut).HasConversion<string>();
+            //builder.Property(o => o.Color).HasConversion<string>();
+            //builder.Property(o => o.Clarity).HasConversion<string>();
+            //builder.Property(o => o.Polish).HasConversion<string>();
+            //builder.Property(o => o.Symmetry).HasConversion<string>();  
+            //builder.Property(o => o.Girdle).HasConversion<string>();  
+            //builder.Property(o => o.Culet).HasConversion<string>();
             builder.HasKey(o => new { o.DiamondRequestId, o.CustomizeRequestId });
             builder.HasOne<DiamondShape>()
                 .WithMany()

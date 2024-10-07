@@ -30,6 +30,7 @@ namespace DiamondShop.Domain.Models.Jewelries
         public List<JewelrySideDiamond>? SideDiamonds { get; set; } = new ();
         public JewelryReviewId? ReviewId { get; set; }
         public JewelryReview? Review { get; set; }
+        public bool IsActive { get; set; } = true;
 
         public Media? Thumbnail { get; set; }
         public Jewelry() { }
