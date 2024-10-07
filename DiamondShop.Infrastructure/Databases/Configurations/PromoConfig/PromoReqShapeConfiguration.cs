@@ -24,8 +24,8 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.PromoConfig
             .HasConversion(
                 Id => Id.Value,
                 dbValue => DiamondShapeId.Parse(dbValue));
-            builder.HasOne(o => o.PromoReq).WithMany().HasForeignKey(o => o.PromoReqId).IsRequired();
-            builder.HasOne(o => o.Shape).WithMany().HasForeignKey(o => o.ShapeId).IsRequired();
+            builder.HasOne(o => o.PromoReq).WithMany(p => p.PromoReqShapes).HasForeignKey(o => o.PromoReqId).IsRequired();
+            builder.HasOne(o => o.Shape).WithMany(p => p.PromoReqShapes).HasForeignKey(o => o.ShapeId).IsRequired();
             builder.HasKey(o => new { o.PromoReqId, o.ShapeId});
         }
     }

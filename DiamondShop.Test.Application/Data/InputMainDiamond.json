@@ -1,1 +1,34 @@
-﻿
+﻿[
+  {
+    "shapeSpecs": [
+      {
+        "shapeId": "1",
+        "caratFrom": 0.4,
+        "caratTo": 0.9
+      },
+      {
+        "shapeId": "1",
+        "caratFrom": 0.8,
+        "caratTo": 1.5
+      },
+      {
+        "shapeId": "2",
+        "caratFrom": 0.4,
+        "caratTo": 1.9
+      }
+    ],
+    "settingType": 0,
+    "quantity": 1
+  },
+  {
+    "shapeSpecs": [
+      {
+        "shapeId": "1",
+        "caratFrom": 0.3,
+        "caratTo": 2.0
+      }
+    ],
+    "settingType": 1,
+    "quantity": 10
+  }
+]

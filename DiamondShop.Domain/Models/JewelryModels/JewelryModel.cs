@@ -3,15 +3,10 @@ using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.Enum;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.JewelryModels
 {
-   
+
     public class JewelryModel : Entity<JewelryModelId>, IAggregateRoot
     {
         public string Name { get; set; }

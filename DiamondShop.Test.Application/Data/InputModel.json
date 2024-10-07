@@ -1,60 +1,62 @@
-﻿{
-  "modelSpec": {
-    "name": "Test_Ring",
-    "categoryId": "5909ec72-4e9f-4afa-b22a-c6d4d60352fa",
-    "width": 10,
-    "isEngravable": true,
-    "isRhodiumFinish": true,
-  },
-  "mainDiamondSpecs": [
-    {
-      "shapeSpecs": [
-        {
-          "shapeId": "1",
-          "caratFrom": 0.4,
-          "caratTo": 0.9
-        },
-        {
-          "shapeId": "2",
-          "caratFrom": 0.4,
-          "caratTo": 1.9
-        }
-      ],
-      "settingType": 0,
-      "quantity": 1
-    }
-  ],
-  "sideDiamondSpecs": [
-    {
-      "shapeId": "1",
-      "colorMin": 1,
-      "colorMax": 1,
-      "clarityMin": 1,
-      "clarityMax": 1,
-      "settingType": 0,
-      "optSpecs": [
-        {
-          "caratWeight": 0,
-          "quantity": 0,
-        }
-      ]
-    }
-  ],
-  "metalSizeSpecs": [
-    {
-      "metalId": "0296db20-d597-483f-a835-3b8f5aeac260",
-      "sizeId": "dcaa48e2-522a-447f-9d5b-66fa8bca3632",
-      "weight": 10
+﻿[
+  {
+    "modelSpec": {
+      "name": "Test_Ring",
+      "categoryId": "5909ec72-4e9f-4afa-b22a-c6d4d60352fa",
+      "width": 10,
+      "isEngravable": true,
+      "isRhodiumFinish": true
     },
-    {
-      "metalId": "0296db20-d597-483f-a835-3b8f5aeac260",
-      "sizeId": "92779a8d-2bc6-4040-a9e5-54ea06dba4f1",
-      "weight": 12
-    },
-    {
-      "metalId":"0296db20-d597-483f-a835-3b8f5aeac260",
-      "sizeId": "af6e5c22-b7e7-4b47-ba08-9cf20cb90be3",
-      "weight": 15
-    }
-  ]
-}
+    "mainDiamondSpecs": [
+      {
+        "shapeSpecs": [
+          {
+            "shapeId": "1",
+            "caratFrom": 0.4,
+            "caratTo": 0.9
+          },
+          {
+            "shapeId": "2",
+            "caratFrom": 0.4,
+            "caratTo": 1.9
+          }
+        ],
+        "settingType": 0,
+        "quantity": 1
+      }
+    ],
+    "sideDiamondSpecs": [
+      {
+        "shapeId": "1",
+        "colorMin": 1,
+        "colorMax": 1,
+        "clarityMin": 1,
+        "clarityMax": 1,
+        "settingType": 0,
+        "optSpecs": [
+          {
+            "caratWeight": 0,
+            "quantity": 0
+          }
+        ]
+      }
+    ],
+    "metalSizeSpecs": [
+      {
+        "metalId": "0296db20-d597-483f-a835-3b8f5aeac260",
+        "sizeId": "dcaa48e2-522a-447f-9d5b-66fa8bca3632",
+        "weight": 10
+      },
+      {
+        "metalId": "0296db20-d597-483f-a835-3b8f5aeac260",
+        "sizeId": "92779a8d-2bc6-4040-a9e5-54ea06dba4f1",
+        "weight": 12
+      },
+      {
+        "metalId": "0296db20-d597-483f-a835-3b8f5aeac260",
+        "sizeId": "af6e5c22-b7e7-4b47-ba08-9cf20cb90be3",
+        "weight": 15
+      }
+    ]
+  }
+]
