@@ -17,7 +17,7 @@ on:
         - 'Development'
         - 'Production'
 env:
-  AZURE_WEBAPP_NAME: testinghosting
+  AZURE_WEBAPP_NAME: Diamondshop
   AZURE_WEBAPP_PACKAGE_PATH: DiamondShop.Api/publish
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 8.0.x
@@ -61,5 +61,5 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.testinghosting_0DD7 }}
+        publish-profile: ${{ secrets.Diamondshop_PublishProfile_001 }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}

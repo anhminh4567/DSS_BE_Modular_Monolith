@@ -28,12 +28,14 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             return Ok(mappedResult);
         }
         [HttpPost("Create")]
+        [Produces(type: typeof(JewelryModelDto))]
         public async Task<ActionResult> Create([FromBody] CreateJewelryModelCommand command)
         {
             var result = await _sender.Send(command);
             if (result.IsSuccess)
             {
-                return Ok(result.Value);
+                var mappedResult = _mapper.Map<JewelryModelDto>(result.Value);
+                return Ok(mappedResult);
             }
             return MatchError(result.Errors, ModelState);
         }
