@@ -36,7 +36,7 @@ namespace DiamondShop.Application.Usecases.SideDiamonds.Commands
             await _sideDiamondRepository.Create(sideDiamond, token);
 
             List<SideDiamondOpt> sideDiamondOpts = sideDiamondSpec.OptSpecs.Select(p => SideDiamondOpt.Create(sideDiamond.Id, p.CaratWeight, p.Quantity)).ToList();
-            await _sideDiamondRepository.CreateOpts(sideDiamondOpts, token);
+            await _sideDiamondRepository.CreateRange(sideDiamondOpts, token);
             await _unitOfWork.SaveChangesAsync(token);
             return Result.Ok();
         }

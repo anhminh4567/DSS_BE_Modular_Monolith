@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -13,13 +14,13 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
     {
         public MainDiamondRepository(DiamondShopDbContext dbContext) : base(dbContext) { }
 
-        public List<MainDiamondReq> GetMainDiamondShapes(string modelId)
+        public async Task<List<MainDiamondReq>> GetCriteria(JewelryModelId modelId)
         {
-            var mainDiamondReq = _set.Where(p => p.ModelId.Value == modelId).Include(p => p.Shapes);
-            return mainDiamondReq.ToList();
+            var mainDiamondReq = _set.Where(p => p.ModelId == modelId).Include(p => p.Shapes);
+            return await mainDiamondReq.ToListAsync();
         }
 
-        public async Task CreateShapes(List<MainDiamondShape> shapes, CancellationToken token = default)
+        public async Task CreateRange(List<MainDiamondShape> shapes, CancellationToken token = default)
         {
             await _dbContext.Set<MainDiamondShape>().AddRangeAsync(shapes,token);
         }

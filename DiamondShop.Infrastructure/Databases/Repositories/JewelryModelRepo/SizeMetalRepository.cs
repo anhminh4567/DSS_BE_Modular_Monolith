@@ -1,10 +1,5 @@
 ﻿using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
 {
