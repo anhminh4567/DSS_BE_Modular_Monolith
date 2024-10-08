@@ -30,5 +30,9 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
             return getFromDb;
         }
 
+        public Task<JewelryModel?> GetByIdMinimal(JewelryModelId id)
+        {
+            return _set.FirstOrDefaultAsync(s => s.Id == id);
+        }
     }
 }

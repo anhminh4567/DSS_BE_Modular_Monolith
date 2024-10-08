@@ -39,6 +39,8 @@ namespace DiamondShop.Domain.Services.Implementations
                 for (int j = 0; j < cartModel.Products.Count; j++)
                 {
                     var product = cartModel.Products[j];
+                    if (product.IsValid is false)
+                        continue;
                     if (product.IsHavingDiscount)
                     {
                         // this is when the product already have a discount and it is higher than the current discount

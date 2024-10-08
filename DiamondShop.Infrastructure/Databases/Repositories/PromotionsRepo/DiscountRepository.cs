@@ -16,6 +16,17 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo
         {
         }
 
+        public Task<List<Discount>> GetActiveDiscount(bool isDateComparisonRequired = false,CancellationToken cancellationToken = default)
+        {
+            if(isDateComparisonRequired)
+            {
+                var now = DateTime.UtcNow;
+                return _set.Where(d => d.IsActive == true && d.StartDate < now && d.EndDate > now).ToListAsync();
+            }
+            return _set.Where(d => d.IsActive).ToListAsync();
+   
+        }
+
         public override Task<Discount?> GetById(params object[] ids)
         {
             return _set.Include(d => d.DiscountReq).FirstOrDefaultAsync(d => d.Id == (DiscountId)ids[0]);

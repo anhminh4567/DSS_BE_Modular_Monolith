@@ -165,6 +165,8 @@ namespace DiamondShop.Domain.Services.Implementations
                 //if(requirementProducts.Count >= )
                 var product = productList[i];
                 bool isApplied = false;
+                if (product.IsValid is false)// skip the invalid product, are those products that dont have any model or jewelry assign to them
+                    continue;
                 if (product.IsHavingPromotion)
                     continue;
                 if(requirementProducts.Count >= requirement.Quantity )// when the requirement quantity is met, then stop, so the other item can 
@@ -230,6 +232,8 @@ namespace DiamondShop.Domain.Services.Implementations
             for (int i = 0; i < productList.Count; i++)
             {
                 var product = productList[i];
+                if (product.IsValid is false)
+                    continue;
                 if (scopedGiftProducts.Count >= gift.Amount) // if the necessary amount is reach then stop
                     break;
                 
@@ -244,6 +248,8 @@ namespace DiamondShop.Domain.Services.Implementations
                 {
                     continue;
                 }
+                if (scopedGiftProducts.Count >= amount)
+                    break;
                 bool isThisGift = false;
                 if (product.Jewelry is not null)
                     isThisGift = CheckIfJewelryIsGift(product.Jewelry, gift);
