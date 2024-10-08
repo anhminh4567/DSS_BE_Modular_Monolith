@@ -47,6 +47,10 @@ namespace DiamondShop.Domain.Services.Implementations
             //var orderReq = promotionRequirement.FirstOrDefault(r => r.TargetType == TargetType.Order);
             if (cartModel.Promotion.IsHavingPromotion is true)
                 throw new Exception("already have a promotoin, stop doing things");
+            if (promotionRequirement.Count <= 0 || promotionGift.Count <= 0)
+            {
+                throw new Exception("this promotion dont even have a requirement or gift, major error, it should not exist");
+            }
             //Validate Requirements
             for (int i = 0; i < promotionRequirement.Count; i++)
             {

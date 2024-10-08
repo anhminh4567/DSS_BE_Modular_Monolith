@@ -17,10 +17,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
         {
 
         }
-        public override Task<Jewelry?> GetById(params object[] ids)
+        public override async Task<Jewelry?> GetById(params object[] ids)
         {
             JewelryId id = (JewelryId)ids[0];
-            return _set.Include(d => d.SideDiamonds).FirstOrDefaultAsync(d => d.Id == id);
+            return await _set.Include(d => d.SideDiamonds).FirstOrDefaultAsync(d => d.Id == id);
         }
     }
 }

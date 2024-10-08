@@ -49,7 +49,7 @@ namespace DiamondShop.Infrastructure.Services.Scrapers
                     for (int j = 0; j < datas.Count; j++)
                     {
                         var price = FromCaohungPriceToPrice( datas[j].InnerText.Trim());
-                        var clarity = clarities[i];
+                        var clarity = clarities[j];
                         //var color = colors[i];
                         CaohungDiamondPrice priceObj = new CaohungDiamondPrice()
                         {

@@ -1,5 +1,7 @@
-﻿using DiamondShop.Domain.Common;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes;
@@ -8,6 +10,7 @@ using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,8 +46,10 @@ namespace DiamondShop.Domain.Models.Diamonds
         public Media? Thumbnail { get; set; }
         public List<Media>? Gallery { get; set; } = new();
         public bool IsActive { get; set; } = true;
+        [NotMapped]
+        public DiamondPrice? DiamondPrice { get; set; }
         public static Diamond Create(DiamondShape shape, Diamond_4C diamond_4C, Diamond_Details diamond_Details, bool hasGIA,
-           Diamond_Measurement diamond_Measurement) 
+           Diamond_Measurement diamond_Measurement,decimal priceOffset) 
         {
             return new Diamond()
             {
@@ -65,9 +70,13 @@ namespace DiamondShop.Domain.Models.Diamonds
                 Culet = diamond_Details.Culet,
                 Fluorescence = diamond_Details.Fluorescence,
                 Measurement = diamond_Measurement.Measurement,
+                PriceOffset = Math.Clamp(priceOffset,DiamondRules.MinPriceOffset,DiamondRules.MaxPriceOffset),
             };
         }
-
+        public void UpdatePriceOffset(decimal priceOffset)
+        {
+            PriceOffset = Math.Clamp(priceOffset, DiamondRules.MinPriceOffset, DiamondRules.MaxPriceOffset);
+        }
         public void SetForJewelry (Jewelry jewelry, bool isRemove = false) 
         {
             if(isRemove)

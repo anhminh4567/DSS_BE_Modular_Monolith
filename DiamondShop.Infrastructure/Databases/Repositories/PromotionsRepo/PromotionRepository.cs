@@ -20,9 +20,9 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo
             if(isDateComparisonRequired) 
             {
                 var now = DateTime.UtcNow;
-                return _set.Where(p => p.IsActive && p.StartDate < now && p.EndDate > now).ToListAsync();
+                return _set.Include(p => p.PromoReqs).Include(p => p.Gifts).Where(p => p.IsActive && p.StartDate < now && p.EndDate > now).ToListAsync();
             }
-            return _set.Where(p => p.IsActive).ToListAsync();
+            return _set.Include(p => p.PromoReqs).Include(p => p.Gifts).Where(p => p.IsActive).ToListAsync();
         }
     }
 }

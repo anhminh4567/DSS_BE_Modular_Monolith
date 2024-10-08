@@ -9,7 +9,8 @@ namespace DiamondShop.Test.General
 {
     public class ScraperTest
     {
-        [Fact(Skip = "not now")]
+        //[Fact(Skip = "not now")]
+        [Fact]
         public void TestScraper()
         {
             CaohungDiamondPriceScraper scraper = new CaohungDiamondPriceScraper(); 

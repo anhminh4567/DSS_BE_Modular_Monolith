@@ -15,10 +15,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         public DiamondRepository(DiamondShopDbContext dbContext) : base(dbContext)
         {
         }
-        public override Task<Diamond?> GetById(params object[] ids)
+        public override async Task<Diamond?> GetById(params object[] ids)
         {
             DiamondId id = (DiamondId)ids[0];
-            return _set.Include(d => d.DiamondShape).FirstOrDefaultAsync(d => d.Id == id);
+            return await _set.Include(d => d.DiamondShape).FirstOrDefaultAsync(d => d.Id == id);
         }
     }
 }

@@ -32,12 +32,17 @@ namespace DiamondShop.Application
         {
             services.AddSingleton<IDiamondServices, DiamondServices>();
             services.AddSingleton<IOrderTransactionService, OrderTransactionService>();
+            services.AddSingleton<IPromotionServices, PromotionService>();
+            services.AddSingleton<IDiscountService, DiscountService>();
+            services.AddScoped<ICartModelService, CartModelService>();
+
             return services;
         }
         private static IServiceCollection AddMapping(this IServiceCollection services, IConfiguration configuration)
         {
             var config = TypeAdapterConfig.GlobalSettings;
             config.Scan(CurrentAssembly);
+            config.Default.IgnoreNullValues(true);
             services.AddSingleton(config);
             services.AddScoped<IMapper, ServiceMapper>();
             return services;

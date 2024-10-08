@@ -4,6 +4,7 @@ using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Services.interfaces;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,6 +33,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 continue;
             }
             throw new Exception("somehow none of the price match the diamond");
+            return null;
         }
 
         public bool ValidateDiamond4C(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo, Cut cutFrom, Cut cutTo)
@@ -61,15 +63,16 @@ namespace DiamondShop.Domain.Services.Implementations
                 return false;
             }
             var criteria = price.Criteria;
-            if (diamond.Cut != criteria.Cut
-                || diamond.Color != criteria.Color
-                || diamond.Clarity != criteria.Clarity
-                || diamond.Carat > criteria.CaratTo
-                || diamond.Carat <= criteria.CaratFrom)
+            if (diamond.Cut == criteria.Cut
+                && diamond.Color == criteria.Color
+                && diamond.Clarity == criteria.Clarity
+                && diamond.Carat < criteria.CaratTo
+                && diamond.Carat >= criteria.CaratFrom
+                && diamond.IsLabDiamond == price.Criteria.IsLabGrown)
             {
-                return false;
+                return true;
             }
-            return true;
+            return false;
         }
     }
 }

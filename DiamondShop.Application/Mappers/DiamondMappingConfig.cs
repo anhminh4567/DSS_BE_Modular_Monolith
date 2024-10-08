@@ -22,7 +22,8 @@ namespace DiamondShop.Application.Mappers
             config.NewConfig<Diamond, DiamondDto>()
                 .Map(dest => dest.DiamondShapeId, src => src.DiamondShapeId.Value)
                 .Map(dest => dest.JewelryId, src => src.JewelryId.Value)
-                .Map(dest => dest.Id, src => src.Id.Value);
+                .Map(dest => dest.Id, src => src.Id.Value)
+                .Map(dest => dest.DiamondPrice, src => src.DiamondPrice);
 
 
             config.NewConfig<DiamondShape, DiamondShapeDto>()
