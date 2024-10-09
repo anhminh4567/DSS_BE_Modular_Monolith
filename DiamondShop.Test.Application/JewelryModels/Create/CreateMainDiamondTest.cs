@@ -13,8 +13,9 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using Newtonsoft.Json;
 
-namespace DiamondShop.Test.General.JewelryModels.MainDiamonds.Create
+namespace DiamondShop.Test.Application.JewelryModels.Create
 {
+    [Trait(nameof(JewelryModels), "Main Diamond")]
     public class CreateMainDiamondTest
     {
         public class MainDiamondJSON
@@ -120,6 +121,6 @@ namespace DiamondShop.Test.General.JewelryModels.MainDiamonds.Create
 
             result.IsValid.Should().BeTrue();
         }
-    
+
     }
 }
