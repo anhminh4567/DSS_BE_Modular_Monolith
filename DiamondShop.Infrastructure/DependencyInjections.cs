@@ -36,6 +36,8 @@ using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.OrderRepo;
+using DiamondShop.Domain.Repositories.TransactionRepo;
+using DiamondShop.Infrastructure.Databases.Repositories.TransactionRepo;
 
 namespace DiamondShop.Infrastructure
 {
@@ -83,6 +85,9 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IOrderItemRepository, OrderItemRepository>();
             services.AddScoped<IOrderLogRepository, OrderLogRepository>();
             services.AddScoped<IDeliveryPackageRepository, DeliveryPackageRepository>();
+
+            services.AddScoped<ITransactionRepository, TransactionRepository>();
+            services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
 
             services.AddScoped<IJewelryRepository, JewelryRepository>();
             services.AddScoped<IJewelrySideDiamondRepository, JewelrySideDiamondRepository>();

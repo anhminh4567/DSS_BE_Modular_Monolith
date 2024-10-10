@@ -30,9 +30,24 @@ namespace DiamondShop.Infrastructure.Options.Setups
             string outboxJobName = nameof(ProcessOutboxMessagesWorker);
             options.AddJob<ProcessOutboxMessagesWorker>(config => config.WithIdentity(outboxJobName))
                 .AddTrigger(config => config.ForJob(outboxJobName)
-                .WithSimpleSchedule(schedule => schedule
-                .WithIntervalInSeconds(_outboxOption.Value.IntervalSeconds)
-                .RepeatForever()));
+                    .WithSimpleSchedule(schedule => schedule
+                        .WithIntervalInSeconds(_outboxOption.Value.IntervalSeconds)
+                        .RepeatForever()));
+
+            string promotionJobName = nameof(PromotionManagerWorker);
+            options.AddJob<PromotionManagerWorker>(config => config.WithIdentity(promotionJobName))
+                .AddTrigger(config => config.ForJob(promotionJobName)
+                    .WithSimpleSchedule(schedule => schedule
+                        .WithIntervalInMinutes(10)
+                        .RepeatForever()));
+
+            string discountJobName = nameof(DiscountManagerWorker);
+            options.AddJob<PromotionManagerWorker>(config => config.WithIdentity(discountJobName))
+                .AddTrigger(config => config.ForJob(discountJobName)
+                    .WithSimpleSchedule(schedule => schedule
+                        .WithIntervalInMinutes(10)
+                        .RepeatForever()));
+
         }
     }
 }

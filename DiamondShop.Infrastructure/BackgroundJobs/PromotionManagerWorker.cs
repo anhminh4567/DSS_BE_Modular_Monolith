@@ -1,7 +1,9 @@
 ﻿using DiamondShop.Application.Services.Data;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
+using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Outbox;
 using FluentEmail.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Quartz;
@@ -28,18 +30,26 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
             _promotionRepository = promotionRepository;
         }
 
-        public Task Execute(IJobExecutionContext context)
+        public async Task Execute(IJobExecutionContext context)
         {
             var query = _promotionRepository.GetQuery();
             var dateTimeNow = DateTime.UtcNow;
-            var unstartedPromotion = from promotions in query
+            var unstartedPromotion = await (from promotions in query
                          where promotions.PromoReqs.Count > 0 
                          && promotions.Gifts.Count > 0
                          && promotions.StartDate < dateTimeNow
                          && promotions.EndDate > dateTimeNow
-                         && promotions.IsActive == false
-                         select promotions;
-            return Task.CompletedTask;
+                         && promotions.Status == Domain.Models.Promotions.Enum.Status.Scheduled
+                         select promotions ).ToListAsync();
+            foreach (var promotion in unstartedPromotion)
+            {
+                var result = promotion.SetActive();
+                if(result.IsSuccess)
+                    _promotionRepository.Update(promotion).GetAwaiter().GetResult();
+                else
+                    _logger.LogError($"promotion with id: {promotion.Id.Value} and name: {promotion.Name} is error when set active, check code");
+            }
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

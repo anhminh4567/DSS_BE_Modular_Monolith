@@ -12,6 +12,11 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.TransactionConfig
 {
     internal class PaymentMethodConfiguration : IEntityTypeConfiguration<PaymentMethod>
     {
+        public static List<PaymentMethod> Seed = new List<PaymentMethod>
+        {
+            PaymentMethod.Create("COD","1"),
+            PaymentMethod.Create("ZALOPAY","2")
+        };
         public void Configure(EntityTypeBuilder<PaymentMethod> builder)
         {
             builder.ToTable("PaymentMethod");
@@ -20,6 +25,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.TransactionConfig
                     o => o.Value,
                     dbValue => PaymentMethodId.Parse(dbValue));
             builder.HasKey(o => o.Id);
+            builder.HasData(Seed);
         }
 
     }
