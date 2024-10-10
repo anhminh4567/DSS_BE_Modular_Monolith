@@ -31,7 +31,7 @@ namespace DiamondShop.Application.Usecases.MainDiamonds.Commands.Create
             if (mainDiamondSpec.ShapeSpecs.Count > 0)
             {
                 List<MainDiamondShape> mainDiamondShapes = mainDiamondSpec.ShapeSpecs.Select(p => MainDiamondShape.Create(mainDiamond.Id, DiamondShapeId.Parse(p.ShapeId), p.CaratFrom, p.CaratTo)).ToList();
-                await _mainDiamondRepository.CreateShapes(mainDiamondShapes, token);
+                await _mainDiamondRepository.CreateRange(mainDiamondShapes, token);
             }
             await _unitOfWork.SaveChangesAsync(token);
             return mainDiamond;

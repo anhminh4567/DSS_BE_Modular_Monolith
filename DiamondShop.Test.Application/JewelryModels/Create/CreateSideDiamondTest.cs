@@ -14,8 +14,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Test.General.JewelryModels.SideDiamonds.Create
+namespace DiamondShop.Test.Application.JewelryModels.Create
 {
+    [Trait(nameof(JewelryModels), "Side Diamond")]
     public class CreateSideDiamondTest
     {
         private readonly Mock<ISideDiamondRepository> _sideDiamondRepo;
@@ -33,7 +34,7 @@ namespace DiamondShop.Test.General.JewelryModels.SideDiamonds.Create
                     new SideDiamondOptRequestDto(2.4f,2),
                 };
             //Sua lai sau khi doi cho Color
-            SideDiamondRequestDto spec = new("1",Color.D,Color.K,Clarity.S11, Clarity.S11, SettingType.Prong,opts);
+            SideDiamondRequestDto spec = new("1", Color.D, Color.K, Clarity.S11, Clarity.S11, SettingType.Prong, opts);
             var command = new CreateSideDiamondCommand(JewelryModelId.Create(), spec);
             var validator = new CreateSideDiamondCommandValidator();
 
@@ -50,7 +51,7 @@ namespace DiamondShop.Test.General.JewelryModels.SideDiamonds.Create
                 {
                     new SideDiamondOptRequestDto(2.4f,2),
                 };
-            SideDiamondRequestDto spec = new("1",Color.K,Color.D,Clarity.S11, Clarity.S11, SettingType.Prong,opts);
+            SideDiamondRequestDto spec = new("1", Color.K, Color.D, Clarity.S11, Clarity.S11, SettingType.Prong, opts);
             var command = new CreateSideDiamondCommand(JewelryModelId.Create(), spec);
             var validator = new CreateSideDiamondCommandValidator();
 

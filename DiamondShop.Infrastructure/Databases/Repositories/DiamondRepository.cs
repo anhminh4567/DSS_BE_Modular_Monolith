@@ -3,6 +3,7 @@ using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
+using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Services.Implementations;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,13 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         public DiamondRepository(DiamondShopDbContext dbContext) : base(dbContext)
         {
         }
-        public override async Task<Diamond?> GetById(params object[] ids)
+
+        public void UpdateRange(List<Diamond> diamonds)
+        {
+            _set.UpdateRange(diamonds);
+        }
+
+        public override Task<Diamond?> GetById(params object[] ids)
         {
             DiamondId id = (DiamondId)ids[0];
             return await _set.Include(d => d.DiamondShape).FirstOrDefaultAsync(d => d.Id == id);
@@ -39,5 +46,6 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             return ( diamond : result.Diamond, discounts : result.Discounts, prmotion : result.Promotions );
             //.FirstOrDefaultAsync(cancellationToken);
         }
+
     }
 }

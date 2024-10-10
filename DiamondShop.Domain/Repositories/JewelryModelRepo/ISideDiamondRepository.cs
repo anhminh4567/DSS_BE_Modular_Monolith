@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace DiamondShop.Domain.Repositories.JewelryModelRepo
 {
     public interface ISideDiamondRepository : IBaseRepository<SideDiamondReq> 
     {
-        public Task CreateOpts(List<SideDiamondOpt> sideDiamondOpts, CancellationToken token = default);
+        public Task<List<SideDiamondOpt>> GetSideDiamondOption(List<SideDiamondOptId> sideDiamondOptId);
+        public Task CreateRange(List<SideDiamondOpt> sideDiamondOpts, CancellationToken token = default);
     }
 }

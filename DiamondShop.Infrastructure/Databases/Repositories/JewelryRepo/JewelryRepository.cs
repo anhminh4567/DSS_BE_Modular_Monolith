@@ -22,5 +22,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
             JewelryId id = (JewelryId)ids[0];
             return await _set.Include(d => d.SideDiamonds).FirstOrDefaultAsync(d => d.Id == id);
         }
+        public async Task<bool> CheckDuplicatedSerial(string serialNumber)
+        {
+            return await _set.AnyAsync(p => p.SerialCode == serialNumber);
+        }
+
     }
 }

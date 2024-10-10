@@ -4,6 +4,7 @@ using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo;
+using DiamondShop.Test.General;
 using FluentAssertions;
 using FluentResults;
 using MapsterMapper;
@@ -21,18 +22,11 @@ using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Test.General.JewelryModels.Categories.Create
+namespace DiamondShop.Test.Application.JewelryModels.Create
 {
+    [Trait(nameof(JewelryModels), "Category")]
     public class CreateModelCategoryTest
     {
-
-        public class JewelryModelCategoryJSON
-        {
-            public string name { get; set; }
-            public string description { get; set; }
-            public bool isGeneral { get; set; }
-            public string parentCategoryId { get; set; }
-        }
 
         private readonly Mock<IJewelryModelCategoryRepository> _categoryRepo;
         private readonly Mock<IUnitOfWork> _unitOfWork;
@@ -60,6 +54,10 @@ namespace DiamondShop.Test.General.JewelryModels.Categories.Create
         public async Task Handle_Should_ReturnFailureResult_WhenNameIsNotUnique()
         {
             var command = new CreateJewelryCategoryCommand("Test_Category", "this is a testing category, don't use", true, null);
+            _categoryRepo.Setup(
+             x => x.CheckDuplicate(
+                 It.IsAny<string>()))
+             .ReturnsAsync(true);
 
             var handler = new CreateJewelryCategoryCommandHandler(_categoryRepo.Object, _unitOfWork.Object);
 
@@ -75,7 +73,7 @@ namespace DiamondShop.Test.General.JewelryModels.Categories.Create
         public async Task Handle_Should_ReturnSuccessResult_WhenNameIsNotUnique()
         {
             var command = new CreateJewelryCategoryCommand("Test_Category", "this is a testing category, don't use", true, null);
-            
+
             _categoryRepo.Setup(
                 x => x.CheckDuplicate(
                     It.IsAny<string>()))
@@ -93,18 +91,18 @@ namespace DiamondShop.Test.General.JewelryModels.Categories.Create
         }
         public static IEnumerable<object[]> GetTestData()
         {
-            var jsonData = File.ReadAllText("Data/InputCategory.json");
-            var data = JsonConvert.DeserializeObject<List<JewelryModelCategoryJSON>>(jsonData);
-            foreach(var row in data)
+            var jsonData = File.ReadAllText("Data/JewelryModel/InputCategory.json");
+            var data = JsonConvert.DeserializeObject<List<JewelryModelCategory>>(jsonData);
+            foreach (var row in data)
             {
-                yield return new object[] { row.name, row.description, row.isGeneral, row.parentCategoryId };
+                yield return new object[] { row.Name, row.Description, row.IsGeneral, row.ParentCategory };
             }
         }
         [Theory]
         [MemberData(nameof(GetTestData))]
         public async Task Handle_Should_ReturnSuccess_WhenCategoryAddToDb(string name, string desc, bool isGeneral, string parentId)
         {
-            
+
             DbContextOptions opt = new DbContextOptionsBuilder<TestDbContext>()
                 .UseInMemoryDatabase($"CategoryTest {new Guid().ToString()}")
                 .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))

@@ -13,8 +13,10 @@ using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo;
+using DiamondShop.Test.General;
 using FluentAssertions;
 using FluentResults;
+using FluentValidation;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -27,10 +29,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static DiamondShop.Test.General.JewelryModels.MainDiamonds.Create.CreateMainDiamondTest;
 
-namespace DiamondShop.Test.General.JewelryModels.Models.Create
+namespace DiamondShop.Test.Application.JewelryModels.Create
 {
+    [Trait(nameof(JewelryModels), "Model")]
     public class CreateModelTest
     {
 
@@ -90,24 +92,9 @@ namespace DiamondShop.Test.General.JewelryModels.Models.Create
             _sender.Verify(x => x.Send(It.IsAny<CreateSideDiamondCommand>(), default), Times.Once);
             _modelRepo.Verify(x => x.Create(It.Is<JewelryModel>(p => p.Id == result.Value.Id), default), Times.Once);
         }
-        [Fact]
-        public async Task Handle_Should_ReturnSuccess_WhenModelAddToDb()
-        {
-            JewelryModelRequestDto modelSpec = new("Test_Ring", "1", null, null, true, true, null, null, null);
-            var command = new CreateJewelryModelCommand(modelSpec, new() { mainSpec }, new() { sideSpec }, new() { sizeMetalSpec });
-            var handler = new CreateJewelryModelCommandHandler(_sender.Object, _modelRepo.Object, _unitOfWork.Object);
-
-            _sender.Setup(s => s.Send(It.IsAny<CreateSizeMetalCommand>(), default)).ReturnsAsync(Result.Ok());
-            _sender.Setup(s => s.Send(It.IsAny<CreateMainDiamondCommand>(), default)).ReturnsAsync(Result.Ok());
-            _sender.Setup(s => s.Send(It.IsAny<CreateSideDiamondCommand>(), default)).ReturnsAsync(Result.Ok());
-
-            var result = await handler.Handle(command, default);
-
-            result.IsSuccess.Should().BeTrue();
-        }
         public static IEnumerable<object[]> GetTestData()
         {
-            var jsonData = File.ReadAllText("Data/InputModel.json");
+            var jsonData = File.ReadAllText("Data/JewelryModel/InputModel.json");
             var data = JsonConvert.DeserializeObject<List<JewelryModelJSON>>(jsonData);
             foreach (var item in data)
             {
@@ -116,42 +103,59 @@ namespace DiamondShop.Test.General.JewelryModels.Models.Create
         }
         [Theory]
         [MemberData(nameof(GetTestData))]
-        public async Task Handle_Should_ReturnSuccess_WhenMainDiamondAddToDb(JewelryModelRequestDto ModelSpec, List<MainDiamondRequestDto> mainDiamondSpecs, List<SideDiamondRequestDto> sideDiamondSpecs, List<ModelMetalSizeRequestDto> metalSizeSpecs)
+        public async Task Handle_Should_ReturnSuccess_WhenModelAddToDb(JewelryModelRequestDto ModelSpec, List<MainDiamondRequestDto> mainDiamondSpecs, List<SideDiamondRequestDto> sideDiamondSpecs, List<ModelMetalSizeRequestDto> metalSizeSpecs)
         {
+            var modelValidator = new CreateJewelryModelCommandValidator();
+            var sizeMetalValidator = new CreateSizeMetalCommandValidator();
+            var mainDiamondValidator = new CreateMainDiamondCommandValidator();
+            var sideDiamondValidator = new CreateSideDiamondCommandValidator();
+
+
+
             DbContextOptions opt = new DbContextOptionsBuilder<TestDbContext>()
                 .UseInMemoryDatabase($"MainDiamondTest {new Guid().ToString()}")
                 .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 .Options;
             using (var context = new TestDbContext(opt))
             {
+
                 var unitOfWork = new UnitOfWork(context);
                 var modelCommand = new CreateJewelryModelCommand(ModelSpec, mainDiamondSpecs, sideDiamondSpecs, metalSizeSpecs);
 
+                var handler = new CreateJewelryModelCommandHandler(_sender.Object, new JewelryModelRepository(context, null), unitOfWork);
                 var sizeMetalHandler = new CreateSizeMetalCommandHandler(new SizeMetalRepository(context), unitOfWork);
                 var mainDiamondHandler = new CreateMainDiamondCommandHandler(new MainDiamondRepository(context), unitOfWork);
                 var sideDiamondHandler = new CreateSideDiamondCommandHandler(new SideDiamondRepository(context), unitOfWork);
-                var handler = new CreateJewelryModelCommandHandler(_sender.Object, new JewelryModelRepository(context, null), unitOfWork);
 
                 _sender
                     .Setup(s => s.Send(It.IsAny<CreateSizeMetalCommand>(), It.IsAny<CancellationToken>()))
                     .Returns(async (CreateSizeMetalCommand command, CancellationToken token) =>
                     {
-
-                        return await sizeMetalHandler.Handle(command, token);
+                        var validate = await sizeMetalValidator.ValidateAsync(command, token);
+                        if (validate.IsValid)
+                            return await sizeMetalHandler.Handle(command, token);
+                        else
+                            throw new ValidationException(validate.ToString());
                     });
                 _sender
                     .Setup(s => s.Send(It.IsAny<CreateMainDiamondCommand>(), It.IsAny<CancellationToken>()))
                     .Returns(async (CreateMainDiamondCommand command, CancellationToken token) =>
                     {
-
-                        return await mainDiamondHandler.Handle(command, token);
+                        var validate = await mainDiamondValidator.ValidateAsync(command, token);
+                        if (validate.IsValid)
+                            return await mainDiamondHandler.Handle(command, token);
+                        else
+                            throw new ValidationException(validate.ToString());
                     });
                 _sender
                     .Setup(s => s.Send(It.IsAny<CreateSideDiamondCommand>(), It.IsAny<CancellationToken>()))
                     .Returns(async (CreateSideDiamondCommand command, CancellationToken token) =>
                     {
-
-                        return await sideDiamondHandler.Handle(command, token);
+                        var validate = await sideDiamondValidator.ValidateAsync(command, token);
+                        if (validate.IsValid)
+                            return await sideDiamondHandler.Handle(command, token);
+                        else
+                            throw new ValidationException(validate.ToString());
                     });
                 var result = await handler.Handle(modelCommand, default);
 
