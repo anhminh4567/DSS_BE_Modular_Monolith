@@ -39,6 +39,13 @@
     <None Update="Data\JewelryModel\InputSizeMetal.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Data\Jewelry\InputJewelry.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\Jewelry\" />
   </ItemGroup>
 
 </Project>

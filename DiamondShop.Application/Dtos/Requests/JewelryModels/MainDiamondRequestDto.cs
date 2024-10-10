@@ -2,6 +2,6 @@
 
 namespace DiamondShop.Application.Dtos.Requests.JewelryModels
 {
-    public record MainDiamondRequestDto(List<MainDiamondShapeRequestDto> ShapeSpecs, SettingType SettingType, int Quantity);
+    public record MainDiamondRequestDto(SettingType SettingType, int Quantity, List<MainDiamondShapeRequestDto> ShapeSpecs);
 
 }

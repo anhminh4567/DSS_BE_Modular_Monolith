@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DiamondShop.Api.Controllers.Orders
 {
-    [Route("api/Order")]
+    [Route("api/Order/All")]
     [ApiController]
     public class OrderController : ApiControllerBase
     {
@@ -25,6 +25,11 @@ namespace DiamondShop.Api.Controllers.Orders
             var result = await _sender.Send(new GetUserOrderQuery());
             var mappedResult = _mapper.Map<List<OrderDto>>(result);
             return Ok(mappedResult);
+        }
+        [HttpPost]
+        public async Task<ActionResult> Checkout()
+        {
+            throw new NotImplementedException();
         }
 
     }

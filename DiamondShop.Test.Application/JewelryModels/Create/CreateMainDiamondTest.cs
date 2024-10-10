@@ -15,22 +15,23 @@ using Newtonsoft.Json;
 
 namespace DiamondShop.Test.Application.JewelryModels.Create
 {
+    public class MainDiamondJSON
+    {
+        public MainDiamondShapeJSON[] shapeSpecs { get; set; }
+        public int settingType { get; set; }
+        public int quantity { get; set; }
+    }
+
+    public class MainDiamondShapeJSON
+    {
+        public string shapeId { get; set; }
+        public float caratFrom { get; set; }
+        public float caratTo { get; set; }
+    }
     [Trait(nameof(JewelryModels), "Main Diamond")]
     public class CreateMainDiamondTest
     {
-        public class MainDiamondJSON
-        {
-            public MainDiamondShapeJSON[] shapeSpecs { get; set; }
-            public int settingType { get; set; }
-            public int quantity { get; set; }
-        }
-
-        public class MainDiamondShapeJSON
-        {
-            public string shapeId { get; set; }
-            public float caratFrom { get; set; }
-            public float caratTo { get; set; }
-        }
+       
 
         private readonly Mock<IMainDiamondRepository> _mainDiamondRepo;
         private readonly Mock<IUnitOfWork> _unitOfWork;

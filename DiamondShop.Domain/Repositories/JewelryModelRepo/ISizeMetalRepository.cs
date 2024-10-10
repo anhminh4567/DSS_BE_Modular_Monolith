@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;

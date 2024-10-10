@@ -9,6 +9,7 @@ namespace DiamondShop.Domain.Repositories.JewelryRepo
 {
     public interface IJewelryRepository : IBaseRepository<Jewelry>
     {
+        public Task<(List<Jewelry> jewelries, int totalPage)> GetSellingJewelry(int skip, int take);
         public Task<bool> CheckDuplicatedSerial(string serialNumber);
     }
 }

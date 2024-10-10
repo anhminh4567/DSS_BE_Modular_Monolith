@@ -1,0 +1,31 @@
+[
+  {
+    "jewelryRequest": {
+      "modelId": "e6ec27b4-24e6-479c-8b68-889e01561557",
+      "sizeId": "6",
+      "metalId": "1",
+      "weight": 15,
+      "serialCode": "MODEL_TEST"
+    },
+    "sideDiamondOptIds": [
+      "bd4685ac-658c-4b87-8dad-19b9a2b29588"
+    ],
+    "attachedDiamondIds": [
+      "5321d523-0cc3-4862-a9b7-76c304e6d7db"
+    ],
+    "expectedResult": true
+  },
+  {
+    "jewelryRequest": {
+      "modelId": "1a28f791-56d4-4d09-a216-d2ce17e85e1d",
+      "sizeId": "6",
+      "metalId": "1",
+      "weight": 15,
+      "serialCode": "MODEL_TEST_NO_DIAMOND"
+    },
+    "sideDiamondOptIds": [
+      "bd4685ac-658c-4b87-8dad-19b9a2b29588"
+    ],
+    "expectedResult": true
+  }
+]

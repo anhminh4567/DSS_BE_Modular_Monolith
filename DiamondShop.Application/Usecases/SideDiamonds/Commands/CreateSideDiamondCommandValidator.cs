@@ -30,7 +30,7 @@ namespace DiamondShop.Application.Usecases.SideDiamonds.Commands
 
                     p.RuleFor(p => p.ClarityMax)
                         .IsInEnum()
-                        .Must((spec, max) => (int)spec.ClarityMin <= (int)max).WithMessage((e)=>$"ClarityMin '{e.ClarityMin}' needs to be smaller than ClarityMax '{e.ClarityMax}'");
+                        .Must((spec, max) => (int)spec.ClarityMin <= (int)max).WithMessage((e) => $"ClarityMin '{e.ClarityMin}' needs to be smaller than ClarityMax '{e.ClarityMax}'");
 
                     p.RuleFor(p => p.SettingType)
                         .IsInEnum();

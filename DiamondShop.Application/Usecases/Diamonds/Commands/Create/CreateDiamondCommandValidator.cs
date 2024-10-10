@@ -11,7 +11,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
             RuleFor(c => c.diamond4c.Color).NotEmpty();
             RuleFor(c => c.diamond4c.Clarity).NotEmpty();
             RuleFor(c => c.diamond4c.Carat).NotEmpty();
-            RuleFor(c => c.diamond4c.isLabDiamond).NotEmpty();
+            RuleFor(c => c.diamond4c.isLabDiamond).NotNull();
 
             RuleFor(c => c.measurement.Depth).NotEmpty().GreaterThan(0);
             RuleFor(c => c.measurement.withLenghtRatio).NotEmpty().GreaterThan(0);
@@ -25,7 +25,6 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
             RuleFor(c => c.details.Fluorescence).NotEmpty();
 
             RuleFor(c => c.hasGIA).NotEmpty();
-
         }
     }
 }
