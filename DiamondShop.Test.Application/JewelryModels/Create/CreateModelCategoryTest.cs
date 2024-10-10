@@ -6,24 +6,21 @@ using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo;
 using DiamondShop.Test.General;
 using FluentAssertions;
-using FluentResults;
-using MapsterMapper;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Test.Application.JewelryModels.Create
 {
+    public class CategoryTest
+    {
+        public string name { get; set; }
+        public string description { get; set; }
+        public bool isGeneral { get; set; }
+        public string? parentCategoryId { get; set; }
+    }
+
     [Trait(nameof(JewelryModels), "Category")]
     public class CreateModelCategoryTest
     {

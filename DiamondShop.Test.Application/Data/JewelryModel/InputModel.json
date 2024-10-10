@@ -2,7 +2,7 @@
   {
     "modelSpec": {
       "name": "Test_Ring",
-      "categoryId": "beefa1a1-15ee-4a0c-bc6b-265494e4eca9",
+      "categoryId": "43e5084c-5453-45f2-ad0d-23e66251d348",
       "width": 10,
       "isEngravable": true,
       "isRhodiumFinish": true
@@ -41,6 +41,42 @@
         ]
       }
     ],
+    "metalSizeSpecs": [
+      {
+        "metalId": "1",
+        "sizeId": "3",
+        "weight": 10
+      },
+      {
+        "metalId": "1",
+        "sizeId": "4",
+        "weight": 12
+      },
+      {
+        "metalId": "1",
+        "sizeId": "6",
+        "weight": 15
+      },
+      {
+        "metalId": "2",
+        "sizeId": "3",
+        "weight": 10
+      },
+      {
+        "metalId": "2",
+        "sizeId": "6",
+        "weight": 12
+      }
+    ]
+  },
+  {
+    "modelSpec": {
+      "name": "Test_Ring_No_Diamond",
+      "categoryId": "43e5084c-5453-45f2-ad0d-23e66251d348",
+      "width": 10,
+      "isEngravable": true,
+      "isRhodiumFinish": true
+    },
     "metalSizeSpecs": [
       {
         "metalId": "1",

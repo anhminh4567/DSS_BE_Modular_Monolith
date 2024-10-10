@@ -6,7 +6,16 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
     {
         public CreateJewelryModelCommandValidator()
         {
-            RuleFor(c => c.ModelSpec).NotEmpty()
+            RuleForEach(c => c.SideDiamondSpecs)
+                .NotEmpty()
+                .When(c => c.SideDiamondSpecs != null);
+
+            RuleForEach(c => c.MainDiamondSpecs)
+                .NotEmpty()
+                .When(c => c.MainDiamondSpecs != null);
+
+            RuleFor(c => c.ModelSpec)
+                .NotEmpty()
                 .ChildRules(items =>
                 {
                     items.RuleFor(c => c.Name)

@@ -15,8 +15,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.SideDiamonds.Commands
 {
-    public record CreateSideDiamondCommand(JewelryModelId ModelId, SideDiamondRequestDto SideDiamondSpecs) : IRequest<Result>;
-    internal class CreateSideDiamondCommandHandler : IRequestHandler<CreateSideDiamondCommand, Result>
+    public record CreateSideDiamondCommand(JewelryModelId ModelId, SideDiamondRequestDto SideDiamondSpecs) : IRequest<Result<SideDiamondReq>>;
+    internal class CreateSideDiamondCommandHandler : IRequestHandler<CreateSideDiamondCommand, Result<SideDiamondReq>>
     {
         private readonly ISideDiamondRepository _sideDiamondRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -28,7 +28,7 @@ namespace DiamondShop.Application.Usecases.SideDiamonds.Commands
             _sideDiamondRepository = sideDiamondRepository;
             _unitOfWork = unitOfWork;
         }
-        public async Task<Result> Handle(CreateSideDiamondCommand request, CancellationToken token)
+        public async Task<Result<SideDiamondReq>> Handle(CreateSideDiamondCommand request, CancellationToken token)
         {
             await _unitOfWork.BeginTransactionAsync(token);
             request.Deconstruct(out JewelryModelId modelId, out SideDiamondRequestDto sideDiamondSpec);
@@ -38,7 +38,8 @@ namespace DiamondShop.Application.Usecases.SideDiamonds.Commands
             List<SideDiamondOpt> sideDiamondOpts = sideDiamondSpec.OptSpecs.Select(p => SideDiamondOpt.Create(sideDiamond.Id, p.CaratWeight, p.Quantity)).ToList();
             await _sideDiamondRepository.CreateRange(sideDiamondOpts, token);
             await _unitOfWork.SaveChangesAsync(token);
-            return Result.Ok();
+            sideDiamond.SideDiamondOpts = sideDiamondOpts;
+            return sideDiamond;
         }
     }
 }

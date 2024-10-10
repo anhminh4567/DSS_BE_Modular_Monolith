@@ -15,22 +15,23 @@ using Newtonsoft.Json;
 
 namespace DiamondShop.Test.Application.JewelryModels.Create
 {
+    public class MainDiamondJSON
+    {
+        public MainDiamondShapeJSON[] shapeSpecs { get; set; }
+        public int settingType { get; set; }
+        public int quantity { get; set; }
+    }
+
+    public class MainDiamondShapeJSON
+    {
+        public string shapeId { get; set; }
+        public float caratFrom { get; set; }
+        public float caratTo { get; set; }
+    }
     [Trait(nameof(JewelryModels), "Main Diamond")]
     public class CreateMainDiamondTest
     {
-        public class MainDiamondJSON
-        {
-            public MainDiamondShapeJSON[] shapeSpecs { get; set; }
-            public int settingType { get; set; }
-            public int quantity { get; set; }
-        }
-
-        public class MainDiamondShapeJSON
-        {
-            public string shapeId { get; set; }
-            public float caratFrom { get; set; }
-            public float caratTo { get; set; }
-        }
+       
 
         private readonly Mock<IMainDiamondRepository> _mainDiamondRepo;
         private readonly Mock<IUnitOfWork> _unitOfWork;
@@ -62,7 +63,7 @@ namespace DiamondShop.Test.Application.JewelryModels.Create
                 {
                     new MainDiamondShapeRequestDto("1",0.3f, 0.5f),
                 };
-            MainDiamondRequestDto spec = new(shapes, SettingType.Prong, 0);
+            MainDiamondRequestDto spec = new(SettingType.Prong, 0, shapes);
             var command = new CreateMainDiamondCommand(JewelryModelId.Create(), spec);
             var validator = new CreateMainDiamondCommandValidator();
 
@@ -78,7 +79,7 @@ namespace DiamondShop.Test.Application.JewelryModels.Create
                 {
                     new MainDiamondShapeRequestDto("1",-0.03f, -0.5f),
                 };
-            MainDiamondRequestDto spec = new(shapes, SettingType.Prong, 1);
+            MainDiamondRequestDto spec = new(SettingType.Prong, 1, shapes);
             var command = new CreateMainDiamondCommand(JewelryModelId.Create(), spec);
             var validator = new CreateMainDiamondCommandValidator();
 
@@ -96,7 +97,7 @@ namespace DiamondShop.Test.Application.JewelryModels.Create
                 {
                     new MainDiamondShapeRequestDto("1",0.8f, 0.5f),
                 };
-            MainDiamondRequestDto spec = new(shapes, SettingType.Prong, 1);
+            MainDiamondRequestDto spec = new(SettingType.Prong, 1, shapes);
             var command = new CreateMainDiamondCommand(JewelryModelId.Create(), spec);
             var validator = new CreateMainDiamondCommandValidator();
 
@@ -113,7 +114,7 @@ namespace DiamondShop.Test.Application.JewelryModels.Create
                 {
                     new MainDiamondShapeRequestDto("1",0.3f, 0.5f),
                 };
-            MainDiamondRequestDto spec = new(shapes, SettingType.Prong, 1);
+            MainDiamondRequestDto spec = new(SettingType.Prong, 1, shapes);
             var command = new CreateMainDiamondCommand(JewelryModelId.Create(), spec);
             var validator = new CreateMainDiamondCommandValidator();
 

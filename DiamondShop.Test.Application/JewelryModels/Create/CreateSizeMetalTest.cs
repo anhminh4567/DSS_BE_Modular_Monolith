@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Test.Application.JewelryModels.Create
 {
-    public class SizeMetalHolder()
+    public class SizeMetalHolder
     {
         public string modelId { get; set; }
         public List<ModelMetalSizeRequestDto> metalSizeSpecs { get; set; }

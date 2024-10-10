@@ -2,5 +2,5 @@
 
 namespace DiamondShop.Application.Dtos.Requests.Jewelries
 {
-    public record JewelryRequestDto(JewelryModelId ModelId, SizeId SizeId, MetalId MetalId, float Weight, string SerialCode);
+    public record JewelryRequestDto(string ModelId, string SizeId, string MetalId, string SerialCode);
 }

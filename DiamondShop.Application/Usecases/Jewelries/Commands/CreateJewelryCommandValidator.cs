@@ -23,19 +23,15 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
                     p.RuleFor(p => p.MetalId)
                         .NotEmpty();
 
-                    p.RuleFor(p => p.Weight)
-                        .NotEmpty()
-                        .GreaterThan(0);
-
                     p.RuleFor(p => p.SerialCode)
                         .NotEmpty()
                         .MinimumLength(SerialCodeRule.MinLength)
                         .MaximumLength(SerialCodeRule.MaxLength);
                 });
 
-            RuleForEach(p => p.SideDiamonds)
+            RuleForEach(p => p.SideDiamondOptIds)
                 .NotEmpty()
-                .When(p => p.SideDiamonds != null);
+                .When(p => p.SideDiamondOptIds != null);
         }
     }
 }

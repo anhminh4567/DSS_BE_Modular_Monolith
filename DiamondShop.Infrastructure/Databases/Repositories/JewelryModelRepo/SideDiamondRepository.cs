@@ -12,15 +12,17 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
 {
     internal class SideDiamondRepository : BaseRepository<SideDiamondReq>, ISideDiamondRepository
     {
-        public SideDiamondRepository(DiamondShopDbContext dbContext) : base(dbContext) { }
+        DbSet<SideDiamondOpt> setOpt;
+        public SideDiamondRepository(DiamondShopDbContext dbContext) : base(dbContext) { setOpt = _dbContext.Set<SideDiamondOpt>(); }
         public async Task CreateRange(List<SideDiamondOpt> sideDiamondOpts, CancellationToken token = default)
         {
-            await _dbContext.Set<SideDiamondOpt>().AddRangeAsync(sideDiamondOpts, token);
+            await setOpt.AddRangeAsync(sideDiamondOpts, token);
         }
 
-        public async Task<List<SideDiamondOpt>> GetSideDiamondOption(List<SideDiamondOptId> sideDiamondOptId)
+        public async Task<List<SideDiamondOpt>?> GetSideDiamondOption(List<SideDiamondOptId> sideDiamondOptId)
         {
-            return await _dbContext.Set<SideDiamondOpt>().Include(p => p.SideDiamondReq).Where(p => sideDiamondOptId.Contains(p.Id)).ToListAsync();
+            
+            return setOpt.Include(p => p.SideDiamondReq).Where(p => sideDiamondOptId.Contains(p.Id)).ToList();
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using DiamondShop.Api.Controllers.JewelryModels;
-using DiamondShop.Application.Dtos.Requests.JewelryModels;
+﻿using DiamondShop.Application.Dtos.Requests.JewelryModels;
 using DiamondShop.Application.Services.Data;
 using DiamondShop.Application.Usecases.JewelryModels.Commands.Create;
 using DiamondShop.Application.Usecases.MainDiamonds.Commands.Create;
@@ -7,9 +6,7 @@ using DiamondShop.Application.Usecases.SideDiamonds.Commands;
 using DiamondShop.Application.Usecases.SizeMetals.Commands.Create;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.JewelryModels;
-using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.Enum;
-using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo;
@@ -17,36 +14,79 @@ using DiamondShop.Test.General;
 using FluentAssertions;
 using FluentResults;
 using FluentValidation;
-using MapsterMapper;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Test.Application.JewelryModels.Create
 {
+    public class ModelTest
+    {
+        public Modelspec modelSpec { get; set; }
+        public Maindiamondspec[]? mainDiamondSpecs { get; set; }
+        public Sidediamondspec[]? sideDiamondSpecs { get; set; }
+        public Metalsizespec[] metalSizeSpecs { get; set; }
+    }
+
+    public class Modelspec
+    {
+        public string name { get; set; }
+        public string categoryId { get; set; }
+        public int? width { get; set; }
+        public int? length { get; set; }
+        public bool isEngravable { get; set; }
+        public bool isRhodiumFinish { get; set; }
+        public BackType? backType { get; set; }
+        public ClaspType? claspType { get; set; }
+        public ChainType? chainType { get; set; }
+    }
+
+    public class Maindiamondspec
+    {
+        public Shapespec[] shapeSpecs { get; set; }
+        public SettingType settingType { get; set; }
+        public int quantity { get; set; }
+    }
+
+    public class Shapespec
+    {
+        public string shapeId { get; set; }
+        public float caratFrom { get; set; }
+        public float caratTo { get; set; }
+    }
+
+    public class Sidediamondspec
+    {
+        public string shapeId { get; set; }
+        public Color colorMin { get; set; }
+        public Color colorMax { get; set; }
+        public Clarity clarityMin { get; set; }
+        public Clarity clarityMax { get; set; }
+        public SettingType settingType { get; set; }
+        public Optspec[] optSpecs { get; set; }
+    }
+
+    public class Optspec
+    {
+        public float caratWeight { get; set; }
+        public int quantity { get; set; }
+    }
+
+    public class Metalsizespec
+    {
+        public string metalId { get; set; }
+        public string sizeId { get; set; }
+        public int weight { get; set; }
+    }
+  
     [Trait(nameof(JewelryModels), "Model")]
     public class CreateModelTest
     {
-
-        public class JewelryModelJSON()
-        {
-            public JewelryModelRequestDto ModelSpec { get; set; }
-            public List<MainDiamondRequestDto> MainDiamondSpecs { get; set; }
-            public List<SideDiamondRequestDto> SideDiamondSpecs { get; set; }
-            public List<ModelMetalSizeRequestDto> MetalSizeSpecs { get; set; }
-        }
-
-
         private readonly Mock<ISender> _sender;
         private readonly Mock<IJewelryModelRepository> _modelRepo;
+        private readonly Mock<IJewelryModelCategoryRepository> _categoryRepo;
         private readonly Mock<IUnitOfWork> _unitOfWork;
 
         private List<MainDiamondShapeRequestDto> mainShapes;
@@ -58,12 +98,13 @@ namespace DiamondShop.Test.Application.JewelryModels.Create
         {
             _sender = new Mock<ISender>();
             _modelRepo = new Mock<IJewelryModelRepository>();
+            _categoryRepo = new Mock<IJewelryModelCategoryRepository>();
             _unitOfWork = new Mock<IUnitOfWork>();
             mainShapes = new()
                 {
                     new MainDiamondShapeRequestDto("1",0.3f, 0.5f),
                 };
-            mainSpec = new(mainShapes, SettingType.Prong, 0);
+            mainSpec = new(SettingType.Prong, 0, mainShapes);
 
             sideOpts = new()
                 {
@@ -78,7 +119,7 @@ namespace DiamondShop.Test.Application.JewelryModels.Create
         {
             JewelryModelRequestDto modelSpec = new("Test_Ring", "1", null, null, true, true, null, null, null);
             var command = new CreateJewelryModelCommand(modelSpec, new() { mainSpec }, new() { sideSpec }, new() { sizeMetalSpec });
-            var handler = new CreateJewelryModelCommandHandler(_sender.Object, _modelRepo.Object, _unitOfWork.Object);
+            var handler = new CreateJewelryModelCommandHandler(_sender.Object, _categoryRepo.Object, _modelRepo.Object, _unitOfWork.Object);
 
             _sender.Setup(s => s.Send(It.IsAny<CreateSizeMetalCommand>(), default)).ReturnsAsync(Result.Ok());
             _sender.Setup(s => s.Send(It.IsAny<CreateMainDiamondCommand>(), default)).ReturnsAsync(Result.Ok());
@@ -92,78 +133,6 @@ namespace DiamondShop.Test.Application.JewelryModels.Create
             _sender.Verify(x => x.Send(It.IsAny<CreateSideDiamondCommand>(), default), Times.Once);
             _modelRepo.Verify(x => x.Create(It.Is<JewelryModel>(p => p.Id == result.Value.Id), default), Times.Once);
         }
-        public static IEnumerable<object[]> GetTestData()
-        {
-            var jsonData = File.ReadAllText("Data/JewelryModel/InputModel.json");
-            var data = JsonConvert.DeserializeObject<List<JewelryModelJSON>>(jsonData);
-            foreach (var item in data)
-            {
-                yield return new object[] { item.ModelSpec, item.MainDiamondSpecs, item.SideDiamondSpecs, item.MetalSizeSpecs };
-            }
-        }
-        [Theory]
-        [MemberData(nameof(GetTestData))]
-        public async Task Handle_Should_ReturnSuccess_WhenModelAddToDb(JewelryModelRequestDto ModelSpec, List<MainDiamondRequestDto> mainDiamondSpecs, List<SideDiamondRequestDto> sideDiamondSpecs, List<ModelMetalSizeRequestDto> metalSizeSpecs)
-        {
-            var modelValidator = new CreateJewelryModelCommandValidator();
-            var sizeMetalValidator = new CreateSizeMetalCommandValidator();
-            var mainDiamondValidator = new CreateMainDiamondCommandValidator();
-            var sideDiamondValidator = new CreateSideDiamondCommandValidator();
-
-
-
-            DbContextOptions opt = new DbContextOptionsBuilder<TestDbContext>()
-                .UseInMemoryDatabase($"MainDiamondTest {new Guid().ToString()}")
-                .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-                .Options;
-            using (var context = new TestDbContext(opt))
-            {
-
-                var unitOfWork = new UnitOfWork(context);
-                var modelCommand = new CreateJewelryModelCommand(ModelSpec, mainDiamondSpecs, sideDiamondSpecs, metalSizeSpecs);
-
-                var handler = new CreateJewelryModelCommandHandler(_sender.Object, new JewelryModelRepository(context, null), unitOfWork);
-                var sizeMetalHandler = new CreateSizeMetalCommandHandler(new SizeMetalRepository(context), unitOfWork);
-                var mainDiamondHandler = new CreateMainDiamondCommandHandler(new MainDiamondRepository(context), unitOfWork);
-                var sideDiamondHandler = new CreateSideDiamondCommandHandler(new SideDiamondRepository(context), unitOfWork);
-
-                _sender
-                    .Setup(s => s.Send(It.IsAny<CreateSizeMetalCommand>(), It.IsAny<CancellationToken>()))
-                    .Returns(async (CreateSizeMetalCommand command, CancellationToken token) =>
-                    {
-                        var validate = await sizeMetalValidator.ValidateAsync(command, token);
-                        if (validate.IsValid)
-                            return await sizeMetalHandler.Handle(command, token);
-                        else
-                            throw new ValidationException(validate.ToString());
-                    });
-                _sender
-                    .Setup(s => s.Send(It.IsAny<CreateMainDiamondCommand>(), It.IsAny<CancellationToken>()))
-                    .Returns(async (CreateMainDiamondCommand command, CancellationToken token) =>
-                    {
-                        var validate = await mainDiamondValidator.ValidateAsync(command, token);
-                        if (validate.IsValid)
-                            return await mainDiamondHandler.Handle(command, token);
-                        else
-                            throw new ValidationException(validate.ToString());
-                    });
-                _sender
-                    .Setup(s => s.Send(It.IsAny<CreateSideDiamondCommand>(), It.IsAny<CancellationToken>()))
-                    .Returns(async (CreateSideDiamondCommand command, CancellationToken token) =>
-                    {
-                        var validate = await sideDiamondValidator.ValidateAsync(command, token);
-                        if (validate.IsValid)
-                            return await sideDiamondHandler.Handle(command, token);
-                        else
-                            throw new ValidationException(validate.ToString());
-                    });
-                var result = await handler.Handle(modelCommand, default);
-
-                result.IsSuccess.Should().BeTrue();
-
-                var added = context.JewelryModels.AsQueryable();
-                added.Should().HaveCount(1);
-            }
-        }
+      
     }
 }

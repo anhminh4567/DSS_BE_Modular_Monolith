@@ -2,9 +2,9 @@
 
 namespace DiamondShop.Application.Usecases.MainDiamonds.Commands.CompareDiamondShape
 {
-    public class CompareDiamondShapeCommandHandlerValidator : AbstractValidator<CompareDiamondShapeCommand>
+    public class CompareDiamondShapeCommandValidator : AbstractValidator<CompareDiamondShapeCommand>
     {
-        public CompareDiamondShapeCommandHandlerValidator()
+        public CompareDiamondShapeCommandValidator()
         {
             RuleFor(p => p.Diamonds)
                 .NotEmpty();

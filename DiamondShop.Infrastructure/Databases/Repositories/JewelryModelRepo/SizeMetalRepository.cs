@@ -1,11 +1,29 @@
 ﻿using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
 {
     internal class SizeMetalRepository : BaseRepository<SizeMetal>, ISizeMetalRepository
     {
-        public SizeMetalRepository(DiamondShopDbContext dbContext) : base(dbContext) { }
-        public Task CreateRange(List<SizeMetal> sizeMetalList, CancellationToken token) => _set.AddRangeAsync(sizeMetalList,token);
+        private readonly IMemoryCache _cache;
+        public SizeMetalRepository(DiamondShopDbContext dbContext, IMemoryCache cache) : base(dbContext)
+        {
+            _cache = cache;
+        }
+
+        public async Task CreateRange(List<SizeMetal> sizeMetalList, CancellationToken token) => await _set.AddRangeAsync(sizeMetalList, token);
+
+        public async Task<SizeMetal?> GetModelSizeMetal(JewelryModelId modelId, SizeId sizeId, MetalId metalId)
+        {
+            var item = await _set.Include(p => p.Metal).FirstOrDefaultAsync(
+                p => p.ModelId == modelId &&
+                p.SizeId == sizeId &&
+                p.MetalId == metalId
+                );
+            return item;
+        }
     }
 }

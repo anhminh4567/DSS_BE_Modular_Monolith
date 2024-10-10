@@ -1,7 +1,10 @@
-﻿using DiamondShop.Application.Dtos.Responses.Jewelries;
+﻿using DiamondShop.Application.Commons.Responses;
+using DiamondShop.Application.Dtos.Responses.Jewelries;
 using DiamondShop.Application.Dtos.Responses.JewelryModels;
 using DiamondShop.Application.Usecases.Jewelries.Commands;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetAll;
+using DiamondShop.Application.Usecases.Jewelries.Queries.GetPaging;
+using DiamondShop.Application.Usecases.Jewelries.Queries.GetSelling;
 using DiamondShop.Application.Usecases.JewelryModels.Commands.Create;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll;
 using MapsterMapper;
@@ -32,16 +35,29 @@ namespace DiamondShop.Api.Controllers.Jewelries
             return Ok(mappedResult);
         }
 
+        [HttpGet("Selling")]
+        [Produces(type: typeof(PagingResponseDto<JewelryDto>))]
+        public async Task<ActionResult> GetSelling([FromQuery] GetSellingJewelryQuery getJewelryPagingQuery)
+        {
+            var result = await _sender.Send(getJewelryPagingQuery);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<List<JewelryDto>>(result);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+
         [HttpPost("Create")]
         public async Task<ActionResult> Create([FromBody] CreateJewelryCommand command)
         {
-            throw new NotImplementedException();
             var result = await _sender.Send(command);
-            //if (result.IsSuccess)
-            //{
-            //    return Ok(result.Value);
-            //}
-            //return MatchError(result.Errors, ModelState);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<JewelryDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
         }
 
     }

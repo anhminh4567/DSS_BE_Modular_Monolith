@@ -6,6 +6,7 @@ using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DiamondShop.Domain.Models.Jewelries
 {
@@ -20,7 +21,9 @@ namespace DiamondShop.Domain.Models.Jewelries
         public float Weight { get; set; }
         public string SerialCode { get; set; }
         public bool IsSold { get; set; }
-        public List<Diamond> Diamonds { get; set; } = new();
+        [NotMapped]
+        public decimal Price { get; set; }
+        public List<Diamond>? Diamonds { get; set; } = new();
         public List<JewelrySideDiamond>? SideDiamonds { get; set; } = new();
         public JewelryReviewId? ReviewId { get; set; }
         public JewelryReview? Review { get; set; }
