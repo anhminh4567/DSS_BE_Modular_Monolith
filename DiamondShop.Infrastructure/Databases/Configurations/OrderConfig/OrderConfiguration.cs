@@ -27,10 +27,6 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
             builder.Property(o => o.AccountId).HasConversion(
                 o => o.Value,
                 dbValue => AccountId.Parse(dbValue));
-            builder.Property(o => o.TransactionId)
-            .HasConversion(
-                Id => Id.Value,
-                dbValue => TransactionId.Parse(dbValue));
             builder.Property(p => p.DeliveryPackageId)
             .HasConversion(
                 Id => Id.Value,
@@ -45,7 +41,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
             builder.Property(o => o.Status).HasConversion<string>();
             builder.Property(o => o.PaymentStatus).HasConversion<string>();
             
-            builder.HasOne(o => o.Transaction).WithMany(p => p.Orders).HasForeignKey(o => o.TransactionId).IsRequired(false);
+            builder.HasMany(o => o.Transactions).WithOne().HasForeignKey(o => o.OrderId).IsRequired(false);
             builder.HasMany(o => o.Items).WithOne().HasForeignKey(p => p.OrderId).IsRequired();
             builder.HasMany(o => o.Logs).WithOne().HasForeignKey(p => p.OrderId).IsRequired();
             

@@ -28,16 +28,15 @@ namespace DiamondShop.Domain.Models.Orders
         public DateTime? CancelledDate { get; set; }
         public string? CancelledReason { get; set; }
         public OrderStatus Status { get; set; }
-        public PaymentStatus PaymentStatus { get; set; }
+        public PaymentType PaymentStatus { get; set; }
         public decimal ShippingFee { get; set; }
         public decimal TotalPrice { get; set; }
         public decimal TotalRefund { get; set; }
         public decimal TotalFine { get; set; }
         public string ShippingAddress { get; set; }
-        public List<OrderItem> Items { get; set; }
-        public List<OrderLog> Logs { get; set; }
-        public TransactionId? TransactionId { get; set; }
-        public Transaction? Transaction { get; set; }
+        public List<OrderItem> Items { get; set; } = new();
+        public List<OrderLog> Logs { get; set; } = new();
+        public List<Transaction> Transactions { get; set; } = new();
 
         public OrderId? ParentOrderId { get; set; } // for replacement order
         public DeliveryPackageId? DeliveryPackageId { get; set; }

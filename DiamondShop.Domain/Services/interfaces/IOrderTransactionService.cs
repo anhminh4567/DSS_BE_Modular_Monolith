@@ -11,5 +11,8 @@ namespace DiamondShop.Domain.Services.interfaces
     public interface IOrderTransactionService
     {
         Result<(decimal allowAmount, decimal remainingAmount)> GetTransactionValueForOrder(Order order, decimal wantedAmount);
+        decimal GetDepositValueForOrder(Order order);
+        decimal GetFullPaymentValueForOrder(Order order);
+        decimal GetRemaingValueForOrder(Order order);
     }
 }
