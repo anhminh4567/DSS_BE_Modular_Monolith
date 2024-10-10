@@ -29,7 +29,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         public override Task<Diamond?> GetById(params object[] ids)
         {
             DiamondId id = (DiamondId)ids[0];
-            return await _set.Include(d => d.DiamondShape).FirstOrDefaultAsync(d => d.Id == id);
+            return _set.Include(d => d.DiamondShape).FirstOrDefaultAsync(d => d.Id == id);
         }
 
         public async Task<(Diamond diamond, List<Discount> discounts, List<Promotion> promotion)> GetByIdIncludeDiscountAndPromotion(DiamondId id, CancellationToken cancellationToken = default)
