@@ -32,7 +32,6 @@ namespace DiamondShop.Domain.Models.Diamonds
         public Cut? Cut { get; set;}
         public decimal PriceOffset { get; set;}
         public float Carat { get; set; } 
-        public bool HasGIACert { get; set;}
         public bool IsLabDiamond { get; set;}
         public float WidthLengthRatio { get; set; }
         public float Depth { get; set; }
@@ -45,10 +44,11 @@ namespace DiamondShop.Domain.Models.Diamonds
         public string Measurement { get; set; }
         public Media? Thumbnail { get; set; }
         public List<Media>? Gallery { get; set; } = new();
+        public bool IsSold { get; set; } = false;
         public bool IsActive { get; set; } = true;
         [NotMapped]
         public DiamondPrice? DiamondPrice { get; set; }
-        public static Diamond Create(DiamondShape shape, Diamond_4C diamond_4C, Diamond_Details diamond_Details, bool hasGIA,
+        public static Diamond Create(DiamondShape shape, Diamond_4C diamond_4C, Diamond_Details diamond_Details,
            Diamond_Measurement diamond_Measurement,decimal priceOffset) 
         {
             return new Diamond()
@@ -59,7 +59,6 @@ namespace DiamondShop.Domain.Models.Diamonds
                 Color = diamond_4C.Color,
                 Cut = diamond_4C.Cut,
                 Carat = diamond_4C.Carat,
-                HasGIACert = hasGIA,
                 IsLabDiamond = diamond_4C.isLabDiamond,
                 WidthLengthRatio = diamond_Measurement.withLenghtRatio,
                 Depth = diamond_Measurement.Depth,

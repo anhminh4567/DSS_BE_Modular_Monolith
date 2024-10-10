@@ -23,7 +23,7 @@ namespace DiamondShop.Domain.Models.Jewelries
         public bool IsSold { get; set; }
         [NotMapped]
         public decimal Price { get; set; }
-        public List<Diamond> Diamonds { get; set; } = new();
+        public List<Diamond>? Diamonds { get; set; } = new();
         public List<JewelrySideDiamond>? SideDiamonds { get; set; } = new();
         public JewelryReviewId? ReviewId { get; set; }
         public JewelryReview? Review { get; set; }

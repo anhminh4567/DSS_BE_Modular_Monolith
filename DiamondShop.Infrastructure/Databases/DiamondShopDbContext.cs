@@ -97,7 +97,7 @@ namespace DiamondShop.Infrastructure.Databases
         {
             base.OnConfiguring(optionsBuilder);
             //optionsBuilder.UseSqlServer("server=(local);Uid=sa;Pwd=12345;Database=BeatVisionRemake;TrustServerCertificate=true");
-            //optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=DiamondShopTest;Username=postgres;Password=12345;Include Error Detail=true");
+            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=DiamondShopTest;Username=postgres;Password=12345;Include Error Detail=true");
             //configure interceptors
             optionsBuilder.AddInterceptors(_domainEventsInterceptor);
             //configure logging

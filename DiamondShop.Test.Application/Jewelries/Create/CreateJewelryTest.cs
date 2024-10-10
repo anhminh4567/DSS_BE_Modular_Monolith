@@ -1,10 +1,8 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Jewelries;
-using DiamondShop.Application.Services.Data;
 using DiamondShop.Application.Usecases.Diamonds.Commands.AttachToJewelry;
 using DiamondShop.Application.Usecases.Jewelries.Commands;
 using DiamondShop.Application.Usecases.JewelrySideDiamonds.Create;
 using DiamondShop.Application.Usecases.MainDiamonds.Commands.CompareDiamondShape;
-using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Databases.Repositories;
 using DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo;
@@ -20,14 +18,23 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DiamondShop.Test.Application.Jewelries.Create
 {
-    public class JewelryJSON
+
+
+    public class JewelTest
     {
-        public JewelryRequestDto jewelryRequest { get; set; }
-        public List<string> sideDiamondOptIds { get; set; }
-        public List<string> attachedDiamondIds { get; set; }
+        public Jewelryrequest jewelryRequest { get; set; }
+        public string[]? sideDiamondOptIds { get; set; }
+        public string[]? attachedDiamondIds { get; set; }
         public bool expectedResult { get; set; }
     }
 
+    public class Jewelryrequest
+    {
+        public string modelId { get; set; }
+        public string sizeId { get; set; }
+        public string metalId { get; set; }
+        public string serialCode { get; set; }
+    }
 
     [Trait(nameof(Jewelries), "Jewelry")]
     public class CreateJewelryTest
@@ -41,7 +48,7 @@ namespace DiamondShop.Test.Application.Jewelries.Create
         public static IEnumerable<object[]> GetTestData(int skip, int take)
         {
             var jsonData = File.ReadAllText("Data/Jewelry/InputJewelry.json");
-            var data = JsonConvert.DeserializeObject<List<JewelryJSON>>(jsonData);
+            var data = JsonConvert.DeserializeObject<List<JewelTest>>(jsonData);
             foreach (var item in data.Skip(skip).Take(take))
             {
                 yield return new object[] { item.jewelryRequest, item.sideDiamondOptIds, item.attachedDiamondIds, item.expectedResult };
@@ -65,10 +72,10 @@ namespace DiamondShop.Test.Application.Jewelries.Create
                 var unitOfWork = new UnitOfWork(context);
                 var jewelryCommand = new CreateJewelryCommand(jewelryRequest, sideDiamondOptIds, attachedDiamondIds);
 
-                var handler = new CreateJewelryCommandHandler(new JewelryRepository(context, null), new DiamondRepository(context), _sender.Object, unitOfWork);
+                var handler = new CreateJewelryCommandHandler(new JewelryRepository(context, null), new JewelryModelRepository(context, null), new SizeMetalRepository(context, null), new DiamondRepository(context), _sender.Object, unitOfWork);
                 var compareDiamondShapeHandler = new CompareDiamondShapeCommandHandler(new MainDiamondRepository(context));
                 var attachDiamondHandler = new AttachDiamondCommandHandler(new DiamondRepository(context), unitOfWork);
-                var createJewelrySideDiamondHandler = new CreateJewelrySideDiamondCommandHandler(new JewelrySideDiamondRepository(context), unitOfWork);
+                var createJewelrySideDiamondHandler = new CreateJewelrySideDiamondCommandHandler(new JewelrySideDiamondRepository(context), new SideDiamondRepository(context), unitOfWork);
 
                 _sender.Setup(s => s.Send(It.IsAny<CompareDiamondShapeCommand>(), It.IsAny<CancellationToken>()))
                     .Returns(async (CompareDiamondShapeCommand command, CancellationToken token) =>

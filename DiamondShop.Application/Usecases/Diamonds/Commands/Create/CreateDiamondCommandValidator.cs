@@ -23,8 +23,6 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
             RuleFor(c => c.details.Polish).NotEmpty();
             RuleFor(c => c.details.Girdle).NotEmpty();
             RuleFor(c => c.details.Fluorescence).NotEmpty();
-
-            RuleFor(c => c.hasGIA).NotEmpty();
         }
     }
 }

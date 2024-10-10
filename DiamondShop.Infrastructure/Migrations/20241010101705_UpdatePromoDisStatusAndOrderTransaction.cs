@@ -114,7 +114,7 @@ namespace DiamondShop.Infrastructure.Migrations
             migrationBuilder.DeleteData(
                 table: "PaymentMethod",
                 keyColumn: "Id",
-                keyValue: "22");
+                keyValue: "2");
 
             migrationBuilder.DropColumn(
                 name: "OrderId",

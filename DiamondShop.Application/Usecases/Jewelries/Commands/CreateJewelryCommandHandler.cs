@@ -40,15 +40,14 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
         {
             request.Deconstruct(out JewelryRequestDto jewelryRequest, out List<string>? SideDiamondOptIds, out List<string>? attachedDiamondIds);
             var modelQuery = _jewelryModelRepository.GetQuery();
+            modelQuery = _jewelryModelRepository.QueryInclude(modelQuery, p => p.SideDiamonds);
             modelQuery = _jewelryModelRepository.QueryInclude(modelQuery, p => p.SizeMetals);
             var model = modelQuery.FirstOrDefault(p => p.Id == JewelryModelId.Parse(jewelryRequest.ModelId));
             if (model is null) return Result.Fail(new NotFoundError("Can't find jewelry model object."));
-            
-            var sizeMetalQuery = _sizeMetalRepository.GetQuery();
-            sizeMetalQuery = _sizeMetalRepository.QueryInclude(sizeMetalQuery, p => p.Metal);
-            var sizeMetal = sizeMetalQuery.FirstOrDefault(p => p.ModelId == model.Id && p.SizeId == SizeId.Parse(jewelryRequest.SizeId) && p.MetalId == MetalId.Parse(jewelryRequest.MetalId));
-            if (sizeMetal is null) return Result.Fail(new NotFoundError("Can't find jewelry model object."));
-            
+
+            var sizeMetal = await _sizeMetalRepository.GetModelSizeMetal(model.Id, SizeId.Parse(jewelryRequest.SizeId), MetalId.Parse(jewelryRequest.MetalId));
+            if (sizeMetal is null) return Result.Fail(new NotFoundError("Can't find jewelry size metal object."));
+
             var attachedDiamonds = new List<Diamond>();
             await _unitOfWork.BeginTransactionAsync(token);
             var flagDuplicatedSerial = await _jewelryRepository.CheckDuplicatedSerial(jewelryRequest.SerialCode);
@@ -72,7 +71,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
                     jewelryRequest.SerialCode
                 );
             await _jewelryRepository.Create(jewelry);
-
+            await _unitOfWork.SaveChangesAsync(token);
 
             if (attachedDiamonds.Count > 0)
             {
@@ -81,12 +80,13 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
             }
             if (SideDiamondOptIds is not null)
             {
-                var sideDiamondOpts = SideDiamondOptIds.Select(p => SideDiamondOptId.Parse(p)).ToList(); 
-                var flagSideDiamond = await _sender.Send(new CreateJewelrySideDiamondCommand(jewelry.Id, sideDiamondOpts));
+                if (SideDiamondOptIds.Count != model.SideDiamonds.Count) return Result.Fail(new ConflictError("Can't find this side diamond option"));
+
+                var sideDiamondOpts = SideDiamondOptIds.Select(p => SideDiamondOptId.Parse(p)).ToList();
+                var flagSideDiamond = await _sender.Send(new CreateJewelrySideDiamondCommand(jewelry.Id, model.SideDiamonds, sideDiamondOpts));
                 if (flagSideDiamond.IsFailed) return Result.Fail(flagSideDiamond.Errors);
             }
 
-            await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
             jewelry.Price = sizeMetal.Metal.Price * (decimal)jewelry.Weight;
             return jewelry;

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using BeatvisionRemake.Application.Services.Interfaces;
+using DiamondShop.Application.Services.Interfaces;
 
 namespace DiamondShop.Infrastructure.Options.Setups
 {

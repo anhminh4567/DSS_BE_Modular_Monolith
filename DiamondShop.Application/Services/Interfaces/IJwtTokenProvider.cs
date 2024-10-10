@@ -1,5 +1,4 @@
-﻿
-using DiamondShop.Domain.Common;
+﻿using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.RoleAggregate;
 using System;
 using System.Collections.Generic;
@@ -8,7 +7,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BeatvisionRemake.Application.Services.Interfaces
+namespace DiamondShop.Application.Services.Interfaces
 {
     public interface IJwtTokenProvider
     {
@@ -20,6 +19,6 @@ namespace BeatvisionRemake.Application.Services.Interfaces
         (string accessToken, DateTime expiredDate) GenerateAccessToken(List<Claim> claims);
         (string refreshToken, DateTime expiredDate) GenerateRefreshToken(string identityId);
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
-        List<Claim> GetUserClaims(List<AccountRole> roles, string email, string identityId,string userId, string fullname);
+        List<Claim> GetUserClaims(List<AccountRole> roles, string email, string identityId, string userId, string fullname);
     }
 }

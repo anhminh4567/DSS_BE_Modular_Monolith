@@ -14,6 +14,16 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
             _cache = cache;
         }
 
-        public Task CreateRange(List<SizeMetal> sizeMetalList, CancellationToken token) => _set.AddRangeAsync(sizeMetalList, token);
+        public async Task CreateRange(List<SizeMetal> sizeMetalList, CancellationToken token) => await _set.AddRangeAsync(sizeMetalList, token);
+
+        public async Task<SizeMetal?> GetModelSizeMetal(JewelryModelId modelId, SizeId sizeId, MetalId metalId)
+        {
+            var item = await _set.Include(p => p.Metal).FirstOrDefaultAsync(
+                p => p.ModelId == modelId &&
+                p.SizeId == sizeId &&
+                p.MetalId == metalId
+                );
+            return item;
+        }
     }
 }

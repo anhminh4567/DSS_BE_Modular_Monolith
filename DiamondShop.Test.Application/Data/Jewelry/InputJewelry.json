@@ -2,9 +2,8 @@
   {
     "jewelryRequest": {
       "modelId": "e6ec27b4-24e6-479c-8b68-889e01561557",
-      "sizeId": "6",
+      "sizeId": "3",
       "metalId": "1",
-      "weight": 15,
       "serialCode": "MODEL_TEST"
     },
     "sideDiamondOptIds": [
@@ -18,9 +17,8 @@
   {
     "jewelryRequest": {
       "modelId": "1a28f791-56d4-4d09-a216-d2ce17e85e1d",
-      "sizeId": "6",
+      "sizeId": "3",
       "metalId": "1",
-      "weight": 15,
       "serialCode": "MODEL_TEST_NO_DIAMOND"
     },
     "sideDiamondOptIds": [

@@ -36,7 +36,9 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
             foreach(var p in result)
             {
                 string modelKey = $"MS_{p.ModelId.Value}";
-                var tryGet = _cache.Get<List<SizeMetal>>(modelKey) ?? new List<SizeMetal>();
+                //List<SizeMetal> tryGet = _cache.Get<List<SizeMetal>>(modelKey) ?? new List<SizeMetal>();
+
+                List<SizeMetal> tryGet = new();
                 var item = tryGet.FirstOrDefault(p => p.MetalId == p.MetalId && p.SizeId == p.SizeId);
                 if (item == null)
                 {

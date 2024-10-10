@@ -63,8 +63,6 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
         {
             if (diamond_Details.Culet is not null)
                 query = _diamondRepository.QueryFilter(query,d => d.Culet == diamond_Details.Culet);
-            if (diamond_Details.isGIA)
-                query = _diamondRepository.QueryFilter(query, d => d.HasGIACert == diamond_Details.isGIA);
             if (diamond_Details.Fluorescence is not null)
                 query = _diamondRepository.QueryFilter(query, d => d.Fluorescence == diamond_Details.Fluorescence);
             if (diamond_Details.Polish is not null)

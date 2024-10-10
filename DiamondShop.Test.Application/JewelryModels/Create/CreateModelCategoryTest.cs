@@ -18,7 +18,7 @@ namespace DiamondShop.Test.Application.JewelryModels.Create
         public string name { get; set; }
         public string description { get; set; }
         public bool isGeneral { get; set; }
-        public object parentCategoryId { get; set; }
+        public string? parentCategoryId { get; set; }
     }
 
     [Trait(nameof(JewelryModels), "Category")]

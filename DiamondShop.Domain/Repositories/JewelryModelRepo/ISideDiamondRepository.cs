@@ -10,7 +10,7 @@ namespace DiamondShop.Domain.Repositories.JewelryModelRepo
 {
     public interface ISideDiamondRepository : IBaseRepository<SideDiamondReq> 
     {
-        public Task<List<SideDiamondOpt>> GetSideDiamondOption(List<SideDiamondOptId> sideDiamondOptId);
+        public Task<List<SideDiamondOpt>?> GetSideDiamondOption(List<SideDiamondOptId> sideDiamondOptId);
         public Task CreateRange(List<SideDiamondOpt> sideDiamondOpts, CancellationToken token = default);
     }
 }

@@ -2,7 +2,7 @@
   {
     "modelSpec": {
       "name": "Test_Ring",
-      "categoryId": "beefa1a1-15ee-4a0c-bc6b-265494e4eca9",
+      "categoryId": "43e5084c-5453-45f2-ad0d-23e66251d348",
       "width": 10,
       "isEngravable": true,
       "isRhodiumFinish": true
@@ -72,7 +72,7 @@
   {
     "modelSpec": {
       "name": "Test_Ring_No_Diamond",
-      "categoryId": "beefa1a1-15ee-4a0c-bc6b-265494e4eca9",
+      "categoryId": "43e5084c-5453-45f2-ad0d-23e66251d348",
       "width": 10,
       "isEngravable": true,
       "isRhodiumFinish": true

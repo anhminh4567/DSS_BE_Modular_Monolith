@@ -11,27 +11,28 @@ using MediatR;
 
 namespace DiamondShop.Application.Usecases.JewelrySideDiamonds.Create
 {
-    public record CreateJewelrySideDiamondCommand(JewelryId JewelryId, List<SideDiamondOptId> SideDiamondOptIds) : IRequest<Result>;
+    public record CreateJewelrySideDiamondCommand(JewelryId JewelryId, List<SideDiamondReq> SideDiamondReqs, List<SideDiamondOptId> SideDiamondOptIds) : IRequest<Result>;
     internal class CreateJewelrySideDiamondCommandHandler : IRequestHandler<CreateJewelrySideDiamondCommand, Result>
     {
         private readonly IJewelrySideDiamondRepository _jewelrySideDiamondRepository;
         private readonly ISideDiamondRepository _sideDiamondRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public CreateJewelrySideDiamondCommandHandler(IJewelrySideDiamondRepository jewelrySideDiamondRepository, IUnitOfWork unitOfWork)
+        public CreateJewelrySideDiamondCommandHandler(IJewelrySideDiamondRepository jewelrySideDiamondRepository, ISideDiamondRepository sideDiamondRepository, IUnitOfWork unitOfWork)
         {
             _jewelrySideDiamondRepository = jewelrySideDiamondRepository;
+            _sideDiamondRepository = sideDiamondRepository;
             _unitOfWork = unitOfWork;
         }
 
         public async Task<Result> Handle(CreateJewelrySideDiamondCommand request, CancellationToken token)
         {
             await _unitOfWork.BeginTransactionAsync(token);
-            request.Deconstruct(out JewelryId jewelryId, out List<SideDiamondOptId> sideDiamondOptId);
+            request.Deconstruct(out JewelryId jewelryId, out List<SideDiamondReq> sideDiamondReqs, out List<SideDiamondOptId> sideDiamondOptId);
             var modelSideDiamonds = await _sideDiamondRepository.GetSideDiamondOption(sideDiamondOptId);
             if (modelSideDiamonds.Count != sideDiamondOptId.Count) return Result.Fail(new ConflictError("Can't find this side diamond option"));
 
-            var flagDuplicateSideDiamond = CheckDuplicateSideDiamond(modelSideDiamonds);
+            var flagDuplicateSideDiamond = CheckValidSideDiamond(modelSideDiamonds, sideDiamondReqs);
             if (flagDuplicateSideDiamond) return Result.Fail(new ConflictError("Duplicated jewelry side diamond"));
 
             List<JewelrySideDiamond> sideDiamonds = modelSideDiamonds.Select(p => JewelrySideDiamond.Create(jewelryId, p)).ToList();
@@ -39,13 +40,13 @@ namespace DiamondShop.Application.Usecases.JewelrySideDiamonds.Create
             await _unitOfWork.SaveChangesAsync(token);
             return Result.Ok();
         }
-        public bool CheckDuplicateSideDiamond(List<SideDiamondOpt> sideDiamonds)
+        public bool CheckValidSideDiamond(List<SideDiamondOpt> sideDiamonds, List<SideDiamondReq> sideDiamondReqs)
         {
-            List<SideDiamondReqId> exists = new();
             foreach (var side in sideDiamonds)
             {
-                if (exists.Contains(side.SideDiamondReqId)) return true;
-                exists.Add(side.SideDiamondReqId);
+                var exist = sideDiamondReqs.FirstOrDefault(p => p.Id == side.SideDiamondReqId);
+                if (exist == null) return true;
+                sideDiamondReqs.Remove(exist);
             }
             return false;
         }

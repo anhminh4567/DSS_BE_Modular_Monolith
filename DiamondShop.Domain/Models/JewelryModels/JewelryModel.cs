@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.Enum;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;

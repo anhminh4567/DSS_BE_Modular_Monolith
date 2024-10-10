@@ -1,5 +1,4 @@
-﻿using BeatvisionRemake.Application.Services.Interfaces;
-using DiamondShop.Application.Services.Interfaces;
+﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Infrastructure.Options;
