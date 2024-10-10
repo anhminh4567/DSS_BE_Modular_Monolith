@@ -15,10 +15,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Usecases.Carts.Commands.Checkout
+namespace DiamondShop.Application.Usecases.Carts.Commands.Validate
 {
-    public record CheckoutCartCommand(string userId) : IRequest<Result<CartModel>>;
-    internal class CheckoutCartCommandHandler : IRequestHandler<CheckoutCartCommand, Result<CartModel>>
+    public record ValidateCartCommand(string userId) : IRequest<Result<CartModel>>;
+    internal class ValidateCartCommandHandler : IRequestHandler<ValidateCartCommand, Result<CartModel>>
     {
         private readonly ICartModelService _cartModelService;
         private readonly ICartService _cartService;
@@ -31,7 +31,7 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.Checkout
         private readonly ISizeMetalRepository _sizeMetalRepository;
         private readonly IMetalRepository _metalRepository;
 
-        public CheckoutCartCommandHandler(ICartModelService cartModelService, ICartService cartService, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository, IJewelryModelRepository jewelryModelRepository, IDiamondPriceRepository diamondPriceRepository, IDiscountRepository discountRepository, IPromotionRepository promotionRepository, ISizeMetalRepository sizeMetalRepository, IMetalRepository metalRepository)
+        public ValidateCartCommandHandler(ICartModelService cartModelService, ICartService cartService, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository, IJewelryModelRepository jewelryModelRepository, IDiamondPriceRepository diamondPriceRepository, IDiscountRepository discountRepository, IPromotionRepository promotionRepository, ISizeMetalRepository sizeMetalRepository, IMetalRepository metalRepository)
         {
             _cartModelService = cartModelService;
             _cartService = cartService;
@@ -45,18 +45,18 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.Checkout
             _metalRepository = metalRepository;
         }
 
-        public async Task<Result<CartModel>> Handle(CheckoutCartCommand request, CancellationToken cancellationToken)
+        public async Task<Result<CartModel>> Handle(ValidateCartCommand request, CancellationToken cancellationToken)
         {
             var accId = AccountId.Parse(request.userId);
             var getUserCart = await _cartService.GetCartModel(accId);
             List<CartProduct> getProducts = new();
             foreach (var item in getUserCart)
             {
-                var product = await _cartModelService.FromCartItem(item,_jewelryRepository,_jewelryModelRepository,_diamondRepository);
+                var product = await _cartModelService.FromCartItem(item, _jewelryRepository, _jewelryModelRepository, _diamondRepository);
                 if (product is not null)
                     getProducts.Add(product);
             }
-            Result<CartModel> result = await _cartModelService.Execute(getProducts,_discountRepository,_promotionRepository,_diamondPriceRepository,_sizeMetalRepository,_metalRepository);
+            Result<CartModel> result = await _cartModelService.Execute(getProducts, _discountRepository, _promotionRepository, _diamondPriceRepository, _sizeMetalRepository, _metalRepository);
             if (result.IsSuccess)
                 return result.Value;
             return Result.Fail(result.Errors);

@@ -24,7 +24,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
                     Id => Id.Value,
                     dbValue => SizeId.Parse(dbValue));
             builder.HasKey(p => p.Id);
-            builder.HasIndex(p => p.Id);
+            //builder.HasIndex(p => p.Id);
             builder.HasData(SIZES);
         }
     }

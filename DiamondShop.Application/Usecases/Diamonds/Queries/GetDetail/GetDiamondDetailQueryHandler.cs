@@ -35,7 +35,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail
         public async Task<Result<Diamond>> Handle(GetDiamondDetail request, CancellationToken cancellationToken)
         {
             _logger.LogDebug("called from getDiamondDetail");
-            var getResult = await _diamondRepository.GetById(DiamondId.Parse(request.diamondId));
+            var parsedId = DiamondId.Parse(request.diamondId);
+            var getResult = await _diamondRepository.GetById(parsedId);
             if (getResult == null)
             {
                 return Result.Fail(new NotFoundError());
@@ -43,6 +44,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail
             var prices = await _diamondPriceRepository.GetPriceByShapes(getResult.DiamondShape,cancellationToken);
             var diamondPrice = await _diamondServices.GetDiamondPrice(getResult, prices);
             getResult.DiamondPrice = diamondPrice;
+            var testingOnly = await _diamondRepository.GetByIdIncludeDiscountAndPromotion(parsedId);
             return Result.Ok(getResult);
         }
     }

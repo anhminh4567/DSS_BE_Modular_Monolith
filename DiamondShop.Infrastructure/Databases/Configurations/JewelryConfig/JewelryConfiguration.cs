@@ -49,7 +49,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryConfig
                 childBuilder.ToJson();
             });
             builder.HasKey(o => o.Id);
-            builder.HasIndex(o => o.Id);
+            //builder.HasIndex(o => o.Id);
         }
     }
 }

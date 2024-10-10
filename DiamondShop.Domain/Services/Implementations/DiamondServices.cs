@@ -1,6 +1,8 @@
 ﻿using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
+using DiamondShop.Domain.Models.Promotions;
+using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Services.interfaces;
 using Microsoft.Extensions.Logging;
 using System;
@@ -21,6 +23,14 @@ namespace DiamondShop.Domain.Services.Implementations
             //_logger = logger;
         }
 
+        public Task<Discount> CheckDiamondDiscount(Diamond diamond, List<Discount> discounts)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<List<Promotion>> CheckDiamondPromotion(Diamond diamond, List<Promotion> promotions)
+        {
+            throw new NotImplementedException();
+        }
         public async Task<DiamondPrice> GetDiamondPrice(Diamond diamond, List<DiamondPrice> diamondPrices)
         {
             foreach (var price in diamondPrices)
@@ -35,25 +45,28 @@ namespace DiamondShop.Domain.Services.Implementations
             throw new Exception("somehow none of the price match the diamond");
             return null;
         }
-
-        public bool ValidateDiamond4C(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo, Cut cutFrom, Cut cutTo)
+        public static bool ValidateDiamond4CGlobal(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo, Cut cutFrom, Cut cutTo)
         {
+
+            if (caratFrom <= diamond.Carat && caratTo >= diamond.Carat)
             {
-                if (caratFrom <= diamond.Carat && caratTo >= diamond.Carat)
+                if (colorFrom <= diamond.Color && colorTo >= diamond.Color)
                 {
-                    if (colorFrom <= diamond.Color && colorTo >= diamond.Color)
+                    if (clarityFrom <= diamond.Clarity && clarityTo >= diamond.Clarity)
                     {
-                        if (clarityFrom <= diamond.Clarity && clarityTo >= diamond.Clarity)
+                        if (cutFrom <= diamond.Cut && cutTo >= diamond.Cut)
                         {
-                            if (cutFrom <= diamond.Cut && cutTo >= diamond.Cut)
-                            {
-                                return true;
-                            }
+                            return true;
                         }
                     }
                 }
-                return false;
             }
+            return false;
+
+        }
+        public bool ValidateDiamond4C(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo, Cut cutFrom, Cut cutTo)
+        {
+            return ValidateDiamond4CGlobal(diamond,caratFrom,caratTo,colorFrom,colorTo,clarityFrom,clarityTo,cutFrom,cutTo);
         }
 
         private bool IsCorrectPrice(Diamond diamond, DiamondPrice price)
@@ -74,5 +87,7 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             return false;
         }
+
+  
     }
 }

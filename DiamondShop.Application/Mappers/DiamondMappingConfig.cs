@@ -20,8 +20,6 @@ namespace DiamondShop.Application.Mappers
         public void Register(TypeAdapterConfig config)
         {
             config.NewConfig<Diamond, DiamondDto>()
-                .Map(dest => dest.DiamondShapeId, src => src.DiamondShapeId.Value)
-                .Map(dest => dest.JewelryId, src => src.JewelryId.Value)
                 .Map(dest => dest.Id, src => src.Id.Value)
                 .Map(dest => dest.DiamondPrice, src => src.DiamondPrice);
 
@@ -29,12 +27,6 @@ namespace DiamondShop.Application.Mappers
             config.NewConfig<DiamondShape, DiamondShapeDto>()
                 .Map(dest => dest.ShapeName, src => src.Shape)
                 .Map(dest => dest.Id, src => src.Id.Value);
-
-            //config.NewConfig<DiamondWarranty, DiamondWarrantyDto>()
-            //    .Map(dest => dest.CreatedDate, src => src.CreatedDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat))
-            //    .Map(dest => dest.ExpiredDate, src => src.ExpiredDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat))
-            //    .Map(dest => dest.EffectiveDate, src => src.EffectiveDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat))
-            //    .Map(dest => dest.WarrantyType, src => src.WarrantyType.ToString());
 
             config.NewConfig<DiamondCriteria, DiamondCriteriaDto>()
                 .Map(dest => dest.Id, src => src.Id.Value);

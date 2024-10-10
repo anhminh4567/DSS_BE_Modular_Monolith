@@ -1,9 +1,9 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Carts;
 using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Application.Usecases.Carts.Commands.Add;
-using DiamondShop.Application.Usecases.Carts.Commands.Checkout;
 using DiamondShop.Application.Usecases.Carts.Commands.Delete;
 using DiamondShop.Application.Usecases.Carts.Commands.Update;
+using DiamondShop.Application.Usecases.Carts.Commands.Validate;
 using DiamondShop.Application.Usecases.Carts.Queries.GetUserCart;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using MapsterMapper;
@@ -69,8 +69,8 @@ namespace DiamondShop.Api.Controllers.Carts
             }
             return MatchError(result.Errors, ModelState);
         }
-        [HttpGet("{userId}/Checkout")]
-        public async Task<ActionResult> Checkout([FromRoute]CheckoutCartCommand checkoutCartCommand)
+        [HttpGet("{userId}/Validate")]
+        public async Task<ActionResult> Validate([FromRoute]ValidateCartCommand checkoutCartCommand)
         {
             var result = await _sender.Send(checkoutCartCommand);
             if(result.IsSuccess)

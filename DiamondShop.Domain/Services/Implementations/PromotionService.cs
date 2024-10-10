@@ -159,7 +159,7 @@ namespace DiamondShop.Domain.Services.Implementations
             };
             return isValid;
         }
-        private bool HandleProductRequirement(CartModel cartModel, PromoReq requirement, Dictionary<int, CartProduct> requirementProducts)
+        private bool HandleProductRequirement(CartModel cartModel, PromoReq requirement, Dictionary<int, CartProduct> scopedRequirementProducts)
         {
             var productList = cartModel.Products;
             //var promotionRequirement = promotion.PromoReqs;
@@ -173,7 +173,7 @@ namespace DiamondShop.Domain.Services.Implementations
                     continue;
                 if (product.IsHavingPromotion)
                     continue;
-                if(requirementProducts.Count >= requirement.Quantity )// when the requirement quantity is met, then stop, so the other item can 
+                if(scopedRequirementProducts.Count >= requirement.Quantity )// when the requirement quantity is met, then stop, so the other item can 
                 {
                     break;
                 }
@@ -195,7 +195,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 {
                     product.PromotionId = requirement.PromotionId;
                     product.RequirementQualifedId = requirement.Id;
-                    requirementProducts.Add(i, product);
+                    scopedRequirementProducts.Add(i, product);
                     isAnyValid = true;
                 }
                 else
