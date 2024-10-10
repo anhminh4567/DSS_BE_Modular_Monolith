@@ -11,8 +11,17 @@ namespace DiamondShop.Domain.Models.Transactions.Entities
     public class PaymentMethod : Entity<PaymentMethodId>
     {
         public string MethodName { get; set; }
-        public string MethodThumbnailPath { get; set; }
+        public string? MethodThumbnailPath { get; set; }
         public bool Status { get; set; }
+        public static PaymentMethod Create(string methodName,string givenId = null)
+        {
+            return new PaymentMethod
+            {
+                MethodName = methodName,
+                Status = true,
+                Id = givenId == null ? PaymentMethodId.Create() : PaymentMethodId.Parse(givenId),
+            };
+        }
         public PaymentMethod() { }
     }
 }

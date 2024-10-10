@@ -3,6 +3,7 @@ using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
+using FluentResults;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,13 +18,14 @@ namespace DiamondShop.Domain.Models.Promotions
         public string Description { get; set; } 
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public bool IsActive { get; set; }
+        //public bool IsActive { get; set; }
         public int Priority { get; set; }
         public bool IsExcludeQualifierProduct { get; set; }
         public RedemptionMode RedemptionMode { get; set; }
         public List<PromoReq> PromoReqs { get; set; } = new ();
         public List<Gift> Gifts { get; set; } = new ();
         public Media? Thumbnail { get; set; }
+        public Status Status { get; set; }
         public static Promotion Create(string name, string description, DateTime startDate, DateTime endDate, int priority , bool isExclude , RedemptionMode mode )
         {
             return new Promotion
@@ -35,7 +37,8 @@ namespace DiamondShop.Domain.Models.Promotions
                 EndDate = endDate.ToUniversalTime(),
                 Priority = priority,
                 IsExcludeQualifierProduct = isExclude,
-                IsActive = false,
+                //IsActive = false,
+                Status = Status.Scheduled,
                 RedemptionMode = mode,
             };
         }
@@ -55,7 +58,30 @@ namespace DiamondShop.Domain.Models.Promotions
         {
             Gifts.Remove(gift);
         }
-
+        public Result SetActive()
+        {
+            if (Status == Status.Cancelled || Status == Status.Expired)
+                return Result.Fail("cannot set active for a promo that is already expired or cancelled");
+            if (PromoReqs.Any() is false)
+                return Result.Fail("cannot set active for a promo that have no requirement at all");
+            if (Gifts.Any() is false)
+                return Result.Fail("cannot set active for a promo that have no requirement at all");
+            if (DateTime.UtcNow < StartDate)
+                return Result.Fail("cannot set active since the start time is not up yet");
+            Status = Status.Active;
+            return Result.Ok();
+        }
+        public void Expired()
+        {
+            Status = Status.Expired;
+        }
+        public Result Cancel()
+        {
+            if (Status != Status.Scheduled && Status != Status.Paused)
+                return Result.Fail("the promot must be paused first, or in schedule state to be cancelled");
+            Status = Status.Expired;
+            return Result.Ok();
+        }
         public Promotion() { }
     }
 }

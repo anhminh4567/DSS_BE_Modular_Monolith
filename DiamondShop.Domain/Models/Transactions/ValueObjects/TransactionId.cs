@@ -14,7 +14,7 @@ namespace DiamondShop.Domain.Models.Transactions.ValueObjects
         }
         public static TransactionId Create()
         {
-            return new TransactionId(Guid.NewGuid().ToString());
+            return new TransactionId(Ulid.NewUlid().ToString());
         }
     }
 }

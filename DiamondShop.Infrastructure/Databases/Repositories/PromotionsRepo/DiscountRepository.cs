@@ -21,9 +21,9 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo
             if(isDateComparisonRequired)
             {
                 var now = DateTime.UtcNow;
-                return _set.Include(d => d.DiscountReq).Where(d => d.IsActive == true && d.StartDate < now && d.EndDate > now).ToListAsync();
+                return _set.Include(d => d.DiscountReq).Where(d => d.Status == Domain.Models.Promotions.Enum.Status.Active && d.StartDate < now && d.EndDate > now).ToListAsync();
             }
-            return _set.Include(d => d.DiscountReq).Where(d => d.IsActive).ToListAsync();
+            return _set.Include(d => d.DiscountReq).Where(d => d.Status == Domain.Models.Promotions.Enum.Status.Active).ToListAsync();
    
         }
 

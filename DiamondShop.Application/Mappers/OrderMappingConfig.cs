@@ -13,7 +13,6 @@ namespace DiamondShop.Application.Mappers
                 .Map(dest => dest.Id, src => src.Id.Value)
                 .Map(dest => dest.AccountId, src => src.AccountId.Value)
                 .Map(dest => dest.CustomizeRequestId, src => src.CustomizeRequestId.Value)
-                .Map(dest => dest.TransactionId, src => src.TransactionId.Value)
                 .Map(dest => dest.ParentOrderId, src => src.ParentOrderId.Value)
                 .Map(dest => dest.DeliveryPackageId, src => src.DeliveryPackageId.Value);
 

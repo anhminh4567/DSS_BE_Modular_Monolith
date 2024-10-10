@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Repositories.TransactionRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using Microsoft.Extensions.Logging;
@@ -14,10 +15,36 @@ namespace DiamondShop.Domain.Services.Implementations
     public class OrderTransactionService : IOrderTransactionService
     {
         private readonly ILogger<OrderTransactionService> _logger;
+        private readonly ITransactionRepository _transactionRepository;
 
-        public OrderTransactionService(ILogger<OrderTransactionService> logger)
+        public OrderTransactionService(ILogger<OrderTransactionService> logger, ITransactionRepository transactionRepository)
         {
             _logger = logger;
+            _transactionRepository = transactionRepository;
+        }
+
+        public decimal GetDepositValueForOrder(Order order)
+        {
+            if (order.PaymentStatus != Models.Orders.Enum.PaymentType.COD)
+            {
+                throw new Exception("this is not of type COD ");
+            }
+            var depositPercent = OrderPaymentRules.DepositPercent;
+            var neededToPayAmountRaw = order.TotalPrice * (Decimal.Divide(depositPercent,100));
+            var roundedValue = Math.Round(Decimal.Divide(neededToPayAmountRaw, 1000), 1) * 1000;//the function is tested in linq pad
+            return roundedValue;
+        }
+
+        public decimal GetFullPaymentValueForOrder(Order order)
+        {
+            return order.TotalPrice;
+        }
+
+        public decimal GetRemaingValueForOrder(Order order)
+        {
+            var transactions = _transactionRepository.GetByOrderId(order.Id).Result;
+            var paidAmount = transactions.Sum(x => x.TransactionAmount);
+            return order.TotalPrice - paidAmount;
         }
 
         public Result<(decimal allowAmount, decimal remainingAmount)> GetTransactionValueForOrder(Order order, decimal wantedAmount)
