@@ -13,7 +13,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
 {
     internal class SizeConfiguration : IEntityTypeConfiguration<Size>
     {
-        protected static List<Size> SIZES = 
+        protected static List<Size> SIZES =
             Enumerable.Range(SizeRules.MinRingSize, SizeRules.MaxRingSize)
             .Select(p => Size.Create(p, null, SizeId.Parse(p.ToString()))).ToList();
         public void Configure(EntityTypeBuilder<Size> builder)
@@ -24,7 +24,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
                     Id => Id.Value,
                     dbValue => SizeId.Parse(dbValue));
             builder.HasKey(p => p.Id);
-            builder.HasIndex(p => p.Id);
+            //builder.HasIndex(p => p.Id);
             builder.HasData(SIZES);
         }
     }

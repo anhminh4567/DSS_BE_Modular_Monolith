@@ -41,7 +41,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.AccountConfig
                 .HasForeignKey(aa => aa.AccountId);
 
             builder.HasKey(o => o.Id);
-            builder.HasIndex(o => o.Id);
+            //builder.HasIndex(o => o.Id);
             builder.HasIndex(o => o.IdentityId);
         }
     }

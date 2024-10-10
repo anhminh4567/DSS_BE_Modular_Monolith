@@ -8,6 +8,7 @@ using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
+using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Services.Implementations;
 using DiamondShop.Domain.Services.interfaces;
 
@@ -15,17 +16,10 @@ namespace DiamondShop.Test.Domain
 {
     public class PromotionServiceTests
     {
-        [Fact]
-        public void ApplyPromotionOnCartModel_ShouldApplyPromotion_WhenRequirementsMet()
+        private List<DiamondShape> _diamondShapes;
+        public PromotionServiceTests()
         {
-            // Arrange
-            List<CartItem> userCartItemWithDiamonds = new List<CartItem>()
-            {
-                CartItem.CreateDiamond(DiamondId.Create(),null),
-                CartItem.CreateDiamond(DiamondId.Create(),null),
-                CartItem.CreateDiamond(DiamondId.Create(),null),
-            };
-            var shapes = new List<DiamondShape> {
+            _diamondShapes = new List<DiamondShape> {
                 DiamondShape.Create("Round",DiamondShapeId.Parse(1.ToString())),
                 DiamondShape.Create("Princess",DiamondShapeId.Parse(2.ToString())),
                 DiamondShape.Create("Cushion",DiamondShapeId.Parse(3.ToString())),
@@ -37,33 +31,86 @@ namespace DiamondShop.Test.Domain
                 DiamondShape.Create("Heart",DiamondShapeId.Parse(9.ToString())),
                 DiamondShape.Create("Pear",DiamondShapeId.Parse(10.ToString()))
             };
-            var shapesIds = shapes.Select(s => s.Id).ToList();
-            var promotionRequirement = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, 1, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Astor_Ideal, Color.I, Color.D,shapes);
-            var promotionGift = Gift.CreateDiamond("test", null,UnitType.Percent, 20, 1, shapesIds, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Astor_Ideal, Color.I, Color.D);
-            var promotion = Promotion.Create("test","test",DateTime.UtcNow,DateTime.UtcNow.AddDays(50),1,false,RedemptionMode.Single);
+        }
+
+        [Fact(DisplayName ="exclude qualifier")]
+        public void ApplyPromotionOnCartModel_ShouldApplyPromotion_IsExcludeQualifier()
+        {
+            // Arrange
+            List<CartItem> userCartItemWithDiamonds = new List<CartItem>()
+            {
+                CartItem.CreateDiamond(DiamondId.Create(),null),
+                CartItem.CreateDiamond(DiamondId.Create(),null),
+                CartItem.CreateDiamond(DiamondId.Create(),null),
+            };
+            var shapesIds = _diamondShapes.Select(s => s.Id).ToList();
+            var promotionRequirement = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, 1, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Astor_Ideal, Color.I, Color.D, _diamondShapes);
+            var promotionGift = Gift.CreateDiamond("test", null, UnitType.Percent, 20, 1, shapesIds, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Astor_Ideal, Color.I, Color.D);
+            var promotion = Promotion.Create("test", "test", DateTime.UtcNow, DateTime.UtcNow.AddDays(50), 1, true, RedemptionMode.Single);
+            promotionRequirement.PromotionId = promotion.Id;
+            promotionGift.PromotionId = promotion.Id;
             promotion.AddRequirement(promotionRequirement);
             promotion.AddGift(promotionGift);
 
-            Diamond diamond1 = Diamond.Create(shapes[0], new Diamond_4C(Cut.Very_Good,Color.I,Clarity.VVS1,0.5f,true),new Diamond_Details(Polish.Good,Symmetry.Good,Girdle.Medium,Fluorescence.Medium,Culet.Medium),true,new Diamond_Measurement(2f,22f,2f,"whatever"));
-            Diamond diamond2 = Diamond.Create(shapes[1], new Diamond_4C(Cut.Very_Good, Color.I, Clarity.VVS1, 0.3f, true), new Diamond_Details(Polish.Good, Symmetry.Good, Girdle.Medium, Fluorescence.Medium, Culet.Medium), true, new Diamond_Measurement(2f, 22f, 2f, "whatever 2"));
+            Diamond diamond1 = Diamond.Create(_diamondShapes[0], new Diamond_4C(Cut.Very_Good, Color.I, Clarity.VVS1, 0.5f, true), new Diamond_Details(Polish.Good, Symmetry.Good, Girdle.Medium, Fluorescence.Medium, Culet.Medium), true, new Diamond_Measurement(2f, 22f, 2f, "whatever"), 1);
+            Diamond diamond2 = Diamond.Create(_diamondShapes[1], new Diamond_4C(Cut.Very_Good, Color.I, Clarity.VVS1, 0.3f, true), new Diamond_Details(Polish.Good, Symmetry.Good, Girdle.Medium, Fluorescence.Medium, Culet.Medium), true, new Diamond_Measurement(2f, 22f, 2f, "whatever 2"),1);
 
             CartModel userCartModel = new CartModel();
-            CartProduct product1 = new CartProduct() { Diamond = diamond1 ,ReviewPrice = new CheckoutPrice() { DefaultPrice = 1000 } };
+            CartProduct product1 = new CartProduct() { Diamond = diamond1, ReviewPrice = new CheckoutPrice() { DefaultPrice = 1000 } };
             CartProduct product2 = new CartProduct() { Diamond = diamond2, ReviewPrice = new CheckoutPrice() { DefaultPrice = 2000 } };
             userCartModel.Products.Add(product1);
             userCartModel.Products.Add(product2);
 
-            //userCartModel.Products.Add();
-
             var promotionService = new PromotionService();
             // Act
             var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion);
-            
+
             // Assert
             Assert.True(result.IsSuccess);
-            //Assert.Equal(promotion, cartModel.Promotion.Promotion);
+            var promo = userCartModel.Promotion;
+            Assert.Equal(userCartModel.Products[promo.RequirementProductsIndex[0]].CartProductId, product1.CartProductId);
+            Assert.Equal(userCartModel.Products[promo.GiftProductsIndex[0]].CartProductId, product2.CartProductId);
         }
+        [Fact(DisplayName = "include qualifier")]
+        public void ApplyPromotionOnCartModel_ShouldApplyPromotion_NOTExcludeQualifier()
+        {
+            // Arrange
+            List<CartItem> userCartItemWithDiamonds = new List<CartItem>()
+            {
+                CartItem.CreateDiamond(DiamondId.Create(),null),
+                CartItem.CreateDiamond(DiamondId.Create(),null),
+                CartItem.CreateDiamond(DiamondId.Create(),null),
+            };
+            var shapesIds = _diamondShapes.Select(s => s.Id).ToList();
+            var promotionRequirement = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, 1, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Astor_Ideal, Color.I, Color.D, _diamondShapes);
+            var promotionGift = Gift.CreateDiamond("test", null, UnitType.Percent, 20, 1, shapesIds, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Astor_Ideal, Color.I, Color.D);
+            var promotion = Promotion.Create("test", "test", DateTime.UtcNow, DateTime.UtcNow.AddDays(50), 1, false, RedemptionMode.Single);
+            promotionRequirement.PromotionId = promotion.Id;
+            promotionGift.PromotionId = promotion.Id;
+            promotion.AddRequirement(promotionRequirement);
+            promotion.AddGift(promotionGift);
 
+            Diamond diamond1 = Diamond.Create(_diamondShapes[0], new Diamond_4C(Cut.Very_Good, Color.I, Clarity.VVS1, 0.5f, true), new Diamond_Details(Polish.Good, Symmetry.Good, Girdle.Medium, Fluorescence.Medium, Culet.Medium), true, new Diamond_Measurement(2f, 22f, 2f, "whatever"), 1);
+            Diamond diamond2 = Diamond.Create(_diamondShapes[1], new Diamond_4C(Cut.Very_Good, Color.I, Clarity.VVS1, 0.3f, true), new Diamond_Details(Polish.Good, Symmetry.Good, Girdle.Medium, Fluorescence.Medium, Culet.Medium), true, new Diamond_Measurement(2f, 22f, 2f, "whatever 2"), 1);
+
+            CartModel userCartModel = new CartModel();
+            CartProduct product1 = new CartProduct() { Diamond = diamond1, ReviewPrice = new CheckoutPrice() { DefaultPrice = 1100 } };
+            CartProduct product2 = new CartProduct() { Diamond = diamond2, ReviewPrice = new CheckoutPrice() { DefaultPrice = 2000 } };
+            userCartModel.Products.Add(product1);
+            userCartModel.Products.Add(product2);
+            var promotionService = new PromotionService();
+            // Act
+            var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            var promo = userCartModel.Promotion;
+            Assert.Equal(userCartModel.Products[promo.RequirementProductsIndex[0]].CartProductId, product1.CartProductId);
+            Assert.Equal(userCartModel.Products[promo.GiftProductsIndex[0]].CartProductId, product1.CartProductId);
+            Assert.Equal(userCartModel.Products[promo.GiftProductsIndex[0]].CartProductId, userCartModel.Products[promo.RequirementProductsIndex[0]].CartProductId);
+            Assert.Equal(promo.GiftProductsIndex.Count, promo.RequirementProductsIndex.Count);
+
+        }
         [Fact(Skip = "not now")]
         public void ApplyPromotionOnCartModel_ShouldNotApplyPromotion_WhenRequirementsNotMet()
         {

@@ -33,5 +33,6 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public Culet Culet { get; set; }
         public Fluorescence Fluorescence { get; set; }
         public string Measurement { get; set; }
+        public DiamondPriceDto? DiamondPrice { get; set; }
     }
 }

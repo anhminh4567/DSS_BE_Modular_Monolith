@@ -9,5 +9,6 @@ namespace DiamondShop.Domain.Repositories.PromotionsRepo
 {
     public interface IDiscountRepository : IBaseRepository<Discount>
     {
+        Task<List<Discount>> GetActiveDiscount(bool isDateComparisonRequired = false,CancellationToken cancellationToken =default);
     }
 }

@@ -31,7 +31,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondShapeConfig
             builder.ToTable("Diamond_Shape");
             builder.Property(a => a.Id).HasConversion(a => a.Value, dbValue => DiamondShapeId.Parse(dbValue));
             builder.HasKey(a => a.Id);
-            builder.HasIndex(a => a.Id);
+            //builder.HasIndex(a => a.Id);
             builder.HasData(SHAPES);
         }
     }

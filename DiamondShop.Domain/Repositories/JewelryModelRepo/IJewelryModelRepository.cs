@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Models.JewelryModels;
+using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace DiamondShop.Domain.Repositories.JewelryModelRepo
 {
     public interface IJewelryModelRepository : IBaseRepository<JewelryModel>
     {
-
+        Task<JewelryModel?> GetByIdMinimal(JewelryModelId id);
     }
 }

@@ -100,7 +100,7 @@ namespace DiamondShopSystem.Controllers
                 CaratFrom = ((float)item.CaratFrom),
                 CaratTo = (float)item.CaratTo,
                 Clarity = item.Clarity,
-                Color = item.Color, 
+                Color = item.Color,
                 Cut = item.Cut,
                 isLabGrown = true,
             }).ToList();
@@ -108,12 +108,16 @@ namespace DiamondShopSystem.Controllers
             // Dispose the listItem to free up memory
             listItem.Clear();
             listItem = null;
-            //var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(mappedList));
-            //var getShapes = await _sender.Send(new GetAllDiamondShapeQuery());
-            //var round = getShapes.FirstOrDefault(item => item.Shape.ToUpper() == "ROUND");
-            //var pear = getShapes.FirstOrDefault(item => item.Shape.ToUpper() == "PEAR");
-            //var mappedPriceList = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, round.Id, prices[index])).ToList();
-            //var result2 = await _sender.Send(new CreateManyDiamondPricesCommand(mappedPriceList));
+            var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(mappedList));
+            var getShapes = await _sender.Send(new GetAllDiamondShapeQuery());
+            var round = getShapes.FirstOrDefault(item => item.Shape.ToUpper() == "ROUND");
+            var pear = getShapes.FirstOrDefault(item => item.Shape.ToUpper() == "PEAR");
+            var mappedPriceList = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, round.Id, prices[index])).ToList();
+            var mappedPriceList2 = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, pear.Id, prices[index])).ToList();
+
+            var result2 = await _sender.Send(new CreateManyDiamondPricesCommand(mappedPriceList));
+            var result3 = await _sender.Send(new CreateManyDiamondPricesCommand(mappedPriceList2));
+
             return Ok();
         }
         [Route("/callback-ngrok")]

@@ -27,8 +27,8 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondConfig
                 Id => Id.Value,
                 dbValue => DiamondShapeId.Parse(dbValue));
             builder.HasOne(o => o.DiamondShape)
-                .WithOne()
-                .HasForeignKey<Diamond>(c => c.DiamondShapeId)
+                .WithMany()
+                .HasForeignKey(c => c.DiamondShapeId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.SetNull);
             //builder.HasOne(o => o.Warranty).WithOne().HasForeignKey<DiamondWarranty>(p => p.Id).IsRequired(false);
@@ -52,7 +52,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondConfig
             //builder.Property(o => o.Culet).HasConversion<string>();
             //builder.Property(o => o.Fluorescence).HasConversion<string>();
             builder.HasKey(o => o.Id);
-            builder.HasIndex(o => o.Id);
+            //builder.HasIndex(o => o.Id);
         }
     }
 }
