@@ -24,11 +24,11 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetSelling
         public async Task<Result<PagingResponseDto<Jewelry>>> Handle(GetSellingJewelryQuery request, CancellationToken cancellationToken)
         {
             request.Deconstruct(out int pageSize, out int start);
-            (List<Jewelry> result, int totalPage) = await _jewelryRepository.GetSellingJewelry(pageSize * start, pageSize);
+            (IEnumerable<Jewelry> result, int totalPage) = await _jewelryRepository.GetSellingJewelry(pageSize * start, pageSize);
             var response = new PagingResponseDto<Jewelry>(
                 totalPage: totalPage,
-                currentPage: start,
-                Values: result
+                currentPage: start + 1,
+                Values: result.ToList()
                 );
             return response;
         }

@@ -3,6 +3,7 @@ using DiamondShop.Application.Usecases.Orders.Queries.GetUser;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace DiamondShop.Api.Controllers.Orders
 {
@@ -18,11 +19,11 @@ namespace DiamondShop.Api.Controllers.Orders
             _sender = sender;
             _mapper = mapper;
         }
-        [HttpGet]
+        [HttpGet("User")]
         [Produces<List<OrderDto>>]
-        public async Task<ActionResult> GetUserOrder()
+        public async Task<ActionResult> GetUserOrder([FromQuery] string accountId)
         {
-            var result = await _sender.Send(new GetUserOrderQuery());
+            var result = await _sender.Send(new GetUserOrderQuery(accountId));
             var mappedResult = _mapper.Map<List<OrderDto>>(result);
             return Ok(mappedResult);
         }

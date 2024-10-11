@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Common;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
@@ -22,8 +23,8 @@ namespace DiamondShop.Domain.Models.Orders
         public AccountId AccountId { get; set; }
         public Account? Account { get; set; }
         public CustomizeRequestId? CustomizeRequestId { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime ExpectedDate { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime ExpectedDate { get; set; } = DateTime.Now.AddDays(OrderRules.ExpectedDeliveringDate);
         public DateTime? ShippedDate { get; set; }
         public DateTime? CancelledDate { get; set; }
         public string? CancelledReason { get; set; }
@@ -42,5 +43,16 @@ namespace DiamondShop.Domain.Models.Orders
         public DeliveryPackageId? DeliveryPackageId { get; set; }
 
         public Order() { }
+        public static Order Create(AccountId accountId, OrderStatus orderStatus, PaymentType paymentStatus, decimal totalPrice, OrderId givenId = null)
+        {
+            return new Order()
+            {
+                Id = givenId is null ? OrderId.Create() : givenId,
+                AccountId = accountId,
+                Status = orderStatus,
+                PaymentStatus = paymentStatus,
+                TotalPrice = totalPrice
+            };
+        }
     }
 }

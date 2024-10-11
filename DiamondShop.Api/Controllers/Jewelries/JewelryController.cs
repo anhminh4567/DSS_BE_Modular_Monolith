@@ -3,6 +3,7 @@ using DiamondShop.Application.Dtos.Responses.Jewelries;
 using DiamondShop.Application.Dtos.Responses.JewelryModels;
 using DiamondShop.Application.Usecases.Jewelries.Commands;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetAll;
+using DiamondShop.Application.Usecases.Jewelries.Queries.GetDetail;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetPaging;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetSelling;
 using DiamondShop.Application.Usecases.JewelryModels.Commands.Create;
@@ -42,7 +43,20 @@ namespace DiamondShop.Api.Controllers.Jewelries
             var result = await _sender.Send(getJewelryPagingQuery);
             if (result.IsSuccess)
             {
-                var mappedResult = _mapper.Map<List<JewelryDto>>(result);
+                var mappedResult = _mapper.Map<PagingResponseDto<JewelryDto>>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+
+        [HttpGet("Detail")]
+        [Produces(type: typeof(JewelryDto))]
+        public async Task<ActionResult> GetDetail([FromQuery] GetJewelryDetailQuery getJewelryDetailQuery)
+        {
+            var result = await _sender.Send(getJewelryDetailQuery);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<JewelryDto>(result.Value);
                 return Ok(mappedResult);
             }
             return MatchError(result.Errors, ModelState);

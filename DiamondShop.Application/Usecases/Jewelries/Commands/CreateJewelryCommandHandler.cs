@@ -68,9 +68,10 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
                     sizeMetal.SizeId,
                     sizeMetal.MetalId,
                     sizeMetal.Weight,
-                    jewelryRequest.SerialCode
+                    jewelryRequest.SerialCode,
+                    isActive: jewelryRequest.IsActive
                 );
-            await _jewelryRepository.Create(jewelry);
+            await _jewelryRepository.Create(jewelry, token);
             await _unitOfWork.SaveChangesAsync(token);
 
             if (attachedDiamonds.Count > 0)

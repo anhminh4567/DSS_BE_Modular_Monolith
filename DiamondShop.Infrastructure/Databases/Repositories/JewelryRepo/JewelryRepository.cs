@@ -25,28 +25,31 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
             return await _set.AnyAsync(p => p.SerialCode == serialNumber);
         }
 
-        public async Task<(List<Jewelry> jewelries, int totalPage)> GetSellingJewelry(int skip, int take)
+        public async Task<(IEnumerable<Jewelry> jewelries, int totalPage)> GetSellingJewelry(int skip, int take)
         {
-            var query = _set.Where(p => p.IsActive);
+            var list = _set.Where(p => p.IsActive).ToList();
             var sizeMetalSet = _dbContext.Set<SizeMetal>();
-            var count = query.Count();
-            query.Skip(skip);
-            query.Take(take);
-            var result = query.ToList();
-            foreach(var p in result)
+            var count = list.Count();
+            var result = list.Skip(skip).Take(take);
+            foreach (var i in result)
             {
-                string modelKey = $"MS_{p.ModelId.Value}";
+                string modelKey = $"MS_{i.ModelId.Value}";
                 //List<SizeMetal> tryGet = _cache.Get<List<SizeMetal>>(modelKey) ?? new List<SizeMetal>();
 
                 List<SizeMetal> tryGet = new();
-                var item = tryGet.FirstOrDefault(p => p.MetalId == p.MetalId && p.SizeId == p.SizeId);
+                var item = tryGet.FirstOrDefault(p => p.MetalId == i.MetalId && p.SizeId == i.SizeId);
                 if (item == null)
                 {
-                    item = await sizeMetalSet.Include(p => p.Metal).FirstOrDefaultAsync(p => p.ModelId == p.ModelId && p.MetalId == p.MetalId && p.SizeId == p.SizeId);
+                    item = await sizeMetalSet.Include(p => p.Metal).FirstOrDefaultAsync(
+                        p =>
+                        p.ModelId == i.ModelId &&
+                        p.MetalId == i.MetalId &&
+                        i.SizeId == p.SizeId
+                    );
                     tryGet.Add(item);
-                    _cache.Set(modelKey, tryGet);
+                    //_cache.Set(modelKey, tryGet);
                 }
-                p.Price = item.Metal.Price * (decimal) item.Weight;
+                i.Price = item.Metal.Price * (decimal)item.Weight;
             };
             var totalPage = (int)Math.Ceiling((decimal)count / (decimal)take);
             return (result, totalPage);
