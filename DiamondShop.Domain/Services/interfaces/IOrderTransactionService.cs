@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Transactions;
 using FluentResults;
 using System;
 using System.Collections.Generic;
@@ -14,5 +15,8 @@ namespace DiamondShop.Domain.Services.interfaces
         decimal GetDepositValueForOrder(Order order);
         decimal GetFullPaymentValueForOrder(Order order);
         decimal GetRemaingValueForOrder(Order order);
+        decimal GetCODValueForOrder(Order order);
+        Task<Transaction> GetRefundAmountFromOrder(Order order, decimal fineAmount, string description);
+
     }
 }

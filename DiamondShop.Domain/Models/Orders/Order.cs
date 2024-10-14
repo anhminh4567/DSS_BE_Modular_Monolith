@@ -29,11 +29,12 @@ namespace DiamondShop.Domain.Models.Orders
         public DateTime? CancelledDate { get; set; }
         public string? CancelledReason { get; set; }
         public OrderStatus Status { get; set; }
-        public PaymentType PaymentStatus { get; set; }
+        public PaymentType PaymentType { get; set; }
+        public PaymentStatus PaymentStatus { get; set; }
         public decimal ShippingFee { get; set; }
         public decimal TotalPrice { get; set; }
-        public decimal TotalRefund { get; set; }
-        public decimal TotalFine { get; set; }
+        public decimal TotalRefund { get; set; } = 0;
+        public decimal TotalFine { get; set; } = 0;
         public string ShippingAddress { get; set; }
         public List<OrderItem> Items { get; set; } = new();
         public List<OrderLog> Logs { get; set; } = new();
@@ -41,6 +42,20 @@ namespace DiamondShop.Domain.Models.Orders
 
         public OrderId? ParentOrderId { get; set; } // for replacement order
         public DeliveryPackageId? DeliveryPackageId { get; set; }
+        public void AddTransaction(Transaction transactionTypePay) 
+        {
+            if(transactionTypePay.TransactionType != Models.Transactions.Enum.TransactionType.Pay)
+                throw new InvalidOperationException("Transaction type must be Pay");
+            Transactions.Add(transactionTypePay);
+        }
+        public void AddRefund(Transaction transactionTypeRefund)
+        {
+            if (transactionTypeRefund.TransactionType != Models.Transactions.Enum.TransactionType.Refund)
+                throw new InvalidOperationException("Transaction type must be Refund");
+            TotalRefund += transactionTypeRefund.TotalAmount;
+            TotalFine += transactionTypeRefund.FineAmount;
+            Transactions.Add(transactionTypeRefund);
+        }
 
         public Order() { }
         public static Order Create(AccountId accountId, OrderStatus orderStatus, PaymentType paymentStatus, decimal totalPrice, OrderId givenId = null)

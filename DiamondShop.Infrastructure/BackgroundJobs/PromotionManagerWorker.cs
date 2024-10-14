@@ -2,7 +2,7 @@
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Outbox;
-using FluentEmail.Core.Interfaces;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

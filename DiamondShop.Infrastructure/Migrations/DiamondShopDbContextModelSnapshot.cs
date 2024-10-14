@@ -263,15 +263,21 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("FromKm")
+                    b.Property<int?>("FromKm")
                         .HasColumnType("integer");
+
+                    b.Property<string>("FromLocation")
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("ToKm")
+                    b.Property<int?>("ToKm")
                         .HasColumnType("integer");
+
+                    b.Property<string>("ToLocation")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -1261,6 +1267,10 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("PaymentType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("ShippedDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -1647,6 +1657,9 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<decimal>("FineAmount")
                         .HasColumnType("numeric");
 
+                    b.Property<bool>("IsManual")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("OrderId")
                         .HasColumnType("text");
 
@@ -1654,7 +1667,6 @@ namespace DiamondShop.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PayMethodId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("PaygateTransactionCode")
@@ -1679,8 +1691,7 @@ namespace DiamondShop.Infrastructure.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.HasIndex("PayMethodId")
-                        .IsUnique();
+                    b.HasIndex("PayMethodId");
 
                     b.HasIndex("RefundedTransacId")
                         .IsUnique();
@@ -2796,10 +2807,8 @@ namespace DiamondShop.Infrastructure.Migrations
                         .HasForeignKey("OrderId");
 
                     b.HasOne("DiamondShop.Domain.Models.Transactions.Entities.PaymentMethod", "PayMethod")
-                        .WithOne()
-                        .HasForeignKey("DiamondShop.Domain.Models.Transactions.Transaction", "PayMethodId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany()
+                        .HasForeignKey("PayMethodId");
 
                     b.HasOne("DiamondShop.Domain.Models.Transactions.Transaction", "RefundedTransaction")
                         .WithOne()
