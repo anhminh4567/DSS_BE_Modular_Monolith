@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.DiamondPrices;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.Promotions;
@@ -24,8 +25,9 @@ namespace DiamondShop.Domain.Services.Implementations
             //_logger = logger;
         }
 
-        public Task<Discount> CheckDiamondDiscount(Diamond diamond, List<Discount> discounts)
+        public Task<Discount?> AssignDiamondDiscount(Diamond diamond, List<Discount> discounts)
         {
+            ArgumentNullException.ThrowIfNull(diamond.DiamondPrice);
             foreach (var discount in discounts)
             {
                 foreach (var req in discount.DiscountReq)
@@ -34,13 +36,29 @@ namespace DiamondShop.Domain.Services.Implementations
                         continue;
                     if (ValidateDiamond4CGlobal(diamond, req.CaratFrom.Value, req.CaratTo.Value, req.ColorFrom.Value, req.ColorTo.Value, req.ClarityFrom.Value, req.ClarityTo.Value, req.CutFrom.Value, req.CutTo.Value))
                     {
-                        throw new NotImplementedException();
+                        var discountValue = discount.DiscountPercent;
+                        if(diamond.DiamondPrice.Discount != null &&discountValue > diamond.DiamondPrice.Discount.DiscountPercent)
+                        {
+                            diamond.DiamondPrice.Discount = discount;
+                        }
+                        else
+                        {
+                            diamond.DiamondPrice.Discount = discount;
+                        }
+
                     }
                 }
             }
-            throw new NotImplementedException();
+            if(diamond.DiamondPrice.Discount != null)
+            {
+                var reducedAmount = diamond.DiamondPrice.Price * ( (decimal)diamond.DiamondPrice.Discount.DiscountPercent / (decimal)100 );
+                var discountPrice = diamond.DiamondPrice.Price - reducedAmount;
+                var finalDiscountPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(discountPrice);
+                diamond.DiamondPrice.DiscountPrice = finalDiscountPrice;
+            }
+            return Task.FromResult(diamond.DiamondPrice.Discount);
         }
-        public Task<List<Promotion>> CheckDiamondPromotion(Diamond diamond, List<Promotion> promotions)
+        public Task<List<Promotion?>> CheckDiamondPromotion(Diamond diamond, List<Promotion> promotions)
         {
             throw new NotImplementedException();
         }

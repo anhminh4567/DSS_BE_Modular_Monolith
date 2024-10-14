@@ -3,6 +3,7 @@ using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Repositories;
+using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.Implementations;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
@@ -23,13 +24,17 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
         private readonly IDiamondPriceRepository _diamondPriceRepository;
         private readonly IDiamondServices _diamondService;
         private readonly IDiamondShapeRepository _diamondShapeRepository;
+        private readonly IDiscountService _discountService;
+        private readonly IDiscountRepository _discountRepository;
 
-        public GetDiamondPagingQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, IDiamondServices diamondService, IDiamondShapeRepository diamondShapeRepository)
+        public GetDiamondPagingQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, IDiamondServices diamondService, IDiamondShapeRepository diamondShapeRepository, IDiscountService discountService, IDiscountRepository discountRepository)
         {
             _diamondRepository = diamondRepository;
             _diamondPriceRepository = diamondPriceRepository;
             _diamondService = diamondService;
             _diamondShapeRepository = diamondShapeRepository;
+            _discountService = discountService;
+            _discountRepository = discountRepository;
         }
 
         public async Task<Result<PagingResponseDto<Diamond>>> Handle(GetDiamondPagingQuery request, CancellationToken cancellationToken)
@@ -53,12 +58,15 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
                 var prices = await _diamondPriceRepository.GetPriceByShapes(shape, cancellationToken);
                 shapeDictPrice.Add(shape.Id.Value,prices);
             }
+            var getAllDiscount = await _discountRepository.GetActiveDiscount();
             foreach (var diamond in result)
             {
                 diamond.DiamondShape = getAllShape.FirstOrDefault(s => s.Id == diamond.DiamondShapeId);
                 var diamondPrice = await _diamondService.GetDiamondPrice(diamond, shapeDictPrice.FirstOrDefault(d => d.Key == diamond.DiamondShapeId.Value).Value);
                 diamond.DiamondPrice = diamondPrice;
+                _diamondService.AssignDiamondDiscount(diamond, getAllDiscount).Wait();
             }
+
             //var prices = await _diamondPriceRepository.GetPriceByShapes(getResult.DiamondShape, cancellationToken);
             //getResult.DiamondPrice = diamondPrice;
 

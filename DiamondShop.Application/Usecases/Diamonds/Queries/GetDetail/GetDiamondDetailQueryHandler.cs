@@ -3,6 +3,7 @@ using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
+using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
@@ -23,13 +24,17 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail
         private readonly IDiamondPriceRepository _diamondPriceRepository;
         private readonly ILogger<GetDiamondDetail> _logger;
         private readonly IDiamondServices _diamondServices;
+        private readonly IDiscountService _discountService;
+        private readonly IDiscountRepository _discountRepository;
 
-        public GetDiamondDetailQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, ILogger<GetDiamondDetail> logger, IDiamondServices diamondServices)
+        public GetDiamondDetailQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, ILogger<GetDiamondDetail> logger, IDiamondServices diamondServices, IDiscountService discountService, IDiscountRepository discountRepository)
         {
             _diamondRepository = diamondRepository;
             _diamondPriceRepository = diamondPriceRepository;
             _logger = logger;
             _diamondServices = diamondServices;
+            _discountService = discountService;
+            _discountRepository = discountRepository;
         }
 
         public async Task<Result<Diamond>> Handle(GetDiamondDetail request, CancellationToken cancellationToken)
@@ -44,7 +49,9 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail
             var prices = await _diamondPriceRepository.GetPriceByShapes(getResult.DiamondShape,cancellationToken);
             var diamondPrice = await _diamondServices.GetDiamondPrice(getResult, prices);
             getResult.DiamondPrice = diamondPrice;
-            var testingOnly = await _diamondRepository.GetByIdIncludeDiscountAndPromotion(parsedId);
+            //var testingOnly = await _diamondRepository.GetByIdIncludeDiscountAndPromotion(parsedId);
+            var getAllDiscount = await _discountRepository.GetActiveDiscount();
+            _diamondServices.AssignDiamondDiscount(getResult, getAllDiscount).Wait();
             return Result.Ok(getResult);
         }
     }

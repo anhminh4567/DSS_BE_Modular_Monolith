@@ -55,8 +55,8 @@ namespace DiamondShop.Infrastructure
 
             services.AddDbContext<DiamondShopDbContext>(opt =>
             {
-                opt.UseNpgsql("Host=localhost;Port=5432;Database=DiamondShopTest;Username=postgres;Password=12345;Include Error Detail=true");
-                //opt.UseNpgsql(configuration.GetSection("ConnectionString:Database"));
+                //opt.UseNpgsql("Host=localhost;Port=5432;Database=DiamondShopTest;Username=postgres;Password=12345;Include Error Detail=true");
+                opt.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
             });
             services.AddScoped<DomainEventsPublishserInterceptors>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
