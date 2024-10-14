@@ -1,28 +1,27 @@
 ﻿using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Models.Diamonds.ValueObjects;
+using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
+using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
+using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
-using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Usecases.MainDiamonds.Commands.CompareDiamondShape
+namespace DiamondShop.Domain.Services.Implementations
 {
-    public record CompareDiamondShapeCommand(JewelryModelId JewelryModelId, List<Diamond> Diamonds) : IRequest<Result>;
-    internal class CompareDiamondShapeCommandHandler : IRequestHandler<CompareDiamondShapeCommand, Result>
+    public record DiamondShapeHolder(DiamondShapeId ShapeId, float Carat);
+    public class MainDiamondService : IMainDiamondService
     {
-        private readonly IMainDiamondRepository _mainDiamondRepository;
-
-        public CompareDiamondShapeCommandHandler(
-            IMainDiamondRepository mainDiamondRepository)
+        public async Task<Result> CheckMatchingDiamond(JewelryModelId jewelryModelId, List<Diamond> diamonds, IMainDiamondRepository mainDiamondRepository)
         {
-            _mainDiamondRepository = mainDiamondRepository;
-        }
-
-        public async Task<Result> Handle(CompareDiamondShapeCommand request, CancellationToken token)
-        {
-            request.Deconstruct(out JewelryModelId jewelryModelId, out List <Diamond> diamonds);
-            var diamondReqs = await _mainDiamondRepository.GetCriteria(jewelryModelId);
+            var diamondReqs = await mainDiamondRepository.GetCriteria(jewelryModelId);
             if (diamonds.Count != diamondReqs.Sum(p => p.Quantity))
                 return Result.Fail(new ConflictError("The quantity of the main diamond differs from what the model requires."));
 
@@ -32,10 +31,10 @@ namespace DiamondShop.Application.Usecases.MainDiamonds.Commands.CompareDiamondS
         }
         private bool MatchingDiamond(List<Diamond> diamonds, List<MainDiamondReq> diamondReqs)
         {
-            var diamondShapeCaratHolder = diamonds.Select(p => new DiamondShapeCaratHolder(p.DiamondShapeId, p.Carat)).ToList();
+            var diamondShapeCaratHolder = diamonds.Select(p => new DiamondShapeHolder(p.DiamondShapeId, p.Carat)).ToList();
             return Backtracking(diamondShapeCaratHolder, diamondReqs);
         }
-        private bool Backtracking(List<DiamondShapeCaratHolder> shapes, List<MainDiamondReq> diamondReqs, int index = 0)
+        private bool Backtracking(List<DiamondShapeHolder> shapes, List<MainDiamondReq> diamondReqs, int index = 0)
         {
             if (index == shapes.Count) return true;
             var shape = shapes[index];

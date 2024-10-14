@@ -72,8 +72,8 @@ namespace DiamondShop.Test.Application.Jewelries.Create
                 var unitOfWork = new UnitOfWork(context);
                 var jewelryCommand = new CreateJewelryCommand(jewelryRequest, sideDiamondOptIds, attachedDiamondIds);
 
-                var handler = new CreateJewelryCommandHandler(new JewelryRepository(context, null), new JewelryModelRepository(context, null), new SizeMetalRepository(context, null), new DiamondRepository(context), _sender.Object, unitOfWork);
-                var compareDiamondShapeHandler = new CompareDiamondShapeCommandHandler(new MainDiamondRepository(context));
+                var handler = new CreateJewelryCommandHandler(new JewelryRepository(context, null), new JewelryModelRepository(context, null), new SizeMetalRepository(context, null), new DiamondRepository(context), _sender.Object, unitOfWork, null);
+                var compareDiamondShapeHandler = new CompareDiamondShapeCommandHandler(new MainDiamondRepository(context, null));
                 var attachDiamondHandler = new AttachDiamondCommandHandler(new DiamondRepository(context), unitOfWork);
                 var createJewelrySideDiamondHandler = new CreateJewelrySideDiamondCommandHandler(new JewelrySideDiamondRepository(context), new SideDiamondRepository(context), unitOfWork);
 

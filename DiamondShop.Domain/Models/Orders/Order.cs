@@ -7,6 +7,8 @@ using DiamondShop.Domain.Models.Notifications.ValueObjects;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
+using DiamondShop.Domain.Models.Promotions;
+using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Models.Transactions;
 using DiamondShop.Domain.Models.Transactions.Entities;
 using DiamondShop.Domain.Models.Transactions.ValueObjects;
@@ -23,8 +25,10 @@ namespace DiamondShop.Domain.Models.Orders
         public AccountId AccountId { get; set; }
         public Account? Account { get; set; }
         public CustomizeRequestId? CustomizeRequestId { get; set; }
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
-        public DateTime ExpectedDate { get; set; } = DateTime.Now.AddDays(OrderRules.ExpectedDeliveringDate);
+        public PromotionId? PromotionId { get; set; }
+        public Promotion? Promotion { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.Now.ToUniversalTime();
+        public DateTime ExpectedDate { get; set; } = DateTime.Now.AddDays(OrderRules.ExpectedDeliveringDate).ToUniversalTime();
         public DateTime? ShippedDate { get; set; }
         public DateTime? CancelledDate { get; set; }
         public string? CancelledReason { get; set; }
@@ -58,15 +62,21 @@ namespace DiamondShop.Domain.Models.Orders
         }
 
         public Order() { }
-        public static Order Create(AccountId accountId, OrderStatus orderStatus, PaymentType paymentStatus, decimal totalPrice, OrderId givenId = null)
+        public static Order Create(AccountId accountId, PaymentType paymentType, 
+            decimal totalPrice, decimal shippingFee, string shippingAddress,
+            PromotionId promotionId = null, OrderId givenId = null)
         {
             return new Order()
             {
                 Id = givenId is null ? OrderId.Create() : givenId,
                 AccountId = accountId,
-                Status = orderStatus,
-                PaymentStatus = paymentStatus,
-                TotalPrice = totalPrice
+                Status = OrderStatus.Pending,
+                PaymentStatus = PaymentStatus.Pending,
+                PromotionId = promotionId,
+                PaymentType = paymentType,
+                TotalPrice = totalPrice,
+                ShippingFee = shippingFee,
+                ShippingAddress = shippingAddress
             };
         }
     }

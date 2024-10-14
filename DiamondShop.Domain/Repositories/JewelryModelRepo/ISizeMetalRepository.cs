@@ -10,7 +10,6 @@ namespace DiamondShop.Domain.Repositories.JewelryModelRepo
 {
     public interface ISizeMetalRepository : IBaseRepository<SizeMetal>
     {
-        public Task<SizeMetal?> GetModelSizeMetal(JewelryModelId modelId, SizeId sizeId, MetalId metalId);
         public Task CreateRange(List<SizeMetal> sizeMetalList, CancellationToken token);
     }
 }

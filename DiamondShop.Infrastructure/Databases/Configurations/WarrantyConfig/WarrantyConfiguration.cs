@@ -1,4 +1,6 @@
-﻿using DiamondShop.Domain.Models.Warranties;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Models.Warranties;
+using DiamondShop.Domain.Models.Warranties.Enum;
 using DiamondShop.Domain.Models.Warranties.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -12,6 +14,11 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.WarrantyConfig
 {
     internal class WarrantyConfiguration : IEntityTypeConfiguration<Warranty>
     {
+        private static List<Warranty> WARRANTIES = new()
+        {
+            Warranty.Create(WarrantyType.Jewelry, "Default_Jewelry_Warranty",nameof(WarrantyRules.THREE_MONTHS),WarrantyRules.THREE_MONTHS,0),
+            Warranty.Create(WarrantyType.Diamond, "Default_Diamond_Warranty",nameof(WarrantyRules.THREE_MONTHS),WarrantyRules.THREE_MONTHS,0)
+        };
         new public void Configure(EntityTypeBuilder<Warranty> builder)
         {
             builder.Property(o => o.Id)
@@ -20,6 +27,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.WarrantyConfig
                  dbValue => WarrantyId.Parse(dbValue));
             builder.Property(o => o.Type).HasConversion<string>();
             builder.HasKey(o => o.Id);
+            builder.HasData(WARRANTIES);
         }   
     }
 }

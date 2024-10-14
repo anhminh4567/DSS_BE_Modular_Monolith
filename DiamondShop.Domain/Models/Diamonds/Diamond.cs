@@ -91,6 +91,11 @@ namespace DiamondShop.Domain.Models.Diamonds
         {
             return GetTitle(diamond);
         }
+        public void SetSold()
+        {
+            IsActive = false;
+            IsSold = true;
+        }
         private Diamond() { }
     }
 }

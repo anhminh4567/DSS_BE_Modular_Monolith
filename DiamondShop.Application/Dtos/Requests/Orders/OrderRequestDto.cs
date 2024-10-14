@@ -3,5 +3,5 @@ using DiamondShop.Domain.Models.Transactions.Entities;
 
 namespace DiamondShop.Application.Dtos.Requests.Orders
 {
-    public record OrderRequestDto(string accountId, decimal totalPrice, PaymentMethod paymentMethod, PaymentType paymentType);
+    public record OrderRequestDto(string accountId, PaymentType paymentType, string paymentName, bool isTransfer);
 }

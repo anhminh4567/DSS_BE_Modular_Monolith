@@ -2,27 +2,33 @@
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
 {
     internal class MainDiamondRepository : BaseRepository<MainDiamondReq>, IMainDiamondRepository
     {
-        public MainDiamondRepository(DiamondShopDbContext dbContext) : base(dbContext) { }
+        private readonly IMemoryCache _memoryCache;
+        public MainDiamondRepository(DiamondShopDbContext dbContext, IMemoryCache memoryCache) : base(dbContext)
+        {
+            _memoryCache = memoryCache;
+        }
 
         public async Task<List<MainDiamondReq>> GetCriteria(JewelryModelId modelId)
         {
-            var mainDiamondReq = _set.Where(p => p.ModelId == modelId).Include(p => p.Shapes);
-            return await mainDiamondReq.ToListAsync();
+            string key = $"MD_{modelId}";
+            var value = (List<MainDiamondReq>)_memoryCache.Get(key);
+            if (value == null)
+            {
+                value = await _set.Where(p => p.ModelId == modelId).Include(p => p.Shapes).ToListAsync();
+                _memoryCache.Set(key, value, TimeSpan.FromHours(4));
+            }
+            return value;
         }
 
         public async Task CreateRange(List<MainDiamondShape> shapes, CancellationToken token = default)
         {
-            await _dbContext.Set<MainDiamondShape>().AddRangeAsync(shapes,token);
+            await _dbContext.Set<MainDiamondShape>().AddRangeAsync(shapes, token);
         }
     }
 }

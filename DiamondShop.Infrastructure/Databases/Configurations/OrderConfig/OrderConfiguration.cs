@@ -45,7 +45,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
             builder.HasMany(o => o.Transactions).WithOne().HasForeignKey(o => o.OrderId).IsRequired(false);
             builder.HasMany(o => o.Items).WithOne().HasForeignKey(p => p.OrderId).IsRequired();
             builder.HasMany(o => o.Logs).WithOne().HasForeignKey(p => p.OrderId).IsRequired();
-            
+            builder.HasOne(p => p.Promotion).WithMany().HasForeignKey(p => p.PromotionId).IsRequired(false);
             builder.HasOne<Order>().WithOne().HasForeignKey<Order>(o => o.ParentOrderId).IsRequired(false);
             builder.HasOne<DeliveryPackage>().WithMany().HasForeignKey(o => o.DeliveryPackageId).IsRequired(false).OnDelete(DeleteBehavior.SetNull);
             builder.HasOne<CustomizeRequest>().WithOne().HasForeignKey<Order>(o => o.CustomizeRequestId).IsRequired(false);

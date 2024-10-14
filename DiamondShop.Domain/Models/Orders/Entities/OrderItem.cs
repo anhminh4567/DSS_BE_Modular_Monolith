@@ -10,6 +10,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DiamondShop.Domain.Models.Promotions.ValueObjects;
+using DiamondShop.Domain.Models.Promotions.Enum;
+using DiamondShop.Domain.Models.Promotions.Entities;
 
 namespace DiamondShop.Domain.Models.Orders.Entities
 {
@@ -21,14 +24,33 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public Jewelry? Jewelry { get; set; }
         public DiamondId? DiamondId { get; set; }
         public Diamond? Diamond { get; set; }
-        public string EngravedText { get; set; }
-        public string EngravedFont { get; set; }
+        public string? EngravedText { get; set; }
+        public string? EngravedFont { get; set; }
         public decimal PurchasedPrice { get; set; }
-        public string DiscountCode { get; set; }
-        public int DiscountPercent { get; set; }
-        public string PromoCode { get; set; }
-        public int PromoPercent { get; set; }
+        public DiscountId? DiscountId { get; set; }
+        public Discount? Discount { get; set; }
+        public int? DiscountPercent { get; set; }
+        public UnitType? PromoType { get; set; }
+        public decimal? PromoValue { get; set; }
         public List<OrderItemWarranty>? Warranties { get; set; } = new();
         public OrderItem() { }
+        public static OrderItem Create(OrderId orderId, JewelryId? jewelryId, DiamondId? diamondId, string? engravedText, string? engravedFont, decimal? purchasedPrice = 0, DiscountId? discountId = null,  int? discountPercent = 0, UnitType? promoType = UnitType.Percent, decimal? promoValue = 0, OrderItemId? givenId = null)
+        {
+            return new OrderItem()
+            {
+                Id = givenId is null ? OrderItemId.Create() : givenId,
+                OrderId = orderId,
+                Status = OrderItemStatus.Preparing,
+                JewelryId = jewelryId,
+                DiamondId = diamondId,
+                EngravedText = engravedText,
+                EngravedFont = engravedFont,
+                PurchasedPrice = purchasedPrice ?? 0,
+                DiscountId = discountId,
+                DiscountPercent = discountPercent ?? 0,
+                PromoType = promoType,
+                PromoValue = promoValue ?? 0,
+            };
+        }
     }
 }

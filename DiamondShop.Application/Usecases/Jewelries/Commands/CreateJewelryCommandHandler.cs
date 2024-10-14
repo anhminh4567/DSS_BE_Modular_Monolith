@@ -2,7 +2,6 @@
 using DiamondShop.Application.Services.Data;
 using DiamondShop.Application.Usecases.Diamonds.Commands.AttachToJewelry;
 using DiamondShop.Application.Usecases.JewelrySideDiamonds.Create;
-using DiamondShop.Application.Usecases.MainDiamonds.Commands.CompareDiamondShape;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
@@ -10,6 +9,7 @@ using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
+using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
 
@@ -21,12 +21,14 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
         private readonly IJewelryRepository _jewelryRepository;
         private readonly IJewelryModelRepository _jewelryModelRepository;
         private readonly ISizeMetalRepository _sizeMetalRepository;
+        private readonly IJewelryService _jewelryService;
+        private readonly IMainDiamondRepository _mainDiamondRepository;
         private readonly IDiamondRepository _diamondRepository;
-
+        private readonly IMainDiamondService _mainDiamondService;
         private readonly ISender _sender;
         private readonly IUnitOfWork _unitOfWork;
 
-        public CreateJewelryCommandHandler(IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, ISizeMetalRepository sizeMetalRepository, IDiamondRepository diamondRepository, ISender sender, IUnitOfWork unitOfWork)
+        public CreateJewelryCommandHandler(IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, ISizeMetalRepository sizeMetalRepository, IDiamondRepository diamondRepository, ISender sender, IUnitOfWork unitOfWork, IJewelryService jewelryService, IMainDiamondService mainDiamondService, IMainDiamondRepository mainDiamondRepository)
         {
             _jewelryRepository = jewelryRepository;
             _jewelryModelRepository = jewelryModelRepository;
@@ -34,6 +36,9 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
             _diamondRepository = diamondRepository;
             _sender = sender;
             _unitOfWork = unitOfWork;
+            _jewelryService = jewelryService;
+            _mainDiamondService = mainDiamondService;
+            _mainDiamondRepository = mainDiamondRepository;
         }
 
         public async Task<Result<Jewelry>> Handle(CreateJewelryCommand request, CancellationToken token)
@@ -45,21 +50,26 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
             var model = modelQuery.FirstOrDefault(p => p.Id == JewelryModelId.Parse(jewelryRequest.ModelId));
             if (model is null) return Result.Fail(new NotFoundError("Can't find jewelry model object."));
 
-            var sizeMetal = await _sizeMetalRepository.GetModelSizeMetal(model.Id, SizeId.Parse(jewelryRequest.SizeId), MetalId.Parse(jewelryRequest.MetalId));
+            var sizeMetalQuery = _sizeMetalRepository.GetQuery();
+            sizeMetalQuery = _sizeMetalRepository.QueryInclude(sizeMetalQuery, p => p.Metal);
+            var sizeMetal = sizeMetalQuery.FirstOrDefault(p => p.ModelId == model.Id && p.SizeId == SizeId.Parse(jewelryRequest.SizeId) && p.MetalId == MetalId.Parse(jewelryRequest.MetalId));
             if (sizeMetal is null) return Result.Fail(new NotFoundError("Can't find jewelry size metal object."));
 
             var attachedDiamonds = new List<Diamond>();
             await _unitOfWork.BeginTransactionAsync(token);
-            var flagDuplicatedSerial = await _jewelryRepository.CheckDuplicatedSerial(jewelryRequest.SerialCode);
-            if (flagDuplicatedSerial) return Result.Fail(new ConflictError($"This serial number has already existed ({jewelryRequest.SerialCode})"));
-
-            if (attachedDiamondIds is not null)
+            if (jewelryRequest.AttachDiamond)
             {
-                var diamondQuery = _diamondRepository.GetQuery();
-                diamondQuery = _diamondRepository.QueryFilter(diamondQuery, p => attachedDiamondIds.Contains(p.Id.Value));
-                attachedDiamonds = diamondQuery.ToList();
-                var flagUnmatchedDiamonds = await _sender.Send(new CompareDiamondShapeCommand(JewelryModelId.Parse(jewelryRequest.ModelId), attachedDiamonds));
-                if (flagUnmatchedDiamonds.IsFailed) return Result.Fail(flagUnmatchedDiamonds.Errors);
+                var flagDuplicatedSerial = await _jewelryRepository.CheckDuplicatedSerial(jewelryRequest.SerialCode);
+                if (flagDuplicatedSerial) return Result.Fail(new ConflictError($"This serial number has already existed ({jewelryRequest.SerialCode})"));
+
+                if (attachedDiamondIds is not null)
+                {
+                    var diamondQuery = _diamondRepository.GetQuery();
+                    diamondQuery = _diamondRepository.QueryFilter(diamondQuery, p => attachedDiamondIds.Contains(p.Id.Value));
+                    attachedDiamonds = diamondQuery.ToList();
+                    var flagUnmatchedDiamonds = await _mainDiamondService.CheckMatchingDiamond(model.Id, attachedDiamonds, _mainDiamondRepository);
+                    if (flagUnmatchedDiamonds.IsFailed) return Result.Fail(flagUnmatchedDiamonds.Errors);
+                }
             }
 
             var jewelry = Jewelry.Create
@@ -89,7 +99,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
             }
 
             await _unitOfWork.CommitAsync(token);
-            jewelry.Price = sizeMetal.Metal.Price * (decimal)jewelry.Weight;
+            jewelry = _jewelryService.AddPrice(jewelry, sizeMetal);
             return jewelry;
         }
 

@@ -49,10 +49,11 @@ namespace DiamondShop.Api.Controllers.Jewelries
             return MatchError(result.Errors, ModelState);
         }
 
-        [HttpGet("Detail")]
+        [HttpGet("Detail/{jewelryId}")]
         [Produces(type: typeof(JewelryDto))]
-        public async Task<ActionResult> GetDetail([FromQuery] GetJewelryDetailQuery getJewelryDetailQuery)
+        public async Task<ActionResult> GetDetail([FromRoute] string jewelryId)
         {
+            GetJewelryDetailQuery getJewelryDetailQuery = new(jewelryId);
             var result = await _sender.Send(getJewelryDetailQuery);
             if (result.IsSuccess)
             {

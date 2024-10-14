@@ -147,7 +147,7 @@ namespace DiamondShop.Test.Application
                 new JewelryModelCategoryRepository(_context),
                 new JewelryModelRepository(_context, null), _unitOfWork);
             var sizeMetalHandler = new CreateSizeMetalCommandHandler(new SizeMetalRepository(_context, null), _unitOfWork);
-            var mainDiamondHandler = new CreateMainDiamondCommandHandler(new MainDiamondRepository(_context), _unitOfWork);
+            var mainDiamondHandler = new CreateMainDiamondCommandHandler(new MainDiamondRepository(_context, null), _unitOfWork);
             var sideDiamondHandler = new CreateSideDiamondCommandHandler(new SideDiamondRepository(_context), _unitOfWork);
 
             _sender
@@ -233,9 +233,10 @@ namespace DiamondShop.Test.Application
                 new SizeMetalRepository(_context, null),
                 new DiamondRepository(_context),
                 _sender.Object,
-                _unitOfWork
+                _unitOfWork,
+                null
                 );
-            var compareDiamondShapeHandler = new CompareDiamondShapeCommandHandler(new MainDiamondRepository(_context));
+            var compareDiamondShapeHandler = new CompareDiamondShapeCommandHandler(new MainDiamondRepository(_context, null));
             var attachDiamondHandler = new AttachDiamondCommandHandler(new DiamondRepository(_context), _unitOfWork);
             var createJewelrySideDiamondHandler = new CreateJewelrySideDiamondCommandHandler(new JewelrySideDiamondRepository(_context), new SideDiamondRepository(_context), _unitOfWork);
 

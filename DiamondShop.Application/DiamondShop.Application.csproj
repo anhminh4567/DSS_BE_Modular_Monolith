@@ -18,7 +18,6 @@
     <Folder Include="Usecases\JewelryModels\Commands\Delete\" />
     <Folder Include="Usecases\JewelryModels\Commands\Update\" />
     <Folder Include="Usecases\DiamondPrices\Commands\UpdateMany\" />
-    <Folder Include="Usecases\Orders\Commands\" />
     <Folder Include="Usecases\PromotionRequirements\Commands\Update\" />
     <Folder Include="Usecases\Sizes\Commands\" />
     <Folder Include="Usecases\Transactions\Commands\CreateRefunds\" />

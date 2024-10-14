@@ -14,13 +14,17 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
     {
         public void Configure(EntityTypeBuilder<OrderItemWarranty> builder)
         {
-            builder.Property(o => o.OrderItemId)
+            builder.Property(o => o.Id)
                 .HasConversion(
                  o => o.Value,
-                dbValue => OrderItemId.Parse(dbValue));
+                dbValue => OrderItemWarrantyId.Parse(dbValue));
+            builder.Property(o => o.OrderItemId)
+               .HasConversion(
+                o => o.Value,
+               dbValue => OrderItemId.Parse(dbValue));
             builder.Property(o => o.WarrantyType).HasConversion<string>();
             builder.Property(o => o.Status).HasConversion<string>();
-            builder.HasKey(o =>  new { o.OrderItemId, o.ItemId });
+            builder.HasKey(o => new { o.Id });
 
         }
     }

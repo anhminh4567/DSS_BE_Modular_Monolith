@@ -30,6 +30,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
                 Id => Id.Value,
                 dbValue => DiamondId.Parse(dbValue));
             builder.Property(o => o.Status).HasConversion<string>();
+            builder.HasOne(o => o.Discount).WithMany().HasForeignKey(o => o.DiscountId).IsRequired(false);
             builder.HasOne(o => o.Jewelry).WithOne().HasForeignKey<OrderItem>(o => o.JewelryId).IsRequired(false);
             builder.HasOne(o => o.Diamond).WithOne().HasForeignKey<OrderItem>(o => o.DiamondId).IsRequired(false);
             builder.HasKey(o => o.Id);

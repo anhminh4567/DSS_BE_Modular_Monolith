@@ -21,7 +21,7 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
         public Clarity ClarityMin { get; set; }
         public Clarity ClarityMax { get; set; }
         public SettingType SettingType { get; set; }
-        public JewelrySideDiamond() { }
+        private JewelrySideDiamond() { }
         public static JewelrySideDiamond Create(JewelryId jewelryId, SideDiamondOpt sideDiamondOpt)
         {
             return new JewelrySideDiamond()

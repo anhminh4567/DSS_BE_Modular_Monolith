@@ -20,39 +20,14 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
             JewelryId id = (JewelryId)ids[0];
             return await _set.Include(d => d.SideDiamonds).FirstOrDefaultAsync(d => d.Id == id);
         }
+        public void UpdateRange(List<Jewelry> jewelries)
+        {
+            _set.UpdateRange(jewelries);
+        }
+
         public async Task<bool> CheckDuplicatedSerial(string serialNumber)
         {
             return await _set.AnyAsync(p => p.SerialCode == serialNumber);
-        }
-
-        public async Task<(IEnumerable<Jewelry> jewelries, int totalPage)> GetSellingJewelry(int skip, int take)
-        {
-            var list = _set.Where(p => p.IsActive).ToList();
-            var sizeMetalSet = _dbContext.Set<SizeMetal>();
-            var count = list.Count();
-            var result = list.Skip(skip).Take(take);
-            foreach (var i in result)
-            {
-                string modelKey = $"MS_{i.ModelId.Value}";
-                //List<SizeMetal> tryGet = _cache.Get<List<SizeMetal>>(modelKey) ?? new List<SizeMetal>();
-
-                List<SizeMetal> tryGet = new();
-                var item = tryGet.FirstOrDefault(p => p.MetalId == i.MetalId && p.SizeId == i.SizeId);
-                if (item == null)
-                {
-                    item = await sizeMetalSet.Include(p => p.Metal).FirstOrDefaultAsync(
-                        p =>
-                        p.ModelId == i.ModelId &&
-                        p.MetalId == i.MetalId &&
-                        i.SizeId == p.SizeId
-                    );
-                    tryGet.Add(item);
-                    //_cache.Set(modelKey, tryGet);
-                }
-                i.Price = item.Metal.Price * (decimal)item.Weight;
-            };
-            var totalPage = (int)Math.Ceiling((decimal)count / (decimal)take);
-            return (result, totalPage);
         }
     }
 }

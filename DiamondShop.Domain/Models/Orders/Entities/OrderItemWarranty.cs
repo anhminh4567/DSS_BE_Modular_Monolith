@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.Orders.Entities
 {
-    public class OrderItemWarranty 
+    public class OrderItemWarranty : Entity<OrderItemWarrantyId>
     {
         public OrderItemId OrderItemId { get; set; }
-        public string ItemId { get; set; }
+        public OrderItem OrderItem { get; set; }
         public WarrantyStatus Status { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime EffectiveDate { get; set; }
@@ -21,6 +21,20 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public string WarrantyCode { get; set; }
         public string WarrantyPath { get; set; }
         public decimal SoldPrice { get; set; }
-        public OrderItemWarranty() { }
+        private OrderItemWarranty() { }
+        public static OrderItemWarranty Create(OrderItemId itemId, string warrantyCode, int duration, decimal soldPrice, OrderItemWarrantyId givenId = null)
+        {
+            return new OrderItemWarranty()
+            {
+                Id = givenId is null ? OrderItemWarrantyId.Create() : null,
+                OrderItemId = itemId,
+                WarrantyCode = warrantyCode,
+                Status = WarrantyStatus.Active,
+                CreatedDate = DateTime.Now,
+                EffectiveDate = DateTime.Now,
+                ExpiredDate = DateTime.Now.AddMonths(duration),
+                SoldPrice = soldPrice
+            };
+        }
     }
 }

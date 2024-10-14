@@ -1,0 +1,28 @@
+{
+  "orderRequestDto": {
+    "accountId": "2e6c2b18-a598-41e2-88d8-db39b47db153",
+    "paymentName": "zalopay",
+    "paymentType": 2,
+    "isTransfer": true
+  },
+  "orderItemRequestDtos": [
+    {
+      "jewelryId": "14dc3437-c3c3-479b-b5d5-c18f1d8a0290",
+      "diamondId": null,
+      "engravedText": null,
+      "engravedFont": null,
+      "warrantyCode": null,
+      "warrantyType": 1
+    },
+    {
+      "jewelryId": "14dc3437-c3c3-479b-b5d5-c18f1d8a0290",
+      "diamondId": "2558e412-a826-4b13-8344-c9492604c559",
+      "engravedText": null,
+      "engravedFont": null,
+      "warrantyCode": null,
+      "warrantyType": 1
+    }
+  ],
+  "phone": "0389534827",
+  "address": "abc street"
+}
