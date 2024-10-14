@@ -3,6 +3,7 @@ using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Create;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Delete;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetAll;
+using DiamondShop.Application.Usecases.Diamonds.Queries.GetAllAttributes;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging;
 using DiamondShop.Domain.Models.Diamonds;
@@ -27,6 +28,13 @@ namespace DiamondShop.Api.Controllers.Diamonds
         {
             _sender = sender;
             _mapper = mapper;
+        }
+        [HttpGet("AttributesValues")]
+        [Produces(typeof(Dictionary<string, Dictionary<string, int>>))]
+        public async Task<ActionResult> GetAllAttributeValues()
+        {
+            var result = await _sender.Send(new GetAllDiamondAttributesQuery());
+            return Ok(result);  
         }
         [HttpGet("All")]
         [Produces(typeof(List<DiamondDto>))]

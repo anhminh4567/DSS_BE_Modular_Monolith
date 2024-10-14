@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Transactions;
+using DiamondShop.Application.Services.Models;
 using DiamondShop.Application.Usecases.Transactions.Commands.AddManualPayments;
 using DiamondShop.Application.Usecases.Transactions.Commands.AddManualRefunds;
 using DiamondShop.Application.Usecases.Transactions.Commands.CreatePaymentLink;
@@ -24,6 +25,7 @@ namespace DiamondShop.Api.Controllers.Transactions
         }
 
         [HttpPost]
+        [Produces(typeof(PaymentLinkResponse))]
         public async Task<ActionResult> CreatePaymentLink(CreatePaymentLinkCommand createPaymentLink, CancellationToken cancellationToken = default)
         {
             var result = await _sender.Send(createPaymentLink);
@@ -32,22 +34,31 @@ namespace DiamondShop.Api.Controllers.Transactions
             return MatchError(result.Errors, ModelState);
         }
         [HttpPost("Manual")]
+        [Produces(typeof(TransactionDto))]
         public async Task<ActionResult> CreateManualPayment(AddTransactionManuallyCommand addTransactionManuallyCommand)
         {
             var result = await _sender.Send(addTransactionManuallyCommand);
             if (result.IsSuccess)
-                return Ok(result.Value);
+            {
+                var mappedResult  = _mapper.Map<TransactionDto>(result.Value);
+                return Ok(mappedResult);
+            }
             return MatchError(result.Errors, ModelState);
         }
         [HttpPost("Refund/Manual")]
+        [Produces(typeof(TransactionDto))]
         public async Task<ActionResult> CreateManualRefund(AddManualRefundCommand addManualRefundCommand)
         {
             var result = await _sender.Send(addManualRefundCommand);
             if (result.IsSuccess)
-                return Ok(result.Value);
+            {
+                var mappedResult = _mapper.Map<TransactionDto>(result.Value);
+                return Ok(mappedResult);
+            }
             return MatchError(result.Errors, ModelState);
         }
         [HttpGet("All")]
+        [Produces(typeof(List<TransactionDto>))]
         public async Task<ActionResult> GetAllTransaction(GetAllTransactionQuery getAll, CancellationToken cancellationToken = default)
         {
             var result = await _sender.Send(getAll, cancellationToken);

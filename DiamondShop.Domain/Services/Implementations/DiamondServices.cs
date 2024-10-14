@@ -3,6 +3,7 @@ using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Services.interfaces;
 using Microsoft.Extensions.Logging;
 using System;
@@ -25,6 +26,18 @@ namespace DiamondShop.Domain.Services.Implementations
 
         public Task<Discount> CheckDiamondDiscount(Diamond diamond, List<Discount> discounts)
         {
+            foreach (var discount in discounts)
+            {
+                foreach (var req in discount.DiscountReq)
+                {
+                    if (req.TargetType != Models.Promotions.Enum.TargetType.Diamond)
+                        continue;
+                    if (ValidateDiamond4CGlobal(diamond, req.CaratFrom.Value, req.CaratTo.Value, req.ColorFrom.Value, req.ColorTo.Value, req.ClarityFrom.Value, req.ClarityTo.Value, req.CutFrom.Value, req.CutTo.Value))
+                    {
+                        throw new NotImplementedException();
+                    }
+                }
+            }
             throw new NotImplementedException();
         }
         public Task<List<Promotion>> CheckDiamondPromotion(Diamond diamond, List<Promotion> promotions)
@@ -42,8 +55,10 @@ namespace DiamondShop.Domain.Services.Implementations
                 }
                 continue;
             }
-            throw new Exception("somehow none of the price match the diamond");
-            return null;
+            //throw new Exception("somehow none of the price match the diamond");
+            var emptyPrice = DiamondPrice.Create(diamond.DiamondShapeId, null, 1);
+            emptyPrice.ForUnknownPrice = "unknown , please contact us for more information";
+            return emptyPrice;
         }
         public static bool ValidateDiamond4CGlobal(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo, Cut cutFrom, Cut cutTo)
         {
@@ -66,7 +81,7 @@ namespace DiamondShop.Domain.Services.Implementations
         }
         public bool ValidateDiamond4C(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo, Cut cutFrom, Cut cutTo)
         {
-            return ValidateDiamond4CGlobal(diamond,caratFrom,caratTo,colorFrom,colorTo,clarityFrom,clarityTo,cutFrom,cutTo);
+            return ValidateDiamond4CGlobal(diamond, caratFrom, caratTo, colorFrom, colorTo, clarityFrom, clarityTo, cutFrom, cutTo);
         }
 
         private bool IsCorrectPrice(Diamond diamond, DiamondPrice price)
@@ -88,6 +103,6 @@ namespace DiamondShop.Domain.Services.Implementations
             return false;
         }
 
-  
+
     }
 }

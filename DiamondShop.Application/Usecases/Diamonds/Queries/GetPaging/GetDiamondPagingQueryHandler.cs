@@ -1,12 +1,15 @@
 ﻿using DiamondShop.Application.Commons.Responses;
+using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Repositories;
+using DiamondShop.Domain.Services.Implementations;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -19,18 +22,21 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
         private readonly IDiamondRepository _diamondRepository;
         private readonly IDiamondPriceRepository _diamondPriceRepository;
         private readonly IDiamondServices _diamondService;
+        private readonly IDiamondShapeRepository _diamondShapeRepository;
 
-        public GetDiamondPagingQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, IDiamondServices diamondService)
+        public GetDiamondPagingQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, IDiamondServices diamondService, IDiamondShapeRepository diamondShapeRepository)
         {
             _diamondRepository = diamondRepository;
             _diamondPriceRepository = diamondPriceRepository;
             _diamondService = diamondService;
+            _diamondShapeRepository = diamondShapeRepository;
         }
 
         public async Task<Result<PagingResponseDto<Diamond>>> Handle(GetDiamondPagingQuery request, CancellationToken cancellationToken)
         {
             request.Deconstruct(out int pageSize, out int start, out var diamond_4C, out var diamond_Details);
             var query = _diamondRepository.GetQuery();
+            //query = _diamondRepository.QueryInclude(query, d => d.DiamondShape);
             if (diamond_4C is not null)
                 query  = Filtering4C(query, diamond_4C);
             if (diamond_Details is not null) 
@@ -39,6 +45,23 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             query.Take(pageSize);
             var result = query.ToList();
             var count = _diamondRepository.GetCount();
+
+            var getAllShape = await _diamondShapeRepository.GetAll();
+            Dictionary<string, List<DiamondPrice>> shapeDictPrice = new();
+            foreach (var shape in getAllShape)
+            {
+                var prices = await _diamondPriceRepository.GetPriceByShapes(shape, cancellationToken);
+                shapeDictPrice.Add(shape.Id.Value,prices);
+            }
+            foreach (var diamond in result)
+            {
+                diamond.DiamondShape = getAllShape.FirstOrDefault(s => s.Id == diamond.DiamondShapeId);
+                var diamondPrice = await _diamondService.GetDiamondPrice(diamond, shapeDictPrice.FirstOrDefault(d => d.Key == diamond.DiamondShapeId.Value).Value);
+                diamond.DiamondPrice = diamondPrice;
+            }
+            //var prices = await _diamondPriceRepository.GetPriceByShapes(getResult.DiamondShape, cancellationToken);
+            //getResult.DiamondPrice = diamondPrice;
+
             var totalPage = (int)Math.Ceiling((decimal)count / (decimal)pageSize);
             var response = new PagingResponseDto<Diamond>(
                 totalPage: totalPage,
