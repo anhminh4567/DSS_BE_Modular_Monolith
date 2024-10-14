@@ -9,5 +9,6 @@ namespace DiamondShop.Domain.Repositories.OrderRepo
 {
     public interface IOrderItemRepository : IBaseRepository<OrderItem>
     {
+        public Task CreateRange(List<OrderItem> orderItems);
     }
 }

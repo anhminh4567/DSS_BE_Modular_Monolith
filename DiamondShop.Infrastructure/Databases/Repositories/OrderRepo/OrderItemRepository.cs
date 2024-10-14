@@ -11,5 +11,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
     internal class OrderItemRepository : BaseRepository<OrderItem>, IOrderItemRepository
     {
         public OrderItemRepository(DiamondShopDbContext dbContext) : base(dbContext) { }
+
+        public async Task CreateRange(List<OrderItem> orderItems)
+        {
+            await _set.AddRangeAsync(orderItems);
+        }
     }
 }

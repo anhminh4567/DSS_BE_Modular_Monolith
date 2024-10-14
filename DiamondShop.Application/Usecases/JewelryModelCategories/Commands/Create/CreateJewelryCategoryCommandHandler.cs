@@ -34,7 +34,7 @@ namespace DiamondShop.Application.Usecases.JewelryModelCategories.Commands.Creat
             if (flag1) return Result.Fail("This category name has already been used");
             var parentId = request.ParentCategoryId is null ? null : JewelryModelCategoryId.Parse(request.ParentCategoryId);
             var category = JewelryModelCategory.Create(capitalized, request.Description, "", request.IsGeneral, parentId);
-            await _categoryRepository.Create(category);
+            await _categoryRepository.Create(category, token);
             await _unitOfWork.SaveChangesAsync(token);
             return category;
         }

@@ -1,8 +1,8 @@
 version: '3.4'
 
-# services:
-  # diamondshop.api:
-  #   image: ${DOCKER_REGISTRY-}diamondshopapi
-  #   build:
-  #     context: .
-  #     dockerfile: DiamondShop.Api\Dockerfile
+services:
+  diamondshop.api:
+    image: ${DOCKER_REGISTRY-}diamondshopapi
+    build:
+      context: .
+      dockerfile: DiamondShop.Api\Dockerfile

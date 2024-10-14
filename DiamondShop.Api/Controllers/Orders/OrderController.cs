@@ -1,12 +1,14 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Orders;
+using DiamondShop.Application.Usecases.Orders.Commands.Create;
 using DiamondShop.Application.Usecases.Orders.Queries.GetUser;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace DiamondShop.Api.Controllers.Orders
 {
-    [Route("api/Order/All")]
+    [Route("api/Order")]
     [ApiController]
     public class OrderController : ApiControllerBase
     {
@@ -18,18 +20,23 @@ namespace DiamondShop.Api.Controllers.Orders
             _sender = sender;
             _mapper = mapper;
         }
-        [HttpGet]
+        [HttpGet("User/All")]
         [Produces<List<OrderDto>>]
-        public async Task<ActionResult> GetUserOrder()
+        public async Task<ActionResult> GetUserOrder([FromQuery] string accountId)
         {
-            var result = await _sender.Send(new GetUserOrderQuery());
+            var result = await _sender.Send(new GetUserOrderQuery(accountId));
             var mappedResult = _mapper.Map<List<OrderDto>>(result);
             return Ok(mappedResult);
         }
-        [HttpPost]
-        public async Task<ActionResult> Checkout()
+        [HttpPost("Checkout")]
+        public async Task<ActionResult> Checkout(CreateOrderCommand orderCreateCommand)
         {
-            throw new NotImplementedException();
+            var result = await _sender.Send(orderCreateCommand);
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+            return MatchError(result.Errors, ModelState);
         }
 
     }

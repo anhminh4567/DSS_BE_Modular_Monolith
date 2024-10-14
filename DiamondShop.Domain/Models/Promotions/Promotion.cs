@@ -15,6 +15,7 @@ namespace DiamondShop.Domain.Models.Promotions
     public class Promotion : Entity<PromotionId>, IAggregateRoot
     {
         public string Name { get; set; }
+        public string PromoCode { get; set; }
         public string Description { get; set; } 
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
@@ -26,12 +27,13 @@ namespace DiamondShop.Domain.Models.Promotions
         public List<Gift> Gifts { get; set; } = new ();
         public Media? Thumbnail { get; set; }
         public Status Status { get; set; }
-        public static Promotion Create(string name, string description, DateTime startDate, DateTime endDate, int priority , bool isExclude , RedemptionMode mode )
+        public static Promotion Create(string name, string promoCode, string description, DateTime startDate, DateTime endDate, int priority , bool isExclude , RedemptionMode mode )
         {
             return new Promotion
             {
                 Id = PromotionId.Create(),
                 Name = name,
+                PromoCode = promoCode,
                 Description = description,
                 StartDate = startDate.ToUniversalTime(),
                 EndDate = endDate.ToUniversalTime(),

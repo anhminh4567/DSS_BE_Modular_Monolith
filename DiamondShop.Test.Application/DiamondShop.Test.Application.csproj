@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -46,6 +46,7 @@
 
   <ItemGroup>
     <Folder Include="Data\Jewelry\" />
+    <Folder Include="Data\Order\" />
   </ItemGroup>
 
 </Project>

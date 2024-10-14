@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.Orders;
+﻿using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using MediatR;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Orders.Queries.GetUser
 {
-    public record GetUserOrderQuery : IRequest<List<Order>>;
+    public record GetUserOrderQuery(string accountId) : IRequest<List<Order>>;
     internal class GetUserOrderQueryHandler : IRequestHandler<GetUserOrderQuery, List<Order>>
     {
         private readonly IOrderRepository _orderRepository;
@@ -19,7 +20,8 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetUser
         }
         public async Task<List<Order>> Handle(GetUserOrderQuery request, CancellationToken token)
         {
-            var query = _orderRepository.GetQuery();
+            var query = _orderRepository.GetQuery().Where(p => p.AccountId == AccountId.Parse(request.accountId)).ToList().OrderByDescending(p => p.Status);
+         
             return query.ToList();
         }
     }

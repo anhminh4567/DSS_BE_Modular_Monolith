@@ -22,6 +22,8 @@ namespace DiamondShop.Domain.Models.Jewelries
         public string SerialCode { get; set; }
         public bool IsSold { get; set; }
         [NotMapped]
+        public string Name { get; set; }
+        [NotMapped]
         public decimal Price { get; set; }
         public List<Diamond>? Diamonds { get; set; } = new();
         public List<JewelrySideDiamond>? SideDiamonds { get; set; } = new();
@@ -30,9 +32,9 @@ namespace DiamondShop.Domain.Models.Jewelries
         public bool IsActive { get; set; } = true;
 
         public Media? Thumbnail { get; set; }
-        public Jewelry() { }
+        private Jewelry() { }
         public static Jewelry Create(
-            JewelryModelId modelId, SizeId sizeId, MetalId metalId, 
+            JewelryModelId modelId, SizeId sizeId, MetalId metalId,
             float weight, string serialCode, bool isSold = false, bool isActive = true, JewelryId givenId = null)
         {
             return new Jewelry()
@@ -46,6 +48,11 @@ namespace DiamondShop.Domain.Models.Jewelries
                 IsSold = isSold,
                 IsActive = isActive,
             };
+        }
+        public void SetSold()
+        {
+            IsActive = false; 
+            IsSold = true;
         }
     }
 }

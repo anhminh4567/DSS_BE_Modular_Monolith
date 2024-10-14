@@ -65,8 +65,8 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
                 }
             }
 
-            await _unitOfWork.SaveChangesAsync();
-            await _unitOfWork.CommitAsync();
+            await _unitOfWork.SaveChangesAsync(token);
+            await _unitOfWork.CommitAsync(token);
             newModel.Category = category;
             return newModel;
         }

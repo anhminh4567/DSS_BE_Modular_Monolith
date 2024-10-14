@@ -46,7 +46,7 @@ namespace DiamondShop.Test.Domain
             var shapesIds = _diamondShapes.Select(s => s.Id).ToList();
             var promotionRequirement = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, 1, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Astor_Ideal, Color.I, Color.D, _diamondShapes);
             var promotionGift = Gift.CreateDiamond("test", null, UnitType.Percent, 20, 1, shapesIds, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Astor_Ideal, Color.I, Color.D);
-            var promotion = Promotion.Create("test", "test", DateTime.UtcNow, DateTime.UtcNow.AddDays(50), 1, true, RedemptionMode.Single);
+            var promotion = Promotion.Create("test", "test","test", DateTime.UtcNow, DateTime.UtcNow.AddDays(50), 1, true, RedemptionMode.Single);
             promotionRequirement.PromotionId = promotion.Id;
             promotionGift.PromotionId = promotion.Id;
             promotion.AddRequirement(promotionRequirement);
@@ -84,7 +84,7 @@ namespace DiamondShop.Test.Domain
             var shapesIds = _diamondShapes.Select(s => s.Id).ToList();
             var promotionRequirement = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, 1, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Astor_Ideal, Color.I, Color.D, _diamondShapes);
             var promotionGift = Gift.CreateDiamond("test", null, UnitType.Percent, 20, 1, shapesIds, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Astor_Ideal, Color.I, Color.D);
-            var promotion = Promotion.Create("test", "test", DateTime.UtcNow, DateTime.UtcNow.AddDays(50), 1, false, RedemptionMode.Single);
+            var promotion = Promotion.Create("test", "test", "test", DateTime.UtcNow, DateTime.UtcNow.AddDays(50), 1, false, RedemptionMode.Single);
             promotionRequirement.PromotionId = promotion.Id;
             promotionGift.PromotionId = promotion.Id;
             promotion.AddRequirement(promotionRequirement);
