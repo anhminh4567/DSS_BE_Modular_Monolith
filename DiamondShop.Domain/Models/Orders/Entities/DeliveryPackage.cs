@@ -14,11 +14,22 @@ namespace DiamondShop.Domain.Models.Orders.Entities
     public class DeliveryPackage : Entity<DeliveryPackageId>
     {
         public DateTime DeliveryDate { get; set; }
-        public DateTime CompleteDate { get; set; }
+        public DateTime? CompleteDate { get; set; }
         public DeliveryPackageStatus Status { get; set; }
         public string? DeliveryMethod { get; set; }
         public AccountId DelivererId { get; set; }
         public Account? Deliverer { get; set; }
         private DeliveryPackage() { }
+        public static DeliveryPackage Create(DateTime deliveryDate, string method, AccountId delivererId, DeliveryPackageId givenId = null)
+        {
+            return new DeliveryPackage()
+            {
+                Id = givenId is null ? DeliveryPackageId.Create() : givenId,
+                DeliveryDate = deliveryDate,
+                Status = DeliveryPackageStatus.Preparing,
+                DeliveryMethod = method,
+                DelivererId = delivererId
+            };
+        }
     }
 }

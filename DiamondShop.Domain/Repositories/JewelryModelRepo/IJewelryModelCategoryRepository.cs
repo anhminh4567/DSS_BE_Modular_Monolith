@@ -10,5 +10,6 @@ namespace DiamondShop.Domain.Repositories.JewelryModelRepo
     public interface IJewelryModelCategoryRepository : IBaseRepository<JewelryModelCategory>
     {
         public Task<bool> CheckDuplicate(string name);
+        public Task<JewelryModelCategory?> ContainsName(string name);
     }
 }

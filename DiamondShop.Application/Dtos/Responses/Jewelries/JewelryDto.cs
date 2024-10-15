@@ -17,13 +17,15 @@ namespace DiamondShop.Application.Dtos.Responses.Jewelries
         public string SerialCode { get; set; }
         public bool IsAwaiting { get; set; }
         public bool IsSold { get; set; }
-        public decimal Price { get; set; }
         public DateTime ShippingDate { get; set; }
         public List<DiamondDto> Diamonds { get; set; } = new();
         public List<JewelrySideDiamondDto>? SideDiamonds { get; set; } = new();
         public string ReviewId { get; set; }
         public JewelryReviewDto? Review { get; set; }
         public Media Thumbnail { get; set; }
+        public string Name { get; set; }
+        public decimal Price { get; set; }
+        public bool IsPreset { get; set; }
 
     }
 }
