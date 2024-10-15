@@ -12,6 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Usecases\Addresses\Commands\" />
+    <Folder Include="Usecases\Addresses\Queries\GetAllUserAddresses\" />
     <Folder Include="Usecases\DiamondPrices\Commands\Update\" />
     <Folder Include="Usecases\JewelryModelCategories\Commands\Delete\" />
     <Folder Include="Usecases\JewelryModelCategories\Commands\Update\" />

@@ -22,6 +22,7 @@ using DiamondShop.Infrastructure.Outbox;
 using DiamondShop.Infrastructure.Securities;
 using DiamondShop.Infrastructure.Securities.Authentication;
 using DiamondShop.Infrastructure.Services;
+using DiamondShop.Infrastructure.Services.Locations;
 using DiamondShop.Infrastructure.Services.Payments.Paypals;
 using DiamondShop.Infrastructure.Services.Payments.Zalopays;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -44,7 +45,7 @@ namespace DiamondShop.Infrastructure
             services.AddSecurity(configuration);
             services.AddBackgroundJobs(configuration);
             services.AddPayments(configuration);
-
+            services.AddServices(configuration);
             return services;
         }
         public static IServiceCollection AddPersistance(this IServiceCollection services, IConfiguration configuration)
@@ -160,7 +161,11 @@ namespace DiamondShop.Infrastructure
             });
             return services;
         }
-
+        public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddSingleton<ILocationService, OpenApiProvinceLocationService>();
+            return services;
+        }
         internal static IServiceCollection AddPayments(this IServiceCollection services, IConfiguration configuration) 
         {
             services.AddSingleton<PaypalClient>();
