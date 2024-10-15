@@ -13,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Usecases.Deliveries.Commands.Create
+namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.CreateMany
 {
 
     internal class CreateManyDeliveryFeeCommandHandler : IRequestHandler<CreateManyDeliveryFeeCommand, Result<List<DeliveryFee>>>
@@ -29,8 +29,8 @@ namespace DiamondShop.Application.Usecases.Deliveries.Commands.Create
 
         public async Task<Result<List<DeliveryFee>>> Handle(CreateManyDeliveryFeeCommand request, CancellationToken cancellationToken)
         {
-            List<DeliveryFee> tobeAddedFees = new ();
-            foreach(var fee in request.fees)
+            List<DeliveryFee> tobeAddedFees = new();
+            foreach (var fee in request.fees)
             {
                 DeliveryFee newFee;
                 if (fee.type == DeliveryFeeType.LocationToCity)
@@ -47,7 +47,7 @@ namespace DiamondShop.Application.Usecases.Deliveries.Commands.Create
                 }
                 tobeAddedFees.Add(newFee);
             }
-            if(tobeAddedFees.Count == 0)
+            if (tobeAddedFees.Count == 0)
             {
                 return Result.Fail(new ConflictError("No fee to be added, fill in something to add, Not a major error"));
             }

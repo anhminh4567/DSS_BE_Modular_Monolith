@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace DiamondShop.Application.Usecases.Deliveries.Commands.DeleteMany
+namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.DeleteMany
 {
     public class DeleteManyDeliveryFeesCommandValidator : AbstractValidator<DeleteManyDeliveryFeesCommand>
     {

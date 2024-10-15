@@ -1,14 +1,14 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Deliveries;
 using FluentValidation;
 
-namespace DiamondShop.Application.Usecases.Deliveries.Commands.Create
+namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.CreateMany
 {
     public class CreateDeliveryFeeCommandValidator : AbstractValidator<CreateDeliveryFeeCommand>
     {
         public CreateDeliveryFeeCommandValidator()
         {
             RuleFor(x => x.name).NotEmpty();
-            RuleFor(x => x.cost).NotEmpty().GreaterThan(-1);
+            RuleFor(x => x.cost).GreaterThan(-1);
             RuleFor(x => x.type).IsInEnum();
             RuleFor(x => x.ToLocationCity).NotNull()
                 .When(x => x.type == DeliveryFeeType.LocationToCity)

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace DiamondShop.Application.Usecases.Deliveries.Commands.Create
+namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.CreateMany
 {
     public class CreateManyDeliveryFeeCommandValidator : AbstractValidator<CreateManyDeliveryFeeCommand>
     {

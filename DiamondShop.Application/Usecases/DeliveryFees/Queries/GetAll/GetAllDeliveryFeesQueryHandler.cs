@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Usecases.Deliveries.Queries.GetAll
+namespace DiamondShop.Application.Usecases.DeliveryFees.Queries.GetAll
 {
     public record GetAllDeliveryFeeQuery() : IRequest<List<DeliveryFee>>;
     internal class GetAllDeliveryFeesQueryHandler : IRequestHandler<GetAllDeliveryFeeQuery, List<DeliveryFee>>
@@ -24,8 +24,10 @@ namespace DiamondShop.Application.Usecases.Deliveries.Queries.GetAll
 
         public async Task<List<DeliveryFee>> Handle(GetAllDeliveryFeeQuery request, CancellationToken cancellationToken)
         {
-            var result = await _deliveryFeeRepository.GetAll();
-            _logger.LogInformation("GetAll DeliveryFees is called with total " + result.Count +" items");
+            var query = _deliveryFeeRepository.GetQuery();
+            query = query.OrderBy(s => s.FromKm).ThenBy(s => s.Cost);
+            var result = query.ToList();
+            _logger.LogInformation("GetAll DeliveryFees is called with total " + result.Count + " items");
             return result;
         }
     }

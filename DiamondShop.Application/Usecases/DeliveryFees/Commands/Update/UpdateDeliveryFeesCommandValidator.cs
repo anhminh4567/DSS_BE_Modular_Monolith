@@ -1,7 +1,7 @@
-﻿using DiamondShop.Application.Usecases.Deliveries.Commands.Create;
+﻿using DiamondShop.Application.Usecases.DeliveryFees.Commands.CreateMany;
 using FluentValidation;
 
-namespace DiamondShop.Application.Usecases.Deliveries.Commands.Update
+namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.Update
 {
     public class UpdateDeliveryFeesCommandValidator : AbstractValidator<UpdateDeliveryFeesCommand>
     {

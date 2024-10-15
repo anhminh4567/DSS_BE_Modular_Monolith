@@ -2,14 +2,18 @@
 using DiamondShop.Application.Services.Data;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Repositories;
+using DiamondShop.Domain.Repositories.DeliveryRepo;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Repositories.TransactionRepo;
+using DiamondShop.Domain.Services.Implementations;
+using DiamondShop.Domain.Services.interfaces;
 using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Databases.Interceptors;
 using DiamondShop.Infrastructure.Databases.Repositories;
+using DiamondShop.Infrastructure.Databases.Repositories.DeliveryRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.OrderRepo;
@@ -93,6 +97,8 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<ISizeRepository, SizeRepository>();
             services.AddScoped<IMetalRepository, MetalRepository>();
             services.AddScoped<ISizeMetalRepository, SizeMetalRepository>();
+
+            services.AddScoped<IDeliveryFeeRepository, DeliveryFeeRepository>();
 
             services.AddScoped<IPaymentService, ZalopayPaymentService>();
 

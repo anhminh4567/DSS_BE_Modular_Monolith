@@ -9,9 +9,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Usecases.Deliveries.Commands.DeleteMany
+namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.DeleteMany
 {
-    public record DeleteManyDeliveryFeesCommand(string[] deliveryFeeIds): IRequest<Result>;
+    public record DeleteManyDeliveryFeesCommand(string[] deliveryFeeIds) : IRequest<Result>;
     internal class DeleteManyDeliveryFeesCommandHandler : IRequestHandler<DeleteManyDeliveryFeesCommand, Result>
     {
         private readonly IUnitOfWork _unitOfWork;

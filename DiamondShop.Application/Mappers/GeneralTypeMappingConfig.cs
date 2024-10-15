@@ -68,6 +68,8 @@ namespace DiamondShop.Application.Mappers
             config.NewConfig<PaymentMethodId, string>()
                 .MapWith(src => src.Value).Compile();
 
+            config.NewConfig<DeliveryFeeId, string>()
+                .MapWith(src => src.Value).Compile();
         }
     }
 }

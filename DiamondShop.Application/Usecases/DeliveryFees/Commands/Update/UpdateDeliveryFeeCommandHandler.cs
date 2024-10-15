@@ -1,6 +1,6 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Deliveries;
 using DiamondShop.Application.Services.Data;
-using DiamondShop.Application.Usecases.Deliveries.Commands.Create;
+using DiamondShop.Application.Usecases.DeliveryFees.Commands.CreateMany;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.DeliveryFees;
 using DiamondShop.Domain.Models.DeliveryFees.ValueObjects;
@@ -13,9 +13,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Usecases.Deliveries.Commands.Update
+namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.Update
 {
-    public record UpdateDeliveryFeesCommand(string feeId,CreateDeliveryFeeCommand updatedObject) : IRequest<Result<DeliveryFee>>;
+    public record UpdateDeliveryFeesCommand(string feeId, CreateDeliveryFeeCommand updatedObject) : IRequest<Result<DeliveryFee>>;
     internal class UpdateDeliveryFeeCommandHandler : IRequestHandler<UpdateDeliveryFeesCommand, Result<DeliveryFee>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -33,9 +33,9 @@ namespace DiamondShop.Application.Usecases.Deliveries.Commands.Update
             var tryGet = await _deliveryFeeRepository.GetById(parsedId);
             if (tryGet is null)
                 return Result.Fail(new NotFoundError());
-            if(request.updatedObject.type == DeliveryFeeType.Distance)
+            if (request.updatedObject.type == DeliveryFeeType.Distance)
                 tryGet.ChangeFromToKm(request.updatedObject.ToDistance!.start, request.updatedObject.ToDistance!.end);
-            else if(request.updatedObject.type == DeliveryFeeType.LocationToCity)
+            else if (request.updatedObject.type == DeliveryFeeType.LocationToCity)
                 tryGet.ChangeFromToCity(request.updatedObject.ToLocationCity!.sourceCity, request.updatedObject.ToLocationCity!.destinationCity);
             else
                 return Result.Fail(new ConflictError("Undefined type"));
