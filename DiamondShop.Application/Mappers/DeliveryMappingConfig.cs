@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Deliveries;
+using DiamondShop.Application.Usecases.DeliveryFees.Commands.CalculateFee;
 using DiamondShop.Domain.Models.DeliveryFees;
 using Mapster;
 using System;
@@ -14,6 +15,7 @@ namespace DiamondShop.Application.Mappers
         public void Register(TypeAdapterConfig config)
         {
             config.NewConfig<DeliveryFee, DeliveryFeeDto>();
+            config.NewConfig<CalculateFeeRepsonse, CalculateFeeRepsonseDto>();
         }
     }
 }

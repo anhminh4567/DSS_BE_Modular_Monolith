@@ -25,5 +25,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.DeliveryRepo
         {
             return _set.Where(fee => feeIds.Contains(fee.Id)).ExecuteDeleteAsync(cancellationToken);
         }
+
+        public Task<DeliveryFee?> GetWithDistance(decimal distant, CancellationToken cancellationToken = default)
+        {
+            return _set.Where(d => d.FromKm <= distant && d.ToKm >= distant).FirstOrDefaultAsync(cancellationToken);
+        }
     }
 }

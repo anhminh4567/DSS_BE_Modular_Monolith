@@ -1,8 +1,9 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Deliveries;
-using DiamondShop.Application.Usecases.Deliveries.Queries.GetAll;
+using DiamondShop.Application.Usecases.DeliveryFees.Commands.CalculateFee;
 using DiamondShop.Application.Usecases.DeliveryFees.Commands.CreateMany;
 using DiamondShop.Application.Usecases.DeliveryFees.Commands.DeleteMany;
 using DiamondShop.Application.Usecases.DeliveryFees.Commands.Update;
+using DiamondShop.Application.Usecases.DeliveryFees.Queries.GetAll;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -31,7 +32,18 @@ namespace DiamondShop.Api.Controllers.Deliveries
             var mappedResult = _mapper.Map<List<DeliveryFeeDto>>(result);
             return Ok(mappedResult);
         }
-
+        [HttpPost("Calculate")]
+        [Produces(typeof(CalculateFeeRepsonseDto))]
+        public async Task<ActionResult> CalculateFee([FromForm]CalculateFeeCommand calculateFeeCommand)
+        {
+            var result = await _mediator.Send(calculateFeeCommand);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<CalculateFeeRepsonseDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
 
         [HttpPost]
         [Produces(typeof(List<DeliveryFeeDto>))]
@@ -67,10 +79,6 @@ namespace DiamondShop.Api.Controllers.Deliveries
             }
             return MatchError(result.Errors, ModelState);
         }
-        [HttpGet("Calculate")]
-        public async Task<ActionResult> CalculateFee()
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

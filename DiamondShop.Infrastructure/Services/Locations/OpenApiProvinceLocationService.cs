@@ -4,6 +4,7 @@ using DiamondShop.Domain.Common.Addresses;
 using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services.Locations.Models;
 using FluentResults;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
@@ -26,10 +27,12 @@ namespace DiamondShop.Infrastructure.Services.Locations
         private const string GOOGLE = "AIzaSyCbT6hCrpFqLQKVFbBTSPSkFPpuYTqcWWU";
         private const string GOOGLE_MAP_URL = "https://maps.googleapis.com/maps/api/distancematrix/json";
         private readonly IOptions<LocationOptions> _locationOptions;
+        private readonly ILogger<OpenApiProvinceLocationService> _logger;
 
-        public OpenApiProvinceLocationService(IOptions<LocationOptions> locationOptions)
+        public OpenApiProvinceLocationService(IOptions<LocationOptions> locationOptions, ILogger<OpenApiProvinceLocationService> logger)
         {
             _locationOptions = locationOptions;
+            _logger = logger;
         }
 
         public async Task<Result<LocationDistantData>> GetDistant(LocationDetail origin, LocationDetail destination, CancellationToken cancellationToken = default)
@@ -39,7 +42,7 @@ namespace DiamondShop.Infrastructure.Services.Locations
                 return Result.Fail("null arguments, make sure all is not null");
             }
             var destinationPlaceId = GetPlaceId(destination).Result;
-            var originPlaceId = _locationOptions.Value.ShopOrignalLocation.OrinalPlaceId;
+            var originPlaceId = GetPlaceId(origin).Result;
             var calculateDistanceResult = await GetDistanceFromPlaceId(originPlaceId, destinationPlaceId);
             if(calculateDistanceResult.IsSuccess)
                 return calculateDistanceResult;
@@ -69,6 +72,7 @@ namespace DiamondShop.Infrastructure.Services.Locations
         }
         private async Task<Result<LocationDistantData>> GetDistanceFromPlaceId(string source, string destination)
         {
+            _logger.LogInformation("the method GetDistanceFromPlaceId() i called with original place id = {0} and destination place id = {1}", source, destination);
             ArgumentNullException.ThrowIfNull(source);
             ArgumentNullException.ThrowIfNull(destination);
             string url = $"{GOOGLE_MAP_URL}?origins=place_id:{source}&destinations=place_id:{destination}&key={GOOGLE}";
@@ -188,5 +192,32 @@ namespace DiamondShop.Infrastructure.Services.Locations
                 throw new Exception("api end with error status code: " + result.StatusCode.ToString());
         }
 
+        public async Task<Result<LocationDistantData>> GetDistantFromBaseShopLocation(LocationDetail Destination, CancellationToken cancellationToken = default)
+        {
+            var shopBaseAddress = _locationOptions.Value.ShopOrignalLocation;
+            var shopPlaceId = shopBaseAddress.OrinalPlaceId;
+            var destinationId = await GetPlaceId(Destination);
+            if(shopPlaceId == null || destinationId == null)
+            {
+                return Result.Fail("null result for des and shop id, make sure all is not null");
+            }
+            return await GetDistant(shopPlaceId, destinationId, cancellationToken);
+        }
+
+        public async Task<Result<LocationDistantData>> GetDistant(string originPlaceId, string destinationPlaceId, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("the method is called with original place id = {0} and destination place id = {1}", originPlaceId, destinationPlaceId);
+            var calculateDistanceResult = await GetDistanceFromPlaceId(originPlaceId, destinationPlaceId);
+            if (calculateDistanceResult.IsSuccess)
+                return calculateDistanceResult;
+            else
+                return Result.Fail(calculateDistanceResult.Errors);
+        }
+
+        public decimal ToKm(decimal distanceInMeters)
+        {
+            ArgumentNullException.ThrowIfNull(distanceInMeters);
+            return Math.Round(decimal.Divide(distanceInMeters, 1000m), 2);
+        }
     }
 }

@@ -18,6 +18,18 @@ namespace DiamondShop.Application.Services.Models
     }
     public class LocationDetail
     {
+        public LocationDetail(string province, string district, string ward, string road)
+        {
+            Province = province;
+            District = district;
+            Ward = ward;
+            Road = road;
+        }
+
+        public LocationDetail()
+        {
+        }
+
         public string Province { get; set; }
         public string District { get; set; }
         public string Ward { get; set; }

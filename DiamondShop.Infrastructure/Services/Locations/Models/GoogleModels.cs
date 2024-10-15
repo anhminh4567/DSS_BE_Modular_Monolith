@@ -8,6 +8,7 @@ namespace DiamondShop.Infrastructure.Services.Locations.Models
 {
     using System;
     using System.Collections.Generic;
+    using System.Text.Json.Serialization;
 
     public class GoogleDistance
     {
@@ -35,7 +36,9 @@ namespace DiamondShop.Infrastructure.Services.Locations.Models
 
     public class GoogleDistanceMatrixResponse
     {
+        [JsonPropertyName("destination_addresses")]
         public List<string> DestinationAddresses { get; set; }
+        [JsonPropertyName("origin_addresses")]
         public List<string> OriginAddresses { get; set; }
         public List<GoogleRow> Rows { get; set; }
         public string Status { get; set; }
