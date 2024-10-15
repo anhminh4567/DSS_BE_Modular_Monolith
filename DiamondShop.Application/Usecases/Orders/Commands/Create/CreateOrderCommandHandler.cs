@@ -122,16 +122,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 p.DiscountId, p.DiscountPercent,
                 gift?.UnitType, gift?.UnitValue);
             }).ToList();
-            try
-            {
+            await _orderItemRepository.CreateRange(orderItems);
+            await _unitOfWork.SaveChangesAsync(token);
 
-                await _orderItemRepository.CreateRange(orderItems);
-                await _unitOfWork.SaveChangesAsync(token);
-            }
-            catch (Exception ex)
-            {
-                ex.ToString();
-            }
             await _unitOfWork.CommitAsync(token);
 
             //Create Paymentlink if not transfer

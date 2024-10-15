@@ -56,5 +56,10 @@ namespace DiamondShop.Domain.Models.Jewelries
             IsActive = false; 
             IsSold = true;
         }
+        public void SetSell()
+        {
+            IsActive = true;
+            IsSold = false;
+        }
     }
 }
