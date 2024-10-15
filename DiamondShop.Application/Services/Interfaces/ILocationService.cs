@@ -1,4 +1,6 @@
-﻿using DiamondShop.Domain.Common.Addresses;
+﻿using DiamondShop.Application.Services.Models;
+using DiamondShop.Domain.Common.Addresses;
+using FluentResults;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +15,6 @@ namespace DiamondShop.Application.Services.Interfaces
         List<District> GetDistricts( string provinceId);
         List<Ward> GetWards(string districtId);
 
-
+        Task<Result<LocationDistantData>> GetDistant(LocationDetail Origin, LocationDetail Destination, CancellationToken cancellationToken = default); 
     }
 }

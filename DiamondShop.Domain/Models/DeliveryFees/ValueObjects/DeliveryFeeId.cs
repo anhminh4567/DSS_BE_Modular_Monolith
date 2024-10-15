@@ -15,7 +15,7 @@ namespace DiamondShop.Domain.Models.DeliveryFees.ValueObjects
         }
         public static DeliveryFeeId Create()
         {
-            return new DeliveryFeeId(Guid.NewGuid().ToString());
+            return new DeliveryFeeId(Ulid.NewUlid().ToString());
         }
     }
 }
