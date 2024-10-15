@@ -16,5 +16,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
         {
             await _set.AddRangeAsync(orderItems);
         }
+        public void UpdateRange(List<OrderItem> orderItems) => _set.UpdateRange(orderItems);
+
     }
 }

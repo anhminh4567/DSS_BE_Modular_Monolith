@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Enum;
 
 namespace DiamondShop.Domain.Services.interfaces
 {
     public interface IOrderService
     {
+        public bool IsCancellable(OrderStatus order);
+        public bool CheckForSameCity(List<Order> orders);
     }
 }

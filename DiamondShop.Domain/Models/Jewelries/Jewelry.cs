@@ -22,6 +22,8 @@ namespace DiamondShop.Domain.Models.Jewelries
         public string SerialCode { get; set; }
         public bool IsSold { get; set; }
         [NotMapped]
+        public bool IsPreset { get; set; }
+        [NotMapped]
         public string Name { get; set; }
         [NotMapped]
         public decimal Price { get; set; }
@@ -53,6 +55,11 @@ namespace DiamondShop.Domain.Models.Jewelries
         {
             IsActive = false; 
             IsSold = true;
+        }
+        public void SetSell()
+        {
+            IsActive = true;
+            IsSold = false;
         }
     }
 }
