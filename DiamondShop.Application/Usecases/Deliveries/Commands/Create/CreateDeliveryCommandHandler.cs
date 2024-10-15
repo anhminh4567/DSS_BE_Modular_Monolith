@@ -40,26 +40,28 @@ namespace DiamondShop.Application.Usecases.Deliveries.Commands.Create
                 return Result.Fail("This staff doesn't exist");
 
             var deliveryQuery = _deliveryPackageRepository.GetQuery();
-            deliveryQuery = _deliveryPackageRepository.QueryFilter(deliveryQuery, p => p.DelivererId == staff.Id && (p.Status == DeliveryPackageStatus.Preparing || p.Status == DeliveryPackageStatus.Delivering));
+            deliveryQuery = _deliveryPackageRepository.QueryFilter(deliveryQuery, p => p.DelivererId == staff.Id);
+            deliveryQuery = _deliveryPackageRepository.QueryFilter(deliveryQuery, p => p.Status == DeliveryPackageStatus.Preparing || p.Status == DeliveryPackageStatus.Delivering);
             if (deliveryQuery.Any())
                 return Result.Fail("This staff is currently on another delivering task");
 
             DeliveryPackage package = DeliveryPackage.Create(deliveryDate, method, staff.Id);
             await _deliveryPackageRepository.Create(package);
 
+            var convertedIds = orderIds.Select(OrderId.Parse);
             var orderQuery = _orderRepository.GetQuery();
             orderQuery = _orderRepository.QueryInclude(orderQuery, p => p.Items);
-            orderQuery = _orderRepository.QueryFilter(orderQuery, p => orderIds.Contains(p.Id.Value));
+            orderQuery = _orderRepository.QueryFilter(orderQuery, p => convertedIds.Contains(p.Id));
             var orders = orderQuery.ToList();
+            if(orders.Count == 0)
+                return Result.Fail("No order found.");
             //TODO: IMPLEMENT IT
             if (!_orderService.CheckForSameCity(orders))
-                return Result.Fail("Orders need to arrive to the same city");
+                return Result.Fail("Orders need to arrive to the same city.");
             foreach (var order in orders)
             {
-                if (order == null)
-                    return Result.Fail("No order found!");
-                else if (order.Status != OrderStatus.Processing)
-                    return Result.Fail($"Order can only be prepared when it's {OrderStatus.Processing.ToString().ToLower()}!");
+                if (order.Status != OrderStatus.Prepared)
+                    return Result.Fail($"Order can only be delivered when it's {OrderStatus.Prepared.ToString().ToLower()}!");
                 //TODO: Validate orders from the same address
                 order.DeliveryPackageId = package.Id;
                 order.Status = OrderStatus.Delivering;

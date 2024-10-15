@@ -12,6 +12,7 @@ namespace DiamondShop.Application.Dtos.Responses.Orders
         public string? DeliveryMethod { get; set; }
         public string DelivererId { get; set; }
         public AccountDto? Deliverer { get; set; }
+        public List<OrderDto>? Orders { get; set; }
 
     }
 }
