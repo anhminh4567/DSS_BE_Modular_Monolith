@@ -22,7 +22,8 @@ using MediatR;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 {
-    public record CreateOrderCommand(OrderRequestDto OrderRequestDto, List<OrderItemRequestDto> OrderItemRequestDtos, string Phone, string Address) : IRequest<Result<PaymentLinkResponse>>;
+    public record CreateOrderInfo(OrderRequestDto OrderRequestDto, List<OrderItemRequestDto> OrderItemRequestDtos, string Phone, string Address);
+    public record CreateOrderCommand(string accountId, CreateOrderInfo CreateOrderInfo) : IRequest<Result<PaymentLinkResponse>>;
     internal class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Result<PaymentLinkResponse>>
     {
         private readonly IAccountRepository _accountRepository;
@@ -56,9 +57,13 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         public async Task<Result<PaymentLinkResponse>> Handle(CreateOrderCommand request, CancellationToken token)
         {
             await _unitOfWork.BeginTransactionAsync(token);
-            request.Deconstruct(out OrderRequestDto orderReq, out List<OrderItemRequestDto> orderItemReqs, out string phone, out string address);
-            var account = await _accountRepository.GetById(AccountId.Parse(orderReq.accountId));
-            //Validate account status
+            request.Deconstruct(out string accountId, out CreateOrderInfo createOrderInfo);
+            createOrderInfo.Deconstruct( out OrderRequestDto orderReq, out List<OrderItemRequestDto> orderItemReqs, out string phone, out string address);
+            
+            var account = await _accountRepository.GetById(AccountId.Parse(accountId));
+            if (account == null)
+                return Result.Fail("This account doesn't exist");
+            //TODO: Validate account status
 
 
             List<CartProduct> products = new();
@@ -109,7 +114,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             var cartModel = cartModelResult.Value;
             var orderPromo = cartModel.Promotion.Promotion;
 
-            var order = Order.Create(AccountId.Parse(orderReq.accountId), orderReq.paymentType, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice, address, orderPromo?.Id);
+            var order = Order.Create(account.Id, orderReq.paymentType, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice, address, orderPromo?.Id);
             await _orderRepository.Create(order, token);
             await _unitOfWork.SaveChangesAsync(token);
 
