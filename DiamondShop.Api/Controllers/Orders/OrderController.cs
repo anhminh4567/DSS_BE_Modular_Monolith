@@ -1,10 +1,11 @@
-﻿using DiamondShop.Application.Dtos.Responses.Orders;
+﻿using DiamondShop.Api.Controllers.Orders.Cancel;
+using DiamondShop.Application.Dtos.Responses.Orders;
 using DiamondShop.Application.Usecases.Orders.Commands.Create;
 using DiamondShop.Application.Usecases.Orders.Queries.GetUser;
+using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace DiamondShop.Api.Controllers.Orders
 {
@@ -38,6 +39,12 @@ namespace DiamondShop.Api.Controllers.Orders
             }
             return MatchError(result.Errors, ModelState);
         }
-
+        [HttpPut("Cancel/{orderId}")]
+        public async Task<ActionResult> CancelOrder([FromQuery] string orderId)
+        {
+            var result = await _sender.Send(new CancelOrderCommand(orderId));
+            var mappedResult = _mapper.Map<OrderDto>(result);
+            return Ok(mappedResult);
+        }
     }
 }

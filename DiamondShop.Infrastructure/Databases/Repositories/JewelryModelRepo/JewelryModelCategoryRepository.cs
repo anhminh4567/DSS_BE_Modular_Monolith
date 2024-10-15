@@ -28,5 +28,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
             JewelryModelCategoryId id = (JewelryModelCategoryId)ids[0];
             return await _set.Include(p => p.ParentCategory).FirstOrDefaultAsync(s => s.Id == id);
         }
+
+        public async Task<JewelryModelCategory?> ContainsName(string name)
+        {
+            return await _set.FirstOrDefaultAsync(p => p.Name.ToUpper().Contains(name.ToUpper().Trim()));
+        }
     }
 }

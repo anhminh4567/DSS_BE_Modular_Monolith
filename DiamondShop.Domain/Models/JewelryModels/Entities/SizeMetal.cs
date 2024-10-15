@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DiamondShop.Domain.Models.JewelryModels.Entities
 {
@@ -11,6 +12,8 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
         public JewelryModelId ModelId { get; set; }
         public JewelryModel Model { get; set; }
         public float Weight { get; set; }
+        [NotMapped]
+        public decimal Price { get; set; }
         public SizeMetal() { }
         public static SizeMetal Create(JewelryModelId modelId, MetalId metalId, SizeId sizeId, float weight) => new SizeMetal() { ModelId = modelId, MetalId = metalId, SizeId = sizeId, Weight = weight };
     }
