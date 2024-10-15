@@ -19,6 +19,7 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public string? DeliveryMethod { get; set; }
         public AccountId DelivererId { get; set; }
         public Account? Deliverer { get; set; }
+        public List<Order>? Orders { get; set; } = new ();
         private DeliveryPackage() { }
         public static DeliveryPackage Create(DateTime deliveryDate, string method, AccountId delivererId, DeliveryPackageId givenId = null)
         {
