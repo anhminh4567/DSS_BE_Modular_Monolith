@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Dtos.Responses.Carts
+namespace DiamondShop.Application.Dtos.Requests.Carts
 {
-    public class CartItemDto
+    public class CartItemRequestDto
     {
         public string Id { get; set; }
         public string? JewelryId { get; set; }

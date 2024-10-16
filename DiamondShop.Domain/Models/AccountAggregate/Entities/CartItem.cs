@@ -22,14 +22,14 @@ namespace DiamondShop.Domain.Models.AccountAggregate.Entities
         public JewelryModelId? JewelryModelId { get; set; }
         public SizeId? SizeId { get; set; }
         public MetalId? MetalId { get; set; }
-        public Dictionary<SideDiamondReqId, SideDiamondOptId>? SideDiamondChoices { get; set; } = new();
+        public List<SideDiamondOptId> SideDiamondChoices { get; set; } = new();
         public string? EngravedText { get; set; }
         public string? EngravedFont { get; set; }
         public static CartItem CreateJewelry(JewelryId jewelryId, string? engravedText, string? engravedFont)
         {
             return new CartItem { Id = CartItemId.Create(), JewelryId = jewelryId, EngravedText = engravedText, EngravedFont = engravedFont };
         }
-        public static CartItem CreateJewelryModel (JewelryModelId jewelryModelId, MetalId metalId, SizeId? sizeId, Dictionary<SideDiamondReqId, SideDiamondOptId>? SideDiamondChoices , string? engravedText, string? engravedFont)
+        public static CartItem CreateJewelryModel (JewelryModelId jewelryModelId, MetalId metalId, SizeId? sizeId, List<SideDiamondOptId>? SideDiamondChoices , string? engravedText, string? engravedFont)
         {
            return new CartItem { Id = CartItemId.Create(), JewelryModelId = jewelryModelId, MetalId = metalId, SizeId = sizeId, SideDiamondChoices = SideDiamondChoices ,EngravedFont = engravedFont, EngravedText = engravedText};
         }

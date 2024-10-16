@@ -19,7 +19,7 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.Add
 {
     public record AddJewelry(string jewelryId,string? EngravedText, string? EngravedFont);
     public record AddDiamond(string diamondId, string? jewelryModelId);
-    public record AddJewelryModel(string jewelryModelId, string sizeId, string metalId, Dictionary<string, string>? sideDiamondsChoices, string? EngravedText, string? EngravedFont);
+    public record AddJewelryModel(string jewelryModelId, string sizeId, string metalId, List<string>? sideDiamondsChoices, string? EngravedText, string? EngravedFont);
 
     public record AddToCartCommand(string userId, AddJewelry? Jewelry, AddDiamond? Diamond, AddJewelryModel? JewelryModel) : IRequest<Result<List<CartItem>>>;
     internal class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result<List<CartItem>>>
@@ -50,9 +50,9 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.Add
             }
             else if (request.JewelryModel != null)
             {
-                Dictionary<SideDiamondReqId, SideDiamondOptId> mappedChoices = null;
+                List<SideDiamondOptId> mappedChoices = null;
                 if(request.JewelryModel.sideDiamondsChoices != null)
-                    mappedChoices = request.JewelryModel.sideDiamondsChoices.Select(kvp => new KeyValuePair<SideDiamondReqId,SideDiamondOptId>( SideDiamondReqId.Parse(kvp.Key),SideDiamondOptId.Parse(kvp.Value) )).ToDictionary();
+                    mappedChoices = request.JewelryModel.sideDiamondsChoices.Select(sdj => SideDiamondOptId.Parse(sdj)).ToList();
                 item = CartItem.CreateJewelryModel(JewelryModelId.Parse(request.JewelryModel.jewelryModelId), MetalId.Parse(request.JewelryModel.metalId), SizeId.Parse(request.JewelryModel.sizeId), mappedChoices,request.JewelryModel.EngravedText,request.JewelryModel.EngravedFont);    
             }
             else
