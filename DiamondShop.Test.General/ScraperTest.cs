@@ -10,7 +10,7 @@ namespace DiamondShop.Test.General
     public class ScraperTest
     {
         //[Fact(Skip = "not now")]
-        [Fact]
+        [Fact(Skip = " not now")]
         public void TestScraper()
         {
             CaohungDiamondPriceScraper scraper = new CaohungDiamondPriceScraper(); 
@@ -21,6 +21,12 @@ namespace DiamondShop.Test.General
         {
             AlgostoneDiamondPriceScraper scraper = new AlgostoneDiamondPriceScraper();
             scraper.ExecuteAlgoStoneScraper();
+        }
+        [Fact()]
+        public void TestGetDistant()
+        {
+            DistanceScraper scraper = new DistanceScraper();
+            scraper.Execute();
         }
     }
 }

@@ -3,6 +3,7 @@ using DiamondShop.Application.Services.Models;
 using DiamondShop.Domain.Common.Addresses;
 using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services.Locations.Models;
+using DiamondShop.Infrastructure.Services.Locations.OpenApiProvinces.Models;
 using FluentResults;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

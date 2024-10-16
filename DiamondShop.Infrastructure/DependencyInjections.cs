@@ -27,6 +27,7 @@ using DiamondShop.Infrastructure.Securities;
 using DiamondShop.Infrastructure.Securities.Authentication;
 using DiamondShop.Infrastructure.Services;
 using DiamondShop.Infrastructure.Services.Locations;
+using DiamondShop.Infrastructure.Services.Locations.OpenApiProvinces;
 using DiamondShop.Infrastructure.Services.Payments.Paypals;
 using DiamondShop.Infrastructure.Services.Payments.Zalopays;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

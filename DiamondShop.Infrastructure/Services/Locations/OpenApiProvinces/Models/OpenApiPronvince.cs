@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Common.Addresses;
+using DiamondShop.Infrastructure.Services.Locations.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Infrastructure.Services.Locations.Models
+namespace DiamondShop.Infrastructure.Services.Locations.OpenApiProvinces.Models
 {
     public class OpenApiProvince
     {
