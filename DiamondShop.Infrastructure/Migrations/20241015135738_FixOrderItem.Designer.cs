@@ -3,6 +3,7 @@ using System;
 using DiamondShop.Infrastructure.Databases;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiamondShop.Infrastructure.Migrations
 {
     [DbContext(typeof(DiamondShopDbContext))]
-    partial class DiamondShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241015135738_FixOrderItem")]
+    partial class FixOrderItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1740,9 +1743,9 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "17f80f8c-f625-4e3b-b1e9-68594f3d42e9",
+                            Id = "9a041044-4385-40fb-a0dc-e2f604b70584",
                             Code = "THREE_MONTHS",
-                            CreateDate = new DateTime(2024, 10, 15, 17, 0, 0, 0, DateTimeKind.Utc),
+                            CreateDate = new DateTime(2024, 10, 14, 17, 0, 0, 0, DateTimeKind.Utc),
                             MonthDuration = 3,
                             Name = "Default_Jewelry_Warranty",
                             Price = 0m,
@@ -1750,9 +1753,9 @@ namespace DiamondShop.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = "60178ba6-ceaa-4d77-b0b9-c5f0fef13478",
+                            Id = "35be9da2-258c-44f8-b2c4-ccbd55fc636a",
                             Code = "THREE_MONTHS",
-                            CreateDate = new DateTime(2024, 10, 15, 17, 0, 0, 0, DateTimeKind.Utc),
+                            CreateDate = new DateTime(2024, 10, 14, 17, 0, 0, 0, DateTimeKind.Utc),
                             MonthDuration = 3,
                             Name = "Default_Diamond_Warranty",
                             Price = 0m,
@@ -2690,7 +2693,7 @@ namespace DiamondShop.Infrastructure.Migrations
                         .HasForeignKey("DiamondShop.Domain.Models.Orders.Order", "CustomizeRequestId");
 
                     b.HasOne("DiamondShop.Domain.Models.Orders.Entities.DeliveryPackage", null)
-                        .WithMany("Orders")
+                        .WithMany()
                         .HasForeignKey("DeliveryPackageId")
                         .OnDelete(DeleteBehavior.SetNull);
 
@@ -2962,11 +2965,6 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Navigation("SideDiamonds");
 
                     b.Navigation("SizeMetals");
-                });
-
-            modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.DeliveryPackage", b =>
-                {
-                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderItem", b =>

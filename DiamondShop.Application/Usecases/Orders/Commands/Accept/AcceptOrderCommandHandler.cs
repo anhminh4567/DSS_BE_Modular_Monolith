@@ -18,7 +18,6 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Accept
         private readonly IOrderItemRepository _orderItemRepository;
         private readonly ITransactionRepository _transactionRepository;
         private readonly IUnitOfWork _unitOfWork;
-
         public AcceptOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, ITransactionRepository transactionRepository, IOrderItemRepository orderItemRepository)
         {
             _orderRepository = orderRepository;
@@ -38,13 +37,19 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Accept
                 return Result.Fail("No order found!");
             else if (order.Status != OrderStatus.Pending)
                 return Result.Fail($"Order can only be accepted when it's {OrderStatus.Pending.ToString().ToLower()}!");
-            //TODO: Add shipping price
-            Transaction trans = Transaction.CreateManualPayment(order.Id, $"Transfer from {order.Account.FullName} for order #{order.Id}", order.TotalPrice, TransactionType.Pay);
-            await _transactionRepository.Create(trans);
             
+            //TODO: Add shipping price & fix transactioncode
+            Transaction trans = Transaction.CreateManualPayment(order.Id, $"Transfer from {order.Account.FullName} for order #{order.Id}", order.TotalPrice, TransactionType.Pay);
+            trans.AppTransactionCode = "";
+            trans.PaygateTransactionCode = "";
+            await _transactionRepository.Create(trans);
+            await _unitOfWork.SaveChangesAsync(token);
+
+
             order.Status = OrderStatus.Processing;
             order.PaymentStatus = order.PaymentType == PaymentType.Payall ? PaymentStatus.PaidAll : PaymentStatus.Deposited;
             await _orderRepository.Update(order);
+            await _unitOfWork.SaveChangesAsync(token);
 
             var orderItemQuery = _orderItemRepository.GetQuery();
             orderItemQuery = _orderItemRepository.QueryFilter(orderItemQuery, p => p.OrderId == order.Id);

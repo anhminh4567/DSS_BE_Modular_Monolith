@@ -10,11 +10,11 @@ namespace DiamondShop.Application.Dtos.Responses.Orders
     public class OrderItemDto
     {
         public string Id { get; set; }
-        public OrderId OrderId { get; set; }
+        public string OrderId { get; set; }
         public OrderItemStatus Status { get; set; }
-        public JewelryId? JewelryId { get; set; }
+        public string? JewelryId { get; set; }
         public JewelryDto? Jewelry { get; set; }
-        public DiamondId? DiamondId { get; set; }
+        public string? DiamondId { get; set; }
         public DiamondDto? Diamond { get; set; }
         public string EngravedText { get; set; }
         public string EngravedFont { get; set; }

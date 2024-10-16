@@ -68,6 +68,8 @@ namespace DiamondShop.Application.Mappers
                 .MapWith(src => src.Value).Compile();
             config.NewConfig<OrderLogId, string>()
                 .MapWith(src => src.Value).Compile();
+            config.NewConfig<DeliveryPackageId, string>()
+             .MapWith(src => src.Value).Compile();
             config.NewConfig<DeliveryFeeId, string>()
                 .MapWith(src => src.Value).Compile();
             config.NewConfig<TransactionId, string>()

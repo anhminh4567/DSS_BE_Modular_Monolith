@@ -1,7 +1,5 @@
 ﻿using DiamondShop.Api.Controllers.Orders.Cancel;
-using DiamondShop.Application.Dtos.Responses.Orders;
 using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Application.Usecases.Orders.Queries.GetUser;
 using DiamondShop.Domain.Models.RoleAggregate;
 using MapsterMapper;
 using MediatR;
