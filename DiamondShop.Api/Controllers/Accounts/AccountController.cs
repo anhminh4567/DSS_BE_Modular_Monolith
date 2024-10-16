@@ -197,7 +197,10 @@ namespace DiamondShop.Api.Controllers.Accounts
         {
             var result = await _sender.Send(new GetAccountDetailQuery(AccountId.Parse(accountId)), cancellationToken);
             if (result.IsSuccess)
-                return Ok(result.Value);
+            {
+                var mappedResult = _mapper.Map<AccountDto>(result.Value);
+                return Ok(mappedResult);
+            }   
             return MatchError(result.Errors, ModelState);
         }
     }

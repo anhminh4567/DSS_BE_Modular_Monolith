@@ -27,6 +27,7 @@ using DiamondShop.Infrastructure.Securities;
 using DiamondShop.Infrastructure.Securities.Authentication;
 using DiamondShop.Infrastructure.Services;
 using DiamondShop.Infrastructure.Services.Locations;
+using DiamondShop.Infrastructure.Services.Locations.OApi;
 using DiamondShop.Infrastructure.Services.Locations.OpenApiProvinces;
 using DiamondShop.Infrastructure.Services.Payments.Paypals;
 using DiamondShop.Infrastructure.Services.Payments.Zalopays;
@@ -170,7 +171,7 @@ namespace DiamondShop.Infrastructure
         }
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSingleton<ILocationService, OpenApiProvinceLocationService>();
+            services.AddSingleton<ILocationService, OApiLocationService>();
             var serviceProviderInstrance = services.BuildServiceProvider();
             var mailOptions = serviceProviderInstrance.GetRequiredService<IOptions<MailOptions>>().Value;
             services.AddFluentEmail(mailOptions.SenderEmail)
