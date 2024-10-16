@@ -67,8 +67,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 
 
             List<CartProduct> products = new();
-            List<Jewelry> jewelries = new();
-            List<Diamond> diamonds = new();
+            HashSet<Jewelry> jewelrySet = new();
+            HashSet<Diamond> diamondSet = new();
             foreach (var item in orderItemReqs)
             {
 
@@ -78,22 +78,22 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                     cartProduct.Jewelry = await _jewelryRepository.GetById(JewelryId.Parse(item.jewelryId));
                     cartProduct.EngravedFont = item.engravedFont;
                     cartProduct.EngravedText = item.engravedText;
-                    jewelries.Add(cartProduct.Jewelry);
+                    jewelrySet.Add(cartProduct.Jewelry);
                 }
                 if (item.diamondId != null)
                 {
                     cartProduct.Diamond = await _diamondRepository.GetById(DiamondId.Parse(item.diamondId));
                     cartProduct.Diamond.JewelryId = cartProduct.Jewelry?.Id;
-                    diamonds.Add(cartProduct.Diamond);
+                    diamondSet.Add(cartProduct.Diamond);
                 }
                 products.Add(cartProduct);
             }
 
             //Validate matching diamond
             List<IError> matchingErrors = new();
-            foreach (var jewelry in jewelries)
+            foreach (var jewelry in jewelrySet)
             {
-                var attachedDiamond = diamonds.Where(p => p.JewelryId == jewelry.Id).ToList();
+                var attachedDiamond = diamondSet.Where(p => p.JewelryId == jewelry.Id).ToList();
                 var result = await _mainDiamondService.CheckMatchingDiamond(jewelry.ModelId, attachedDiamond, _mainDiamondRepository);
                 if (result.IsFailed) matchingErrors.AddRange(result.Errors);
             }
@@ -105,9 +105,11 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             if (cartModelResult.IsFailed)
                 return Result.Fail(cartModelResult.Errors);
 
+            var jewelries = jewelrySet.ToList();
             jewelries.ForEach(p => p.SetSold());
             _jewelryRepository.UpdateRange(jewelries);
 
+            var diamonds = diamondSet.ToList();
             diamonds.ForEach(p => p.SetSold());
             _diamondRepository.UpdateRange(diamonds);
 

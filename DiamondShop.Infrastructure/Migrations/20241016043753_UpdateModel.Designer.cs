@@ -3,6 +3,7 @@ using System;
 using DiamondShop.Infrastructure.Databases;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiamondShop.Infrastructure.Migrations
 {
     [DbContext(typeof(DiamondShopDbContext))]
-    partial class DiamondShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241016043753_UpdateModel")]
+    partial class UpdateModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1004,9 +1007,6 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<decimal>("PriceOffset")
-                        .HasColumnType("numeric");
-
                     b.Property<float?>("Width")
                         .HasColumnType("real");
 
@@ -1742,7 +1742,7 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "db4e6535-19ac-42f8-bcc7-37ea9befcbd2",
+                            Id = "10c26601-ee6f-4e37-ab7b-52e89d4b0416",
                             Code = "THREE_MONTHS",
                             CreateDate = new DateTime(2024, 10, 15, 17, 0, 0, 0, DateTimeKind.Utc),
                             MonthDuration = 3,
@@ -1752,7 +1752,7 @@ namespace DiamondShop.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = "060a6f41-2a58-4580-bd0e-174cc052c6a6",
+                            Id = "6fa48c71-8a15-4fdb-9771-0a36d09fbee3",
                             Code = "THREE_MONTHS",
                             CreateDate = new DateTime(2024, 10, 15, 17, 0, 0, 0, DateTimeKind.Utc),
                             MonthDuration = 3,

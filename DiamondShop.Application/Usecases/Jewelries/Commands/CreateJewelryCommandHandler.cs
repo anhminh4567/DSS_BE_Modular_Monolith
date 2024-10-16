@@ -4,6 +4,7 @@ using DiamondShop.Application.Usecases.Diamonds.Commands.AttachToJewelry;
 using DiamondShop.Application.Usecases.JewelrySideDiamonds.Create;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories;
@@ -12,6 +13,7 @@ using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
+using System.Linq;
 
 namespace DiamondShop.Application.Usecases.Jewelries.Commands
 {
@@ -65,10 +67,14 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
                 if (attachedDiamondIds is not null)
                 {
                     var diamondQuery = _diamondRepository.GetQuery();
-                    diamondQuery = _diamondRepository.QueryFilter(diamondQuery, p => attachedDiamondIds.Contains(p.Id.Value));
+                    var convertedId = attachedDiamondIds.Select(DiamondId.Parse).ToList();
+                    diamondQuery = _diamondRepository.QueryFilter(diamondQuery, p => convertedId.Contains(p.Id));
                     attachedDiamonds = diamondQuery.ToList();
+                    if (attachedDiamonds.Any(p => p.JewelryId != null))
+                        return Result.Fail("Some diamonds have already attached to other jewelries");
                     var flagUnmatchedDiamonds = await _mainDiamondService.CheckMatchingDiamond(model.Id, attachedDiamonds, _mainDiamondRepository);
-                    if (flagUnmatchedDiamonds.IsFailed) return Result.Fail(flagUnmatchedDiamonds.Errors);
+                    if (flagUnmatchedDiamonds.IsFailed)
+                        return Result.Fail(flagUnmatchedDiamonds.Errors);
                 }
             }
 

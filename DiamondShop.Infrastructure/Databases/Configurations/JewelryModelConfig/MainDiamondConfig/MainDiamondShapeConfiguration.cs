@@ -25,7 +25,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
             .HasConversion(
                 Id => Id.Value,
                 dbValue => DiamondShapeId.Parse(dbValue));
-            builder.HasOne(o => o.Shape).WithOne().HasForeignKey<MainDiamondShape>(o => o.ShapeId).IsRequired();
+            builder.HasOne(o => o.Shape).WithMany().HasForeignKey(o => o.ShapeId).IsRequired();
             builder.HasKey(o => new { o.MainDiamondReqId, o.ShapeId });
         }
     }

@@ -25,5 +25,21 @@
       "bd4685ac-658c-4b87-8dad-19b9a2b29588"
     ],
     "expectedResult": true
+  },
+  {
+    "jewelryRequest": {
+      "modelId": "3e1e0817-84a9-44a4-a955-3f2406dddfe2",
+      "sizeId": "5",
+      "metalId": "3",
+      "serialCode": "RING_1",
+      "attachDiamond": true,
+      "isActive": true
+    },
+    "sideDiamondOptIds": [
+      "d4906d1c-7d52-4108-b72c-8b74448cb64b"
+    ],
+    "attachedDiamondIds": [
+      "f00c1a91-868c-4447-961d-7c7c25167626"
+    ]
   }
 ]

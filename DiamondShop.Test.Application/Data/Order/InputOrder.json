@@ -7,7 +7,7 @@
   },
   "orderItemRequestDtos": [
     {
-      "jewelryId": "14dc3437-c3c3-479b-b5d5-c18f1d8a0290",
+      "jewelryId": "c42b21e3-3823-4365-af9e-eb2751a7f94a",
       "diamondId": null,
       "engravedText": null,
       "engravedFont": null,
@@ -15,8 +15,8 @@
       "warrantyType": 1
     },
     {
-      "jewelryId": "14dc3437-c3c3-479b-b5d5-c18f1d8a0290",
-      "diamondId": "2558e412-a826-4b13-8344-c9492604c559",
+      "jewelryId": "c42b21e3-3823-4365-af9e-eb2751a7f94a",
+      "diamondId": "dd36d821-324c-48d4-b3ff-93e110afbba7",
       "engravedText": null,
       "engravedFont": null,
       "warrantyCode": null,

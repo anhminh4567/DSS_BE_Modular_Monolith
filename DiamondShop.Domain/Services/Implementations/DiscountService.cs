@@ -51,12 +51,12 @@ namespace DiamondShop.Domain.Services.Implementations
                     }
                     if (CheckIfProductMeetRequirement(product, requirement))
                     {
-                        SetProductDiscountPrice(product,discount);
+                        SetProductDiscountPrice(product, discount);
                         isAnyProductHaveDiscount = true;
                     }
                 }
             }
-            if(isAnyProductHaveDiscount)
+            if (isAnyProductHaveDiscount)
             {
                 cartModel.DiscountsApplied.Add(discount);
                 SetOrderPrice(cartModel);
@@ -79,27 +79,28 @@ namespace DiamondShop.Domain.Services.Implementations
             switch (requirement.TargetType)
             {
                 case TargetType.Jewelry_Model:
-                    if(product.Jewelry is not null)
+                    if (product.Jewelry is not null)
                         return CheckIfJewelryModelMeetRequirement(product.Jewelry.ModelId, requirement);
                     return CheckIfJewelryModelMeetRequirement(product.JewelryModel.Id, requirement);
                 case TargetType.Diamond:
-                    if (requirement.DiamondOrigin == DiamondOrigin.Both)
-                        return _diamondServices.ValidateDiamond4C(product.Diamond, requirement.CaratFrom.Value, requirement.CaratTo.Value, requirement.ColorFrom.Value, requirement.ColorTo.Value, requirement.ClarityFrom.Value, requirement.ClarityTo.Value, requirement.CutFrom.Value, requirement.CutTo.Value);
-                    else if (requirement.DiamondOrigin == DiamondOrigin.Lab)
+                    if (product.Diamond is not null)
                     {
-                        if (product.Diamond.IsLabDiamond is false)
-                            return false;
-                        return _diamondServices.ValidateDiamond4C(product.Diamond, requirement.CaratFrom.Value, requirement.CaratTo.Value, requirement.ColorFrom.Value, requirement.ColorTo.Value, requirement.ClarityFrom.Value, requirement.ClarityTo.Value, requirement.CutFrom.Value, requirement.CutTo.Value);
+                        if (requirement.DiamondOrigin == DiamondOrigin.Both)
+                            return _diamondServices.ValidateDiamond4C(product.Diamond, requirement.CaratFrom.Value, requirement.CaratTo.Value, requirement.ColorFrom.Value, requirement.ColorTo.Value, requirement.ClarityFrom.Value, requirement.ClarityTo.Value, requirement.CutFrom.Value, requirement.CutTo.Value);
+                        else if (requirement.DiamondOrigin == DiamondOrigin.Lab)
+                        {
+                            if (product.Diamond.IsLabDiamond is false)
+                                return false;
+                            return _diamondServices.ValidateDiamond4C(product.Diamond, requirement.CaratFrom.Value, requirement.CaratTo.Value, requirement.ColorFrom.Value, requirement.ColorTo.Value, requirement.ClarityFrom.Value, requirement.ClarityTo.Value, requirement.CutFrom.Value, requirement.CutTo.Value);
+                        }
+                        else if (requirement.DiamondOrigin == DiamondOrigin.Natural)
+                        {
+                            if (product.Diamond.IsLabDiamond)
+                                return false;
+                            return _diamondServices.ValidateDiamond4C(product.Diamond, requirement.CaratFrom.Value, requirement.CaratTo.Value, requirement.ColorFrom.Value, requirement.ColorTo.Value, requirement.ClarityFrom.Value, requirement.ClarityTo.Value, requirement.CutFrom.Value, requirement.CutTo.Value);
+                        }
                     }
-                    else if (requirement.DiamondOrigin == DiamondOrigin.Natural)
-                    {
-                        if (product.Diamond.IsLabDiamond)
-                            return false;
-                        return _diamondServices.ValidateDiamond4C(product.Diamond, requirement.CaratFrom.Value, requirement.CaratTo.Value, requirement.ColorFrom.Value, requirement.ColorTo.Value, requirement.ClarityFrom.Value, requirement.ClarityTo.Value, requirement.CutFrom.Value, requirement.CutTo.Value);
-                    }
-                    else
-                        return false;
-
+                    return false;
                 case TargetType.Order:
                     // right now we dont do discount on order, the discount on order is for the promotion partr, not discount
                     // discount is on product only 
