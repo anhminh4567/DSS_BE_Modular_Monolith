@@ -65,5 +65,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         {
             return _set.AddRangeAsync(prices);
         }
+
+        public Task<List<DiamondPrice>> GetPriceByCriteria(DiamondCriteriaId diamondCriteriaId, CancellationToken token = default)
+        {
+            return _set.Where(d => d.CriteriaId == diamondCriteriaId).ToListAsync();
+        }
     }
 }
