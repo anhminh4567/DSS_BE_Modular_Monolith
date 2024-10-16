@@ -170,6 +170,16 @@ namespace DiamondShop.Infrastructure
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton<ILocationService, OpenApiProvinceLocationService>();
+            var serviceProviderInstrance = services.BuildServiceProvider();
+            var mailOptions = serviceProviderInstrance.GetRequiredService<IOptions<MailOptions>>().Value;
+            services.AddFluentEmail(mailOptions.SenderEmail)
+            .AddSmtpSender(
+                host: mailOptions.Host,
+                port: mailOptions.Port,
+                username: mailOptions.SenderEmail,
+                password: mailOptions.AppPassword
+                );
+            services.AddTransient<IEmailService, EmailService>();
             return services;
         }
         internal static IServiceCollection AddPayments(this IServiceCollection services, IConfiguration configuration) 
@@ -193,6 +203,8 @@ namespace DiamondShop.Infrastructure
             services.Configure<PaypalOption>(configuration.GetSection(PaypalOption.Section));
             services.Configure<UrlOptions>(configuration.GetSection(UrlOptions.Section));
             services.Configure<LocationOptions>(config => { });
+            services.Configure<MailOptions>(configuration.GetSection(MailOptions.Section));
+
             // this also exist throughout the app life, but it is configured at the end of dependency injection,
             // allow it to inject other or override settings , also more cleaner moduler code
             services.ConfigureOptions<JwtBearerOptionSetup>();
