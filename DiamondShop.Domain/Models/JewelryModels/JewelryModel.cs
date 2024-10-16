@@ -20,6 +20,7 @@ namespace DiamondShop.Domain.Models.JewelryModels
         public BackType? BackType { get; set; }
         public ClaspType? ClaspType { get; set; }
         public ChainType? ChainType { get; set; }
+        public decimal PriceOffset { get; set;}
         public List<MainDiamondReq> MainDiamonds { get; set; } = new ();
         public List<SideDiamondReq> SideDiamonds { get; set; } = new();
         public List<SizeMetal> SizeMetals { get; set; } = new();
@@ -43,7 +44,7 @@ namespace DiamondShop.Domain.Models.JewelryModels
                 ChainType = modelSpec.ChainType,
             };
         }*/
-        public static JewelryModel Create(string name, JewelryModelCategoryId categoryId, float? width, float? length, bool isEngravable, bool isRhodiumFinish, BackType? backType, ClaspType? claspType, ChainType? chainType, JewelryModelId givenId = null)
+        public static JewelryModel Create(string name, JewelryModelCategoryId categoryId, float? width, float? length, bool? isEngravable, bool? isRhodiumFinish, BackType? backType, ClaspType? claspType, ChainType? chainType, JewelryModelId givenId = null)
         {
             return new JewelryModel()
             {
@@ -52,8 +53,8 @@ namespace DiamondShop.Domain.Models.JewelryModels
                 CategoryId = categoryId,
                 Width = width,
                 Length = length,
-                IsEngravable = isEngravable,
-                IsRhodiumFinish = isRhodiumFinish,
+                IsEngravable = isEngravable ?? false,
+                IsRhodiumFinish = isRhodiumFinish ?? false,
                 BackType = backType,
                 ClaspType = claspType,
                 ChainType = chainType,

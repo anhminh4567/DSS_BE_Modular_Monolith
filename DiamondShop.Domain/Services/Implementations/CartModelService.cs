@@ -19,15 +19,17 @@ namespace DiamondShop.Domain.Services.Implementations
     public class CartModelService : ICartModelService
     {
         private readonly IDiamondServices _diamondServices;
+        private readonly IJewelryService _jewelryService;
         private readonly IPromotionServices _promotionServices;
         private readonly IDiscountService _discountService;
         private readonly IDiamondRepository _diamondRepository;
         private readonly IJewelryRepository _jewelryRepository;
         private readonly IJewelryModelRepository _jewelryModelRepository;
+        private readonly ISizeMetalRepository _sizeMetalRepository;
         private readonly IPromotionRepository _promotionRepository;
         private readonly IDiscountRepository _discountRepository;
 
-        public CartModelService(IDiamondServices diamondServices, IPromotionServices promotionServices, IDiscountService discountService, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, IPromotionRepository promotionRepository, IDiscountRepository discountRepository)
+        public CartModelService(IDiamondServices diamondServices, IPromotionServices promotionServices, IDiscountService discountService, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, IPromotionRepository promotionRepository, IDiscountRepository discountRepository, IJewelryService jewelryService, ISizeMetalRepository sizeMetalRepository)
         {
             _diamondServices = diamondServices;
             _promotionServices = promotionServices;
@@ -37,6 +39,8 @@ namespace DiamondShop.Domain.Services.Implementations
             _jewelryModelRepository = jewelryModelRepository;
             _promotionRepository = promotionRepository;
             _discountRepository = discountRepository;
+            _jewelryService = jewelryService;
+            _sizeMetalRepository = sizeMetalRepository;
         }
 
         public void AssignProductAndItemCounter(CartModel cartModel)
@@ -47,8 +51,6 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 if (IsProduct(product))
                     cartModel.OrderCounter.TotalProduct += 1;
-                else
-                    cartModel.OrderCounter.TotalItem += 1;
             }
         }
 
@@ -148,14 +150,6 @@ namespace DiamondShop.Domain.Services.Implementations
             if (cartProduct.Jewelry != null && cartProduct.Diamond != null && cartProduct.JewelryModel != null)
                 throw new Exception("some how this product have all 3 id, diamond, jewelry and model , from product: " + cartProduct.CartProductId);
             var reviewPrice = new CheckoutPrice();
-            if (cartProduct.Jewelry is not null)
-            {
-                //TODO: assign default price to jewelry
-            }
-            if (cartProduct.JewelryModel is not null)
-            {
-                //TODO: assign default price to jewelry model
-            }
             if (cartProduct.Diamond is not null)
             {
                 var prices =  _diamondPriceRepository.GetPriceByShapes(cartProduct.Diamond.DiamondShape).Result;
@@ -165,6 +159,15 @@ namespace DiamondShop.Domain.Services.Implementations
                 else
                     reviewPrice.DefaultPrice = diamondPrice.Price;
 
+            }
+            else if (cartProduct.Jewelry is not null)
+            {
+                //TODO: assign default price to jewelry
+                _jewelryService.AddPrice(cartProduct.Jewelry, _sizeMetalRepository);
+            }
+            else if (cartProduct.JewelryModel is not null)
+            {
+                //TODO: assign default price to jewelry model
             }
             cartProduct.ReviewPrice = reviewPrice;
         }
