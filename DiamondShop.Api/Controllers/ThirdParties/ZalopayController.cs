@@ -30,11 +30,11 @@ namespace DiamondShop.Api.Controllers.ThirdParties
 
         [HttpPost]
         [Produces<ZalopayCreateOrderResponse>]
-        [ApiExplorerSettings(IgnoreApi = true)]
+        //[ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult> CreateOrder([FromBody]ZalopayCreateOrderBody body )
         {
             var myUrl = _urlOptions.Value.HttpsUrl;
-            var result = await _zalopayClient.CreateOrder(body,"http://localhost:7160/swagger/index.html", $"{myUrl}/api/Zalopay/Callback");
+            var result = await _zalopayClient.CreateOrder(body,$"{myUrl}/swagger/index.html", $"{myUrl}/api/Zalopay/Callback");
             return Ok(result);
         }
         [HttpGet("Banks")]
@@ -45,7 +45,7 @@ namespace DiamondShop.Api.Controllers.ThirdParties
         }
         [HttpGet("Transaction/{app_transaction_id}")]
         [Produces<ZalopayTransactionResponse>]
-        [ApiExplorerSettings(IgnoreApi = true)]
+        //[ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult> GetTransactionDetail(string app_transaction_id )
         {
             var result = await _zalopayClient.GetTransactionDetail(app_transaction_id);
@@ -53,7 +53,7 @@ namespace DiamondShop.Api.Controllers.ThirdParties
         }
         [HttpGet("Transaction/refund/{merchant_refund_id}/{time_stamp}")]
         [Produces<ZalopayRefundResponse>]
-        [ApiExplorerSettings(IgnoreApi = true)]
+        //[ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult> GetRefundTransactionDetail(string merchant_refund_id, string time_stamp)
         {
             var result = await _zalopayClient.GetRefundTransactionDetail(merchant_refund_id, time_stamp);
@@ -61,7 +61,7 @@ namespace DiamondShop.Api.Controllers.ThirdParties
         }
         [HttpPost("Transaction/refund")]
         [Produces<ZalopayRefundResponse>]
-        [ApiExplorerSettings(IgnoreApi = true)]
+        //ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult> RefundTransaction([FromForm] string zalo_trans_id, [FromForm] long amount, [FromForm] long refund_ree = 0)
         {
             var result = await _zalopayClient.RefundTransaction(zalo_trans_id,amount,refund_ree );

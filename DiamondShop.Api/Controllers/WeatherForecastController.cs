@@ -33,8 +33,9 @@ namespace DiamondShopSystem.Controllers
         private readonly IOptions<VnpayOption> _vnpayOption;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ISender _sender;
+        private readonly IOptions<LocationOptions> _locationOptions;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IDateTimeProvider dateTimeProvider, IBlobFileServices blobFileServices, IOptions<PaypalOption> paypal, IOptions<VnpayOption> vnpayOption, IHttpContextAccessor httpContextAccessor, ISender sender)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IDateTimeProvider dateTimeProvider, IBlobFileServices blobFileServices, IOptions<PaypalOption> paypal, IOptions<VnpayOption> vnpayOption, IHttpContextAccessor httpContextAccessor, ISender sender, IOptions<LocationOptions> locationOptions)
         {
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
@@ -43,6 +44,7 @@ namespace DiamondShopSystem.Controllers
             _vnpayOption = vnpayOption;
             _httpContextAccessor = httpContextAccessor;
             _sender = sender;
+            _locationOptions = locationOptions;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]

@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using DiamondShop.Api.Configurations.ProblemErrors;
 using DiamondShop.Api.Extensions;
 using Microsoft.OpenApi.Models;
+using System.Collections;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 internal class Program
 {
@@ -63,7 +65,13 @@ internal class Program
 
         builder.Services.AddInfrastructure(builder.Configuration);
         builder.Services.AddApplication(builder.Configuration);
-
+        foreach (var config in builder.Configuration.AsEnumerable())
+        {
+            if (!string.IsNullOrEmpty(config.Value))  // Ensure there is a value
+            {
+                Console.WriteLine($"{config.Key}: {config.Value}");
+            }
+        }
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.

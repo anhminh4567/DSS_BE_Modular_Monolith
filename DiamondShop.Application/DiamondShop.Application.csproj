@@ -7,12 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Usecases\DiamondPrices\Commands\Update\**" />
+    <EmbeddedResource Remove="Usecases\DiamondPrices\Commands\Update\**" />
+    <None Remove="Usecases\DiamondPrices\Commands\Update\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DiamondShop.Commons\DiamondShop.Commons.csproj" />
     <ProjectReference Include="..\DiamondShop.Domain\DiamondShop.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Usecases\DiamondPrices\Commands\Update\" />
+    <Folder Include="Usecases\Addresses\Commands\" />
+    <Folder Include="Usecases\Addresses\Queries\GetAllUserAddresses\" />
     <Folder Include="Usecases\JewelryModelCategories\Commands\Delete\" />
     <Folder Include="Usecases\JewelryModelCategories\Commands\Update\" />
     <Folder Include="Usecases\JewelryModels\Commands\Delete\" />

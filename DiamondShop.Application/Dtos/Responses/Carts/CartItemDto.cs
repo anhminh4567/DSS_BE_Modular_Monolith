@@ -18,7 +18,7 @@ namespace DiamondShop.Application.Dtos.Responses.Carts
         public string? JewelryModelId { get; set; }
         public string? SizeId { get; set; }
         public string? MetalId { get; set; }
-        public Dictionary<string, string>? SideDiamondChoices { get; set; } = new();
+        public List<string> SideDiamondChoices { get; set; } = new();
         public string? EngravedText { get; set; }
         public string? EngravedFont { get; set; }
     }

@@ -1,9 +1,11 @@
-﻿using DiamondShop.Application.Dtos.Responses.Carts;
+﻿using DiamondShop.Application.Dtos.Requests.Carts;
+using DiamondShop.Application.Dtos.Responses.Carts;
 using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Application.Usecases.Carts.Commands.Add;
 using DiamondShop.Application.Usecases.Carts.Commands.Delete;
 using DiamondShop.Application.Usecases.Carts.Commands.Update;
 using DiamondShop.Application.Usecases.Carts.Commands.Validate;
+using DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson;
 using DiamondShop.Application.Usecases.Carts.Queries.GetUserCart;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using MapsterMapper;
@@ -74,6 +76,18 @@ namespace DiamondShop.Api.Controllers.Carts
         {
             var result = await _sender.Send(checkoutCartCommand);
             if(result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<CartModelDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPost("Validate")]
+        public async Task<ActionResult> Validate([FromBody] List<CartItemRequestDto> items)
+        {
+            var mappedRequest = _mapper.Map<List<CartItem>>(items);
+            var result = await _sender.Send(new ValidateCartFromListCommand(mappedRequest));
+            if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<CartModelDto>(result.Value);
                 return Ok(mappedResult);

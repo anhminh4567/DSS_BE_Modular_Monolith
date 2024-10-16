@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DiamondShop.Api.Controllers
+namespace DiamondShop.Api.Controllers.Accounts
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -42,7 +42,7 @@ namespace DiamondShop.Api.Controllers
         [HttpPost("Register")]
         [Consumes("application/json")]
         [AllowAnonymous]
-        [ProducesResponseType(typeof(AccountDto),200)]
+        [ProducesResponseType(typeof(AccountDto), 200)]
         [ProducesResponseType(301)]
 
         public async Task<ActionResult> Register([FromBody] RegisterCustomerCommand? registerCustomerCommand, [FromQuery] string? externalProviderName, CancellationToken cancellationToken = default)
@@ -78,7 +78,7 @@ namespace DiamondShop.Api.Controllers
             if (externalProviderName == null && loginCommand is not null)
             {
                 var command = loginCommand with { isExternalLogin = false };
-                var result = await _sender.Send(command,cancellationToken);
+                var result = await _sender.Send(command, cancellationToken);
                 if (result.IsSuccess is false)
                     return MatchError(result.Errors, ModelState);
                 return Ok(result.Value);
@@ -142,13 +142,13 @@ namespace DiamondShop.Api.Controllers
                 return MatchError(result.Errors, ModelState);
             return Ok(result.Value);
         }
-        
+
         [HttpPut("RefreshToken")]
         [Authorize]
         [ProducesResponseType(typeof(AuthenticationResultDto), 200)]
         public async Task<ActionResult> RefreshingToken([FromQuery] string refreshToken, CancellationToken cancellationToken = default)
         {
-            var result = await _sender.Send(new RefreshingTokenCommand(refreshToken),cancellationToken);
+            var result = await _sender.Send(new RefreshingTokenCommand(refreshToken), cancellationToken);
             if (result.IsSuccess is false)
                 return MatchError(result.Errors, ModelState);
             return Ok(result.Value);
@@ -181,7 +181,7 @@ namespace DiamondShop.Api.Controllers
         }
 
         [HttpGet("Paging")]
-        [ProducesResponseType(typeof(PagingResponseDto<AccountDto>),200)]
+        [ProducesResponseType(typeof(PagingResponseDto<AccountDto>), 200)]
         public async Task<ActionResult> GetPaging([FromQuery] GetAccountPagingQuery getCustomerPageQuery)
         {
             var result = await _sender.Send(getCustomerPageQuery);
@@ -193,9 +193,9 @@ namespace DiamondShop.Api.Controllers
         [HttpGet("{accountId}")]
         [ProducesResponseType(typeof(AccountDto), 200)]
         //[Authorize]
-        public async Task<ActionResult> GetDetail([FromRoute]string accountId, CancellationToken cancellationToken = default)
+        public async Task<ActionResult> GetDetail([FromRoute] string accountId, CancellationToken cancellationToken = default)
         {
-            var result = await _sender.Send(new GetAccountDetailQuery(AccountId.Parse(accountId)),cancellationToken);
+            var result = await _sender.Send(new GetAccountDetailQuery(AccountId.Parse(accountId)), cancellationToken);
             if (result.IsSuccess)
                 return Ok(result.Value);
             return MatchError(result.Errors, ModelState);

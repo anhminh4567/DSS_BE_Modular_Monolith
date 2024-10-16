@@ -1,4 +1,6 @@
-﻿using DiamondShop.Domain.Models.DeliveryFees.ValueObjects;
+﻿using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.AccountRoleAggregate.ValueObjects;
+using DiamondShop.Domain.Models.DeliveryFees.ValueObjects;
 using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
@@ -15,6 +17,11 @@ namespace DiamondShop.Application.Mappers
     {
         public void Register(TypeAdapterConfig config)
         {
+            config.NewConfig<AccountId , string>()
+                .MapWith(src => src.Value);
+            config.NewConfig<AccountRoleId, string>()
+                .MapWith(src => src.Value);
+
             config.NewConfig<Dictionary<SideDiamondReqId, SideDiamondOptId>, Dictionary<string, string>>()
                 .MapWith( src => src.ToDictionary(kvp => kvp.Key.Value.ToString(), kvp => kvp.Value.Value.ToString()));
             config.NewConfig<DiamondId, string>()
@@ -70,6 +77,8 @@ namespace DiamondShop.Application.Mappers
             config.NewConfig<PaymentMethodId, string>()
                 .MapWith(src => src.Value).Compile();
 
+            config.NewConfig<DeliveryFeeId, string>()
+                .MapWith(src => src.Value).Compile();
         }
     }
 }
