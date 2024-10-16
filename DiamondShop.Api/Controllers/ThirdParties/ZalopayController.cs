@@ -34,7 +34,7 @@ namespace DiamondShop.Api.Controllers.ThirdParties
         public async Task<ActionResult> CreateOrder([FromBody]ZalopayCreateOrderBody body )
         {
             var myUrl = _urlOptions.Value.HttpsUrl;
-            var result = await _zalopayClient.CreateOrder(body,"http://localhost:7160/swagger/index.html", $"{myUrl}/api/Zalopay/Callback");
+            var result = await _zalopayClient.CreateOrder(body,$"{myUrl}/swagger/index.html", $"{myUrl}/api/Zalopay/Callback");
             return Ok(result);
         }
         [HttpGet("Banks")]
@@ -61,7 +61,7 @@ namespace DiamondShop.Api.Controllers.ThirdParties
         }
         [HttpPost("Transaction/refund")]
         [Produces<ZalopayRefundResponse>]
-       // [ApiExplorerSettings(IgnoreApi = true)]
+        //ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult> RefundTransaction([FromForm] string zalo_trans_id, [FromForm] long amount, [FromForm] long refund_ree = 0)
         {
             var result = await _zalopayClient.RefundTransaction(zalo_trans_id,amount,refund_ree );
