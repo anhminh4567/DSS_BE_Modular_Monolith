@@ -1,4 +1,6 @@
 ﻿using DiamondShop.Application.Services.Data;
+using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo;
 using MediatR;
@@ -30,14 +32,19 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
 
         public async Task Execute(IJobExecutionContext context)
         {
+            await ActivateDiscount(context);
+            await EndDiscount(context);
+        }
+        private async Task ActivateDiscount(IJobExecutionContext context)
+        {
             var query = _discountRepository.GetQuery();
             var dateTimeNow = DateTime.UtcNow;
             var unstartedDiscount = await(from discounts in query
-                                           where discounts.DiscountReq.Count > 0
-                                           && discounts.StartDate < dateTimeNow
-                                           && discounts.EndDate > dateTimeNow
-                                           && discounts.Status == Domain.Models.Promotions.Enum.Status.Scheduled
-                                           select discounts).ToListAsync();
+                                          where discounts.DiscountReq.Count > 0
+                                          && discounts.StartDate < dateTimeNow
+                                          && discounts.EndDate > dateTimeNow
+                                          && discounts.Status == Domain.Models.Promotions.Enum.Status.Scheduled
+                                          select discounts).ToListAsync();
             foreach (var discount in unstartedDiscount)
             {
                 var result = discount.SetActive();
@@ -45,6 +52,22 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
                     _discountRepository.Update(discount).GetAwaiter().GetResult();
                 else
                     _logger.LogError($"discount with id: {discount.Id.Value} and name: {discount.Name} is error when set active, check code");
+            }
+            await _unitOfWork.SaveChangesAsync();
+        }
+        private async Task EndDiscount(IJobExecutionContext context)
+        {
+            var query = _discountRepository.GetQuery();
+            var dateTimeNow = DateTime.UtcNow;
+            var endedDiscount = await (from discounts in query
+                                           where discounts.DiscountReq.Count > 0
+                                           && discounts.EndDate <= dateTimeNow
+                                           && ( discounts.Status == Status.Active || discounts.Status == Status.Paused)
+                                       select discounts).ToListAsync();
+            foreach (var discount in endedDiscount)
+            {
+                discount.Expired();
+                _logger.LogError($"discount with id: {discount.Id.Value} and name: {discount.Name} is expired with end date: {discount.EndDate.ToString(DateTimeFormatingRules.DateTimeFormat)} at time: {DateTime.UtcNow.ToString(DateTimeFormatingRules.DateTimeFormat)}");
             }
             await _unitOfWork.SaveChangesAsync();
         }

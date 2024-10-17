@@ -3,6 +3,8 @@ using DiamondShop.Application.Services.Models;
 using DiamondShop.Domain.Common.Addresses;
 using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services.Locations.Models;
+using DiamondShop.Infrastructure.Services.Locations.OApi.Models;
+using DiamondShop.Infrastructure.Services.Locations.OpenApiProvinces.Models;
 using FluentResults;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,7 +20,7 @@ namespace DiamondShop.Infrastructure.Services.Locations.OApi
 {
     internal class OApiLocationService : ILocationService
     {
-        private const string baseUrl = "https://provinces.open-api.vn/api";
+        private const string baseUrl = "https://open.oapi.vn/location";
         //this is a key, no worry, free tier, no billing attach;
         private const string SERPER = "52662a35ab28700fa0fe01ef511f4db35db5a3f2";
         private const string SERPER_MAP_URL = "https://google.serper.dev/maps";
@@ -126,17 +128,72 @@ namespace DiamondShop.Infrastructure.Services.Locations.OApi
         }
         public List<District> GetDistricts(string provinceId)
         {
-            throw new NotImplementedException();
+            ArgumentNullException.ThrowIfNull(provinceId);
+            var httpClient = new HttpClient();
+            var httpRequest = new HttpRequestMessage();
+
+            httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}/districts?page=0&size=99&provinceId={int.Parse(provinceId)}");
+            httpRequest.Content = new StringContent("", Encoding.UTF8, "application/json");
+
+            var result = httpClient.SendAsync(httpRequest).Result;
+            if (result.IsSuccessStatusCode)
+            {
+                var listItem = result.Content.ReadFromJsonAsync<OApiDistrictResponses>().Result.Data;
+                var mappedResult = listItem.Select(d => new District()
+                {
+                    Id = d.Id.ToString(),
+                    Name = d.Name,
+                    IsActive = true,
+                    NameExtension = new string[] { d.Name }
+                }).ToList();
+                httpClient.Dispose();
+                return mappedResult;
+            }
+            else
+                throw new Exception("api end with error status code: " + result.StatusCode.ToString());
         }
 
         public List<Province> GetProvinces()
         {
-            throw new NotImplementedException();
+            var httpClient = new HttpClient();
+            var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}/provinces?page=0&size=99");
+            httpRequest.Content = new StringContent("", Encoding.UTF8, "application/json");
+            var result = httpClient.SendAsync(httpRequest).Result;
+            var listItem = result.Content.ReadFromJsonAsync<OApiProvinceResponses>().Result;
+            var mappedResult = listItem.Data.Select(p => new Province()
+            {
+                Id = p.Id.ToString(),
+                Name = p.Name,
+                IsActive = true,
+                NameExtension = new string[] { p.Name }
+            }).ToList();
+            httpClient.Dispose();
+            return mappedResult;
         }
 
         public List<Ward> GetWards(string districtId)
         {
-            throw new NotImplementedException();
+            ArgumentNullException.ThrowIfNull(districtId);
+            var httpClient = new HttpClient();
+            var httpRequest = new HttpRequestMessage();
+            httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}/wards?page=0&size=99&districtId={int.Parse(districtId)}");
+            httpRequest.Content = new StringContent("", Encoding.UTF8, "application/json");
+            var result = httpClient.SendAsync(httpRequest).Result;
+            if (result.IsSuccessStatusCode)
+            {
+                var data = result.Content.ReadFromJsonAsync<OApiWardResponse>().Result.Data;
+                var mappedResult = data.Select(d => new Ward()
+                {
+                    Id = d.Id.ToString(),
+                    Name = d.Name,
+                    IsActive = true,
+                    NameExtension = new string[] { d.Name }
+                }).ToList();
+                httpClient.Dispose();
+                return mappedResult;
+            }
+            else
+                throw new Exception("api end with error status code: " + result.StatusCode.ToString());
         }
 
         public async Task<Result<LocationDistantData>> GetDistantFromBaseShopLocation(LocationDetail Destination, CancellationToken cancellationToken = default)

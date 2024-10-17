@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Services.Data;
+﻿using DiamondShop.Application.Commons.Responses;
+using DiamondShop.Application.Services.Data;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate;
@@ -14,8 +15,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Accounts.Commands.RegisterAdmin
 {
-    public record RegisterAdminCommand(string email, string password, FullName fullName) : IRequest<Result<Account>>;
-    internal class RegisterAdminCommandHandler : IRequestHandler<RegisterAdminCommand, Result<Account>>
+    public record RegisterAdminCommand(string email, string password, FullName fullName) : IRequest<Result<AuthenticationResultDto>>;
+    internal class RegisterAdminCommandHandler : IRequestHandler<RegisterAdminCommand, Result<AuthenticationResultDto>>
     {
         private readonly IAuthenticationService _authenticationService;
         private readonly IUnitOfWork _unitOfWork;
@@ -30,7 +31,7 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.RegisterAdmin
             _accountRoleRepository = accountRoleRepository;
         }
 
-        public async Task<Result<Account>> Handle(RegisterAdminCommand request, CancellationToken cancellationToken)
+        public async Task<Result<AuthenticationResultDto>> Handle(RegisterAdminCommand request, CancellationToken cancellationToken)
         {
             List<AccountRole> storeRoles = await _accountRoleRepository.GetRoles();
             //start transaction
@@ -44,8 +45,9 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.RegisterAdmin
             await _accountRepository.Create(staff);
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
-            Account getStaff = await _accountRepository.GetById( staff.Id);
-            return Result.Ok(getStaff);
+            //Account getStaff = await _accountRepository.GetById( staff.Id);
+            var loginResult = await _authenticationService.Login(request.email, request.password, cancellationToken);
+            return Result.Ok(loginResult.Value);
             //throw new NotImplementedException();
         }
     }

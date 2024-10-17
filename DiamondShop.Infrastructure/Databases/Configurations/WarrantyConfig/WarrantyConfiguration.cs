@@ -16,8 +16,8 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.WarrantyConfig
     {
         private static List<Warranty> WARRANTIES = new()
         {
-            Warranty.Create(WarrantyType.Jewelry, "Default_Jewelry_Warranty",nameof(WarrantyRules.THREE_MONTHS),WarrantyRules.THREE_MONTHS,0),
-            Warranty.Create(WarrantyType.Diamond, "Default_Diamond_Warranty",nameof(WarrantyRules.THREE_MONTHS),WarrantyRules.THREE_MONTHS,0)
+            Warranty.Create(WarrantyType.Jewelry, "Default_Jewelry_Warranty",nameof(WarrantyRules.THREE_MONTHS),WarrantyRules.THREE_MONTHS,0,WarrantyId.Parse(1.ToString())),
+            Warranty.Create(WarrantyType.Diamond, "Default_Diamond_Warranty",nameof(WarrantyRules.THREE_MONTHS),WarrantyRules.THREE_MONTHS,0,WarrantyId.Parse(2.ToString()))
         };
         new public void Configure(EntityTypeBuilder<Warranty> builder)
         {

@@ -27,6 +27,8 @@ using DiamondShop.Infrastructure.Securities;
 using DiamondShop.Infrastructure.Securities.Authentication;
 using DiamondShop.Infrastructure.Services;
 using DiamondShop.Infrastructure.Services.Locations;
+using DiamondShop.Infrastructure.Services.Locations.Locally;
+using DiamondShop.Infrastructure.Services.Locations.OApi;
 using DiamondShop.Infrastructure.Services.Locations.OpenApiProvinces;
 using DiamondShop.Infrastructure.Services.Payments.Paypals;
 using DiamondShop.Infrastructure.Services.Payments.Zalopays;
@@ -170,7 +172,7 @@ namespace DiamondShop.Infrastructure
         }
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSingleton<ILocationService, OpenApiProvinceLocationService>();
+            services.AddSingleton<ILocationService, LocalLocationService>();
             var serviceProviderInstrance = services.BuildServiceProvider();
             var mailOptions = serviceProviderInstrance.GetRequiredService<IOptions<MailOptions>>().Value;
             services.AddFluentEmail(mailOptions.SenderEmail)
@@ -205,6 +207,7 @@ namespace DiamondShop.Infrastructure
             services.Configure<UrlOptions>(configuration.GetSection(UrlOptions.Section));
             services.Configure<LocationOptions>(config => { });
             services.Configure<MailOptions>(configuration.GetSection(MailOptions.Section));
+            services.Configure<FrontendOptions>(configuration.GetSection(FrontendOptions.Section));
 
             // this also exist throughout the app life, but it is configured at the end of dependency injection,
             // allow it to inject other or override settings , also more cleaner moduler code

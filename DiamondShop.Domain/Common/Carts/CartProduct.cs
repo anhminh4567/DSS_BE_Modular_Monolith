@@ -16,8 +16,10 @@ namespace DiamondShop.Domain.Common.Carts
         public string? EngravedText { get; set; }
         public string? EngravedFont { get; set; }
         //public decimal? PurchasedPrice { get; set; }
-        public bool IsValid { get => (Jewelry != null || Diamond != null || JewelryModel != null); }
+        public bool IsValid { get; set; } = true;//(Jewelry != null || Diamond != null || JewelryModel != null); set =>  }
+        public string? ErrorMessage { get => GetErrorMessage(); }
         public bool IsAvailable { get; set; } = true; // always true unless when check the product is sold or inactive
+        public bool IsProduct { get; set; } = false; // always false, unless check the item is a product
         /////////////////////////////////
         /////////////////////////////////
         public DiscountId? DiscountId { get; set; }
@@ -30,6 +32,22 @@ namespace DiamondShop.Domain.Common.Carts
         public bool IsReqirement { get => RequirementQualifedId is not null; }
         public GiftId? GiftAssignedId { get; set; }
         public bool IsGift { get => GiftAssignedId is not null; }
+        private string? GetErrorMessage()
+        {
+            if(IsValid is false)
+            {
+                if (IsAvailable is false)
+                    return "Product is not available";
+                else if (IsProduct is false)
+                   return "The parent item is invalid, so does the child item";
+                else
+                    return "Product is Invalid state";
+            }
+            else
+            {
+                return  null;
+            }
+        }
     }
 
 }

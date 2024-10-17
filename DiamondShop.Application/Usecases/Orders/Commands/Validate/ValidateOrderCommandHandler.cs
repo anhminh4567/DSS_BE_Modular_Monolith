@@ -39,7 +39,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Validate
         public async Task<Result<CartModel>> Handle(ValidateOrderCommand request, CancellationToken cancellationToken)
         {
             request.Deconstruct(out List<CartProduct> cartProducts);
-            return await _cartModelService.Execute(cartProducts, _discountRepository, _promotionRepository, _diamondPriceRepository, _sizeMetalRepository, _metalRepository);
+            var getActiveDiscount = await _discountRepository.GetActiveDiscount();
+            var getActivePromotion = await _promotionRepository.GetActivePromotion();
+            return await _cartModelService.Execute(cartProducts, getActiveDiscount,getActivePromotion, _diamondPriceRepository, _sizeMetalRepository, _metalRepository);
         }
     }
 }

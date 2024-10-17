@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Infrastructure.Services.Locations.Models
+namespace DiamondShop.Infrastructure.Services.Locations
 {
     internal class SerperModels
     {

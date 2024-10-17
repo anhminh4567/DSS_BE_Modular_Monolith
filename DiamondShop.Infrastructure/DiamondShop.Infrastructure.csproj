@@ -48,8 +48,4 @@
 			<_Parameter1>DiamondShop.Test.General</_Parameter1>
 		</AssemblyAttribute>
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Services\Locations\OApi\Models\" />
-	</ItemGroup>
 </Project>
