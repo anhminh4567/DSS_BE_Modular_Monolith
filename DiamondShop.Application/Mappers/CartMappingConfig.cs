@@ -39,7 +39,10 @@ namespace DiamondShop.Application.Mappers
                 .Map(dest => dest.RequirementProductsIndex, src => src.RequirementProductsIndex)
                 .Map(dest => dest.GiftProductsIndex, src => src.GiftProductsIndex)
                 .Map(dest => dest.MissingGifts, src => src.MissingGifts)
-                .Map(dest => dest.MissingRequirement, src => src.MissingRequirement);
+                .Map(dest => dest.MissingRequirement, src => src.MissingRequirement)
+                .Map(dest => dest.GiftProductsIndex , src => src.GiftProductsIndex)
+                .Map(dest => dest.Promotion.PromoReqs , src => src.Promotion.PromoReqs)
+                .Map(dest => dest.Promotion.Gifts , src => src.Promotion.Gifts);
 
 
             config.NewConfig<CartModelValidationDto, CartModelValidationDto>()

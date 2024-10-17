@@ -143,7 +143,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 }
             }
             cartModel.Promotion.GiftProductsIndex = giftProducts.Keys.ToList();
-            SetOrderPrice(cartModel);
+            //SetOrderPrice(cartModel);
             return Result.Ok();
         }
 

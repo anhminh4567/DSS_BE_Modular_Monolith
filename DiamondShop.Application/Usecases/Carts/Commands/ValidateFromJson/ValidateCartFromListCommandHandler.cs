@@ -54,7 +54,9 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
                 if (product is not null)
                     getProducts.Add(product);
             }
-            Result<CartModel> result = await _cartModelService.Execute(getProducts, _discountRepository, _promotionRepository, _diamondPriceRepository, _sizeMetalRepository, _metalRepository);
+            var getActiveDiscount = await _discountRepository.GetActiveDiscount();
+            var getActivePromotion = await _promotionRepository.GetActivePromotion();
+            Result<CartModel> result = await _cartModelService.Execute(getProducts, getActiveDiscount,getActivePromotion, _diamondPriceRepository, _sizeMetalRepository, _metalRepository);
             if (result.IsSuccess)
                 return result.Value;
             return Result.Fail(result.Errors);

@@ -59,7 +59,7 @@ namespace DiamondShop.Domain.Services.Implementations
             if (isAnyProductHaveDiscount)
             {
                 cartModel.DiscountsApplied.Add(discount);
-                SetOrderPrice(cartModel);
+                //SetOrderPrice(cartModel);
                 return Result.Ok();
             }
             else

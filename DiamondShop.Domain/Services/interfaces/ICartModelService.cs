@@ -1,5 +1,7 @@
 ﻿using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
+using DiamondShop.Domain.Models.Promotions;
+using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
@@ -20,7 +22,8 @@ namespace DiamondShop.Domain.Services.interfaces
         void AssignProductAndItemCounter(CartModel cartModel);
         void SetCartModelValidation(CartModel cartModel);
         bool IsProduct(CartProduct item);
-        Task<Result<CartModel>> Execute(List<CartProduct> products, IDiscountRepository _discountRepository, IPromotionRepository _promotionRepository, IDiamondPriceRepository _diamondPriceRepository, ISizeMetalRepository _sizeMetalRepository, IMetalRepository _metalRepository);
+        void SetOrderPrice(CartModel cartModel);
+        Task<Result<CartModel>> Execute(List<CartProduct> products,List<Discount> givenDiscount, List<Promotion> givenPromotion , IDiamondPriceRepository _diamondPriceRepository, ISizeMetalRepository _sizeMetalRepository, IMetalRepository _metalRepository);
         Task<CartProduct?> FromCartItem(CartItem cartItem, IJewelryRepository _jewelryRepository, IJewelryModelRepository _jewelryModelRepository, IDiamondRepository _diamondRepository);
         Task AssignDefaultPriceToProduct(CartProduct cartProduct,IDiamondPriceRepository _diamondPriceRepository, ISizeMetalRepository _sizeMetalRepository, IMetalRepository _metalRepository);
         Task ValidateCartItems(CartModel cartModel);
