@@ -26,7 +26,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 return Result.Fail(new ConflictError("The quantity of the main diamond differs from what the model requires."));
 
             var flagUnmatchedDiamonds = MatchingDiamond(diamonds, diamondReqs);
-            if (flagUnmatchedDiamonds) return Result.Fail(new ConflictError(""));
+            if (flagUnmatchedDiamonds) return Result.Fail(new ConflictError("Diamonds don't meet the model requirement."));
             return Result.Ok();
         }
         private bool MatchingDiamond(List<Diamond> diamonds, List<MainDiamondReq> diamondReqs)
