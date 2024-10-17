@@ -38,6 +38,10 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
                 out List<SideDiamondRequestDto>? sideDiamondSpecs, out List<ModelMetalSizeRequestDto> metalSizeSpecs);
             var category = _categoryRepository.GetQuery().FirstOrDefault(p => p.Id == JewelryModelCategoryId.Parse(modelSpec.CategoryId));
             if(category is null) return Result.Fail(new NotFoundError("Can't find model category object."));
+            
+            var matchingName = _jewelryModelRepository.GetQuery().Any(p => p.Name.ToUpper() == modelSpec.Name.ToUpper());
+            if (matchingName) return Result.Fail("This model name has already existed");
+
             var newModel = JewelryModel.Create(modelSpec.Name, category.Id, modelSpec.Width, modelSpec.Length, modelSpec.IsEngravable, modelSpec.IsRhodiumFinish, modelSpec.BackType, modelSpec.ClaspType, modelSpec.ChainType);
             await _jewelryModelRepository.Create(newModel, token);
             
