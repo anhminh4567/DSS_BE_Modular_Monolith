@@ -19,6 +19,7 @@ using DiamondShop.Domain.Repositories.TransactionRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
+using System.Collections.Generic;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 {
@@ -58,8 +59,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         {
             await _unitOfWork.BeginTransactionAsync(token);
             request.Deconstruct(out string accountId, out CreateOrderInfo createOrderInfo);
-            createOrderInfo.Deconstruct( out OrderRequestDto orderReq, out List<OrderItemRequestDto> orderItemReqs, out string phone, out string address);
-            
+            createOrderInfo.Deconstruct(out OrderRequestDto orderReq, out List<OrderItemRequestDto> orderItemReqs, out string phone, out string address);
+
             var account = await _accountRepository.GetById(AccountId.Parse(accountId));
             if (account == null)
                 return Result.Fail("This account doesn't exist");
@@ -69,6 +70,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             List<CartProduct> products = new();
             HashSet<Jewelry> jewelrySet = new();
             HashSet<Diamond> diamondSet = new();
+            List<IError> errors = new List<IError>();
             foreach (var item in orderItemReqs)
             {
 
@@ -83,22 +85,30 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 if (item.diamondId != null)
                 {
                     cartProduct.Diamond = await _diamondRepository.GetById(DiamondId.Parse(item.diamondId));
-                    cartProduct.Diamond.JewelryId = cartProduct.Jewelry?.Id;
-                    diamondSet.Add(cartProduct.Diamond);
+                    //TODO: xem lai sau
+                    if (cartProduct.Diamond.JewelryId != null && cartProduct.Diamond.JewelryId != cartProduct.Jewelry?.Id)
+                        errors.Add(new Error($"Diamond #{cartProduct.Diamond.Id} is already attached to another Jewelry"));
+                    else
+                    {
+                        cartProduct.Diamond.JewelryId = cartProduct.Jewelry?.Id;
+                        diamondSet.Add(cartProduct.Diamond);
+                    }
                 }
                 products.Add(cartProduct);
             }
-
+            if (errors.Count > 0)
+                return Result.Fail(errors);
+            else
+                errors = new List<IError>();
             //Validate matching diamond
-            List<IError> matchingErrors = new();
             foreach (var jewelry in jewelrySet)
             {
                 var attachedDiamond = diamondSet.Where(p => p.JewelryId == jewelry.Id).ToList();
                 var result = await _mainDiamondService.CheckMatchingDiamond(jewelry.ModelId, attachedDiamond, _mainDiamondRepository);
-                if (result.IsFailed) matchingErrors.AddRange(result.Errors);
+                if (result.IsFailed) errors.AddRange(result.Errors);
             }
-            if (matchingErrors.Count > 0)
-                return Result.Fail(matchingErrors);
+            if (errors.Count > 0)
+                return Result.Fail(errors);
 
             //Validate CartModel
             var cartModelResult = await _sender.Send(new ValidateOrderCommand(products));
