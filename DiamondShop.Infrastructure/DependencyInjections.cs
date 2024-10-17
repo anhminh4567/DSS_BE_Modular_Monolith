@@ -206,6 +206,7 @@ namespace DiamondShop.Infrastructure
             services.Configure<UrlOptions>(configuration.GetSection(UrlOptions.Section));
             services.Configure<LocationOptions>(config => { });
             services.Configure<MailOptions>(configuration.GetSection(MailOptions.Section));
+            services.Configure<FrontendOptions>(configuration.GetSection(FrontendOptions.Section));
 
             // this also exist throughout the app life, but it is configured at the end of dependency injection,
             // allow it to inject other or override settings , also more cleaner moduler code

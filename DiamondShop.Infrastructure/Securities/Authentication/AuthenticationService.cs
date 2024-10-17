@@ -72,7 +72,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             var getCustomer = await _accountRepository.GetByIdentityId(getUserByEmail.Id, cancellationToken);
             if (getCustomer is null)
                 return Result.Fail(new NotFoundError());
-            getCustomer.Roles.First(r => r.Id != AccountRole.Customer.Id);
+            //getCustomer.Roles.First(r => r.Id != AccountRole.Customer.Id);
             var authTokenDto = await GenerateTokenForUser(getCustomer.Roles, getCustomer.Email, getCustomer.IdentityId, getCustomer.Id.Value, getCustomer.FullName.Value);
             return Result.Ok(authTokenDto);
         }
@@ -155,7 +155,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             }
             var userIdentity = loginValidateResult.Value;
             var getCustomer = await _accountRepository.GetByIdentityId(userIdentity.Id, cancellationToken);
-            getCustomer.Roles.First(r => r.Id == AccountRole.Customer.Id);
+           // getCustomer.Roles.First(r => r.Id == AccountRole.Customer.Id);
             List<AccountRole> toAccountRole = getCustomer.Roles.Select(r => (AccountRole)r).ToList();
             var authTokenDto = await GenerateTokenForUser(toAccountRole, getCustomer.Email, getCustomer.IdentityId, getCustomer.Id.Value, getCustomer.FullName.Value, cancellationToken);
             return Result.Ok(authTokenDto);

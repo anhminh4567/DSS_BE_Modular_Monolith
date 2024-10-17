@@ -14,6 +14,7 @@ using DiamondShop.Application.Usecases.Accounts.Queries.GetPaging;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
+using DiamondShop.Infrastructure.Options;
 using FluentResults;
 using MapsterMapper;
 using MediatR;
@@ -21,6 +22,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace DiamondShop.Api.Controllers.Accounts
 {
@@ -31,42 +33,43 @@ namespace DiamondShop.Api.Controllers.Accounts
         private readonly ISender _sender;
         private readonly IMapper _mapper;
         private readonly IAuthenticationService _authenticationService;
+        private readonly IOptions<FrontendOptions> _options;
 
-        public AccountController(ISender sender, IMapper mapper, IAuthenticationService authenticationService)
+        public AccountController(ISender sender, IMapper mapper, IAuthenticationService authenticationService, IOptions<FrontendOptions> options)
         {
             _sender = sender;
             _mapper = mapper;
             _authenticationService = authenticationService;
+            _options = options;
         }
 
         [HttpPost("Register")]
         [Consumes("application/json")]
         [AllowAnonymous]
-        [ProducesResponseType(typeof(AccountDto), 200)]
+        [ProducesResponseType(typeof(AuthenticationResultDto), 200)]
         [ProducesResponseType(301)]
 
-        public async Task<ActionResult> Register([FromBody] RegisterCustomerCommand? registerCustomerCommand, [FromQuery] string? externalProviderName, CancellationToken cancellationToken = default)
+        public async Task<ActionResult> Register([FromBody] RegisterCustomerCommand registerCustomerCommand, CancellationToken cancellationToken = default)
         {
-            if (externalProviderName == null && registerCustomerCommand is not null)
-            {
-                var command = registerCustomerCommand with { isExternalRegister = false };
-                var result = await _sender.Send(command);
-                if (result.IsSuccess is false)
-                    return MatchError(result.Errors, ModelState);
-                var mappedResult = _mapper.Map<AccountDto>(result.Value);
-                return Ok(mappedResult);
-            }
-            else
-            {
-                var result = await _authenticationService.GetProviderAuthProperty(externalProviderName, Url.Action(nameof(ExternalRegisterCallback)));
-                if (result.IsSuccess is false)
-                {
-                    return MatchError(result.Errors, ModelState);
-                }
-                Microsoft.AspNetCore.Authentication.AuthenticationProperties authenticationProperties = result.Value;
-                return new ChallengeResult(externalProviderName, authenticationProperties);
-            }
+            var command = registerCustomerCommand with { isExternalRegister = false };
+            var result = await _sender.Send(command);
+            if (result.IsSuccess is false)
+                return MatchError(result.Errors, ModelState);
+            return Ok(result.Value);
 
+        }
+        [HttpGet("Register/External")]
+        [AllowAnonymous]
+        [ProducesResponseType(301)]
+        public async Task<ActionResult> ExternalRegister([FromQuery] string? externalProviderName, CancellationToken cancellationToken = default)
+        {
+            var result = await _authenticationService.GetProviderAuthProperty(externalProviderName, Url.Action(nameof(ExternalRegisterCallback)));
+            if (result.IsSuccess is false)
+            {
+                return MatchError(result.Errors, ModelState);
+            }
+            Microsoft.AspNetCore.Authentication.AuthenticationProperties authenticationProperties = result.Value;
+            return new ChallengeResult(externalProviderName, authenticationProperties);
         }
         [HttpPost("Login")]
         [Consumes("application/json")]
@@ -104,34 +107,35 @@ namespace DiamondShop.Api.Controllers.Accounts
         }
         [HttpPost("RegisterStaff")]
         [Consumes("application/json")]
-        [ProducesResponseType(typeof(AccountDto), 200)]
+        [ProducesResponseType(typeof(AuthenticationResultDto), 200)]
         public async Task<ActionResult> RegisterStaff([FromBody] RegisterCommand registerCommand, CancellationToken cancellationToken = default)
         {
             var result = await _sender.Send(registerCommand, cancellationToken);
             if (result.IsSuccess is false)
                 return MatchError(result.Errors, ModelState);
-            var mappedResult = _mapper.Map<AccountDto>(result.Value);
-            return Ok(mappedResult);
+            return Ok(result.Value);
         }
         [HttpPost("RegisterAdmin")]
         [Consumes("application/json")]
-        [ProducesResponseType(typeof(AccountDto), 200)]
+        [ProducesResponseType(typeof(AuthenticationResultDto), 200)]
         public async Task<ActionResult> RegisterAdmin([FromBody] RegisterAdminCommand registerAdminCommand, CancellationToken cancellationToken = default)
         {
             var result = await _sender.Send(registerAdminCommand, cancellationToken);
             if (result.IsSuccess is false)
                 return MatchError(result.Errors, ModelState);
-            var mappedResult = _mapper.Map<AccountDto>(result.Value);
-            return Ok(mappedResult);
+            return Ok(result.Value);
         }
         [HttpGet("external-register-callback-url")]
         public async Task<ActionResult> ExternalRegisterCallback()
         {
             //this command is mock up for it to pass the validator
+            //this wont play to anything
             var result = await _sender.Send(new RegisterCustomerCommand("fake@gmail.com", "123", FullName.Create("abc", "abc"), isExternalRegister: true));
             if (result.IsSuccess is false)
                 return MatchError(result.Errors, ModelState);
-            return Ok(result.Value);
+            return await ExternalLoginCallback();
+            //return Redirect("https://diamondshop-app.vercel.app");
+            //return Ok(result.Value);
         }
         [HttpGet("external-Login-callback-url")]
         public async Task<ActionResult> ExternalLoginCallback()
@@ -140,7 +144,12 @@ namespace DiamondShop.Api.Controllers.Accounts
             var result = await _sender.Send(new LoginCommand("123132", "123123", true));
             if (result.IsSuccess is false)
                 return MatchError(result.Errors, ModelState);
-            return Ok(result.Value);
+            // string accessToken, DateTime expiredAccess, string refreshToken, DateTime expiredRefresh
+            var value = result.Value;
+            var url = $"{_options.Value.BaseUrl}?accessToken={value.accessToken}&expiredAccess={value.expiredAccess}&refreshToken=" +
+                $"{value.refreshToken}&expiredRefresh={value.expiredRefresh}";
+            return Redirect(url);
+            //return Ok(result.Value);
         }
 
         [HttpPut("RefreshToken")]
@@ -200,7 +209,7 @@ namespace DiamondShop.Api.Controllers.Accounts
             {
                 var mappedResult = _mapper.Map<AccountDto>(result.Value);
                 return Ok(mappedResult);
-            }   
+            }
             return MatchError(result.Errors, ModelState);
         }
     }

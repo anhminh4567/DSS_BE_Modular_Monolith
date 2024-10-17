@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Services.Data;
+﻿using DiamondShop.Application.Commons.Responses;
+using DiamondShop.Application.Services.Data;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate;
@@ -14,8 +15,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Accounts.Commands.RegisterStaff
 {
-    public record RegisterCommand(string email, string password, FullName fullName, bool isManager) : IRequest<Result<Account>>;
-    internal class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Account>>
+    public record RegisterCommand(string email, string password, FullName fullName, bool isManager) : IRequest<Result<AuthenticationResultDto>>;
+    internal class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<AuthenticationResultDto>>
     {
         private readonly IAuthenticationService _authenticationService;
         private readonly IUnitOfWork _unitOfWork;
@@ -32,7 +33,7 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.RegisterStaff
             _accountRoleRepository = accountRoleRepository;
         }
 
-        public async Task<Result<Account>> Handle(RegisterCommand request, CancellationToken cancellationToken)
+        public async Task<Result<AuthenticationResultDto>> Handle(RegisterCommand request, CancellationToken cancellationToken)
         {
             List<AccountRole> storeRoles = await _accountRoleRepository.GetRoles();
             //start transaction
@@ -50,8 +51,9 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.RegisterStaff
             await _accountRepository.Create(staff);
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
-            Account getStaff = await _accountRepository.GetById( staff.Id);
-            return Result.Ok(getStaff);
+            //Account getStaff = await _accountRepository.GetById( staff.Id);
+            var loginResult = await _authenticationService.Login(request.email, request.password, cancellationToken);
+            return Result.Ok(loginResult.Value);
         }
     }
 }

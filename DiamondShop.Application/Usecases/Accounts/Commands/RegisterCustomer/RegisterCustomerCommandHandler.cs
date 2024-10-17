@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Services.Data;
+﻿using DiamondShop.Application.Commons.Responses;
+using DiamondShop.Application.Services.Data;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
@@ -12,11 +13,11 @@ using System.Windows.Input;
 
 namespace DiamondShop.Application.Usecases.Accounts.Commands.RegisterCustomer
 {
-    public record RegisterCustomerCommand(string? Email, string? Password, FullName? FullName, bool isExternalRegister = false) : IRequest<Result<Account>>;
+    public record RegisterCustomerCommand(string? Email, string? Password, FullName? FullName, bool isExternalRegister = false) : IRequest<Result<AuthenticationResultDto>>;
 
 
 
-    internal class RegisterCustomerCommandHandler : IRequestHandler<RegisterCustomerCommand, Result<Account>>
+    internal class RegisterCustomerCommandHandler : IRequestHandler<RegisterCustomerCommand, Result<AuthenticationResultDto>>
     {
         private readonly IAuthenticationService _authenticationService;
         private readonly IUnitOfWork _unitOfWork;
@@ -31,7 +32,7 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.RegisterCustomer
             _accountRepository = accountRepository;
         }
 
-        public async Task<Result<Account>> Handle(RegisterCustomerCommand request, CancellationToken cancellationToken)
+        public async Task<Result<AuthenticationResultDto>> Handle(RegisterCustomerCommand request, CancellationToken cancellationToken)
         {
 
             //find user role in db
@@ -39,6 +40,7 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.RegisterCustomer
 
             //start transaction
             await _unitOfWork.BeginTransactionAsync();
+            AuthenticationResultDto authenticationResultDto;
             Account customer;
             if (request.isExternalRegister)
             {
@@ -67,9 +69,16 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.RegisterCustomer
             await _accountRepository.Create(customer);
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
-            var getNewUser = await _accountRepository.GetById( customer.Id);
-
-            return Result.Ok(getNewUser);
+            //var getNewUser = await _accountRepository.GetById( customer.Id);
+            if (request.isExternalRegister) 
+            {
+                authenticationResultDto = (await _authenticationService.ExternalLogin(cancellationToken)).Value;
+            }
+            else
+            {
+                authenticationResultDto = (await _authenticationService.Login(request.Email, request.Password, cancellationToken)).Value;
+            }
+            return Result.Ok(authenticationResultDto);
         }
     }
 }
