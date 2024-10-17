@@ -1,4 +1,4 @@
-﻿using DiamondShop.Application.Services.Data;
+﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using FluentResults;
 using MediatR;

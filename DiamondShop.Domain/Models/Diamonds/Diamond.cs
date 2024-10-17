@@ -101,7 +101,7 @@ namespace DiamondShop.Domain.Models.Diamonds
             IsActive = true;
             IsSold = false;
         }
-
+        public void ChangeThumbnail(Media? thumbnail) => Thumbnail = thumbnail;
         private Diamond() { }
     }
 }

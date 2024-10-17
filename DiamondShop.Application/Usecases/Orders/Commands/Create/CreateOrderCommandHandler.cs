@@ -1,5 +1,4 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Orders;
-using DiamondShop.Application.Services.Data;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Models;
 using DiamondShop.Application.Usecases.Orders.Commands.Validate;

@@ -1,5 +1,5 @@
 ﻿using DiamondShop.Application.Dtos.Requests.JewelryModels;
-using DiamondShop.Application.Services.Data;
+using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.JewelryModels.Commands.Create;
 using DiamondShop.Application.Usecases.MainDiamonds.Commands.Create;
 using DiamondShop.Application.Usecases.SideDiamonds.Commands;

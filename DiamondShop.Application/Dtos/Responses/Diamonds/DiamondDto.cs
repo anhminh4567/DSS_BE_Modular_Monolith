@@ -35,8 +35,8 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public Fluorescence Fluorescence { get; set; }
         public string Measurement { get; set; }
         public DiamondPriceDto? DiamondPrice { get; set; }
-        public Media? Thumbnail { get; set; }
-        public List<Media>? Gallery { get; set; }
+        public MediaDto? Thumbnail { get; set; }
+        public List<MediaDto>? Gallery { get; set; }
         public bool IsSold { get; set; } 
         public bool IsActive { get; set; }
     }

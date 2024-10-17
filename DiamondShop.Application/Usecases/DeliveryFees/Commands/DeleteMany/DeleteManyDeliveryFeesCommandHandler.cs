@@ -1,4 +1,4 @@
-﻿using DiamondShop.Application.Services.Data;
+﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.DeliveryFees.ValueObjects;
 using DiamondShop.Domain.Repositories.DeliveryRepo;
 using FluentResults;

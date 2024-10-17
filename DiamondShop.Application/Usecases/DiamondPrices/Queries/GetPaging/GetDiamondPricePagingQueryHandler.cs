@@ -1,5 +1,4 @@
 ﻿using DiamondShop.Application.Commons.Responses;
-using DiamondShop.Application.Services.Data;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Services.Data
+namespace DiamondShop.Application.Services.Interfaces
 {
     public interface IUnitOfWork
     {

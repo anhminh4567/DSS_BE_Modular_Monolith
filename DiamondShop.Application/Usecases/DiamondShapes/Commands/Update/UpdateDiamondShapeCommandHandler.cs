@@ -1,5 +1,4 @@
-﻿using DiamondShop.Application.Services.Data;
-using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
+﻿using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
@@ -11,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Dynamic;
 using DiamondShop.Commons;
+using DiamondShop.Application.Services.Interfaces;
 
 namespace DiamondShop.Application.Usecases.DiamondShapes.Commands.Update
 {

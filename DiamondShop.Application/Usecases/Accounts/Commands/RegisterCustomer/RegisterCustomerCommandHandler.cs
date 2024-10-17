@@ -1,5 +1,4 @@
 ﻿using DiamondShop.Application.Commons.Responses;
-using DiamondShop.Application.Services.Data;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;

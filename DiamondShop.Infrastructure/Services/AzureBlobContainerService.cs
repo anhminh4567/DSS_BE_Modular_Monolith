@@ -19,7 +19,7 @@ namespace DiamondShop.Infrastructure.Services
         private readonly BlobServiceClient _blobServiceClient;
         private readonly ILogger<AzureBlobContainerService> _logger;
         private readonly IOptions<ExternalUrlsOptions> _externalUrlsOptions;
-
+        private const string PAGE_SIZE = "1000";
         public AzureBlobContainerService(BlobServiceClient blobServiceClient, ILogger<AzureBlobContainerService> logger, IOptions<ExternalUrlsOptions> externalUrlsOptions)
         {
             _blobServiceClient = blobServiceClient;
@@ -50,6 +50,18 @@ namespace DiamondShop.Infrastructure.Services
             });
         }
 
+        public async Task<List<string>> GetFolders(string folderPath, CancellationToken cancellationToken = default)
+        {
+            BlobContainerClient blobContainerClient = GetCorrectBlobClient();
+            var blobItems =  blobContainerClient.GetBlobsByHierarchyAsync(prefix: folderPath, cancellationToken: cancellationToken);
+            List<string> relativePath = new();
+            await foreach (var blobItem in blobItems)
+            {
+                relativePath.Add(blobItem.Blob.Name);
+            }
+            return relativePath;
+        }
+
         public async Task<Result<string>> UploadFileAsync(string filePath, Stream stream, string contentType, CancellationToken cancellationToken = default)
         {
             try
@@ -74,6 +86,11 @@ namespace DiamondShop.Infrastructure.Services
         private BlobContainerClient GetCorrectBlobClient()
         {
             return _blobServiceClient.GetBlobContainerClient(_externalUrlsOptions.Value.Azure.ContainerName);
+        }
+
+        public string ToAbsolutePath(string relativePath)
+        {
+            return $"{_externalUrlsOptions.Value.Azure.BaseUrl}/{_externalUrlsOptions.Value.Azure.ContainerName}/{relativePath}";
         }
     }
 }

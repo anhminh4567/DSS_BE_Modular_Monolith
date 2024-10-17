@@ -1,5 +1,4 @@
-﻿using DiamondShop.Application.Services.Data;
-using DiamondShop.Application.Services.Interfaces;
+﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Infrastructure.Outbox;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

@@ -1,5 +1,4 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Orders;
-using DiamondShop.Application.Services.Data;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;

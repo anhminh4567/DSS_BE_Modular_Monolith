@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Commons
+namespace DiamondShop.Application.Commons.Utilities
 {
     internal class DateTimeUtil
     {

@@ -15,7 +15,7 @@ namespace DiamondShop.Domain.Models.Diamonds.ValueObjects
         }
         public static DiamondId Create()
         {
-            return new DiamondId(Guid.NewGuid().ToString());
+            return new DiamondId(Ulid.NewUlid().ToString());
         }
     }
 }

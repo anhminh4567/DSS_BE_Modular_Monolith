@@ -1,4 +1,4 @@
-﻿using DiamondShop.Application.Services.Data;
+﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.JewelryModelCategories.Commands.Create;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;

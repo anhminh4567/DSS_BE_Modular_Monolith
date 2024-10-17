@@ -20,6 +20,8 @@
   <ItemGroup>
     <Folder Include="Usecases\Addresses\Commands\" />
     <Folder Include="Usecases\Addresses\Queries\GetAllUserAddresses\" />
+    <Folder Include="Usecases\Diamonds\Files\Commands\AddMany\" />
+    <Folder Include="Usecases\Diamonds\Files\Queries\" />
     <Folder Include="Usecases\JewelryModelCategories\Commands\Delete\" />
     <Folder Include="Usecases\JewelryModelCategories\Commands\Update\" />
     <Folder Include="Usecases\JewelryModels\Commands\Delete\" />
