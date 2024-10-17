@@ -4,6 +4,7 @@ using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.Enum;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DiamondShop.Domain.Models.JewelryModels
 {

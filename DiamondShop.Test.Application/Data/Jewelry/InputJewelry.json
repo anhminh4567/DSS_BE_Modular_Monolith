@@ -41,5 +41,18 @@
     "attachedDiamondIds": [
       "f00c1a91-868c-4447-961d-7c7c25167626"
     ]
+  },
+  {
+    "jewelryRequest": {
+      "modelId": "869c887a-5730-490c-a8d5-75e90f51ad20",
+      "sizeId": "3",
+      "metalId": "4",
+      "serialCode": "NECKLACE_1",
+      "attachDiamond": true,
+      "isActive": true
+    },
+    "attachedDiamondIds": [
+      "988865cf-a17e-456b-a4e4-85e9d407f9d3"
+    ]
   }
 ]
