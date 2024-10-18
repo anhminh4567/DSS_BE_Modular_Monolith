@@ -75,12 +75,12 @@ namespace DiamondShop.Api.Controllers.Orders
 
         [HttpPost("Checkout")]
         [Authorize(Roles = AccountRole.CustomerId)]
-        public async Task<ActionResult> Checkout([FromBody] CreateOrderInfo createOrderInfo)
+        public async Task<ActionResult> Checkout([FromBody] CheckoutRequestDto checkoutRequestDto)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
             {
-                var result = await _sender.Send(new CreateOrderCommand(userId.Value, createOrderInfo));
+                var result = await _sender.Send(new CreateOrderCommand(userId.Value, checkoutRequestDto.BillingDetail, checkoutRequestDto.CreateOrderInfo));
                 if (result.IsSuccess)
                 {
                     return Ok(result.Value);

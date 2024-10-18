@@ -10,6 +10,7 @@ using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
+using DiamondShop.Domain.Models.Warranties.Enum;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
@@ -23,8 +24,8 @@ using System.Collections.Generic;
 namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 {
     public record BillingDetail(string FirstName, string LastName, string Phone, string Email, string Providence, string Ward, string Address, string Note);
-    public record CreateOrderInfo(OrderRequestDto OrderRequestDto, List<OrderItemRequestDto> OrderItemRequestDtos, BillingDetail BillingDetail);
-    public record CreateOrderCommand(string accountId, CreateOrderInfo CreateOrderInfo) : IRequest<Result<PaymentLinkResponse>>;
+    public record CreateOrderInfo(OrderRequestDto OrderRequestDto, List<OrderItemRequestDto> OrderItemRequestDtos);
+    public record CreateOrderCommand(string AccountId, BillingDetail BillingDetail, CreateOrderInfo CreateOrderInfo) : IRequest<Result<PaymentLinkResponse>>;
     internal class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Result<PaymentLinkResponse>>
     {
         private readonly IAccountRepository _accountRepository;
@@ -58,14 +59,13 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         public async Task<Result<PaymentLinkResponse>> Handle(CreateOrderCommand request, CancellationToken token)
         {
             await _unitOfWork.BeginTransactionAsync(token);
-            request.Deconstruct(out string accountId, out CreateOrderInfo createOrderInfo);
-            createOrderInfo.Deconstruct(out OrderRequestDto orderReq, out List<OrderItemRequestDto> orderItemReqs, out BillingDetail billingDetail);
+            request.Deconstruct(out string accountId, out BillingDetail billingDetail, out CreateOrderInfo createOrderInfo);
+            createOrderInfo.Deconstruct(out OrderRequestDto orderReq, out List<OrderItemRequestDto> orderItemReqs);
 
             var account = await _accountRepository.GetById(AccountId.Parse(accountId));
             if (account == null)
                 return Result.Fail("This account doesn't exist");
             //TODO: Validate account status
-
 
             List<CartProduct> products = new();
             HashSet<Jewelry> jewelrySet = new();
@@ -73,26 +73,40 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             List<IError> errors = new List<IError>();
             foreach (var item in orderItemReqs)
             {
-
-                CartProduct cartProduct = new();
-                if (item.jewelryId != null)
+                if (item.JewelryId != null)
                 {
-                    cartProduct.Jewelry = await _jewelryRepository.GetById(JewelryId.Parse(item.jewelryId));
-                    cartProduct.EngravedFont = item.engravedFont;
-                    cartProduct.EngravedText = item.engravedText;
+
+
+
+                }
+                CartProduct cartProduct = new();
+                if (item.JewelryId != null)
+                {
+                    if (item.WarrantyType != WarrantyType.Jewelry)
+                    {
+                        errors.Add(new Error($"Wrong Type of warranty for jewelry #{item.JewelryId}"));
+                        continue;
+                    }
+                    cartProduct.Jewelry = await _jewelryRepository.GetById(JewelryId.Parse(item.JewelryId));
+                    cartProduct.EngravedFont = item.EngravedFont;
+                    cartProduct.EngravedText = item.EngravedText;
                     jewelrySet.Add(cartProduct.Jewelry);
                 }
-                if (item.diamondId != null)
+                if (item.DiamondId != null)
                 {
-                    cartProduct.Diamond = await _diamondRepository.GetById(DiamondId.Parse(item.diamondId));
-                    //TODO: xem lai sau
-                    if (cartProduct.Diamond.JewelryId != null && cartProduct.Diamond.JewelryId != cartProduct.Jewelry?.Id)
-                        errors.Add(new Error($"Diamond #{cartProduct.Diamond.Id} is already attached to another Jewelry"));
-                    else
+                    if (item.WarrantyType != WarrantyType.Diamond)
                     {
-                        cartProduct.Diamond.JewelryId = cartProduct.Jewelry?.Id;
-                        diamondSet.Add(cartProduct.Diamond);
+                        errors.Add(new Error($"Wrong Type of warranty for diamond #{item.DiamondId}"));
+                        continue;
                     }
+                    cartProduct.Diamond = await _diamondRepository.GetById(DiamondId.Parse(item.DiamondId));
+                    if (item.JewelryId != null)
+                    {
+                        if (cartProduct.Diamond.JewelryId != null && cartProduct.Diamond.JewelryId != cartProduct.Jewelry?.Id)
+                            errors.Add(new Error($"Diamond #{cartProduct.Diamond.Id} is already attached to another Jewelry"));
+                        cartProduct.Diamond.JewelryId = JewelryId.Parse(item.JewelryId);
+                    }
+                    diamondSet.Add(cartProduct.Diamond);
                 }
                 products.Add(cartProduct);
             }
@@ -126,7 +140,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             var cartModel = cartModelResult.Value;
             var orderPromo = cartModel.Promotion.Promotion;
 
-            var order = Order.Create(account.Id, orderReq.paymentType, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice, billingDetail.Address, orderPromo?.Id);
+            var order = Order.Create(account.Id, orderReq.PaymentType, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice, billingDetail.Address, orderPromo?.Id);
             await _orderRepository.Create(order, token);
             await _unitOfWork.SaveChangesAsync(token);
 
@@ -145,7 +159,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             await _unitOfWork.CommitAsync(token);
 
             //Create Paymentlink if not transfer
-            if (orderReq.isTransfer) return new PaymentLinkResponse() { };
+            if (orderReq.IsTransfer) return new PaymentLinkResponse() { };
             string title = "";
             string callbackURL = "";
             string returnURL = "";

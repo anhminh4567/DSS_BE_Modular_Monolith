@@ -1,11 +1,18 @@
-﻿using DiamondShop.Domain.Models.Diamonds;
+﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.AccountAggregate;
+using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
+using DiamondShop.Domain.Models.Jewelries;
+using DiamondShop.Domain.Models.Jewelries.Entities;
+using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.Enum;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Infrastructure.Databases;
 using Microsoft.EntityFrameworkCore;
 
@@ -62,10 +69,10 @@ namespace DiamondShop.Test.Integration.Data
             List<SideDiamondOpt>? sideDiamondOpts, List<SizeMetal> sizeMetals)
         {
             _context.Set<JewelryModel>().Add(model);
-            if(mainDiamondReqs != null) _context.Set<MainDiamondReq>().AddRange(mainDiamondReqs);
+            if (mainDiamondReqs != null) _context.Set<MainDiamondReq>().AddRange(mainDiamondReqs);
             if (mainDiamondShapes != null) _context.Set<MainDiamondShape>().AddRange(mainDiamondShapes);
-            if(sideDiamondReqs != null) _context.Set<SideDiamondReq>().AddRange(sideDiamondReqs);
-            if(sideDiamondOpts != null) _context.Set<SideDiamondOpt>().AddRange(sideDiamondOpts);
+            if (sideDiamondReqs != null) _context.Set<SideDiamondReq>().AddRange(sideDiamondReqs);
+            if (sideDiamondOpts != null) _context.Set<SideDiamondOpt>().AddRange(sideDiamondOpts);
             _context.Set<SizeMetal>().AddRange(sizeMetals);
             await _context.SaveChangesAsync();
         }
@@ -166,6 +173,28 @@ namespace DiamondShop.Test.Integration.Data
 
         #endregion
 
+        #region Jewelry
+        public static async Task<Jewelry> DefaultJewelry(string modelId, SizeId sizeId, MetalId metalId, string id = "1")
+            => Jewelry.Create(JewelryModelId.Parse(modelId), sizeId, metalId, 1f, "DEFAULT_JEWEL", givenId: JewelryId.Parse(id));
+        static async Task SeedingJewelry(DiamondShopDbContext _context, Jewelry jewelry, List<JewelrySideDiamond> sideDiamonds)
+        {
+            _context.Set<Jewelry>().Add(jewelry);
+            if (sideDiamonds != null) _context.Set<JewelrySideDiamond>().AddRange(sideDiamonds);
+            await _context.SaveChangesAsync();
+        }
+        public static async Task<Jewelry> SeedDefaultJewelry(DiamondShopDbContext _context)
+        {
+            var model = await SeedDefaultRingModel(_context);
+
+            var diamond = await SeedDefaultDiamond(_context);
+            var jewelry = await DefaultJewelry(model.Id.Value, SizeIds[0], MetalIds[0]);
+            var sideDiamonds = model.SideDiamonds.Select(x => x.SideDiamondOpts.First()).Select(p => JewelrySideDiamond.Create(jewelry.Id, p)).ToList();
+            await SeedingJewelry(_context, jewelry, sideDiamonds);
+
+            return jewelry;
+        }
+        #endregion
+
         #region Diamond
         static async Task SeedingDiamond(DiamondShopDbContext _context, Diamond diamond)
         {
@@ -177,17 +206,18 @@ namespace DiamondShop.Test.Integration.Data
             _context.Set<Diamond>().AddRange(diamonds);
             await _context.SaveChangesAsync();
         }
-        public static async Task<Diamond> SeedDefaultDiamond(DiamondShopDbContext _context)
+        public static async Task<Diamond> SeedDefaultDiamond(DiamondShopDbContext _context, JewelryId? jewelryId = null)
         {
             DiamondShape DefaultDiamondShape = DiamondShape.Create("Round", DiamondShapeId.Parse("1"));
             Diamond_4C DefaultDiamond4C = new Diamond_4C(Cut.Very_Good, Color.H, Clarity.VS1, 1, false);
             Diamond_Details DefaultDiamondDetail = new Diamond_Details(Polish.Good, Symmetry.Good, Girdle.Medium, Fluorescence.None, Culet.None);
             Diamond_Measurement DefaultDiamondMeasurement = new Diamond_Measurement(1f, 1f, 1f, "1x1");
             Diamond DefaultDiamond = Diamond.Create(DefaultDiamondShape, DefaultDiamond4C, DefaultDiamondDetail, DefaultDiamondMeasurement, 0m);
+            DefaultDiamond.JewelryId = jewelryId;
             await SeedingDiamond(_context, DefaultDiamond);
             return DefaultDiamond;
         }
-        public static async Task<List<Diamond>> SeedDefaultDiamonds(DiamondShopDbContext _context, int quantity, string shapeId)
+        public static async Task<List<Diamond>> SeedDefaultDiamonds(DiamondShopDbContext _context, int quantity, string shapeId, JewelryId? jewelryId = null)
         {
             DiamondShape DefaultDiamondShape = DiamondShape.Create("Round", DiamondShapeId.Parse(shapeId));
             Diamond_4C DefaultDiamond4C = new Diamond_4C(Cut.Very_Good, Color.H, Clarity.VS1, 1, false);
@@ -196,7 +226,9 @@ namespace DiamondShop.Test.Integration.Data
             List<Diamond> DefaultDiamonds = new() { };
             for (int i = 0; i < quantity; i++)
             {
-                DefaultDiamonds.Add(Diamond.Create(DefaultDiamondShape, DefaultDiamond4C, DefaultDiamondDetail, DefaultDiamondMeasurement, 0m));
+                var diamond = Diamond.Create(DefaultDiamondShape, DefaultDiamond4C, DefaultDiamondDetail, DefaultDiamondMeasurement, 0m);
+                diamond.JewelryId = jewelryId;
+                DefaultDiamonds.Add(diamond);
             }
             await SeedingDiamonds(_context, DefaultDiamonds);
             return DefaultDiamonds;
@@ -204,6 +236,25 @@ namespace DiamondShop.Test.Integration.Data
 
         #endregion
 
+        #region Account
+        public static Account DefaultCustomer(FullName fullname, string email, string identityId, List<AccountRole> roles) =>
+            Account.CreateBaseCustomer(fullname, email, identityId, roles);
 
+        static async Task SeedingAccount(DiamondShopDbContext _context, Account account)
+        {
+            _context.Set<Account>().Add(account);
+            await _context.SaveChangesAsync();
+        }
+        public static async Task<Account> SeedDefaultCustomer(DiamondShopDbContext _context, IAuthenticationService _authentication)
+        {
+            var roles = await _context.Set<AccountRole>().ToListAsync();
+            string email = "abc@gmail.com";
+            FullName username = FullName.parse("", "User_A");
+            var register = await _authentication.Register(email,"123",username,true);
+            var user = DefaultCustomer(username,email,register.Value,roles);
+            await SeedingAccount(_context, user);
+            return user;
+        }
+        #endregion
     }
 }
