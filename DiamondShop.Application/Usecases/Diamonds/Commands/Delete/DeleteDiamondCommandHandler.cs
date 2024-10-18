@@ -1,4 +1,4 @@
-﻿using DiamondShop.Application.Services.Data;
+﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;

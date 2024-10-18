@@ -1,6 +1,6 @@
 ﻿using DiamondShop.Api.Controllers.JewelryModels;
 using DiamondShop.Application.Dtos.Requests.JewelryModels;
-using DiamondShop.Application.Services.Data;
+using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.SizeMetals.Commands.Create;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;

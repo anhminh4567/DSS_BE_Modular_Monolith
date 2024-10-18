@@ -1,6 +1,9 @@
 ﻿using Azure.Storage.Blobs;
-using DiamondShop.Application.Services.Data;
+using DiamondShop.Application.Commons.Models;
+using DiamondShop.Application.Dtos.Responses;
 using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Application.Services.Interfaces.Diamonds;
+using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.DeliveryRepo;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
@@ -26,17 +29,21 @@ using DiamondShop.Infrastructure.Outbox;
 using DiamondShop.Infrastructure.Securities;
 using DiamondShop.Infrastructure.Securities.Authentication;
 using DiamondShop.Infrastructure.Services;
+using DiamondShop.Infrastructure.Services.Blobs;
 using DiamondShop.Infrastructure.Services.Locations;
 using DiamondShop.Infrastructure.Services.Locations.Locally;
 using DiamondShop.Infrastructure.Services.Locations.OApi;
 using DiamondShop.Infrastructure.Services.Locations.OpenApiProvinces;
 using DiamondShop.Infrastructure.Services.Payments.Paypals;
 using DiamondShop.Infrastructure.Services.Payments.Zalopays;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Quartz;
 
@@ -53,6 +60,7 @@ namespace DiamondShop.Infrastructure
             services.AddBackgroundJobs(configuration);
             services.AddPayments(configuration);
             services.AddServices(configuration);
+            services.AddMappingExtension(configuration);
             return services;
         }
         public static IServiceCollection AddPersistance(this IServiceCollection services, IConfiguration configuration)
@@ -173,6 +181,8 @@ namespace DiamondShop.Infrastructure
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton<ILocationService, LocalLocationService>();
+            services.AddScoped<IDiamondFileService, DiamondFileService>();
+
             var serviceProviderInstrance = services.BuildServiceProvider();
             var mailOptions = serviceProviderInstrance.GetRequiredService<IOptions<MailOptions>>().Value;
             services.AddFluentEmail(mailOptions.SenderEmail)
@@ -217,6 +227,19 @@ namespace DiamondShop.Infrastructure
             return services;
         }
         // test if origin change work
-
+        public static IServiceCollection AddMappingExtension(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.RemoveAll<TypeAdapterConfig>();
+            var config = TypeAdapterConfig.GlobalSettings;
+            //services.AddSingleton(config);
+            //services.AddScoped<IMapper, ServiceMapper>();
+            var getOption = services.BuildServiceProvider().GetRequiredService<IOptions<ExternalUrlsOptions>>().Value;
+            config.NewConfig<Media, MediaDto>()
+               .Map(dest => dest.MediaPath, src => $"{getOption.Azure.BaseUrl}/{getOption.Azure.ContainerName}/{src.MediaPath}");
+            config.NewConfig<GalleryTemplate, GalleryTemplateDto>()
+               .Map(dest => dest.Gallery , src => src.Gallery.ToDictionary(kvp => kvp.Key, kvp => $"{getOption.Azure.BaseUrl}/{getOption.Azure.ContainerName}/{kvp.Value}"));
+            services.AddSingleton(config);
+            return services;
+        }
     }
 }

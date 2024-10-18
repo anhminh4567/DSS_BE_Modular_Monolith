@@ -1,4 +1,4 @@
-﻿using DiamondShop.Application.Services.Data;
+﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.PromotionRequirements.Commands.CreateMany;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Diamonds.Enums;

@@ -1,4 +1,4 @@
-﻿using DiamondShop.Application.Commons;
+﻿using DiamondShop.Application.Commons.Utilities;
 using DiamondShop.Domain.BusinessRules;
 using FluentValidation;
 using System.Globalization;

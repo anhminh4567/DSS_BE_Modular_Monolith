@@ -1,4 +1,4 @@
-﻿using DiamondShop.Application.Services.Data;
+﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.AccountRoleAggregate.ValueObjects;

@@ -1,5 +1,4 @@
-﻿using DiamondShop.Application.Services.Data;
-using DiamondShop.Commons;
+﻿using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
@@ -48,7 +47,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail
             }
             var prices = await _diamondPriceRepository.GetPriceByShapes(getResult.DiamondShape,cancellationToken);
             var diamondPrice = await _diamondServices.GetDiamondPrice(getResult, prices);
-            getResult.DiamondPrice = diamondPrice;
+            //getResult.DiamondPrice = diamondPrice;
             //var testingOnly = await _diamondRepository.GetByIdIncludeDiscountAndPromotion(parsedId);
             var getAllDiscount = await _discountRepository.GetActiveDiscount();
             _diamondServices.AssignDiamondDiscount(getResult, getAllDiscount).Wait();

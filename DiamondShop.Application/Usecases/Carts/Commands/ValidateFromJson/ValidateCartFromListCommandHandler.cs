@@ -14,10 +14,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
+using DiamondShop.Application.Dtos.Requests.Carts;
+using MapsterMapper;
+using DiamondShop.Domain.Models.Promotions.ValueObjects;
 
 namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
 {
-    public record ValidateCartFromListCommand(List<CartItem> items) : IRequest<Result<CartModel>>;
+    public record ValidateCartFromListCommand(CartRequestDto items) : IRequest<Result<CartModel>>;
     internal class ValidateCartFromListCommandHandler : IRequestHandler<ValidateCartFromListCommand, Result<CartModel>>
     {
         private readonly ICartModelService _cartModelService;
@@ -30,8 +33,9 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
         private readonly IPromotionRepository _promotionRepository;
         private readonly ISizeMetalRepository _sizeMetalRepository;
         private readonly IMetalRepository _metalRepository;
+        private readonly IMapper _mapper;
 
-        public ValidateCartFromListCommandHandler(ICartModelService cartModelService, ICartService cartService, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository, IJewelryModelRepository jewelryModelRepository, IDiamondPriceRepository diamondPriceRepository, IDiscountRepository discountRepository, IPromotionRepository promotionRepository, ISizeMetalRepository sizeMetalRepository, IMetalRepository metalRepository)
+        public ValidateCartFromListCommandHandler(ICartModelService cartModelService, ICartService cartService, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository, IJewelryModelRepository jewelryModelRepository, IDiamondPriceRepository diamondPriceRepository, IDiscountRepository discountRepository, IPromotionRepository promotionRepository, ISizeMetalRepository sizeMetalRepository, IMetalRepository metalRepository, IMapper mapper)
         {
             _cartModelService = cartModelService;
             _cartService = cartService;
@@ -43,12 +47,17 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
             _promotionRepository = promotionRepository;
             _sizeMetalRepository = sizeMetalRepository;
             _metalRepository = metalRepository;
+            _mapper = mapper;
         }
 
         public async Task<Result<CartModel>> Handle(ValidateCartFromListCommand request, CancellationToken cancellationToken)
         {
+            var cartItem = _mapper.Map<List<CartItem>>(request.items.Items);
+            PromotionId promotionId;
+            if(request.items.PromotionId != null)
+                promotionId = PromotionId.Parse(request.items.PromotionId);
             List<CartProduct> getProducts = new();
-            foreach (var item in request.items)
+            foreach (var item in cartItem)
             {
                 var product = await _cartModelService.FromCartItem(item, _jewelryRepository, _jewelryModelRepository, _diamondRepository);
                 if (product is not null)
@@ -56,7 +65,7 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
             }
             var getActiveDiscount = await _discountRepository.GetActiveDiscount();
             var getActivePromotion = await _promotionRepository.GetActivePromotion();
-            Result<CartModel> result = await _cartModelService.Execute(getProducts, getActiveDiscount,getActivePromotion, _diamondPriceRepository, _sizeMetalRepository, _metalRepository);
+            Result<CartModel> result = await _cartModelService.Execute(getProducts, getActiveDiscount, getActivePromotion, _diamondPriceRepository, _sizeMetalRepository, _metalRepository);
             if (result.IsSuccess)
                 return result.Value;
             return Result.Fail(result.Errors);

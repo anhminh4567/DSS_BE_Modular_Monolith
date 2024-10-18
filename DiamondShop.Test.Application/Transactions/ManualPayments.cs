@@ -1,5 +1,5 @@
 ﻿using Castle.Core.Logging;
-using DiamondShop.Application.Services.Data;
+using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.JewelryModelCategories.Queries.GetAll;
 using DiamondShop.Application.Usecases.Transactions.Commands.AddManualPayments;
 using DiamondShop.Application.Usecases.Transactions.Queries.GetAll;

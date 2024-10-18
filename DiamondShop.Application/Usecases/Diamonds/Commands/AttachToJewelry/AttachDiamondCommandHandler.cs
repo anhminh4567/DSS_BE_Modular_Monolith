@@ -1,4 +1,4 @@
-﻿using DiamondShop.Application.Services.Data;
+﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;

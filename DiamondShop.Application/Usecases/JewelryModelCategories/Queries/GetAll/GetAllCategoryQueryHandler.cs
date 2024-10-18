@@ -1,5 +1,4 @@
-﻿using DiamondShop.Application.Services.Data;
-using DiamondShop.Commons;
+﻿using DiamondShop.Commons;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using MediatR;

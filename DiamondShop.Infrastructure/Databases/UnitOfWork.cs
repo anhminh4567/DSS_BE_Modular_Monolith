@@ -1,4 +1,4 @@
-﻿using DiamondShop.Application.Services.Data;
+﻿using DiamondShop.Application.Services.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
