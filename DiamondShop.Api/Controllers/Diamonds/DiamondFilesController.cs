@@ -1,6 +1,8 @@
 ﻿using DiamondShop.Application.Dtos.Responses;
+using DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddCertficate;
 using DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddMany;
 using DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddThumbnail;
+using DiamondShop.Application.Usecases.Diamonds.Files.Commands.RemoveCertificate;
 using DiamondShop.Application.Usecases.Diamonds.Files.Commands.RemoveMany;
 using DiamondShop.Application.Usecases.Diamonds.Files.Commands.RemoveThumbnail;
 using DiamondShop.Application.Usecases.Diamonds.Files.Queries;
@@ -41,6 +43,15 @@ namespace DiamondShop.Api.Controllers.Diamonds
                 return Ok(result.Value);
             return MatchError(result.Errors, ModelState);
         }
+        [HttpPost("{diamondId}/Files/Certificates")]
+        [Produces(typeof(string))]
+        public async Task<ActionResult> UploadCertificate([FromRoute] string diamondId, IFormFile formFile, CancellationToken cancellationToken = default)
+        {
+            var result = await _sender.Send(new AddDiamondCertificateCommand(diamondId, formFile), cancellationToken);
+            if (result.IsSuccess)
+                return Ok(result.Value);
+            return MatchError(result.Errors, ModelState);
+        }
         [HttpPost("{diamondId}/Files/Images")]
         public async Task<ActionResult> UploadImages([FromRoute] string diamondId, IFormFile[] formFiles)
         {
@@ -65,6 +76,14 @@ namespace DiamondShop.Api.Controllers.Diamonds
                 return Ok();
             return MatchError(result.Errors, ModelState);
         }
- 
+
+        [HttpDelete("{diamondId}/Files/Certificates")]
+        public async Task<ActionResult> DeleteCertificate([FromRoute] string diamondId, [FromQuery] string certAbsolutePath, CancellationToken cancellationToken = default)
+        {
+            var result = await _sender.Send(new RemoveDiamondCertificateCommand(diamondId,certAbsolutePath),cancellationToken);
+            if (result.IsSuccess)
+                return Ok();
+            return MatchError(result.Errors, ModelState);
+        }
     }
 }

@@ -32,5 +32,22 @@ namespace DiamondShop.Application.Commons.Utilities
             }
             return true;
         }
+        public static bool IsPdfFileContentType(string contentType)
+        {
+            if (!string.Equals(contentType, "application/pdf", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+            return true;
+        }
+        public static bool IsPdfFileExtension(string fileExtension)
+        {
+            if (!string.Equals(fileExtension, ".pdf", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+            return true;
+        }
+
     }
 }
