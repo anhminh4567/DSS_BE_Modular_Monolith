@@ -1,7 +1,9 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Promotions;
 using DiamondShop.Application.Usecases.Discounts.Commands.Create;
 using DiamondShop.Application.Usecases.Discounts.Commands.Delete;
+using DiamondShop.Application.Usecases.Discounts.Commands.SetThumbnail;
 using DiamondShop.Application.Usecases.Discounts.Commands.Update;
+using DiamondShop.Application.Usecases.Discounts.Commands.UpdateInfo;
 using DiamondShop.Application.Usecases.Discounts.Commands.UpdateRequirements;
 using DiamondShop.Application.Usecases.Discounts.Queries.GetAll;
 using DiamondShop.Application.Usecases.Discounts.Queries.GetDetail;
@@ -52,11 +54,23 @@ namespace DiamondShop.Api.Controllers.Promotions
             }
             return MatchError(result.Errors,ModelState);
         }
+        
+        [HttpPut("{discountId}/Requirement")]
+        public async Task<ActionResult> UpdateRequiremwnt([FromRoute] string discountId, [FromBody] UpdateDiscountRequirementCommand updateDiscountRequirementCommand  )
+        {
+            var command = updateDiscountRequirementCommand with { discountId = discountId };
+            var result = await _sender.Send(command);
+            if (result.IsSuccess)
+            {
+                return Ok();
+            }
+            return MatchError(result.Errors, ModelState);
+        }
         [HttpPut("{discountId}")]
         [Produces(type: typeof(DiscountDto))]
-        public async Task<ActionResult> Update([FromRoute]string discountId, [FromBody] UpdateDiscountCommand updateDiscountCommand )
+        public async Task<ActionResult> UpdateInfo([FromRoute] string discountId, [FromBody] UpdateDiscountInfoCommand updateDiscountInfoCommand)
         {
-            var command = updateDiscountCommand with { discountId = discountId };
+            var command = updateDiscountInfoCommand with { discountId = discountId };
             var result = await _sender.Send(command);
             if (result.IsSuccess)
             {
@@ -65,10 +79,11 @@ namespace DiamondShop.Api.Controllers.Promotions
             }
             return MatchError(result.Errors, ModelState);
         }
-        [HttpPut("{discountId}/Requirement")]
-        public async Task<ActionResult> UpdateRequiremwnt([FromRoute] string discountId, [FromBody] UpdateDiscountRequirementCommand updateDiscountRequirementCommand  )
+        [HttpPut("{discountId}/Thumbnail")]
+        [Produces(type: typeof(DiscountDto))]
+        public async Task<ActionResult> SetThumbnail([FromRoute] string discountId, [FromForm] SetDiscountThumbnailCommand setDiscountThumbnailCommand)
         {
-            var command = updateDiscountRequirementCommand with { discountId = discountId };
+            var command = setDiscountThumbnailCommand with { discountId = discountId };
             var result = await _sender.Send(command);
             if (result.IsSuccess)
             {
