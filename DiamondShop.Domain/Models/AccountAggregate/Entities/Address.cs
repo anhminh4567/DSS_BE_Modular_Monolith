@@ -25,7 +25,18 @@ namespace DiamondShop.Domain.Models.AccountAggregate.Entities
             Ward = ward;
             Street = street;
         }
-
+        public static Address Create(string province, string district, string ward, string street, AccountId accountId, AddressId? addressId = null)
+        {
+            return new Address()
+            {
+                AccountId = accountId,
+                District = district,
+                Id = addressId ?? AddressId.Create(),
+                Street = street,
+                Ward = ward,
+                Province=province,
+            };
+        }
         public void Update(string province, string district, string ward, string street)
         {
             Province = province.Trim();

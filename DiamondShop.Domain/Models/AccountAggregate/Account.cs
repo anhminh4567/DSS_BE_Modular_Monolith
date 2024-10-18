@@ -87,7 +87,17 @@ namespace DiamondShop.Domain.Models.AccountAggregate
         public void RemoveAddress(AddressId addressId)
         {
             var get = Addresses.FirstOrDefault(a => a.Id == addressId);
-            Addresses.Remove(get);
+            if(get != null)
+                Addresses.Remove(get);
+        
+        }
+        public void ChangeFullName(FullName fullName)
+        {
+            if(fullName is null || fullName.FirstName is null || fullName.LastName is null)
+            {
+                throw new ArgumentNullException("Fullname is invalid");
+            }
+            FullName = fullName;
         }
         private Account()
         {

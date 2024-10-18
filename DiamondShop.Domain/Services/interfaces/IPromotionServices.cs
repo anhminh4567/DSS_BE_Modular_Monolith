@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.Enum;
 using FluentResults;
 using System;
 using System.Collections.Generic;
@@ -14,5 +15,6 @@ namespace DiamondShop.Domain.Services.interfaces
     {
         Result ApplyPromotionOnCartModel(CartModel cartModel, Promotion promotion);
         void SetOrderPrice(CartModel cartModel);
+        Result ManualChangeStatus(Promotion promotion , Status status);
     }
 }

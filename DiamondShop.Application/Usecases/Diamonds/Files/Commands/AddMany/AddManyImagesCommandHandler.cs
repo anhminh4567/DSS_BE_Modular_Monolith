@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Commons.Utilities;
+﻿using DiamondShop.Application.Commons.Models;
+using DiamondShop.Application.Commons.Utilities;
 using DiamondShop.Application.Services.Interfaces.Diamonds;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
@@ -39,7 +40,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddMany
             }
             if(request.images.Any(x => FileUltilities.IsImageFileContentType(x.ContentType) == false))
                 return Result.Fail(new ConflictError("Contain Invalid file type, has to be image"));
-            DiamondFileData[] diamondFileDatas = request.images.Select(x => new DiamondFileData(x.FileName,null,x.ContentType,x.OpenReadStream())).ToArray();
+            FileData[] diamondFileDatas = request.images.Select(x => new FileData(x.FileName,null,x.ContentType,x.OpenReadStream())).ToArray();
             var uploadedResult = await _diamondFileService.UploadGallery(getDiamond, diamondFileDatas,cancellationToken);
             return uploadedResult;
         }

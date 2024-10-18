@@ -31,6 +31,10 @@ namespace DiamondShop.Domain.Services.Implementations
         /// <returns></returns>
         public Result ApplyDiscountOnCartModel(CartModel cartModel, Discount discount)
         {
+            if(discount.Status != Status.Active)
+            {
+                return Result.Fail("Discount is not active, skip to the next discount");
+            }
             var requirements = discount.DiscountReq;
             bool isAnyProductHaveDiscount = false;
             for (int i = 0; i < requirements.Count; i++)

@@ -1,5 +1,7 @@
-﻿using DiamondShop.Application.Services.Interfaces;
+﻿using DiamondShop.Application.Commons.Models;
+using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Diamonds;
+using DiamondShop.Application.Services.Models;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
@@ -46,7 +48,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddThumbnail
             var fileExtension = Path.GetExtension(request.FormFile.FileName).Trim();
             var contentType = request.FormFile.ContentType;
             var stream = request.FormFile.OpenReadStream();
-            var diamondFileData = new DiamondFileData(request.FormFile.FileName.Replace(fileExtension,""), fileExtension, contentType, stream) ;
+            var diamondFileData = new FileData(request.FormFile.FileName.Replace(fileExtension,""), fileExtension, contentType, stream) ;
             if(getDiamond.Thumbnail != null)
             {
                 await _blobFileServices.DeleteFileAsync(getDiamond.Thumbnail.MediaPath, cancellationToken);

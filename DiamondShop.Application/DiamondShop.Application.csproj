@@ -18,14 +18,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Usecases\Addresses\Commands\" />
     <Folder Include="Usecases\Addresses\Queries\GetAllUserAddresses\" />
     <Folder Include="Usecases\JewelryModelCategories\Commands\Delete\" />
     <Folder Include="Usecases\JewelryModelCategories\Commands\Update\" />
     <Folder Include="Usecases\JewelryModels\Commands\Delete\" />
     <Folder Include="Usecases\JewelryModels\Commands\Update\" />
     <Folder Include="Usecases\DiamondPrices\Commands\UpdateMany\" />
-    <Folder Include="Usecases\PromotionRequirements\Commands\Update\" />
     <Folder Include="Usecases\Sizes\Commands\" />
     <Folder Include="Usecases\Transactions\Commands\CreateRefunds\" />
   </ItemGroup>
