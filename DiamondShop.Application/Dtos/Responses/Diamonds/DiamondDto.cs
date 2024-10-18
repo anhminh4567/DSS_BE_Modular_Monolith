@@ -8,6 +8,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.DiamondPrices;
+using DiamondShop.Domain.Models.Promotions.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
+using DiamondShop.Application.Dtos.Responses.Promotions;
 
 namespace DiamondShop.Application.Dtos.Responses.Diamonds
 {
@@ -39,5 +43,8 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public List<MediaDto>? Gallery { get; set; }
         public bool IsSold { get; set; } 
         public bool IsActive { get; set; }
+        public decimal TruePrice { get; set; }
+        public DiscountDto? Discount { get; set; }
+        public decimal? DiscountPrice { get; set; }
     }
 }

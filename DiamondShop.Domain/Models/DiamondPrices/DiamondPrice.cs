@@ -21,12 +21,8 @@ namespace DiamondShop.Domain.Models.DiamondPrices
         public decimal Price { get; set; }
         [NotMapped]
         public string ForUnknownPrice { get; set; }
-        [NotMapped]
-        public decimal TruePrice { get; set; }
-        [NotMapped]
-        public Discount? Discount { get; set; }
-        [NotMapped]
-        public decimal? DiscountPrice { get; set; }
+
+
         public static DiamondPrice Create(DiamondShapeId diamondShapeId, DiamondCriteriaId diamondCriteriaId, decimal price)
         {
             if (price <= 0)
@@ -49,6 +45,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices
                 ForUnknownPrice = "Liên hệ chúng tôi để được tư vấn giá"
             };
         }
+
         private DiamondPrice() { }
     }
 }
