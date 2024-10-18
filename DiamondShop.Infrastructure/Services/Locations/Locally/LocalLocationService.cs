@@ -52,7 +52,7 @@ namespace DiamondShop.Infrastructure.Services.Locations.Locally
         public List<Province> GetProvinces()
         {
             _logger.LogInformation("get all province is called");
-            return JsonConvert.DeserializeObject<List<Province>>(_jsonAllowedProvince)!;
+            return _allowedProvince.OrderBy(o => o.Id).ToList(); //JsonConvert.DeserializeObject<List<Province>>(_jsonAllowedProvince)!;
         }
 
         public List<Ward> GetWards(string districtId)

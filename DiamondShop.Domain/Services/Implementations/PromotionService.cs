@@ -43,7 +43,10 @@ namespace DiamondShop.Domain.Services.Implementations
             List<PromoReq> promoReqs = new();
             //List<Gift> promoGifts = new();
             bool IsRequirementMet = false;
-
+            if(promotion.Status != Status.Active)
+            {
+                return Result.Fail("Promotion is not active, skip to the next promotion");
+            }
             //var orderReq = promotionRequirement.FirstOrDefault(r => r.TargetType == TargetType.Order);
             if (cartModel.Promotion.IsHavingPromotion is true)
                 throw new Exception("already have a promotoin, stop doing things");
