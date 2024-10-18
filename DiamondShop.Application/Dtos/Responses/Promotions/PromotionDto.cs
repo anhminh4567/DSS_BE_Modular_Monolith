@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.Promotions.Entities;
+﻿using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using System;
 using System.Collections.Generic;
@@ -21,5 +22,6 @@ namespace DiamondShop.Application.Dtos.Responses.Promotions
         public RedemptionMode RedemptionMode { get; set; }
         public List<RequirementDto> PromoReqs { get; set; } = new();
         public List<GiftDto> Gifts { get; set; } = new();
+        public MediaDto? Thumbnail { get; set; }
     }
 }

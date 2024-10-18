@@ -1,4 +1,4 @@
-﻿using DiamondShop.Application.Services.Data;
+﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Repositories.PromotionsRepo;

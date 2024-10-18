@@ -63,7 +63,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             {
                 diamond.DiamondShape = getAllShape.FirstOrDefault(s => s.Id == diamond.DiamondShapeId);
                 var diamondPrice = await _diamondService.GetDiamondPrice(diamond, shapeDictPrice.FirstOrDefault(d => d.Key == diamond.DiamondShapeId.Value).Value);
-                diamond.DiamondPrice = diamondPrice;
+                //diamond.DiamondPrice = diamondPrice;
                 _diamondService.AssignDiamondDiscount(diamond, getAllDiscount).Wait();
             }
 

@@ -1,5 +1,5 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Diamonds;
-using DiamondShop.Application.Services.Data;
+using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Repositories;
 using FluentResults;

@@ -8,6 +8,7 @@ using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
+using DiamondShop.Domain.Models.Promotions.Entities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -48,6 +49,12 @@ namespace DiamondShop.Domain.Models.Diamonds
         public bool IsActive { get; set; } = true;
         [NotMapped]
         public DiamondPrice? DiamondPrice { get; set; }
+        [NotMapped]
+        public decimal TruePrice { get; set; }
+        [NotMapped]
+        public Discount? Discount { get; set; }
+        [NotMapped]
+        public decimal? DiscountPrice { get; set; }
         public static Diamond Create(DiamondShape shape, Diamond_4C diamond_4C, Diamond_Details diamond_Details,
            Diamond_Measurement diamond_Measurement,decimal priceOffset) 
         {
@@ -101,7 +108,14 @@ namespace DiamondShop.Domain.Models.Diamonds
             IsActive = true;
             IsSold = false;
         }
-
+        public void SetCorrectPrice(decimal truePrice)
+        {
+            if (TruePrice < 0)
+                throw new Exception();
+            else
+                TruePrice = truePrice;
+        }
+        public void ChangeThumbnail(Media? thumbnail) => Thumbnail = thumbnail;
         private Diamond() { }
     }
 }

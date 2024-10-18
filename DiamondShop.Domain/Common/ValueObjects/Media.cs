@@ -10,6 +10,15 @@ namespace DiamondShop.Domain.Common.ValueObjects
     {
         public string? MediaName { get; set; }
         public string MediaPath { get; set; }
-        public string ContentType { get; set; } 
+        public string ContentType { get; set; }
+        public static Media Create(string name, string path, string contentType) 
+        {
+            return new Media()
+            {
+                MediaName = name,
+                MediaPath = path,
+                ContentType = contentType
+            };
+        }
     }
 }

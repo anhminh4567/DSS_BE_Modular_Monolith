@@ -1,4 +1,5 @@
-﻿using FluentResults;
+﻿using DiamondShop.Domain.Common.ValueObjects;
+using FluentResults;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,9 @@ namespace DiamondShop.Application.Services.Interfaces
         Task<Result> DeleteFileAsync(string filePath, CancellationToken cancellationToken = default);
         Task<Result<BlobFileResponseDto>> DownloadFileAsync(string filePath, CancellationToken cancellationToken = default);
         Task<Result<string>> UploadFileAsync(string filePath, Stream stream, string contentType, CancellationToken cancellationToken = default);
+        Task<List<Media>> GetFolders(string folderPath, CancellationToken cancellationToken = default);
+        string ToAbsolutePath(string relativePath);
+        string ToRelativePath(string absolutePath);
     }
     public class BlobFileResponseDto
     {

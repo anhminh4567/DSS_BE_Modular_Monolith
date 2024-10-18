@@ -83,10 +83,10 @@ namespace DiamondShop.Api.Controllers.Carts
             return MatchError(result.Errors, ModelState);
         }
         [HttpPost("Validate")]
-        public async Task<ActionResult> Validate([FromBody] List<CartItemRequestDto> items)
+        public async Task<ActionResult> Validate([FromBody] CartRequestDto cartDto)
         {
-            var mappedRequest = _mapper.Map<List<CartItem>>(items);
-            var result = await _sender.Send(new ValidateCartFromListCommand(mappedRequest));
+            //var mappedRequest = _mapper.Map<List<CartItem>>(items);
+            var result = await _sender.Send(new ValidateCartFromListCommand(cartDto));
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<CartModelDto>(result.Value);

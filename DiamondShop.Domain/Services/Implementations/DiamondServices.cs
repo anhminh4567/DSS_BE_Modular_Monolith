@@ -28,6 +28,10 @@ namespace DiamondShop.Domain.Services.Implementations
         public Task<Discount?> AssignDiamondDiscount(Diamond diamond, List<Discount> discounts)
         {
             ArgumentNullException.ThrowIfNull(diamond.DiamondPrice);
+            if(diamond.DiamondPrice.ForUnknownPrice != null)// means price is unknown
+            {
+                return Task.FromResult(diamond.Discount);
+            }
             foreach (var discount in discounts)
             {
                 foreach (var req in discount.DiscountReq)
@@ -37,26 +41,28 @@ namespace DiamondShop.Domain.Services.Implementations
                     if (ValidateDiamond4CGlobal(diamond, req.CaratFrom.Value, req.CaratTo.Value, req.ColorFrom.Value, req.ColorTo.Value, req.ClarityFrom.Value, req.ClarityTo.Value, req.CutFrom.Value, req.CutTo.Value))
                     {
                         var discountValue = discount.DiscountPercent;
-                        if(diamond.DiamondPrice.Discount != null &&discountValue > diamond.DiamondPrice.Discount.DiscountPercent)
+                        if(diamond.Discount != null &&discountValue > diamond.Discount.DiscountPercent)
                         {
-                            diamond.DiamondPrice.Discount = discount;
+                            diamond.Discount = discount;
                         }
-                        else
+                        else if(diamond.Discount != null)
                         {
-                            diamond.DiamondPrice.Discount = discount;
-                        }
-
+                            
+                        }else
+                        {
+                            diamond.Discount = discount;
+                        }    
                     }
                 }
             }
-            if(diamond.DiamondPrice.Discount != null)
+            if(diamond.Discount != null)
             {
-                var reducedAmount = diamond.DiamondPrice.Price * ( (decimal)diamond.DiamondPrice.Discount.DiscountPercent / (decimal)100 );
-                var discountPrice = diamond.DiamondPrice.Price - reducedAmount;
+                var reducedAmount = diamond.TruePrice * ( (decimal)diamond.Discount.DiscountPercent / (decimal)100 );
+                var discountPrice = diamond.TruePrice - reducedAmount;
                 var finalDiscountPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(discountPrice);
-                diamond.DiamondPrice.DiscountPrice = finalDiscountPrice;
+                diamond.DiscountPrice = finalDiscountPrice;
             }
-            return Task.FromResult(diamond.DiamondPrice.Discount);
+            return Task.FromResult(diamond.Discount);
         }
         public Task<List<Promotion?>> CheckDiamondPromotion(Diamond diamond, List<Promotion> promotions)
         {
@@ -69,13 +75,18 @@ namespace DiamondShop.Domain.Services.Implementations
                 var isCorrectPrice = IsCorrectPrice(diamond, price);
                 if (isCorrectPrice)
                 {
+                    decimal correctOffsetPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(price.Price * diamond.PriceOffset);
+                    diamond.DiamondPrice = price;
+                    diamond.SetCorrectPrice(correctOffsetPrice);
                     return price;
                 }
                 continue;
             }
             //throw new Exception("somehow none of the price match the diamond");
-            var emptyPrice = DiamondPrice.Create(diamond.DiamondShapeId, null, 1);
-            emptyPrice.ForUnknownPrice = "unknown , please contact us for more information";
+            var emptyPrice = DiamondPrice.CreateUnknownPrice(diamond.DiamondShapeId, null);
+            diamond.DiamondPrice = emptyPrice;
+            diamond.SetCorrectPrice(diamond.DiamondPrice.Price);
+            //emptyPrice.ForUnknownPrice = "unknown , please contact us for more information";
             return emptyPrice;
         }
         public static bool ValidateDiamond4CGlobal(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo, Cut cutFrom, Cut cutTo)

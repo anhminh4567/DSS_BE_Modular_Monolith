@@ -1,5 +1,4 @@
-﻿using DiamondShop.Application.Services.Data;
-using DiamondShop.Application.Services.Interfaces;
+﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Models;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Repositories.OrderRepo;
