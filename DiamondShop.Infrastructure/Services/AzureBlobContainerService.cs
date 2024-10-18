@@ -94,5 +94,11 @@ namespace DiamondShop.Infrastructure.Services
         {
             return $"{_externalUrlsOptions.Value.Azure.BaseUrl}/{_externalUrlsOptions.Value.Azure.ContainerName}/{relativePath}";
         }
+
+        public string ToRelativePath(string absolutePath)
+        {
+            var urls = $"{_externalUrlsOptions.Value.Azure.BaseUrl}/{_externalUrlsOptions.Value.Azure.ContainerName}/";
+            return absolutePath.Replace(urls, string.Empty);
+        }
     }
 }

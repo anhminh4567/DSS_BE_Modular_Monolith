@@ -22,6 +22,8 @@ namespace DiamondShop.Domain.Models.DiamondPrices
         [NotMapped]
         public string ForUnknownPrice { get; set; }
         [NotMapped]
+        public decimal TruePrice { get; set; }
+        [NotMapped]
         public Discount? Discount { get; set; }
         [NotMapped]
         public decimal? DiscountPrice { get; set; }

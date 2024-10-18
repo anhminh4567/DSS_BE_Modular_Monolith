@@ -165,8 +165,11 @@ namespace DiamondShop.Domain.Services.Implementations
                     var diamondPrice = _diamondServices.GetDiamondPrice(cartProduct.Diamond, prices).Result;
                     if (diamondPrice == null)
                         reviewPrice.DefaultPrice = 0;
-                    else
+                    else 
+                    {
                         reviewPrice.DefaultPrice = diamondPrice.Price;
+                    }
+
 
                 }
                 else if (cartProduct.Jewelry is not null)

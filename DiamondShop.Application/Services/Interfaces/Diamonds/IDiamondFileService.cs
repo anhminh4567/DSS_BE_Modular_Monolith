@@ -13,7 +13,7 @@ namespace DiamondShop.Application.Services.Interfaces.Diamonds
 {
     public interface IDiamondFileService : IBlobFileServices
     {
-        Task<Result<string[]>> UploadGallery(Diamond diamond, string galleryPath, DiamondFileData[] fileStreams , CancellationToken cancellationToken = default);
+        Task<Result<string[]>> UploadGallery(Diamond diamond,  DiamondFileData[] fileStreams , CancellationToken cancellationToken = default);
         Task<Result<string>> UploadThumbnail(Diamond diamond, DiamondFileData thumb, CancellationToken cancellationToken = default);
         Task<Result<string>> UploadCertificatePdf(Diamond diamond, DiamondFileData pdfCertificate, CancellationToken cancellationToken = default);
         Task<List<Media>> GetFolders(Diamond diamond, CancellationToken cancellationToken = default);

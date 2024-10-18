@@ -73,6 +73,8 @@ namespace DiamondShop.Domain.Services.Implementations
                 var isCorrectPrice = IsCorrectPrice(diamond, price);
                 if (isCorrectPrice)
                 {
+                    decimal correctOffsetPrice = price.Price * diamond.PriceOffset;
+                    diamond.DiamondPrice = price;
                     return price;
                 }
                 continue;

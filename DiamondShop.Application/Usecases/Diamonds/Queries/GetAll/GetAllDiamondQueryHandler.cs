@@ -49,7 +49,6 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetAll
             {
                 diamond.DiamondShape = getAllShape.FirstOrDefault(s => s.Id == diamond.DiamondShapeId);
                 var diamondPrice = await _diamondServices.GetDiamondPrice(diamond, shapeDictPrice.FirstOrDefault(d => d.Key == diamond.DiamondShapeId.Value).Value);
-                diamond.DiamondPrice = diamondPrice;
                 _diamondServices.AssignDiamondDiscount(diamond, getAllActiveDiscount).Wait();
             }
             //_diamondServices.CheckDiamondDiscount();

@@ -66,12 +66,14 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             //var trimmedPaths = paths.Select(path => path.MediaPath.Replace(basePath, string.Empty)).ToList();
             foreach (var path in paths)
             {
-                if (path.MediaPath.StartsWith(DELIMITER+GIA_FOLDER))
+                var tobeComparedPath = path.MediaPath.Replace(GetAzureFilePath(diamond), string.Empty);
+                //tobeComparedPath = tobeComparedPath + DELIMITER;
+                if (tobeComparedPath.StartsWith(DELIMITER + GIA_FOLDER))
                 {
                     //ar giaMedia = Media.Create(null,path.MediaPath,path.ContentType);
                     gallery.Certificates.Add(path);
                 }
-                else if (path.MediaPath.StartsWith(DELIMITER+IMAGES_FOLDER))
+                else if (tobeComparedPath.StartsWith(DELIMITER + IMAGES_FOLDER))
                 {
                     gallery.BaseImages.Add(path);
                 }
@@ -86,6 +88,11 @@ namespace DiamondShop.Infrastructure.Services.Blobs
         public string ToAbsolutePath(string relativePath)
         {
            return _blobFileServices.ToAbsolutePath(relativePath);
+        }
+
+        public string ToRelativePath(string absolutePath)
+        {
+            return _blobFileServices.ToRelativePath(absolutePath);
         }
 
         public async Task<Result<string>> UploadCertificatePdf(Diamond diamond, DiamondFileData pdfCertificate, CancellationToken cancellationToken = default)
@@ -105,10 +112,10 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             return _blobFileServices.UploadFileAsync(filePath, stream, contentType, cancellationToken);
         }
 
-        public async Task<Result<string[]>> UploadGallery(Diamond diamond, string galleryPath, DiamondFileData[] fileStreams, CancellationToken cancellationToken = default)
+        public async Task<Result<string[]>> UploadGallery(Diamond diamond, DiamondFileData[] fileStreams, CancellationToken cancellationToken = default)
         {
             string basePath = GetAzureFilePath(diamond);
-            basePath = $"{basePath}/{galleryPath}";
+            basePath = $"{basePath}/{IMAGES_FOLDER}";
 
             List<Task<Result<string>>> uploadTasks = new();
             foreach (var file in fileStreams)
@@ -149,7 +156,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
         }
         private string GetTimeStamp()
         {
-            return DateTime.UtcNow.ToString("yyMMddHHmmss");
+            return DateTime.UtcNow.Ticks.ToString();
         }
     }
 }
