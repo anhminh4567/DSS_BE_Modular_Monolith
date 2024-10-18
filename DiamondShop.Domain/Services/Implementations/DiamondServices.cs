@@ -28,6 +28,10 @@ namespace DiamondShop.Domain.Services.Implementations
         public Task<Discount?> AssignDiamondDiscount(Diamond diamond, List<Discount> discounts)
         {
             ArgumentNullException.ThrowIfNull(diamond.DiamondPrice);
+            if(diamond.DiamondPrice.ForUnknownPrice != null)// means price is unknown
+            {
+                return Task.FromResult(diamond.DiamondPrice.Discount);
+            }
             foreach (var discount in discounts)
             {
                 foreach (var req in discount.DiscountReq)
@@ -74,8 +78,8 @@ namespace DiamondShop.Domain.Services.Implementations
                 continue;
             }
             //throw new Exception("somehow none of the price match the diamond");
-            var emptyPrice = DiamondPrice.Create(diamond.DiamondShapeId, null, 1);
-            emptyPrice.ForUnknownPrice = "unknown , please contact us for more information";
+            var emptyPrice = DiamondPrice.CreateUnknownPrice(diamond.DiamondShapeId, null);
+            //emptyPrice.ForUnknownPrice = "unknown , please contact us for more information";
             return emptyPrice;
         }
         public static bool ValidateDiamond4CGlobal(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo, Cut cutFrom, Cut cutTo)

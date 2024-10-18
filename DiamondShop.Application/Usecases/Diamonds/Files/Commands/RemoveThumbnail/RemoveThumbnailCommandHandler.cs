@@ -1,4 +1,6 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Application.Services.Interfaces.Diamonds;
+using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
@@ -16,13 +18,12 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.RemoveThumbna
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDiamondRepository _diamondRepository;
-        private readonly IBlobFileServices _blobFileServices;
-
-        public RemoveThumbnailCommandHandler(IUnitOfWork unitOfWork, IDiamondRepository diamondRepository, IBlobFileServices blobFileServices)
+        private readonly IDiamondFileService _diamondFileService;
+        public RemoveThumbnailCommandHandler(IUnitOfWork unitOfWork, IDiamondRepository diamondRepository, IDiamondFileService diamondFileService)
         {
             _unitOfWork = unitOfWork;
             _diamondRepository = diamondRepository;
-            _blobFileServices = blobFileServices;
+            _diamondFileService = diamondFileService ;
         }
 
         public async Task<Result> Handle(RemoveThumbnailCommand request, CancellationToken cancellationToken)
@@ -31,13 +32,17 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.RemoveThumbna
             var getDiamond = await _diamondRepository.GetById(id);
             if(getDiamond is null )
             {
-                return Result.Fail("Diamond not found");
+                return Result.Fail(new NotFoundError("Diamond not found"));
+            }
+            if(getDiamond.Thumbnail is null)
+            {
+                return Result.Fail(new ConflictError("Diamond does not have thumbnail to delete, no need"));
             }
             var thumbnailPath = getDiamond.Thumbnail.MediaPath;
             getDiamond.ChangeThumbnail(null);
             await _diamondRepository.Update(getDiamond);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            await _blobFileServices.DeleteFileAsync(thumbnailPath,cancellationToken);
+            await _diamondFileService.DeleteFileAsync(thumbnailPath,cancellationToken);
             return Result.Ok();
         }
     }

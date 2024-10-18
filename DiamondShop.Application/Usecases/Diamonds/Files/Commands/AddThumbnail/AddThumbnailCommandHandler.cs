@@ -43,7 +43,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddThumbnail
             {
                 return Result.Fail("Diamond not found");
             }
-            var fileExtension = Path.GetExtension(request.FormFile.FileName).Replace(".", "").Trim();
+            var fileExtension = Path.GetExtension(request.FormFile.FileName).Trim();
             var contentType = request.FormFile.ContentType;
             var stream = request.FormFile.OpenReadStream();
             var diamondFileData = new DiamondFileData(request.FormFile.FileName.Replace(fileExtension,""), fileExtension, contentType, stream) ;

@@ -9,7 +9,7 @@ namespace DiamondShop.Application.Dtos.Responses
 {
     public class MediaDto
     {
-        public string? MediaName { get; set; }
+        //public string? MediaName { get; set; }
         public string MediaPath { get; set; }
         public string ContentType { get; set; }
     }

@@ -1,5 +1,7 @@
-﻿using DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddThumbnail;
+﻿using DiamondShop.Application.Dtos.Responses;
+using DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddThumbnail;
 using DiamondShop.Application.Usecases.Diamonds.Files.Commands.RemoveThumbnail;
+using DiamondShop.Application.Usecases.Diamonds.Files.Queries;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -27,7 +29,7 @@ namespace DiamondShop.Api.Controllers.Diamonds
             var result = await _sender.Send(new AddThumbnailCommand(diamondId, formFile), cancellationToken);
             if (result.IsSuccess)
                 return Ok(result.Value);
-            return MatchError(result.Errors,ModelState);
+            return MatchError(result.Errors, ModelState);
         }
         [HttpDelete("{diamondId}/Files/Thumbnail")]
         public async Task<ActionResult> DeleteThumbnail([FromRoute] string diamondId, CancellationToken cancellationToken = default)
@@ -36,6 +38,13 @@ namespace DiamondShop.Api.Controllers.Diamonds
             if (result.IsSuccess)
                 return Ok();
             return MatchError(result.Errors, ModelState);
+        }
+        [HttpGet("{diamondId}/Files")]
+        public async Task<ActionResult> GetAllFiles([FromRoute]string diamondId)
+        {
+            var result = await _sender.Send(new GetAllImagesQuery(diamondId));
+            var mappedResult = _mapper.Map<GalleryTemplateDto>(result); 
+            return Ok(mappedResult);
         }
     }
 }

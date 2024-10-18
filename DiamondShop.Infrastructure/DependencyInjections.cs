@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using DiamondShop.Application.Commons.Models;
 using DiamondShop.Application.Dtos.Responses;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Diamonds;
@@ -235,6 +236,8 @@ namespace DiamondShop.Infrastructure
             var getOption = services.BuildServiceProvider().GetRequiredService<IOptions<ExternalUrlsOptions>>().Value;
             config.NewConfig<Media, MediaDto>()
                .Map(dest => dest.MediaPath, src => $"{getOption.Azure.BaseUrl}/{getOption.Azure.ContainerName}/{src.MediaPath}");
+            config.NewConfig<GalleryTemplate, GalleryTemplateDto>()
+               .Map(dest => dest.Gallery , src => src.Gallery.ToDictionary(kvp => kvp.Key, kvp => $"{getOption.Azure.BaseUrl}/{getOption.Azure.ContainerName}/{kvp.Value}"));
             services.AddSingleton(config);
             return services;
         }

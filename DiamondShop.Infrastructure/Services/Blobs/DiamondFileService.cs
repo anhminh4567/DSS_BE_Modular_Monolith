@@ -1,9 +1,15 @@
-﻿using DiamondShop.Application.Services.Interfaces;
+﻿using DiamondShop.Application.Commons.Models;
+using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Diamonds;
 using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Models.Diamonds.ValueObjects;
+using DiamondShop.Infrastructure.Options;
 using FluentResults;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,13 +25,67 @@ namespace DiamondShop.Infrastructure.Services.Blobs
         internal const string PARENT_FOLDER = "Diamonds";
         internal const string GIA_FOLDER = "GIA";
         internal const string IMAGES_FOLDER = "Images";
+        internal const string DELIMITER = "/";
         private readonly ILogger<DiamondFileService> _logger;
         private readonly IBlobFileServices _blobFileServices;
+        private readonly IOptions<ExternalUrlsOptions> _externalUrlsOptions;
 
-        public DiamondFileService(ILogger<DiamondFileService> logger, IBlobFileServices blobFileServices)
+        public DiamondFileService(ILogger<DiamondFileService> logger, IBlobFileServices blobFileServices, IOptions<ExternalUrlsOptions> externalUrlsOptions)
         {
             _logger = logger;
             _blobFileServices = blobFileServices;
+            _externalUrlsOptions = externalUrlsOptions;
+        }
+
+        public Task<Result> DeleteFileAsync(string filePath, CancellationToken cancellationToken = default)
+        {
+            return _blobFileServices.DeleteFileAsync(filePath,cancellationToken);
+        }
+
+        public Task<Result<BlobFileResponseDto>> DownloadFileAsync(string filePath, CancellationToken cancellationToken = default)
+        {
+            return _blobFileServices.DownloadFileAsync(filePath, cancellationToken);
+        }
+
+        public Task<List<Media>> GetFolders(string folderPath, CancellationToken cancellationToken = default)
+        {
+            //ignore folder path
+            return _blobFileServices.GetFolders(folderPath, cancellationToken); 
+        }
+
+        public Task<List<Media>> GetFolders(Diamond diamond, CancellationToken cancellationToken = default)
+        {
+            var basePath = GetAzureFilePath(diamond);
+            return _blobFileServices.GetFolders(basePath, cancellationToken);
+        }
+        // in diamond there is no category to worry about, so the base image will store all the image
+        public GalleryTemplate MapPathsToCorrectGallery(Diamond diamond, List<Media> paths, CancellationToken cancellationToken = default)
+        {
+            var gallery = new GalleryTemplate();
+            gallery.GalleryFolder = GetAzureFilePath(diamond);
+            //var trimmedPaths = paths.Select(path => path.MediaPath.Replace(basePath, string.Empty)).ToList();
+            foreach (var path in paths)
+            {
+                if (path.MediaPath.StartsWith(DELIMITER+GIA_FOLDER))
+                {
+                    //ar giaMedia = Media.Create(null,path.MediaPath,path.ContentType);
+                    gallery.Certificates.Add(path);
+                }
+                else if (path.MediaPath.StartsWith(DELIMITER+IMAGES_FOLDER))
+                {
+                    gallery.BaseImages.Add(path);
+                }
+                else//else base image, 
+                {
+                    gallery.Thumbnail = path;
+                }
+            }
+            return gallery;
+        }
+
+        public string ToAbsolutePath(string relativePath)
+        {
+           return _blobFileServices.ToAbsolutePath(relativePath);
         }
 
         public async Task<Result<string>> UploadCertificatePdf(Diamond diamond, DiamondFileData pdfCertificate, CancellationToken cancellationToken = default)
@@ -34,10 +94,15 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             basePath = $"{basePath}/{GIA_FOLDER}";
             if(pdfCertificate.contentType != "application/pdf")
                 return Result.Fail<string>("File is not a pdf");
-            if(pdfCertificate.FileExtension != "pdf")
+            if(pdfCertificate.FileExtension != ".pdf")
                 return Result.Fail<string>("File extentsion is not a pdf");
             string finalpath = $"{basePath}/{pdfCertificate.FileName}_{GetTimeStamp()}";
             return await _blobFileServices.UploadFileAsync(finalpath, pdfCertificate.Stream, pdfCertificate.contentType, cancellationToken);
+        }
+
+        public Task<Result<string>> UploadFileAsync(string filePath, Stream stream, string contentType, CancellationToken cancellationToken = default)
+        {
+            return _blobFileServices.UploadFileAsync(filePath, stream, contentType, cancellationToken);
         }
 
         public async Task<Result<string[]>> UploadGallery(Diamond diamond, string galleryPath, DiamondFileData[] fileStreams, CancellationToken cancellationToken = default)

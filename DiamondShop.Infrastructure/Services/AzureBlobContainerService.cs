@@ -1,6 +1,7 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Infrastructure.Options;
 using FluentResults;
 using Microsoft.Extensions.Logging;
@@ -16,9 +17,9 @@ namespace DiamondShop.Infrastructure.Services
 {
     internal class AzureBlobContainerService : IBlobFileServices
     {
-        private readonly BlobServiceClient _blobServiceClient;
+        protected readonly BlobServiceClient _blobServiceClient;
         private readonly ILogger<AzureBlobContainerService> _logger;
-        private readonly IOptions<ExternalUrlsOptions> _externalUrlsOptions;
+        protected readonly IOptions<ExternalUrlsOptions> _externalUrlsOptions;
         private const string PAGE_SIZE = "1000";
         public AzureBlobContainerService(BlobServiceClient blobServiceClient, ILogger<AzureBlobContainerService> logger, IOptions<ExternalUrlsOptions> externalUrlsOptions)
         {
@@ -50,14 +51,15 @@ namespace DiamondShop.Infrastructure.Services
             });
         }
 
-        public async Task<List<string>> GetFolders(string folderPath, CancellationToken cancellationToken = default)
+        public async Task<List<Media>> GetFolders(string folderPath, CancellationToken cancellationToken = default)
         {
             BlobContainerClient blobContainerClient = GetCorrectBlobClient();
             var blobItems =  blobContainerClient.GetBlobsByHierarchyAsync(prefix: folderPath, cancellationToken: cancellationToken);
-            List<string> relativePath = new();
+            List<Media> relativePath = new();
             await foreach (var blobItem in blobItems)
             {
-                relativePath.Add(blobItem.Blob.Name);
+                var media = Media.Create(null, blobItem.Blob.Name,blobItem.Blob.Properties.ContentType);
+                relativePath.Add(media);
             }
             return relativePath;
         }
