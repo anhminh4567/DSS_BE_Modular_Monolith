@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Commons.Models;
 using DiamondShop.Application.Commons.Rules;
 using DiamondShop.Application.Commons.Utilities;
+using DiamondShop.Application.Dtos.Requests.Promotions;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
@@ -21,7 +22,6 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.Promotions.Commands.UpdateInfo
 {
 
-    public record UpdateStartEndDate(string startDate, string endDate);
     public record UpdatePromotionInformationCommand(string? promotionId, string? name, string? description, UpdateStartEndDate? UpdateStartEndDate) : IRequest<Result<Promotion>>;
     internal class UpdatePromotionInformationCommandHandler : IRequestHandler<UpdatePromotionInformationCommand, Result<Promotion>>
     {

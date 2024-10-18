@@ -2,7 +2,6 @@
 using DiamondShop.Application.Usecases.Discounts.Commands.Create;
 using DiamondShop.Application.Usecases.Discounts.Commands.Delete;
 using DiamondShop.Application.Usecases.Discounts.Commands.SetThumbnail;
-using DiamondShop.Application.Usecases.Discounts.Commands.Update;
 using DiamondShop.Application.Usecases.Discounts.Commands.UpdateInfo;
 using DiamondShop.Application.Usecases.Discounts.Commands.UpdateRequirements;
 using DiamondShop.Application.Usecases.Discounts.Queries.GetAll;

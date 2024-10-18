@@ -14,7 +14,7 @@ namespace DiamondShop.Application.Dtos.Responses.Promotions
         public string Name { get; set; }
         public string StartDate { get; set; }
         public string EndDate { get; set; }
-        public bool IsActive { get => Status == Status.Active };
+        public bool IsActive { get => Status == Status.Active; }
         public Status Status { get; set; }
         public string DiscountCode { get; set; }
         public int DiscountPercent { get; set; }
