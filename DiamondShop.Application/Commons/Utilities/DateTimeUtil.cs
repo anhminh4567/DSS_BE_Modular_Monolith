@@ -15,5 +15,13 @@ namespace DiamondShop.Application.Commons.Utilities
             // Simple date format validation
             return DateTime.TryParseExact(dateString, DateTimeFormatingRules.DateTimeFormat, null, DateTimeStyles.None, out _);
         }
+        public static bool BeGreaterThanUTCNow(string dateStr)
+        {
+            if (DateTime.TryParseExact(dateStr, DateTimeFormatingRules.DateTimeFormat, null, DateTimeStyles.None, out DateTime date))
+            {
+                return date > DateTime.UtcNow;
+            }
+            return false;
+        }
     }
 }

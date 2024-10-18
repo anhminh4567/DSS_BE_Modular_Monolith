@@ -4,6 +4,7 @@ using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using FluentResults;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,12 +78,23 @@ namespace DiamondShop.Domain.Models.Promotions
         {
             Status = Status.Expired;
         }
+        public void Paused()
+        {
+            Status = Status.Paused;
+        }
         public Result Cancel()
         {
             if (Status != Status.Scheduled && Status != Status.Paused)
                 return Result.Fail("the promot must be paused first, or in schedule state to be cancelled");
             Status = Status.Expired;
             return Result.Ok();
+        }
+        public void ChangeActiveDate(DateTime startDate, DateTime endDate)
+        {
+            if(endDate <= startDate || startDate < DateTime.UtcNow)
+                throw new InvalidOperationException("cannot change the start date to a date that is already passed");
+            StartDate = startDate.ToUniversalTime();
+            EndDate = endDate.ToUniversalTime();
         }
         public Promotion() { }
     }

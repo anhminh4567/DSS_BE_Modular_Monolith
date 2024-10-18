@@ -12,6 +12,7 @@ using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -401,6 +402,48 @@ namespace DiamondShop.Domain.Services.Implementations
                 return true;
 
             return false;
+        }
+
+        public Result ManualChangeStatus(Promotion promotion, Status status)
+        {
+            Result result = null;
+            switch (promotion.Status)
+            {
+                case Status.Scheduled:
+                    if (status != Status.Active)
+                        result = Result.Fail("scheduled can only be set active, nothing else");
+                    else
+                        promotion.SetActive();
+                    break;
+                case Status.Active:
+                    if (status == Status.Paused)
+                        promotion.Paused();
+                    else if (status == Status.Expired)
+                        promotion.Expired();
+                    else if (status == Status.Cancelled)
+                        promotion.Cancel();
+                    else
+                        result = Result.Fail("Active promotion can only be set to paused, expired or cancelled");
+                    break;
+                case Status.Expired:
+                    result = Result.Fail("already expired, can't do much");
+                    break;
+                case Status.Paused:
+                    if (status == Status.Active)
+                        promotion.SetActive();
+                    else if (status == Status.Cancelled)
+                        promotion.Cancel();
+                    else
+                        result = Result.Fail("Paused promotion can only be set to active, or cancelled, you cannot expire yourself, it can only be done by machine");
+                    break;
+                case Status.Cancelled:
+                    result = Result.Fail("already cancelled, please create a new one ");
+                    break;
+                default:
+                    result = Result.Fail("Promotion status is not valid of any state at all !! major error");
+                    break;
+            }
+            return result!;
         }
     }
     /// <summary>
