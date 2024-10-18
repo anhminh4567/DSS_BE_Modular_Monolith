@@ -25,8 +25,8 @@ namespace DiamondShop.Domain.Services.Implementations
             if (diamonds.Count != diamondReqs.Sum(p => p.Quantity))
                 return Result.Fail(new ConflictError("The quantity of the main diamond differs from what the model requires."));
 
-            var flagUnmatchedDiamonds = MatchingDiamond(diamonds, diamondReqs);
-            if (flagUnmatchedDiamonds) return Result.Fail(new ConflictError("Diamonds don't meet the model requirement."));
+            var flagMatchedDiamonds = MatchingDiamond(diamonds, diamondReqs);
+            if (!flagMatchedDiamonds) return Result.Fail(new ConflictError("Diamonds don't meet the model requirement."));
             return Result.Ok();
         }
         private bool MatchingDiamond(List<Diamond> diamonds, List<MainDiamondReq> diamondReqs)
@@ -45,7 +45,7 @@ namespace DiamondShop.Domain.Services.Implementations
                     var matchedShape = req.Shapes.FirstOrDefault(p => p.ShapeId == shape.ShapeId);
                     if (matchedShape != null)
                     {
-                        if (matchedShape.CaratFrom >= shape.Carat && matchedShape.CaratTo <= shape.Carat)
+                        if (matchedShape.CaratFrom <= shape.Carat && matchedShape.CaratTo >= shape.Carat)
                         {
                             req.Quantity--;
                             if (Backtracking(shapes, diamondReqs, ++index))

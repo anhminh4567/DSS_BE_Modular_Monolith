@@ -20,7 +20,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
 
         public async Task<bool> CheckDuplicate(string name)
         {
-            return await _set.AnyAsync(p => p.Name == name);
+            return await _set.AnyAsync(p => p.Name.ToUpper() == name.ToUpper());
         }
         
         public override async Task<JewelryModelCategory?> GetById(params object[] ids)

@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using DiamondShop.Application.Dtos.Requests.JewelryModels;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,7 +51,15 @@ namespace DiamondShop.Application.Usecases.SideDiamonds.Commands
                                 .GreaterThan(0);
 
                         });
+
+                    p.RuleFor(p => p.OptSpecs)
+                        .Must(CheckUnique).WithMessage("carat weight option per side diamond must be unique");
+
                 });
+        }
+        private bool CheckUnique(List<SideDiamondOptRequestDto> opts)
+        {
+            return opts.Count() == opts.GroupBy(p => p.CaratWeight).Count();
         }
     }
 }
