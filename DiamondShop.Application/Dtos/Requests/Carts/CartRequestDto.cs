@@ -8,7 +8,7 @@ namespace DiamondShop.Application.Dtos.Requests.Carts
 {
     public class CartRequestDto
     {
-        public string PromotionId { get; set; }
+        public string? PromotionId { get; set; }
         public List<CartItemRequestDto> Items { get; set; } = new();
     }
 }
