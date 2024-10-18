@@ -66,12 +66,16 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
 
                 if (attachedDiamondIds is not null)
                 {
-                    var diamondQuery = _diamondRepository.GetQuery();
                     var convertedId = attachedDiamondIds.Select(DiamondId.Parse).ToList();
+                    if (convertedId.Count == 0)
+                        return Result.Fail($"Theres no diamond selected.");
+                    var diamondQuery = _diamondRepository.GetQuery();
                     diamondQuery = _diamondRepository.QueryFilter(diamondQuery, p => convertedId.Contains(p.Id));
                     attachedDiamonds = diamondQuery.ToList();
+                    if (attachedDiamondIds.Count == 0)
+                        return Result.Fail($"The selected {(convertedId.Count > 1 ? "diamonds dont" : "diamond doesn't")} exist.");
                     if (attachedDiamonds.Any(p => p.JewelryId != null))
-                        return Result.Fail("Some diamonds have already attached to other jewelries");
+                        return Result.Fail("Some diamonds have already attached to other jewelries.");
                     var flagUnmatchedDiamonds = await _mainDiamondService.CheckMatchingDiamond(model.Id, attachedDiamonds, _mainDiamondRepository);
                     if (flagUnmatchedDiamonds.IsFailed)
                         return Result.Fail(flagUnmatchedDiamonds.Errors);

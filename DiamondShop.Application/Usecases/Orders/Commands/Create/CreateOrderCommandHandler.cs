@@ -23,7 +23,8 @@ using System.Collections.Generic;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 {
-    public record CreateOrderInfo(OrderRequestDto OrderRequestDto, List<OrderItemRequestDto> OrderItemRequestDtos, string Phone, string Address);
+    public record BillingDetail(string FirstName, string LastName, string Phone, string Email, string Providence, string Ward, string Address, string Note);
+    public record CreateOrderInfo(OrderRequestDto OrderRequestDto, List<OrderItemRequestDto> OrderItemRequestDtos, BillingDetail BillingDetail);
     public record CreateOrderCommand(string accountId, CreateOrderInfo CreateOrderInfo) : IRequest<Result<PaymentLinkResponse>>;
     internal class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Result<PaymentLinkResponse>>
     {
@@ -59,7 +60,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         {
             await _unitOfWork.BeginTransactionAsync(token);
             request.Deconstruct(out string accountId, out CreateOrderInfo createOrderInfo);
-            createOrderInfo.Deconstruct(out OrderRequestDto orderReq, out List<OrderItemRequestDto> orderItemReqs, out string phone, out string address);
+            createOrderInfo.Deconstruct(out OrderRequestDto orderReq, out List<OrderItemRequestDto> orderItemReqs, out BillingDetail billingDetail);
 
             var account = await _accountRepository.GetById(AccountId.Parse(accountId));
             if (account == null)
@@ -126,7 +127,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             var cartModel = cartModelResult.Value;
             var orderPromo = cartModel.Promotion.Promotion;
 
-            var order = Order.Create(account.Id, orderReq.paymentType, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice, address, orderPromo?.Id);
+            var order = Order.Create(account.Id, orderReq.paymentType, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice, billingDetail.Address, orderPromo?.Id);
             await _orderRepository.Create(order, token);
             await _unitOfWork.SaveChangesAsync(token);
 
@@ -155,8 +156,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 Account = account,
                 Order = order,
                 Email = account.Email,
-                Phone = phone,
-                Address = address,
+                Phone = billingDetail.Phone,
+                Address = billingDetail.Address,
                 Title = title,
                 Description = description,
                 Amount = order.TotalPrice,

@@ -14,19 +14,14 @@ namespace DiamondShop.Test.Integration
         public JewelryModelTest(IntegrationWAF factory, ITestOutputHelper output) : base(factory)
         {
             _output = output;
-            SeedCategory().Wait();
         }
-        async Task SeedCategory()
-        {
-            _context.Set<JewelryModelCategory>().Add(TestData.DefaultCategory);
-            await _context.SaveChangesAsync();
-        }
+ 
         [Trait("ReturnTrue", "DefaultRing")]
         [Fact]
         public async Task Create_OneMain_OneSide_RingModel_Should_AddToDb()
         {
 
-            var modelSpec = new JewelryModelRequestDto("Test_Model", TestData.DefaultCategory.Id.Value, 1f, null, false, false, null, null, null);
+            var modelSpec = new JewelryModelRequestDto("Test_Model", TestData.DefaultCategoryId.Value, 1f, null, false, false, null, null, null);
             var mainDiamondSpec =
                 new List<MainDiamondRequestDto>()
                 {
@@ -63,7 +58,7 @@ namespace DiamondShop.Test.Integration
         public async Task Create_NoDiamond_RingModel_Should_AddToDb()
         {
 
-            var modelSpec = new JewelryModelRequestDto("Test_Model", TestData.DefaultCategory.Id.Value, 1f, null, false, false, null, null, null);
+            var modelSpec = new JewelryModelRequestDto("Test_Model", TestData.DefaultCategoryId.Value, 1f, null, false, false, null, null, null);
             var metalSizeSpec = new List<ModelMetalSizeRequestDto>()
             {
                 new (MetalId: "2", SizeId: "3", 10),
@@ -80,7 +75,7 @@ namespace DiamondShop.Test.Integration
         [Fact]
         public async Task Create_OneMain_OneSide_NecklaceModel_Should_AddToDb()
         {
-            var modelSpec = new JewelryModelRequestDto("Test_Model", TestData.DefaultCategory.Id.Value, null, null, false, false, null, ClaspType.Open_Box, ChainType.Rope);
+            var modelSpec = new JewelryModelRequestDto("Test_Model", TestData.DefaultCategoryId.Value, null, null, false, false, null, ClaspType.Open_Box, ChainType.Rope);
             var mainDiamondSpec =
                 new List<MainDiamondRequestDto>()
                 {
@@ -117,7 +112,7 @@ namespace DiamondShop.Test.Integration
         public async Task Create_MultiMain_MultiSide_RingModel_Should_AddToDb()
         {
 
-            var modelSpec = new JewelryModelRequestDto("Test_Model", TestData.DefaultCategory.Id.Value, 1f, null, false, false, null, null, null);
+            var modelSpec = new JewelryModelRequestDto("Test_Model", TestData.DefaultCategoryId.Value, 1f, null, false, false, null, null, null);
             var mainDiamondSpec =
                 new List<MainDiamondRequestDto>()
                 {
@@ -166,7 +161,7 @@ namespace DiamondShop.Test.Integration
         public async Task Create_MultiSideWithDuplicateOpt_RingModel_ShouldNot_AddToDb()
         {
 
-            var modelSpec = new JewelryModelRequestDto("Test_Model", TestData.DefaultCategory.Id.Value, 1f, null, false, false, null, null, null);
+            var modelSpec = new JewelryModelRequestDto("Test_Model", TestData.DefaultCategoryId.Value, 1f, null, false, false, null, null, null);
             var sideDiamondSpec = new List<SideDiamondRequestDto>()
             {
                  new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, new()
@@ -194,7 +189,7 @@ namespace DiamondShop.Test.Integration
         public async Task Create_DuplicateSizeMetal_RingModel_ShouldNot_AddToDb()
         {
 
-            var modelSpec = new JewelryModelRequestDto("Test_Model", TestData.DefaultCategory.Id.Value, 1f, null, false, false, null, null, null);
+            var modelSpec = new JewelryModelRequestDto("Test_Model", TestData.DefaultCategoryId.Value, 1f, null, false, false, null, null, null);
             var metalSizeSpec = new List<ModelMetalSizeRequestDto>()
             {
                 new (MetalId: "2", SizeId: "3", 10),

@@ -7,8 +7,8 @@ using DiamondShop.Api.Extensions;
 using Microsoft.OpenApi.Models;
 using System.Collections;
 using static Org.BouncyCastle.Math.EC.ECCurve;
-
-internal class Program
+using System.Runtime.CompilerServices;
+public class Program
 {
     private static void Main(string[] args)
     {
@@ -53,9 +53,9 @@ internal class Program
         });
         builder.Services.AddSingleton<ProblemDetailsFactory, DiamonShopProblemDetailsFactory>();
         builder.Services.AddScoped<CustomExeptionHandlerMiddleware>();
-        builder.Services.AddCors(setup => 
+        builder.Services.AddCors(setup =>
         {
-            setup.AddDefaultPolicy(policy => 
+            setup.AddDefaultPolicy(policy =>
             {
                 policy.AllowAnyOrigin();
                 policy.AllowAnyMethod();
@@ -75,7 +75,7 @@ internal class Program
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
-        if(app.Environment.EnvironmentName != "Production")
+        if (app.Environment.EnvironmentName != "Production")
         {
             //app.SeedData();
         }
