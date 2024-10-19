@@ -176,6 +176,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 {
                     //TODO: assign default price to jewelry
                     _jewelryService.AddPrice(cartProduct.Jewelry, _sizeMetalRepository);
+                    reviewPrice.DefaultPrice = cartProduct.Jewelry.Price;
                 }
                 else if (cartProduct.JewelryModel is not null)
                 {
@@ -221,8 +222,6 @@ namespace DiamondShop.Domain.Services.Implementations
         }
         private Result CheckIsValid(CartProduct product)
         {
-            if (product.Jewelry is not null)
-                return product.Jewelry.IsSold ? Result.Fail("already sold") : Result.Ok();
             if (product.Diamond is not null)
             {
                 if (product.Diamond.IsActive is false)
@@ -231,6 +230,8 @@ namespace DiamondShop.Domain.Services.Implementations
                     return Result.Fail("unknown price");
                 return product.Diamond.IsSold ? Result.Fail("already sold") : Result.Ok();
             }
+            if (product.Jewelry is not null)
+                return product.Jewelry.IsSold ? Result.Fail("already sold") : Result.Ok();
             if (product.JewelryModel is not null) { }
             return Result.Fail("unknonw product type");
             //return product.JewelryModel.
