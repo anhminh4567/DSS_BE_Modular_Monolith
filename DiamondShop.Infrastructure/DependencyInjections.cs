@@ -36,6 +36,7 @@ using DiamondShop.Infrastructure.Services.Locations.OApi;
 using DiamondShop.Infrastructure.Services.Locations.OpenApiProvinces;
 using DiamondShop.Infrastructure.Services.Payments.Paypals;
 using DiamondShop.Infrastructure.Services.Payments.Zalopays;
+using FluentValidation.Results;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -185,13 +186,23 @@ namespace DiamondShop.Infrastructure
 
             var serviceProviderInstrance = services.BuildServiceProvider();
             var mailOptions = serviceProviderInstrance.GetRequiredService<IOptions<MailOptions>>().Value;
-            services.AddFluentEmail(mailOptions.SenderEmail)
-            .AddSmtpSender(
-                host: mailOptions.Host,
-                port: mailOptions.Port,
-                username: mailOptions.SenderEmail,
-                password: mailOptions.AppPassword
+            var fluentEmailBuilder = services.AddFluentEmail(mailOptions.SenderEmail);
+            if (mailOptions.IsTestServer)
+            {
+                fluentEmailBuilder.AddSmtpSender(
+                    host: mailOptions.Host,
+                    port: mailOptions.Port);
+            }
+            else
+            {
+                fluentEmailBuilder.AddSmtpSender(
+                    host: mailOptions.Host,
+                    port: mailOptions.Port,
+                    username: mailOptions.SenderEmail,
+                    password: mailOptions.AppPassword
                 );
+            }
+            fluentEmailBuilder.AddRazorRenderer();
             services.AddTransient<IEmailService, EmailService>();
             return services;
         }

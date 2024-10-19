@@ -6,7 +6,10 @@ using DiamondShop.Application.Usecases.DeliveryFees.Commands.CreateMany;
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany;
 using DiamondShop.Application.Usecases.DiamondShapes.Queries.GetAll;
+using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.DeliveryFees;
+using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories.DeliveryRepo;
 using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Options;
@@ -43,8 +46,9 @@ namespace DiamondShopSystem.Controllers
         private readonly DiamondShopDbContext _context;
         private readonly ILocationService _locationService;
         private readonly IDeliveryFeeRepository _deliveryFeeRepository;
+        private readonly IEmailService _emailService;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IDateTimeProvider dateTimeProvider, IBlobFileServices blobFileServices, IOptions<PaypalOption> paypal, IOptions<VnpayOption> vnpayOption, IHttpContextAccessor httpContextAccessor, ISender sender, IOptions<LocationOptions> locationOptions, DiamondShopDbContext context, ILocationService locationService, IDeliveryFeeRepository deliveryFeeRepository)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IDateTimeProvider dateTimeProvider, IBlobFileServices blobFileServices, IOptions<PaypalOption> paypal, IOptions<VnpayOption> vnpayOption, IHttpContextAccessor httpContextAccessor, ISender sender, IOptions<LocationOptions> locationOptions, DiamondShopDbContext context, ILocationService locationService, IDeliveryFeeRepository deliveryFeeRepository, IEmailService emailService)
         {
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
@@ -57,6 +61,7 @@ namespace DiamondShopSystem.Controllers
             _context = context;
             _locationService = locationService;
             _deliveryFeeRepository = deliveryFeeRepository;
+            _emailService = emailService;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -159,6 +164,12 @@ namespace DiamondShopSystem.Controllers
             }
             var result = await _sender.Send(new CreateManyDeliveryFeeCommand(commandData)) ;
             return Ok(result.Value);
+        }
+        [HttpGet("testemail")]
+        public async Task<ActionResult> test()
+        {
+            await _emailService.SendConfirmAccountEmail(Account.CreateBaseCustomer(FullName.Create("1232","123"),"test@gmail.com","sdfasdf",new List<AccountRole>() { AccountRole.Customer }));
+            return Ok();
         }
     }
 }

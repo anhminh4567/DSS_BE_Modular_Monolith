@@ -212,5 +212,10 @@ namespace DiamondShop.Api.Controllers.Accounts
             }
             return MatchError(result.Errors, ModelState);
         }
+        [HttpGet("ConfirmEmail")]
+        public async Task<ActionResult> ConfirmEmail([FromQuery] string token, [FromQuery] string userId)
+        {
+            return Ok();
+        }
     }
 }

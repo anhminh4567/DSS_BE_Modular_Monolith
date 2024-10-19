@@ -1,0 +1,151 @@
+﻿@using System.Text;
+@using DiamondShop.Application.Services.Interfaces
+@model EmailVerificationMailModel
+@{
+	StringBuilder completeCallback = new StringBuilder("");
+	completeCallback.Append(Model.callbackUrl);
+    completeCallback.Append("?userId=");
+	completeCallback.Append(Model.userAccount.Id.Value);
+	completeCallback.Append("&");
+	completeCallback.Append("token=");
+	completeCallback.Append(Model.token);
+	var absoluteCallback = completeCallback.ToString();
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Template</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            box-sizing: border-box;
+            font-size: 14px;
+            width: 100%;
+            background-color: transparent;
+            margin: 0;
+        }
+
+        .body-wrap {
+            width: 100%;
+            background-color: transparent;
+            margin: 0;
+        }
+
+        .container {
+            display: block !important;
+            max-width: 600px !important;
+            clear: both;
+            margin: 0 auto;
+        }
+
+        .content {
+            max-width: 600px;
+            display: block;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .main {
+            border-radius: 3px;
+            background-color: transparent;
+            margin: 0;
+            border: 1px dashed #FFED99;
+            width: 100%;
+        }
+
+        .content-wrap {
+            padding: 20px;
+        }
+
+        .content-block {
+            padding: 10px 10px;
+        }
+
+        .btn-primary {
+            font-size: 14px;
+            text-decoration: none;
+            line-height: 2em;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            display: block;
+            border-radius: 5px;
+            text-transform: capitalize;
+            border: none;
+            padding: 10px 20px;
+            background-color: #FFED99;
+            color: white;
+        }
+
+        .logo {
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+            margin-bottom: 10px;
+            height: 80px;
+        }
+    </style>
+</head>
+<body>
+    <table class="body-wrap" bgcolor="transparent">
+        <tbody>
+            <tr>
+                <td></td>
+                <td class="container" width="600">
+                    <div class="content">
+                        <table class="main" width="100%" cellpadding="0" cellspacing="0" bgcolor="#fff">
+                            <tbody>
+                                <tr>
+                                    <td class="content-wrap" valign="top">
+                                        <meta itemprop="name" content="Confirm Email" />
+                                        <table width="100%" cellpadding="0" cellspacing="0">
+                                            <tbody>
+                                                <tr>
+                                                    <td style="display:flex; justify-content:center; align-items: center;">
+                                                        <a href="#">
+                                                            <img src="cid:logo" class="logo" style="" />
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="content-block" valign="top" style="color: #FFED99; font-size: 24px; font-weight: 700; text-align: center; padding: 0 0 10px;">
+                                                        Confirm Your Email
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="content-block" valign="top" style="color: #000000; font-size: 14px; padding: 10px 10px;">
+                                                        Please confirm your email address by clicking the link below.
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="content-block" valign="top" style="font-size: 14px; padding: 10px 10px;">
+                                                        We may need to send you critical information about our service and it is important that we have an accurate email address.
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="content-block" valign="top" style="font-size: 14px; padding: 10px 10px; background-color:#FFED99; text-align:center;">
+                                                        <a href="@absoluteCallback" class="btn-primary" style="color:black;text-decoration:none;">Confirm email address</a>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="content-block" valign="top" style="font-size: 14px; padding-top: 5px; text-align: right;">
+                                                        — <b>Diamondshop</b> —
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
+
