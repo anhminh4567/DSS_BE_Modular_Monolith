@@ -95,7 +95,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             return _blobFileServices.ToRelativePath(absolutePath);
         }
 
-        public async Task<Result<string>> UploadCertificatePdf(Diamond diamond, DiamondFileData pdfCertificate, CancellationToken cancellationToken = default)
+        public async Task<Result<string>> UploadCertificatePdf(Diamond diamond, FileData pdfCertificate, CancellationToken cancellationToken = default)
         {
             string basePath = GetAzureFilePath(diamond);
             basePath = $"{basePath}/{GIA_FOLDER}";
@@ -112,7 +112,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             return _blobFileServices.UploadFileAsync(filePath, stream, contentType, cancellationToken);
         }
 
-        public async Task<Result<string[]>> UploadGallery(Diamond diamond, DiamondFileData[] fileStreams, CancellationToken cancellationToken = default)
+        public async Task<Result<string[]>> UploadGallery(Diamond diamond, FileData[] fileStreams, CancellationToken cancellationToken = default)
         {
             string basePath = GetAzureFilePath(diamond);
             basePath = $"{basePath}/{IMAGES_FOLDER}";
@@ -142,7 +142,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             return Result.Ok(stringResult);
         }
 
-        public async Task<Result<string>> UploadThumbnail(Diamond diamond, DiamondFileData thumb, CancellationToken cancellationToken = default)
+        public async Task<Result<string>> UploadThumbnail(Diamond diamond, FileData thumb, CancellationToken cancellationToken = default)
         {
             string basePath = GetAzureFilePath(diamond);
             string finalpath = $"{basePath}/{thumb.FileName}_{GetTimeStamp()}";

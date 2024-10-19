@@ -1,6 +1,8 @@
-﻿using DiamondShop.Application.Commons.Utilities;
+﻿using DiamondShop.Application.Commons.Models;
+using DiamondShop.Application.Commons.Utilities;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Diamonds;
+using DiamondShop.Application.Services.Models;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
@@ -44,7 +46,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddCertficate
                 return Result.Fail(new ConflictError("file is not type PDF")) ;
 
             var stream = request.pdfFile.OpenReadStream();
-            var pdfObject = new DiamondFileData(fileName,fileExtension,request.pdfFile.ContentType,stream);
+            var pdfObject = new FileData(fileName,fileExtension,request.pdfFile.ContentType,stream);
             var uploadResult = await _diamondFileService.UploadCertificatePdf(getDiamond, pdfObject, cancellationToken);
             if (uploadResult.IsSuccess) 
             {

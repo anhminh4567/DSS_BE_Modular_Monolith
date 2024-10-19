@@ -37,6 +37,10 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
                 Status = Status.Scheduled,
             };
         }
+        public void SetPercentDiscount(int percent)
+        {
+            DiscountPercent = Math.Clamp(percent, 1, PromotionRules.MaxDiscountPercent);
+        }
         public Result SetActive()
         {
             if (Status == Status.Cancelled || Status == Status.Expired)
@@ -81,7 +85,13 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
             else
                 DiscountReq.Remove(requirement);
         }
-
+        public void ChangeActiveDate(DateTime startDate, DateTime endDate)
+        {
+            if (endDate <= startDate || startDate < DateTime.UtcNow)
+                throw new InvalidOperationException("cannot change the start date to a date that is already passed");
+            StartDate = startDate.ToUniversalTime();
+            EndDate = endDate.ToUniversalTime();
+        }
         private static string GetRandomCode()
         {
             return DateTime.UtcNow.ToString("yyyyMMddHHmmss");

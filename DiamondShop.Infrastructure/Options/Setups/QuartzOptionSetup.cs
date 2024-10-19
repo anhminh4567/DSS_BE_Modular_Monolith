@@ -42,7 +42,7 @@ namespace DiamondShop.Infrastructure.Options.Setups
                         .RepeatForever()));
 
             string discountJobName = nameof(DiscountManagerWorker);
-            options.AddJob<PromotionManagerWorker>(config => config.WithIdentity(discountJobName))
+            options.AddJob<DiscountManagerWorker>(config => config.WithIdentity(discountJobName))
                 .AddTrigger(config => config.ForJob(discountJobName)
                     .WithSimpleSchedule(schedule => schedule
                         .WithIntervalInMinutes(10)

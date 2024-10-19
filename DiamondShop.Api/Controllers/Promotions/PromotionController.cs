@@ -7,7 +7,9 @@ using DiamondShop.Application.Usecases.PromotionRequirements.Commands.Delete;
 using DiamondShop.Application.Usecases.PromotionRequirements.Queries.GetAll;
 using DiamondShop.Application.Usecases.Promotions.Commands.Create;
 using DiamondShop.Application.Usecases.Promotions.Commands.Delete;
+using DiamondShop.Application.Usecases.Promotions.Commands.SetThumbnail;
 using DiamondShop.Application.Usecases.Promotions.Commands.UpdateGifts;
+using DiamondShop.Application.Usecases.Promotions.Commands.UpdateInfo;
 using DiamondShop.Application.Usecases.Promotions.Commands.UpdateRequirements;
 using DiamondShop.Application.Usecases.Promotions.Queries.GetAll;
 using MapsterMapper;
@@ -64,6 +66,30 @@ namespace DiamondShop.Api.Controllers.Promotions
         public async Task<ActionResult> UpdateGiftRequirement([FromRoute]string promotionId, [FromBody] string[] giftIds, [FromQuery]bool isAdd)
         {
             var result = await _sender.Send(new UpdatePromotionGiftsCommand(promotionId, giftIds, isAdd));
+            if (result.IsSuccess)
+            {
+                return Ok();
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPut("{promotionId}")]
+        [ProducesResponseType(typeof(PromotionDto), 200)]
+        public async Task<ActionResult> UpdateInformation([FromRoute] string promotionId, [FromBody] UpdatePromotionInformationCommand updatePromotionInformationCommand)
+        {
+            var command = updatePromotionInformationCommand with { promotionId = promotionId };
+            var result = await _sender.Send(command);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<PromotionDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPut("{promotionId}/Thumbnail")]
+        public async Task<ActionResult> SetThumbnail([FromRoute] string promotionId, [FromForm] SetPromotionThumbnailCommand setPromotionThumbnailCommand)
+        {
+            var command = setPromotionThumbnailCommand with { promotionId = promotionId };
+            var result = await _sender.Send(command);
             if (result.IsSuccess)
             {
                 return Ok();

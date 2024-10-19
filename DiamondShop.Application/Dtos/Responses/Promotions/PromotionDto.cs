@@ -16,8 +16,9 @@ namespace DiamondShop.Application.Dtos.Responses.Promotions
         public string Description { get; set; }
         public string StartDate { get; set; }
         public string EndDate { get; set; }
-        public bool IsActive { get; set; }
+        public bool IsActive { get => Status == Status.Active; }
         public int Priority { get; set; }
+        public Status Status { get; set; }
         public bool IsExcludeQualifierProduct { get; set; }
         public RedemptionMode RedemptionMode { get; set; }
         public List<RequirementDto> PromoReqs { get; set; } = new();

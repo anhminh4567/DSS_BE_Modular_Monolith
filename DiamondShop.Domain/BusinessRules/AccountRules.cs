@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Domain.Models.Promotions.Enum
+namespace DiamondShop.Domain.BusinessRules
 {
-    public enum Status
+    public  class AccountRules
     {
-        Scheduled = 1, Active, Paused, Expired, Cancelled
+        public const int MaxAddress = 5;
     }
 }
