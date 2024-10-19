@@ -192,7 +192,7 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 if (product.Jewelry != null && product.Diamond != null && product.JewelryModel != null)
                     throw new Exception("some how this product have all 3 id, diamond, jewelry and model , from product: " + product.CartProductId);
-                var result = CheckIsSoldOrActive(product);
+                var result = CheckIsValid(product);
                 if (result.IsFailed)
                 {
                     product.IsAvailable = false;
@@ -219,7 +219,7 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             return Task.CompletedTask;
         }
-        private Result CheckIsSoldOrActive(CartProduct product)
+        private Result CheckIsValid(CartProduct product)
         {
             if (product.Jewelry is not null)
                 return product.Jewelry.IsSold ? Result.Fail("already sold") : Result.Ok();
@@ -227,6 +227,8 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 if (product.Diamond.IsActive is false)
                     return Result.Fail("not active");
+                if(product.Diamond.DiamondPrice!.ForUnknownPrice != null )
+                    return Result.Fail("unknown price");
                 return product.Diamond.IsSold ? Result.Fail("already sold") : Result.Ok();
             }
             if (product.JewelryModel is not null) { }

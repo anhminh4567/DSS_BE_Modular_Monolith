@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Promotions;
 using DiamondShop.Application.Usecases.Discounts.Commands.Create;
+using DiamondShop.Application.Usecases.Discounts.Commands.CreateFull;
 using DiamondShop.Application.Usecases.Discounts.Commands.Delete;
 using DiamondShop.Application.Usecases.Discounts.Commands.SetThumbnail;
 using DiamondShop.Application.Usecases.Discounts.Commands.UpdateInfo;
@@ -53,7 +54,18 @@ namespace DiamondShop.Api.Controllers.Promotions
             }
             return MatchError(result.Errors,ModelState);
         }
-        
+        [HttpPost("Full")]
+        [Produces(type: typeof(DiscountDto))]
+        public async Task<ActionResult> CreateFull(CreateFullDiscountCommand createFullDiscountCommand)
+        {
+            var result = await _sender.Send(createFullDiscountCommand);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<DiscountDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
         [HttpPut("{discountId}/Requirement")]
         public async Task<ActionResult> UpdateRequiremwnt([FromRoute] string discountId, [FromBody] UpdateDiscountRequirementCommand updateDiscountRequirementCommand  )
         {

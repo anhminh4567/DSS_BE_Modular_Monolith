@@ -54,7 +54,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             var tryGet =  _cache.Get<List<DiamondPrice>>(diamondKey);
             if(tryGet == null) 
             {
-                var get = await _set.Include(p => p.Criteria).Where(p => p.ShapeId == shape.Id).ToListAsync();
+                var get = await _set.Include(p => p.Criteria).Where(p => p.ShapeId == shape.Id).OrderBy(s => s.Criteria.CaratFrom).ToListAsync();
                 _cache.Set(diamondKey, get);
                 return get;
             }
