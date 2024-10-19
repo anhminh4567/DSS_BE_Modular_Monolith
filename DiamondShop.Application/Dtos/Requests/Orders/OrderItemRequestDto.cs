@@ -3,7 +3,7 @@
 namespace DiamondShop.Application.Dtos.Requests.Orders
 {
     public record OrderItemRequestDto(
-        string? jewelryId, string? diamondId, 
-        string? engravedText, string? engravedFont, 
-        string? warrantyCode, WarrantyType? warrantyType);
+        string? JewelryId, string? DiamondId, 
+        string? EngravedText, string? EngravedFont, 
+        string WarrantyCode, WarrantyType WarrantyType);
 }
