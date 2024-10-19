@@ -20,7 +20,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices
         public DiamondCriteria Criteria { get; set; }
         public decimal Price { get; set; }
         [NotMapped]
-        public string ForUnknownPrice { get; set; }
+        public string? ForUnknownPrice { get; set; }
 
 
         public static DiamondPrice Create(DiamondShapeId diamondShapeId, DiamondCriteriaId diamondCriteriaId, decimal price)

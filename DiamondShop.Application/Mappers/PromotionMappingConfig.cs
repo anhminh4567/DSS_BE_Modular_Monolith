@@ -1,4 +1,6 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Promotions;
+using DiamondShop.Application.Usecases.Discounts.Commands.CreateFull;
+using DiamondShop.Application.Usecases.PromotionRequirements.Commands.CreateMany;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.Promotions;
@@ -40,6 +42,12 @@ namespace DiamondShop.Application.Mappers
                 .Map(dest => dest.Id, src => src.Id.Value)
                 .Map(dest => dest.StartDate, src => src.StartDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat))
                 .Map(dest => dest.EndDate, src => src.EndDate.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat));
+
+            // this is mapping from request to command
+            config.NewConfig<DiscountRequirement, RequirementSpec>()
+                .Map(dest => dest.MoneyAmount, src=> 10000.0m)
+                .Map(dest => dest.Quantity, src=> 1)
+                .Map(dest => dest.isPromotion, src => false);
 
         }
     }

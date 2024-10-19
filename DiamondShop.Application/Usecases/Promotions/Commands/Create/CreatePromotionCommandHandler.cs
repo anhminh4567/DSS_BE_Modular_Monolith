@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Promotions.Commands.Create
 {
-    public record CreatePromotionCommand(string startDateTime, string endDateTime,string name, string promoCode, string description, RedemptionMode RedemptionMode,bool isExcludeQualifierProduct = true, int priority = 1  ) : IRequest<Result<Promotion>>;
+    public record CreatePromotionCommand(string startDateTime, string endDateTime,string name, string? promoCode, string description, RedemptionMode RedemptionMode,bool isExcludeQualifierProduct = true, int priority = 1  ) : IRequest<Result<Promotion>>;
     internal class CreatePromotionCommandHandler : IRequestHandler<CreatePromotionCommand, Result<Promotion>>
     {
         private readonly IUnitOfWork _unitOfWork;
