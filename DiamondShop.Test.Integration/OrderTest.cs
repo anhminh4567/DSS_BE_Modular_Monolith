@@ -1,6 +1,8 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Orders.Commands.Create;
+using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Warranties.Enum;
 using DiamondShop.Test.Integration.Data;
 using Xunit.Abstractions;
@@ -19,10 +21,11 @@ namespace DiamondShop.Test.Integration
         [Fact]
         public async Task Checkout_Should_Create_Order()
         {
-            var account = await TestData.SeedDefaultCustomer(_context,_authentication);
+            var account = await TestData.SeedDefaultCustomer(_context, _authentication);
             var jewelry = await TestData.SeedDefaultJewelry(_context);
             var diamond = await TestData.SeedDefaultDiamond(_context, jewelry.Id);
-
+            var criteria = await TestData.SeedDefaultDiamondCriteria(_context, diamond.Cut, diamond.Clarity, diamond.Color, diamond.IsLabDiamond);
+            await TestData.SeedDefaultDiamondPrice(_context, diamond.DiamondShapeId, criteria.Id);
 
             var billing = new BillingDetail(account.FullName.FirstName, account.FullName.LastName, "123456789", account.Email, "HCM", "Thu Duc", "abc street", "");
             var orderReq = new OrderRequestDto(Domain.Models.Orders.Enum.PaymentType.COD, "zalopay", true);
@@ -37,6 +40,12 @@ namespace DiamondShop.Test.Integration
             {
                 foreach (var error in result.Errors)
                     _output.WriteLine(error.Message);
+            }
+            else
+            {
+                var items = _context.Set<OrderItem>().ToList();
+                foreach (var item in items)
+                    _output.WriteLine($"{item.JewelryId} {item.DiamondId} {item.PurchasedPrice}");
             }
             Assert.True(result.IsSuccess);
         }

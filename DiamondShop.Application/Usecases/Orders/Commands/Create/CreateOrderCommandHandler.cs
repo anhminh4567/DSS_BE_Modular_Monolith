@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Models;
+using DiamondShop.Application.Usecases.Carts.Commands.Validate;
 using DiamondShop.Application.Usecases.Orders.Commands.Validate;
 using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
@@ -34,14 +35,16 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         private readonly IOrderItemRepository _orderItemRepository;
         private readonly IDiamondRepository _diamondRepository;
         private readonly IJewelryRepository _jewelryRepository;
+        private readonly IJewelryModelRepository _jewelryModelRepository;
         private readonly IMainDiamondRepository _mainDiamondRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMainDiamondService _mainDiamondService;
         private readonly IPaymentService _paymentService;
+        private readonly ICartService _cartService;
         private readonly ICartModelService _cartModelService;
         private readonly ISender _sender;
 
-        public CreateOrderCommandHandler(IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IAccountRepository accountRepository, IUnitOfWork unitOfWork, IPaymentService paymentService, IJewelryRepository jewelryRepository, IMainDiamondRepository mainDiamondRepository, ISender sender, IDiamondRepository diamondRepository, IMainDiamondService mainDiamondService, IPaymentMethodRepository paymentMethodRepository)
+        public CreateOrderCommandHandler(IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IAccountRepository accountRepository, IUnitOfWork unitOfWork, IPaymentService paymentService, IJewelryRepository jewelryRepository, IMainDiamondRepository mainDiamondRepository, ISender sender, IDiamondRepository diamondRepository, IMainDiamondService mainDiamondService, IPaymentMethodRepository paymentMethodRepository, ICartService cartService)
         {
             _orderRepository = orderRepository;
             _orderItemRepository = orderItemRepository;
@@ -54,6 +57,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             _diamondRepository = diamondRepository;
             _mainDiamondService = mainDiamondService;
             _paymentMethodRepository = paymentMethodRepository;
+            _cartService = cartService;
         }
 
         public async Task<Result<PaymentLinkResponse>> Handle(CreateOrderCommand request, CancellationToken token)
@@ -73,24 +77,26 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             List<IError> errors = new List<IError>();
             foreach (var item in orderItemReqs)
             {
-                if (item.JewelryId != null)
-                {
-
-
-
-                }
                 CartProduct cartProduct = new();
                 if (item.JewelryId != null)
                 {
-                    if (item.WarrantyType != WarrantyType.Jewelry)
+                    if (item.DiamondId == null)
                     {
-                        errors.Add(new Error($"Wrong Type of warranty for jewelry #{item.JewelryId}"));
-                        continue;
+
+                        if (item.WarrantyType != WarrantyType.Jewelry)
+                        {
+                            errors.Add(new Error($"Wrong Type of warranty for jewelry #{item.JewelryId}"));
+                            continue;
+                        }
+                        cartProduct.Jewelry = await _jewelryRepository.GetById(JewelryId.Parse(item.JewelryId));
+                        cartProduct.EngravedFont = item.EngravedFont;
+                        cartProduct.EngravedText = item.EngravedText;
+                        jewelrySet.Add(cartProduct.Jewelry);
                     }
-                    cartProduct.Jewelry = await _jewelryRepository.GetById(JewelryId.Parse(item.JewelryId));
-                    cartProduct.EngravedFont = item.EngravedFont;
-                    cartProduct.EngravedText = item.EngravedText;
-                    jewelrySet.Add(cartProduct.Jewelry);
+                    else
+                    {
+                        cartProduct.Jewelry = jewelrySet.LastOrDefault();
+                    }
                 }
                 if (item.DiamondId != null)
                 {
@@ -123,26 +129,25 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             }
             if (errors.Count > 0)
                 return Result.Fail(errors);
-
             //Validate CartModel
             var cartModelResult = await _sender.Send(new ValidateOrderCommand(products));
             if (cartModelResult.IsFailed)
                 return Result.Fail(cartModelResult.Errors);
 
-            var jewelries = jewelrySet.ToList();
-            jewelries.ForEach(p => p.SetSold());
-            _jewelryRepository.UpdateRange(jewelries);
-
-            var diamonds = diamondSet.ToList();
-            diamonds.ForEach(p => p.SetSold());
-            _diamondRepository.UpdateRange(diamonds);
-
             var cartModel = cartModelResult.Value;
+            if (!cartModel.OrderValidation.IsOrderValid)
+                return Result.Fail("error in handling cart. Please validate again");
+            //TODO: ADD seperate error validation
+            //    foreach (var index in cartModel.OrderValidation.InvalidItemIndex)
+            //    {
+            //        var invalidItem = cartModel.Products[index];
+            //        var error = Result.Fail(cartModel);
+            //    }
+            
             var orderPromo = cartModel.Promotion.Promotion;
 
             var order = Order.Create(account.Id, orderReq.PaymentType, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice, billingDetail.Address, orderPromo?.Id);
             await _orderRepository.Create(order, token);
-            await _unitOfWork.SaveChangesAsync(token);
 
             List<OrderItem> orderItems = cartModel.Products.Select(p =>
             {
@@ -154,8 +159,16 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 gift?.UnitType, gift?.UnitValue);
             }).ToList();
             await _orderItemRepository.CreateRange(orderItems);
-            await _unitOfWork.SaveChangesAsync(token);
 
+            var jewelries = jewelrySet.ToList();
+            jewelries.ForEach(p => p.SetSold());
+            _jewelryRepository.UpdateRange(jewelries);
+
+            var diamonds = diamondSet.ToList();
+            diamonds.ForEach(p => p.SetSold());
+            _diamondRepository.UpdateRange(diamonds);
+
+            await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
 
             //Create Paymentlink if not transfer

@@ -13,7 +13,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 .NotEmpty()
                 .ChildRules(p =>
                 {
-                    p.RuleFor(k => k.FirstName).NotEmpty();
+                    p.RuleFor(k => k.FirstName);
                     p.RuleFor(k => k.LastName).NotEmpty();
                     p.RuleFor(k => k.Phone).Length(9, 11);
                     p.RuleFor(k => k.Email).EmailAddress();
