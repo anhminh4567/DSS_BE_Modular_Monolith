@@ -33,6 +33,8 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Delete
             var tryGetDiscount = await _discountRepository.GetById(discountId);
             if (tryGetDiscount == null)
                 return Result.Fail(new NotFoundError("Not found discount"));
+            if(tryGetDiscount.CanBePermanentlyDeleted == false)
+                return Result.Fail(new ConflictError("can only be deleted when status is CANCELLED or EXPIRED"));
             await _discountRepository.Delete(tryGetDiscount);
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(tryGetDiscount);

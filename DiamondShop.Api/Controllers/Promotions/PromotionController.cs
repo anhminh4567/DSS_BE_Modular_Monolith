@@ -1,16 +1,20 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Promotions;
+using DiamondShop.Application.Usecases.Discounts.Commands.Cancel;
 using DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany;
 using DiamondShop.Application.Usecases.PromotionGifts.Commands.Delete;
 using DiamondShop.Application.Usecases.PromotionGifts.Queries.GetAll;
 using DiamondShop.Application.Usecases.PromotionRequirements.Commands.CreateMany;
 using DiamondShop.Application.Usecases.PromotionRequirements.Commands.Delete;
 using DiamondShop.Application.Usecases.PromotionRequirements.Queries.GetAll;
+using DiamondShop.Application.Usecases.Promotions.Commands.Cancel;
 using DiamondShop.Application.Usecases.Promotions.Commands.Create;
+using DiamondShop.Application.Usecases.Promotions.Commands.CreateFull;
 using DiamondShop.Application.Usecases.Promotions.Commands.Delete;
 using DiamondShop.Application.Usecases.Promotions.Commands.SetThumbnail;
 using DiamondShop.Application.Usecases.Promotions.Commands.UpdateGifts;
 using DiamondShop.Application.Usecases.Promotions.Commands.UpdateInfo;
 using DiamondShop.Application.Usecases.Promotions.Commands.UpdateRequirements;
+using DiamondShop.Application.Usecases.Promotions.Commands.UpdateStatus;
 using DiamondShop.Application.Usecases.Promotions.Queries.GetAll;
 using MapsterMapper;
 using MediatR;
@@ -48,7 +52,20 @@ namespace DiamondShop.Api.Controllers.Promotions
             var result = await _sender.Send(createPromotionCommand);
             if (result.IsSuccess)
             {
-                return Ok(result.Value);
+                var mappedResult = _mapper.Map<PromotionDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPost("Full")]
+        [ProducesResponseType(typeof(PromotionDto), 200)]
+        public async Task<ActionResult> CreatePromotionFull(CreateFullPromotionCommand createFullPromotionCommand)
+        {
+            var result = await _sender.Send(createFullPromotionCommand);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<PromotionDto>(result.Value);
+                return Ok(mappedResult);
             }
             return MatchError(result.Errors, ModelState);
         }
@@ -78,6 +95,30 @@ namespace DiamondShop.Api.Controllers.Promotions
         {
             var command = updatePromotionInformationCommand with { promotionId = promotionId };
             var result = await _sender.Send(command);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<PromotionDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPatch("{promotionId}/Pause")]
+        [ProducesResponseType(typeof(PromotionDto), 200)]
+        public async Task<ActionResult> Pause([FromRoute] PausePromotionCommand pausePromotionCommand)
+        {
+            var result = await _sender.Send(pausePromotionCommand);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<PromotionDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPatch("{promotionId}/Cancel")]
+        [ProducesResponseType(typeof(PromotionDto), 200)]
+        public async Task<ActionResult> Cancel([FromRoute] CancelPromotionCommand cancelPromotionCommand)
+        {
+            var result = await _sender.Send(cancelPromotionCommand);
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<PromotionDto>(result.Value);

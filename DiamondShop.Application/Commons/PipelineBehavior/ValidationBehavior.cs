@@ -65,7 +65,6 @@ namespace DiamondShop.Application.Commons.PipelineBehavior
             {
                 return await next();
             }
-
         }
     }
 }
