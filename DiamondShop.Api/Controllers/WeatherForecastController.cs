@@ -1,11 +1,17 @@
 using DiamondShop.Api.Controllers;
+using DiamondShop.Application.Dtos.Requests.Deliveries;
 using DiamondShop.Application.Dtos.Requests.Diamonds;
 using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Application.Usecases.DeliveryFees.Commands.CreateMany;
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany;
 using DiamondShop.Application.Usecases.DiamondShapes.Queries.GetAll;
+using DiamondShop.Domain.Models.DeliveryFees;
+using DiamondShop.Domain.Repositories.DeliveryRepo;
+using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services;
+using DiamondShop.Infrastructure.Services.Locations.Locally;
 using DiamondShop.Infrastructure.Services.Payments.Paypals;
 using DiamondShop.Infrastructure.Services.Payments.Paypals.Models;
 using DiamondShop.Infrastructure.Services.Payments.Vnpays;
@@ -34,8 +40,11 @@ namespace DiamondShopSystem.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ISender _sender;
         private readonly IOptions<LocationOptions> _locationOptions;
+        private readonly DiamondShopDbContext _context;
+        private readonly ILocationService _locationService;
+        private readonly IDeliveryFeeRepository _deliveryFeeRepository;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IDateTimeProvider dateTimeProvider, IBlobFileServices blobFileServices, IOptions<PaypalOption> paypal, IOptions<VnpayOption> vnpayOption, IHttpContextAccessor httpContextAccessor, ISender sender, IOptions<LocationOptions> locationOptions)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IDateTimeProvider dateTimeProvider, IBlobFileServices blobFileServices, IOptions<PaypalOption> paypal, IOptions<VnpayOption> vnpayOption, IHttpContextAccessor httpContextAccessor, ISender sender, IOptions<LocationOptions> locationOptions, DiamondShopDbContext context, ILocationService locationService, IDeliveryFeeRepository deliveryFeeRepository)
         {
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
@@ -45,6 +54,9 @@ namespace DiamondShopSystem.Controllers
             _httpContextAccessor = httpContextAccessor;
             _sender = sender;
             _locationOptions = locationOptions;
+            _context = context;
+            _locationService = locationService;
+            _deliveryFeeRepository = deliveryFeeRepository;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -92,7 +104,7 @@ namespace DiamondShopSystem.Controllers
             {
                 if (i == 0)
                     continue; //skip the first row, the header
-                var obj = ExcelSyncFunctionExtension.ReadLine<CaohungDiamondPrice>(worksheet, i,0);
+                var obj = ExcelSyncFunctionExtension.ReadLine<CaohungDiamondPrice>(worksheet, i, 0);
                 listItem.Add(obj);
             }
 
@@ -128,6 +140,25 @@ namespace DiamondShopSystem.Controllers
         {
             Console.WriteLine("Hello world, calling from vnpay");
             return Ok();
+        }
+        [HttpPost("/ThemTinhThanh")]
+        [ApiExplorerSettings(IgnoreApi = true   )]
+        public async Task<ActionResult> Insert63CityLocation()
+        {
+            var getCities = _locationService.GetProvinces();
+            var shopCity = getCities.FirstOrDefault(x => x.Name == _locationOptions.Value.ShopOrignalLocation.OriginalProvince);
+            if (shopCity == null)
+                throw new Exception();
+            var baseCost = 40000.0m;
+            List<CreateDeliveryFeeCommand> commandData = new();
+            foreach (var city in getCities)
+            {
+                baseCost += 5000.0m;
+                var comando = new CreateDeliveryFeeCommand(DeliveryFeeType.LocationToCity,city.Name,baseCost,new ToLocationCity(shopCity.Name,city.Name),null);
+                commandData.Add(comando);
+            }
+            var result = await _sender.Send(new CreateManyDeliveryFeeCommand(commandData)) ;
+            return Ok(result.Value);
         }
     }
 }

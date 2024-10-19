@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
@@ -28,21 +29,21 @@ namespace DiamondShop.Domain.Services.Implementations
         private readonly IJewelryRepository _jewelryRepository;
         private readonly IJewelryModelRepository _jewelryModelRepository;
         private readonly ISizeMetalRepository _sizeMetalRepository;
-        private readonly IPromotionRepository _promotionRepository;
-        private readonly IDiscountRepository _discountRepository;
+        private readonly IMainDiamondService _mainDiamondService;
+        private readonly IMainDiamondRepository _mainDiamondRepository;
 
-        public CartModelService(IDiamondServices diamondServices, IPromotionServices promotionServices, IDiscountService discountService, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, IPromotionRepository promotionRepository, IDiscountRepository discountRepository, IJewelryService jewelryService, ISizeMetalRepository sizeMetalRepository)
+        public CartModelService(IDiamondServices diamondServices, IJewelryService jewelryService, IPromotionServices promotionServices, IDiscountService discountService, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, ISizeMetalRepository sizeMetalRepository, IMainDiamondService mainDiamondService, IMainDiamondRepository mainDiamondRepository)
         {
             _diamondServices = diamondServices;
+            _jewelryService = jewelryService;
             _promotionServices = promotionServices;
             _discountService = discountService;
             _diamondRepository = diamondRepository;
             _jewelryRepository = jewelryRepository;
             _jewelryModelRepository = jewelryModelRepository;
-            _promotionRepository = promotionRepository;
-            _discountRepository = discountRepository;
-            _jewelryService = jewelryService;
             _sizeMetalRepository = sizeMetalRepository;
+            _mainDiamondService = mainDiamondService;
+            _mainDiamondRepository = mainDiamondRepository;
         }
 
         public void AssignProductAndItemCounter(CartModel cartModel)
@@ -156,7 +157,7 @@ namespace DiamondShop.Domain.Services.Implementations
             var reviewPrice = new CheckoutPrice();
             // if false do nothing, and assing price 0,  
             // price 0 is default for new CheckoutPrice();
-            if (cartProduct.IsValid is false) { } 
+            if (cartProduct.IsValid is false) { }
             else
             {
                 if (cartProduct.Diamond is not null)
@@ -165,7 +166,7 @@ namespace DiamondShop.Domain.Services.Implementations
                     var diamondPrice = _diamondServices.GetDiamondPrice(cartProduct.Diamond, prices).Result;
                     if (diamondPrice == null)
                         reviewPrice.DefaultPrice = 0;
-                    else 
+                    else
                     {
                         reviewPrice.DefaultPrice = diamondPrice.Price;
                     }
@@ -226,9 +227,13 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 if (product.Diamond.IsActive is false)
                     return Result.Fail("not active");
-                if(product.Diamond.DiamondPrice!.ForUnknownPrice != null )
+                if (product.Diamond.DiamondPrice!.ForUnknownPrice != null)
                     return Result.Fail("unknown price");
-                return product.Diamond.IsSold ? Result.Fail("already sold") : Result.Ok();
+                if (product.Diamond.IsSold is true)
+                    Result.Fail("already sold");
+                if(product.Jewelry != null || product.JewelryModel != null)
+                    return CheckIfDiamondJewelryIsValid(product);
+                return Result.Ok();
             }
             if (product.Jewelry is not null)
                 return product.Jewelry.IsSold ? Result.Fail("already sold") : Result.Ok();
@@ -236,7 +241,26 @@ namespace DiamondShop.Domain.Services.Implementations
             return Result.Fail("unknonw product type");
             //return product.JewelryModel.
         }
-
+        private Result CheckIfDiamondJewelryIsValid(CartProduct diamondJewelry)
+        {
+            if (diamondJewelry.Jewelry != null)
+            {
+                var attachedJewelryId = diamondJewelry.Diamond!.JewelryId;
+                if (attachedJewelryId != null)// means the diamond is attached to a jewelry already, check if the attached 
+                                              // jewelry is correct one with the one in CartProduct
+                {
+                    if (diamondJewelry.Jewelry.Id != attachedJewelryId)
+                        return Result.Fail("attached jewelry id is not the same as the jewelry id in the cart product");
+                    else
+                        return Result.Ok();
+                }
+                return _mainDiamondService.CheckMatchingDiamond(diamondJewelry.Jewelry.ModelId,new List<Diamond> { diamondJewelry.Diamond },_mainDiamondRepository).Result;
+            }
+            else // else check with JewelryModels
+            {
+                return _mainDiamondService.CheckMatchingDiamond(diamondJewelry.JewelryModel.Id, new List<Diamond> { diamondJewelry.Diamond }, _mainDiamondRepository).Result;
+            }
+        }
         public void SetOrderPrice(CartModel cartModel)
         {
             var orderPrice = cartModel.OrderPrices;

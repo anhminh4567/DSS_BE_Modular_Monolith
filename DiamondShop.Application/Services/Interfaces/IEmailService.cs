@@ -1,4 +1,5 @@
-﻿using FluentResults;
+﻿using DiamondShop.Domain.Models.AccountAggregate;
+using FluentResults;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,4 +12,5 @@ namespace DiamondShop.Application.Services.Interfaces
     {
         Task<Result> Send(string toEmail, string title, string description,string bodyContentHtml);
     }
+    public record EmailVerificationToken(Account userAccount, DateTime createdTime, DateTime expiredTime);
 }
