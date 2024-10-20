@@ -155,14 +155,14 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             };
             //insert meta data
             embed_data.columninfo = JsonConvert.SerializeObject(descriptionBodyJson);
-
+            List<ZalopayItem> falseList = new List<ZalopayItem>() { new ZalopayItem() { name = "n", price = amount,quantity=1,sale_price = amount} };
             param.Add("app_id", appid);
             param.Add("app_user", userId);
             param.Add("app_time", timeStampe);
             param.Add("amount", amount.ToString());
             param.Add("app_trans_id", DateTime.Now.ToString("yyMMdd") + "_" + app_trans_id); // mã giao dich có định dạng yyMMdd_xxxx
             param.Add("embed_data", JsonConvert.SerializeObject(embed_data));
-            //param.Add("item", JsonConvert.SerializeObject(body.item));
+            param.Add("item", JsonConvert.SerializeObject(falseList));
             param.Add("description", description);
             param.Add("bank_code", "");
             param.Add("callback_url", callbackUrl);
