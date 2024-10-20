@@ -23,6 +23,7 @@ namespace DiamondShop.Domain.Services.interfaces
         void SetCartModelValidation(CartModel cartModel);
         bool IsProduct(CartProduct item);
         void SetOrderPrice(CartModel cartModel);
+        void SetShippingPrice(CartModel cartModel, ShippingPrice shippingPrice);
         Task<Result<CartModel>> Execute(List<CartProduct> products,List<Discount> givenDiscount, List<Promotion> givenPromotion , IDiamondPriceRepository _diamondPriceRepository, ISizeMetalRepository _sizeMetalRepository, IMetalRepository _metalRepository);
         Task<CartProduct?> FromCartItem(CartItem cartItem, IJewelryRepository _jewelryRepository, IJewelryModelRepository _jewelryModelRepository, IDiamondRepository _diamondRepository);
         Task AssignDefaultPriceToProduct(CartProduct cartProduct,IDiamondPriceRepository _diamondPriceRepository, ISizeMetalRepository _sizeMetalRepository, IMetalRepository _metalRepository);

@@ -223,5 +223,10 @@ namespace DiamondShop.Infrastructure.Services.Locations.OApi
             ArgumentNullException.ThrowIfNull(distanceInMeters);
             return Math.Round(decimal.Divide(distanceInMeters, 1000m), 2);
         }
+
+        public LocationDetail GetShopLocation(string? shopName)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

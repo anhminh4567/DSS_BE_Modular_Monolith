@@ -95,6 +95,7 @@ namespace DiamondShop.Domain.Services.Implementations
         public void InitOrderPrice(CartModel cartModel)
         {
             cartModel.OrderPrices.DefaultPrice = cartModel.Products.Where(p => p.IsValid).Sum(product => product.ReviewPrice.DefaultPrice);
+            cartModel.OrderPrices.DefaultPrice += cartModel.ShippingPrice.FinalPrice;
         }
 
         public bool IsProduct(CartProduct item)
@@ -272,6 +273,12 @@ namespace DiamondShop.Domain.Services.Implementations
                     orderPrice.PromotionAmountSaved += product.ReviewPrice.PromotionAmountSaved;
                 }
             }
+        }
+
+        public void SetShippingPrice(CartModel cartModel, ShippingPrice shippingPrice)
+        {
+            if(shippingPrice != null)
+                cartModel.ShippingPrice = shippingPrice;
         }
     }
 

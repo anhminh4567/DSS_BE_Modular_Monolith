@@ -10,7 +10,7 @@ namespace DiamondShop.Domain.Services.interfaces
 {
     public interface IDeliveryService
     {
-        DeliveryFee? GetDeliveryFeeForLocation(Address userAddress, List<DeliveryFee> deliveryFeesWithLocation);
+        DeliveryFee? GetDeliveryFeeForLocation(Address userAddress, Address shopAddress, List<DeliveryFee> deliveryFeesWithLocation);
         DeliveryFee? GetDeliveryFeeForDistance(decimal distanceKilometers, List<DeliveryFee> deliveryFeesWithLocation);
     }
 }

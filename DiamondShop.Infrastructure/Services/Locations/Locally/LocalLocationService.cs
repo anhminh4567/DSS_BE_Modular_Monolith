@@ -63,7 +63,23 @@ namespace DiamondShop.Infrastructure.Services.Locations.Locally
         public decimal ToKm(decimal distanceInMeters)
         {
             return _oApiLocationService.ToKm(distanceInMeters);
-        }  
+        }
+
+        public LocationDetail GetShopLocation(string? shopName = null)
+        {
+            if (shopName != null)
+            {
+                //do shit
+            }
+            return new LocationDetail
+            {
+                District = _locationOptions.Value.ShopOrignalLocation.OrignalDistrict,
+                Province = _locationOptions.Value.ShopOrignalLocation.OriginalProvince,
+                Road = _locationOptions.Value.ShopOrignalLocation.OrignalRoad,
+                Ward = _locationOptions.Value.ShopOrignalLocation.OrignalWard,
+            };
+        }
+
         public static List<Province> ALLOWED_PROVINCE { get => _allowedProvince;  }
         //public static List<Province> JSON_ALLLOWED_PROVINCE = JsonConvert.DeserializeObject<List<Province>>(_jsonAllowedProvince!)!;
         private static string _jsonAllowedProvince = "[{\"Id\":\"1\",\"Name\":\"HàNội\",\"IsActive\":true,\"NameExtension\":[\"HàNội\"]}," +

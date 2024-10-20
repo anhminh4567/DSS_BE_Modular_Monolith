@@ -2,6 +2,7 @@
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,5 +22,15 @@ namespace DiamondShop.Application.Dtos.Requests.Carts
         public List<string> SideDiamondChoices { get; set; } = new();
         public string? EngravedText { get; set; }
         public string? EngravedFont { get; set; }
+    }
+    public class CartItemRequestDtoValidator : AbstractValidator<CartItemRequestDto>
+    {
+        public CartItemRequestDtoValidator()
+        {
+            RuleFor(x => x)
+                .Must(x => ( x.JewelryId != null ||  x.DiamondId != null ||  x.JewelryModelId != null) )
+                .WithMessage("At least one of JewelryId, DiamondId, or JewelryModelId must be provided.");
+            
+        }
     }
 }
