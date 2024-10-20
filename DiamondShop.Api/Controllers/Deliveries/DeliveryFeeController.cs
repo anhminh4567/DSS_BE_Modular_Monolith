@@ -36,7 +36,7 @@ namespace DiamondShop.Api.Controllers.Deliveries
         [Produces(typeof(CalculateFeeRepsonseDto))]
         public async Task<ActionResult> CalculateFee([FromForm]CalculateFeeCommand calculateFeeCommand)
         {
-            var result = await _mediator.Send(calculateFeeCommand);
+            var result = await _mediator.Send(calculateFeeCommand with { isLocationCalculation = true});
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<CalculateFeeRepsonseDto>(result.Value);
@@ -44,7 +44,18 @@ namespace DiamondShop.Api.Controllers.Deliveries
             }
             return MatchError(result.Errors, ModelState);
         }
-
+        [HttpPost("Calculate/Location")]
+        [Produces(typeof(CalculateFeeRepsonseDto))]
+        public async Task<ActionResult> CalculateFeeFromLocation([FromForm] CalculateFeeCommand calculateFeeCommand)
+        {
+            var result = await _mediator.Send(calculateFeeCommand with { isLocationCalculation = false });
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<CalculateFeeRepsonseDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
         [HttpPost]
         [Produces(typeof(List<DeliveryFeeDto>))]
         public async Task<ActionResult> CreateMany([FromBody]CreateManyDeliveryFeeCommand createManyDeliveryFeeCommand)
