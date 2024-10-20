@@ -15,6 +15,5 @@ namespace DiamondShop.Domain.Services.interfaces
     {
         Result ApplyPromotionOnCartModel(CartModel cartModel, Promotion promotion);
         void SetOrderPrice(CartModel cartModel);
-        Result ManualChangeStatus(Promotion promotion , Status status);
     }
 }

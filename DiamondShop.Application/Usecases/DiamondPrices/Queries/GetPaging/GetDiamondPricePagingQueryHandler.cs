@@ -47,7 +47,6 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPaging
             query = _diamondPriceRepository.QuerySplit(query);
             query = query.Skip(request.pageSize * request.start);
             query = query.Take(request.pageSize);
-            
             var result = query.ToList();
             //var totalCount = _diamondPriceRepository
             //    .QueryFilter (_diamondPriceRepository.GetQuery(), price => price.ShapeId == tryGetShape.Id)

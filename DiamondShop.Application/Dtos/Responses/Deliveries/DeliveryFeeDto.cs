@@ -17,5 +17,6 @@ namespace DiamondShop.Application.Dtos.Responses.Deliveries
         public int? ToKm { get; set; }
         public string? FromLocation { get; set; }
         public string? ToLocation { get; set; }
+        public bool IsDistancePriceType { get; set; }
     }
 }

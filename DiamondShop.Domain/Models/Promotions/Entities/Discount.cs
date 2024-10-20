@@ -6,6 +6,7 @@ using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using FluentResults;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +25,8 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public List<PromoReq> DiscountReq { get; set; } = new();
         public Media? Thumbnail { get; set; }
         public Status Status { get; set; }
+        [NotMapped]
+        public bool CanBePermanentlyDeleted => Status == Status.Cancelled || Status == Status.Expired;
         public static Discount Create(string name, DateTime startDate, DateTime endDate, int percent, string? code)
         {
             return new Discount()
@@ -63,11 +66,19 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         {
             Status = Status.Expired;
         }
+        public Result Paused()
+        {
+            if (Status == Status.Active || Status == Status.Paused)
+                Status = Status.Paused;
+            else
+                return Result.Fail("can only pause when active");
+            return Result.Ok();
+        }
         public Result Cancel()
         {
             if (Status != Status.Scheduled && Status != Status.Paused)
                 return Result.Fail("the discount must be paused first, or in schedule state to be cancelled");
-            Status = Status.Expired;
+            Status = Status.Cancelled;
             return Result.Ok();
         }
 

@@ -1,7 +1,9 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Promotions;
+using DiamondShop.Application.Usecases.Discounts.Commands.Cancel;
 using DiamondShop.Application.Usecases.Discounts.Commands.Create;
 using DiamondShop.Application.Usecases.Discounts.Commands.CreateFull;
 using DiamondShop.Application.Usecases.Discounts.Commands.Delete;
+using DiamondShop.Application.Usecases.Discounts.Commands.Pause;
 using DiamondShop.Application.Usecases.Discounts.Commands.SetThumbnail;
 using DiamondShop.Application.Usecases.Discounts.Commands.UpdateInfo;
 using DiamondShop.Application.Usecases.Discounts.Commands.UpdateRequirements;
@@ -99,6 +101,30 @@ namespace DiamondShop.Api.Controllers.Promotions
             if (result.IsSuccess)
             {
                 return Ok();
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPatch("{discountId}/Pause")]
+        [Produces(type: typeof(DiscountDto))]
+        public async Task<ActionResult> Pause([FromRoute]PauseDiscountCommand pauseDiscountCommand)
+        {
+            var result = await _sender.Send(pauseDiscountCommand);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<DiscountDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPatch("{discountId}/Cancel")]
+        [Produces(type: typeof(DiscountDto))]
+        public async Task<ActionResult> Cancel([FromRoute] CancelDiscountCommand cancelDiscountCommand)
+        {
+            var result = await _sender.Send(cancelDiscountCommand);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<DiscountDto>(result.Value);
+                return Ok(mappedResult);
             }
             return MatchError(result.Errors, ModelState);
         }

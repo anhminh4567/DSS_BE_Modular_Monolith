@@ -77,23 +77,34 @@ namespace DiamondShop.Infrastructure.Services
             T result = new T();
             for (int i = 0; i < propertiesCount; i++)
             {
-                var cell = row.Columns[i ];
-                //var cell = row[ rowIndex + 1,  i + 1];
-                var text = cell.Text;
-                var property = propertyInfo[i + columnStart];
-                object convertedValue = null;
-                if (property.PropertyType.IsEnum)
+                try
                 {
-                    // Convert the cell value to the corresponding enum value
-                    convertedValue = Enum.Parse(property.PropertyType, text, true);
+                    var cell = row.Columns[i];
+                    //var cell = row[ rowIndex + 1,  i + 1];
+                    var text = cell.Text;
+                    var property = propertyInfo[i + columnStart];
+                    object convertedValue = null;
+                    if (property.PropertyType.IsEnum)
+                    {
+                        // Convert the cell value to the corresponding enum value
+                        convertedValue = Enum.Parse(property.PropertyType, text, true);
+                    }
+                    else
+                    {
+                        // Convert the cell value to the property type (e.g., int, string, DateTime, etc.)
+                        convertedValue = Convert.ChangeType(text, property.PropertyType);
+                    }
+                    //var convertedValue = Convert.ChangeType(text, property.PropertyType);
+                    property.SetValue(result, convertedValue);
                 }
-                else
+                catch
                 {
-                    // Convert the cell value to the property type (e.g., int, string, DateTime, etc.)
-                    convertedValue = Convert.ChangeType(text, property.PropertyType);
+                    var cell = row.Columns[i];
+                    cell.CellStyle.Borders.Color = ExcelKnownColors.Red;
+                    cell.Comment.Text = "This cell value is invalid";
+                    var property = propertyInfo[i + columnStart];
+                    property.SetValue(result, null);
                 }
-                //var convertedValue = Convert.ChangeType(text, property.PropertyType);
-                property.SetValue(result, convertedValue);
             }
             return result;
         }

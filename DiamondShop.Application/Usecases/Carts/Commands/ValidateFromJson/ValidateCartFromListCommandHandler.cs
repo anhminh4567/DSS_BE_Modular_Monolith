@@ -17,6 +17,12 @@ using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Application.Dtos.Requests.Carts;
 using MapsterMapper;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
+using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions;
+using Azure.Core;
+using DiamondShop.Domain.Repositories.DeliveryRepo;
+using DiamondShop.Application.Dtos.Requests.Accounts;
+using System.Numerics;
 
 namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
 {
@@ -25,6 +31,9 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
     {
         private readonly ICartModelService _cartModelService;
         private readonly ICartService _cartService;
+        private readonly ILocationService _locationService;
+        private readonly IDeliveryService _deliveryService;
+        private readonly IDeliveryFeeRepository _deliveryFeeRepository;
         private readonly IJewelryRepository _jewelryRepository;
         private readonly IDiamondRepository _diamondRepository;
         private readonly IJewelryModelRepository _jewelryModelRepository;
@@ -35,10 +44,13 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
         private readonly IMetalRepository _metalRepository;
         private readonly IMapper _mapper;
 
-        public ValidateCartFromListCommandHandler(ICartModelService cartModelService, ICartService cartService, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository, IJewelryModelRepository jewelryModelRepository, IDiamondPriceRepository diamondPriceRepository, IDiscountRepository discountRepository, IPromotionRepository promotionRepository, ISizeMetalRepository sizeMetalRepository, IMetalRepository metalRepository, IMapper mapper)
+        public ValidateCartFromListCommandHandler(ICartModelService cartModelService, ICartService cartService, ILocationService locationService, IDeliveryService deliveryService, IDeliveryFeeRepository deliveryFeeRepository, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository, IJewelryModelRepository jewelryModelRepository, IDiamondPriceRepository diamondPriceRepository, IDiscountRepository discountRepository, IPromotionRepository promotionRepository, ISizeMetalRepository sizeMetalRepository, IMetalRepository metalRepository, IMapper mapper)
         {
             _cartModelService = cartModelService;
             _cartService = cartService;
+            _locationService = locationService;
+            _deliveryService = deliveryService;
+            _deliveryFeeRepository = deliveryFeeRepository;
             _jewelryRepository = jewelryRepository;
             _diamondRepository = diamondRepository;
             _jewelryModelRepository = jewelryModelRepository;
@@ -53,23 +65,67 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
         public async Task<Result<CartModel>> Handle(ValidateCartFromListCommand request, CancellationToken cancellationToken)
         {
             var cartItem = _mapper.Map<List<CartItem>>(request.items.Items);
-            PromotionId promotionId;
-            if(request.items.PromotionId != null)
+            PromotionId promotionId = null;
+            ShippingPrice getShippingPrice = null;
+
+            if (request.items.PromotionId != null)
                 promotionId = PromotionId.Parse(request.items.PromotionId);
+            var getPromotion = GetPromotion(promotionId).Result;
+            var getDiscounts = await _discountRepository.GetActiveDiscount();
+            List<CartProduct> getProducts = PrepareCartProduct(cartItem).Result;
+            if (request.items.UserAddress != null)
+            {
+                 getShippingPrice = GetShippingPrice(request.items.UserAddress).Result;
+            }
+            Result<CartModel> result = await _cartModelService.Execute(getProducts, getDiscounts, getPromotion, _diamondPriceRepository, _sizeMetalRepository, _metalRepository);
+            if (result.IsSuccess)
+                return result.Value;
+            return Result.Fail(result.Errors);
+        }
+        private async Task<List<Promotion>> GetPromotion(PromotionId? promotionId)
+        {
+            if (promotionId != null)
+            {
+                var getPromotionById = await _promotionRepository.GetById(promotionId);
+                if (getPromotionById == null)
+                    return new List<Promotion>();
+                return new List<Promotion> { getPromotionById };
+            }
+            else
+            {
+                return  await _promotionRepository.GetActivePromotion();
+            }
+        }
+        private async Task<List<CartProduct>> PrepareCartProduct(List<CartItem> cartItems)
+        {
             List<CartProduct> getProducts = new();
-            foreach (var item in cartItem)
+            foreach (var item in cartItems)
             {
                 var product = await _cartModelService.FromCartItem(item, _jewelryRepository, _jewelryModelRepository, _diamondRepository);
                 if (product is not null)
                     getProducts.Add(product);
             }
-            var getActiveDiscount = await _discountRepository.GetActiveDiscount();
-            var getActivePromotion = await _promotionRepository.GetActivePromotion();
-            Result<CartModel> result = await _cartModelService.Execute(getProducts, getActiveDiscount, getActivePromotion, _diamondPriceRepository, _sizeMetalRepository, _metalRepository);
-            if (result.IsSuccess)
-                return result.Value;
-            return Result.Fail(result.Errors);
-            //throw new NotImplementedException();
+            return getProducts;
+        }
+        private async Task<ShippingPrice> GetShippingPrice(AddressRequestDto addressRequestDto)
+        {
+            var shipPrice = new ShippingPrice();
+            var shopLocation = _locationService.GetShopLocation();
+            var createShopAddress = Address.Create(shopLocation.Province,shopLocation.District,shopLocation.Ward,shopLocation.Road,AccountId.Parse("0"),AddressId.Parse("0"));
+            shipPrice.From = createShopAddress;
+            var city = addressRequestDto.Province;
+            var getCityIfFound = _locationService.GetProvinces().FirstOrDefault(x => x.Name == city);
+            if(getCityIfFound == null)
+            {
+                shipPrice.To = null;
+                return shipPrice;
+            }    
+            var createDestinationAddress = Address.Create(addressRequestDto.Province, addressRequestDto.District, addressRequestDto.Ward, addressRequestDto.Street, AccountId.Parse("1"), AddressId.Parse("1"));
+            shipPrice.To = createDestinationAddress;
+            var getDeliveryLocationFees = await _deliveryFeeRepository.GetLocationType();
+            var deliveryFee = _deliveryService.GetDeliveryFeeForLocation(shipPrice.To,shipPrice.From,getDeliveryLocationFees);      
+            shipPrice.DeliveryFeeFounded = deliveryFee;
+            return shipPrice;
         }
     }
 

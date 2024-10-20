@@ -13,5 +13,6 @@ namespace DiamondShop.Domain.Repositories.DeliveryRepo
         Task CreateRange(List<DeliveryFee> fees, CancellationToken cancellationToken = default);
         Task ExecuteDeleteRanges(DeliveryFeeId[] feeIds, CancellationToken cancellationToken =default);
         Task<DeliveryFee?> GetWithDistance(decimal distant, CancellationToken cancellationToken = default);
+        Task<List<DeliveryFee>> GetLocationType(CancellationToken cancellationToken = default);
     }
 }

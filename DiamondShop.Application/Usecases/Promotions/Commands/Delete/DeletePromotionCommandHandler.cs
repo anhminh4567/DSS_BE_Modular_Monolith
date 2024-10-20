@@ -4,6 +4,7 @@ using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
+using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
 using System;
@@ -19,11 +20,13 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Delete
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPromotionRepository _promotionRepository;
+        private readonly IPromotionServices _promotionServices;
 
-        public DeletePromotionCommandHandler(IUnitOfWork unitOfWork, IPromotionRepository promotionRepository)
+        public DeletePromotionCommandHandler(IUnitOfWork unitOfWork, IPromotionRepository promotionRepository, IPromotionServices promotionServices)
         {
             _unitOfWork = unitOfWork;
             _promotionRepository = promotionRepository;
+            _promotionServices = promotionServices;
         }
 
         public async Task<Result<Promotion>> Handle(DeletePromotionCommand request, CancellationToken cancellationToken)
@@ -33,6 +36,10 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Delete
             if (tryGet == null)
             {
                 return Result.Fail(new NotFoundError("not found requirement with id: " + parsedId.Value));
+            }
+            if(tryGet.CanBePermanentlyDeleted == false)
+            {
+                return Result.Fail(new ConflictError("can only be deleted if the promotion is of status: CANCELLED or EXPIRED"));
             }
             await _promotionRepository.Delete(tryGet);
             await _unitOfWork.SaveChangesAsync();

@@ -4,6 +4,7 @@ using DiamondShop.Application.Usecases.DiamondCriterias.Commands.Delete;
 using DiamondShop.Application.Usecases.DiamondCriterias.Queries.GetAll;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.Create;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.Delete;
+using DiamondShop.Application.Usecases.DiamondPrices.Queries.GetAllByShape;
 using DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPaging;
 using MapsterMapper;
 using MediatR;
@@ -30,6 +31,14 @@ namespace DiamondShop.Api.Controllers.Diamonds
         {
             var result = await _sender.Send(command);
             var mappedResult = _mapper.Map<List<DiamondPriceDto>>(result.Values);
+            return Ok(mappedResult);
+        }
+        [HttpGet("Shape")]
+        [Produces(typeof(DiamondPriceDto))]
+        public async Task<ActionResult> GetPaging([FromQuery] GetAllDiamondPriceByShapeQuery query)
+        {
+            var result = await _sender.Send(query);
+            var mappedResult = _mapper.Map<List<DiamondPriceDto>>(result);
             return Ok(mappedResult);
         }
         [HttpPost]

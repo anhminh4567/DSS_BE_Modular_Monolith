@@ -5,7 +5,7 @@ using MediatR;
 
 namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.CalculateFee
 {
-    public record CalculateFeeCommand(string Province,string District, string Ward, string Street) : IRequest<Result<CalculateFeeRepsonse>>;
+    public record CalculateFeeCommand(string Province,string District, string Ward, string Street, bool? isLocationCalculation) : IRequest<Result<CalculateFeeRepsonse>>;
     public class CalculateFeeRepsonse
     {
         public LocationDistantData LocationDistantData { get; set; }

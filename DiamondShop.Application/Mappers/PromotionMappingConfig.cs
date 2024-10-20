@@ -45,6 +45,15 @@ namespace DiamondShop.Application.Mappers
 
             // this is mapping from request to command
             config.NewConfig<DiscountRequirement, RequirementSpec>()
+                .Map(dest => dest.DiamondRequirementSpec, src => src.DiamondRequirementSpec)
+                .Map(dest => dest.DiamondRequirementSpec.cutFrom, src => src.DiamondRequirementSpec.cutFrom,src => src.DiamondRequirementSpec != null)
+                .Map(dest => dest.DiamondRequirementSpec.cutTo, src => src.DiamondRequirementSpec.cutTo, src => src.DiamondRequirementSpec != null)
+                .Map(dest => dest.DiamondRequirementSpec.colorFrom, src => src.DiamondRequirementSpec.colorFrom, src => src.DiamondRequirementSpec != null)
+                .Map(dest => dest.DiamondRequirementSpec.colorTo, src => src.DiamondRequirementSpec.colorTo, src => src.DiamondRequirementSpec != null)
+                .Map(dest => dest.DiamondRequirementSpec.clarityFrom, src => src.DiamondRequirementSpec.clarityFrom, src => src.DiamondRequirementSpec != null)
+                .Map(dest => dest.DiamondRequirementSpec.clarityTo, src => src.DiamondRequirementSpec.clarityTo, src => src.DiamondRequirementSpec != null)
+                .Map(dest => dest.DiamondRequirementSpec.caratFrom, src => src.DiamondRequirementSpec.caratFrom, src => src.DiamondRequirementSpec != null)
+                .Map(dest => dest.DiamondRequirementSpec.caratTo, src => src.DiamondRequirementSpec.caratTo, src => src.DiamondRequirementSpec != null)
                 .Map(dest => dest.MoneyAmount, src=> 10000.0m)
                 .Map(dest => dest.Quantity, src=> 1)
                 .Map(dest => dest.isPromotion, src => false);

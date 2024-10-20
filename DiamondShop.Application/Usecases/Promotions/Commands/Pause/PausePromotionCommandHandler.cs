@@ -35,11 +35,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.UpdateStatus
             var getPromotion= await _promotionRepository.GetById(parsedId);
             if(getPromotion is null)
                 return Result.Fail(new NotFoundError());
-            Result result;
-            if (getPromotion.Status != Status.Paused)
-                result = _promotionServices.ManualChangeStatus(getPromotion, Status.Paused);
-            else
-                result = _promotionServices.ManualChangeStatus(getPromotion, Status.Active);
+            var result = getPromotion.Paused();
             if (result.IsSuccess)
             {
                 await _promotionRepository.Update(getPromotion);

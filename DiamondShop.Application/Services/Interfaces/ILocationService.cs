@@ -15,6 +15,7 @@ namespace DiamondShop.Application.Services.Interfaces
         List<District> GetDistricts( string provinceId);
         List<Ward> GetWards(string districtId);
         decimal ToKm(decimal distanceInMeters);
+        LocationDetail GetShopLocation(string? shopName = null);
         Task<Result<LocationDistantData>> GetDistant(string originPlaceId, string destinationPlaceId, CancellationToken cancellationToken = default);
 
         Task<Result<LocationDistantData>> GetDistant(LocationDetail Origin, LocationDetail Destination, CancellationToken cancellationToken = default);

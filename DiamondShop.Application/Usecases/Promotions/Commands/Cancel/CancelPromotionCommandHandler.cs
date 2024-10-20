@@ -35,7 +35,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Cancel
             var getPromotion = await _promotionRepository.GetById(parsedId);
             if (getPromotion is null)
                 return Result.Fail(new NotFoundError());
-            var result = _promotionServices.ManualChangeStatus(getPromotion, Status.Cancelled);
+            var result = getPromotion.Cancel();//_promotionServices.ManualChangeStatus(getPromotion, Status.Cancelled);
             if (result.IsSuccess)
             {
                 await _promotionRepository.Update(getPromotion);

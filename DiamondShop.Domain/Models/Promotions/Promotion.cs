@@ -7,7 +7,9 @@ using FluentResults;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,13 +30,15 @@ namespace DiamondShop.Domain.Models.Promotions
         public List<Gift> Gifts { get; set; } = new ();
         public Media? Thumbnail { get; set; }
         public Status Status { get; set; }
+        [NotMapped]
+        public bool CanBePermanentlyDeleted => Status == Status.Cancelled || Status == Status.Expired;
         public static Promotion Create(string name, string promoCode, string description, DateTime startDate, DateTime endDate, int priority , bool isExclude , RedemptionMode mode )
         {
             return new Promotion
             {
                 Id = PromotionId.Create(),
                 Name = name,
-                PromoCode = promoCode,
+                PromoCode = promoCode?? DateTime.UtcNow.ToString("yyyyMMddHHmmss"),
                 Description = description,
                 StartDate = startDate.ToUniversalTime(),
                 EndDate = endDate.ToUniversalTime(),
@@ -71,6 +75,8 @@ namespace DiamondShop.Domain.Models.Promotions
                 return Result.Fail("cannot set active for a promo that have no requirement at all");
             if (DateTime.UtcNow < StartDate)
                 return Result.Fail("cannot set active since the start time is not up yet");
+            if (Status != Status.Scheduled && Status != Status.Paused)
+                return Result.Fail("cannot set active for a promo that is not in scheduled or paused state");
             Status = Status.Active;
             return Result.Ok();
         }
@@ -78,15 +84,21 @@ namespace DiamondShop.Domain.Models.Promotions
         {
             Status = Status.Expired;
         }
-        public void Paused()
+        public Result Paused()
         {
-            Status = Status.Paused;
+            if (Status == Status.Active)
+                Status = Status.Paused;
+            else if (Status == Status.Paused)
+                return SetActive();
+            else
+                return Result.Fail("can only pause when active");
+            return Result.Ok();
         }
         public Result Cancel()
         {
             if (Status != Status.Scheduled && Status != Status.Paused)
                 return Result.Fail("the promot must be paused first, or in schedule state to be cancelled");
-            Status = Status.Expired;
+            Status = Status.Cancelled;
             return Result.Ok();
         }
         public void ChangeActiveDate(DateTime startDate, DateTime endDate)

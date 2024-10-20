@@ -15,6 +15,7 @@ namespace DiamondShop.Application.Dtos.Responses.Carts
         public string? EngravedFont { get; set; }
         //public decimal? PurchasedPrice { get; set; }
         public bool IsValid { get; set; }
+        public bool IsDuplicate { get; set; }
         public string? ErrorMessage { get; set; }
         public bool IsAvailable { get; set; } 
         public bool IsProduct { get; set; } 

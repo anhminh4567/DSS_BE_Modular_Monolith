@@ -1,4 +1,6 @@
-﻿using DiamondShop.Application.Services.Interfaces;
+﻿using DiamondShop.Application.Dtos.Requests.Carts;
+using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
@@ -8,6 +10,7 @@ using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
+using FluentValidation;
 using MediatR;
 using System;
 using System.Collections.Generic;
