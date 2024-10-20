@@ -69,7 +69,7 @@ namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.CalculateFee
                 var getDeliveryLocationFees = await _deliveryFeeRepository.GetLocationType();
                 var createShopAddress = Address.Create(shopLocation.Province, shopLocation.District, shopLocation.Ward, shopLocation.Road, AccountId.Parse("0"), AddressId.Parse("0"));
                 var createDestinationAddress = Address.Create(request.Province, request.District, request.Ward, request.Street, AccountId.Parse("1"), AddressId.Parse("1"));
-                var deliveryFee = _deliveryService.GetDeliveryFeeForLocation(createShopAddress, createDestinationAddress, getDeliveryLocationFees);
+                var deliveryFee = _deliveryService.GetDeliveryFeeForLocation(createDestinationAddress, createShopAddress, getDeliveryLocationFees);
                 shipPrice.DeliveryFee = deliveryFee;
                 return shipPrice;
             }

@@ -1,4 +1,6 @@
-﻿using DiamondShop.Domain.Models.Promotions;
+﻿using DiamondShop.Domain.Models.AccountAggregate;
+using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -23,6 +25,11 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo
                 return _set.Include(p => p.PromoReqs).Include(p => p.Gifts).Where(p => p.Status == Domain.Models.Promotions.Enum.Status.Active && p.StartDate < now && p.EndDate > now).ToListAsync();
             }
             return _set.Include(p => p.PromoReqs).Include(p => p.Gifts).Where(p => p.Status == Domain.Models.Promotions.Enum.Status.Active).ToListAsync();
+        }
+
+        public Task<List<Order>> GetUserOrderThatUsedThisPromotion(Promotion promotion, Account userAccount, CancellationToken cancellationToken = default)
+        {
+            return _dbContext.Orders.Where(o => o.AccountId == userAccount.Id && o.PromotionId == promotion.Id).ToListAsync(cancellationToken);
         }
     }
 }

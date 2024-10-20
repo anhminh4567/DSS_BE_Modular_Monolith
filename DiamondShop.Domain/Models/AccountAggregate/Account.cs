@@ -12,6 +12,8 @@ using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.Blogs;
 using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.Orders;
+using System.Runtime.CompilerServices;
+using DiamondShop.Domain.Models.AccountAggregate.Events;
 
 namespace DiamondShop.Domain.Models.AccountAggregate
 {
@@ -44,6 +46,8 @@ namespace DiamondShop.Domain.Models.AccountAggregate
             AccountRole roleToAdd = allRoles.First(r => r.Id == AccountRole.Customer.Id);
 
             user.AddRole(roleToAdd);
+            //add domain events
+            user.DomainEvents.Add(new CustomerCreatedMessage(user.Id, DateTime.UtcNow));
             return user;
         }
         public static Account CreateBaseStaff(FullName fullName, string email, string identityId, List<AccountRole> allRoles)

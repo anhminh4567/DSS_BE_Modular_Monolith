@@ -215,7 +215,7 @@ namespace DiamondShop.Api.Controllers.Accounts
         [HttpGet("ConfirmEmail")]
         public async Task<ActionResult> ConfirmEmail([FromQuery] string token, [FromQuery] string userId)
         {
-            return Ok();
+            return Ok( new { token = token , userid = userId });
         }
     }
 }

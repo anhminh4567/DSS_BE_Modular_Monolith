@@ -19,6 +19,7 @@ namespace DiamondShop.Domain.Common.Carts
         public bool IsValid { get; set; } = true;//(Jewelry != null || Diamond != null || JewelryModel != null); set =>  }
         public string? ErrorMessage { get => GetErrorMessage(); }
         public bool IsAvailable { get; set; } = true; // always true unless when check the product is sold or inactive
+        public bool IsDuplicate { get; set; } = false; // always false, unless check the item is duplicate
         public bool IsProduct { get; set; } = false; // always false, unless check the item is a product
         /////////////////////////////////
         /////////////////////////////////
@@ -36,10 +37,12 @@ namespace DiamondShop.Domain.Common.Carts
         {
             if(IsValid is false)
             {
-                if (IsAvailable is false)
-                    return "Product is not available";
-                else if (IsProduct is false)
+                if (IsProduct is false)
                    return "The parent item is invalid, so does the child item";
+                else if(IsDuplicate is true)
+                    return "Product is duplicated, check cart to remove the same product";
+                else if (IsAvailable is false)
+                    return "Product is not available";
                 else
                     return "Product is Invalid state";
             }

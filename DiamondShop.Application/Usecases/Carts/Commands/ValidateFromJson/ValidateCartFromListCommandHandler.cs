@@ -87,6 +87,8 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
             if (promotionId != null)
             {
                 var getPromotionById = await _promotionRepository.GetById(promotionId);
+                if (getPromotionById == null)
+                    return new List<Promotion>();
                 return new List<Promotion> { getPromotionById };
             }
             else

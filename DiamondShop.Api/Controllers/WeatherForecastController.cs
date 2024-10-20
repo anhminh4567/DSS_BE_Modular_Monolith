@@ -168,7 +168,7 @@ namespace DiamondShopSystem.Controllers
         [HttpGet("testemail")]
         public async Task<ActionResult> test()
         {
-            await _emailService.SendConfirmAccountEmail(Account.CreateBaseCustomer(FullName.Create("1232","123"),"test@gmail.com","sdfasdf",new List<AccountRole>() { AccountRole.Customer }));
+            await _emailService.SendConfirmAccountEmail(Account.CreateBaseCustomer(FullName.Create("1232","123"),"testingwebandstuff@gmail.com","sdfasdf",new List<AccountRole>() { AccountRole.Customer }));
             return Ok();
         }
     }
