@@ -11,7 +11,7 @@ namespace DiamondShop.Domain.BusinessRules
         //globally use this function 
         public static decimal RoundAmountFromDecimal(decimal amount)
         {
-            return Math.Round(Decimal.Divide(amount, 1000), 1) * 1000;
+            return Math.Round(Decimal.Divide(amount, 1000)) * 1000;
         }
         
     }
