@@ -65,7 +65,21 @@ namespace DiamondShop.Api.Controllers.Orders
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
             {
-                var result = await _sender.Send(new GetOrderDetailQuery(orderId, userId.Value));
+                var result = await _sender.Send(new GetOrderDetailQuery(orderId, userId.Value, false));
+                var mappedResult = _mapper.Map<OrderDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            else
+                return Unauthorized();
+        }
+        [HttpGet("{orderId}")]
+        [Authorize(Roles = AccountRole.StaffId)]
+        public async Task<ActionResult> GetOrderDetail([FromRoute] string orderId)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(new GetOrderDetailQuery(orderId, userId.Value, true));
                 var mappedResult = _mapper.Map<OrderDto>(result.Value);
                 return Ok(mappedResult);
             }

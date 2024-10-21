@@ -27,8 +27,8 @@ namespace DiamondShop.Test.Integration
             var criteria = await TestData.SeedDefaultDiamondCriteria(_context, diamond.Cut, diamond.Clarity, diamond.Color, diamond.IsLabDiamond);
             await TestData.SeedDefaultDiamondPrice(_context, diamond.DiamondShapeId, criteria.Id);
 
-            var billing = new BillingDetail(account.FullName.FirstName, account.FullName.LastName, "123456789", account.Email, "HCM", "Thu Duc", "abc street", "");
-            var orderReq = new OrderRequestDto(Domain.Models.Orders.Enum.PaymentType.COD, "zalopay", true);
+            var billing = new BillingDetail(account.FullName.FirstName, account.FullName.LastName, "123456789", account.Email, "HCM", "Thu Duc", "Tam Binh", "abc street", "");
+            var orderReq = new OrderRequestDto(Domain.Models.Orders.Enum.PaymentType.COD, "zalopay", null, true);
             var itemReqs = new List<OrderItemRequestDto>(){
                 new OrderItemRequestDto(jewelry.Id.Value, null, null, null, "Default_Jewelry_Warranty", WarrantyType.Jewelry),
                 new OrderItemRequestDto(jewelry.Id.Value, diamond.Id.Value, null, null, "Default_Diamond_Warranty", WarrantyType.Diamond)
@@ -46,6 +46,11 @@ namespace DiamondShop.Test.Integration
                 var items = _context.Set<OrderItem>().ToList();
                 foreach (var item in items)
                     _output.WriteLine($"{item.JewelryId} {item.DiamondId} {item.PurchasedPrice}");
+                if (result.Value != null)
+                {
+                    _output.WriteLine($"{result.Value.PaymentUrl}");
+                    _output.WriteLine($"{result.Value.QrCode}");
+                }
             }
             //_output.WriteLine(result.Value.PaymentUrl);
             //_output.WriteLine(result.Value.QrCode);

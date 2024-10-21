@@ -28,7 +28,7 @@ namespace DiamondShop.Domain.Models.Orders
         public PromotionId? PromotionId { get; set; }
         public Promotion? Promotion { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now.ToUniversalTime();
-        public DateTime ExpectedDate { get; set; } = DateTime.Now.AddDays(OrderRules.ExpectedDeliveringDate).ToUniversalTime();
+        public DateTime ExpectedDate { get; set; } = DateTime.Now.AddDays(OrderRules.ExpectedDeliveryDate).ToUniversalTime();
         public DateTime? ShippedDate { get; set; }
         public DateTime? CancelledDate { get; set; }
         public string? CancelledReason { get; set; }

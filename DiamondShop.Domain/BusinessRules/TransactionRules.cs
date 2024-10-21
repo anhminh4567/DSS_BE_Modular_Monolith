@@ -16,8 +16,8 @@ namespace DiamondShop.Domain.BusinessRules
         /// đây là giá trị tối đa của dơn hàng mà nếu nó lớn hơn giá trị này thì bắt buộc phải 
         /// thông qua ít nhất 2 giao dịch
         /// </summary>
-        public static long MaximumForOneTimeTransaction { get; set; } = 50000000;//50tr
-        public static long MinimumForManyTimeTransaction { get; set; } = 25000000;//25tr
+        //public static long MaximumForOneTimeTransaction { get; set; } = 50000000;//50tr
+        //public static long MinimumForManyTimeTransaction { get; set; } = 25000000;//25tr
         public static string TransactionTimeStamp { get; set; } = "yyyyMMddHHmmss";
     }
 }

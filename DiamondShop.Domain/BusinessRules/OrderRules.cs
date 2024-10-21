@@ -2,6 +2,6 @@
 {
     public static class OrderRules
     {
-        public static int ExpectedDeliveringDate = 7 * 3;
+        public static int ExpectedDeliveryDate = 7 * 3;
     }
 }
