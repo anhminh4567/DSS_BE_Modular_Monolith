@@ -1,28 +1,26 @@
 {
-  "orderRequestDto": {
-    "accountId": "2e6c2b18-a598-41e2-88d8-db39b47db153",
-    "paymentName": "zalopay",
-    "paymentType": 2,
-    "isTransfer": true
+  "billingDetail": {
+    "firstName": "pham quang",
+    "lastName": "thai",
+    "phone": "123456789",
+    "email": "test@gmail.com",
+    "providence": "Tp HCM",
+    "district": "Thu Duc",
+    "ward": "Tam Phu",
+    "address": "12 street 2"
   },
-  "orderItemRequestDtos": [
-    {
-      "jewelryId": "c42b21e3-3823-4365-af9e-eb2751a7f94a",
-      "diamondId": null,
-      "engravedText": null,
-      "engravedFont": null,
-      "warrantyCode": null,
-      "warrantyType": 1
+  "createOrderInfo": {
+    "orderRequestDto": {
+      "paymentType": 1,
+      "paymentName": "zalopay",
+      "isTransfer": true
     },
-    {
-      "jewelryId": "c42b21e3-3823-4365-af9e-eb2751a7f94a",
-      "diamondId": "dd36d821-324c-48d4-b3ff-93e110afbba7",
-      "engravedText": null,
-      "engravedFont": null,
-      "warrantyCode": null,
-      "warrantyType": 1
-    }
-  ],
-  "phone": "0389534827",
-  "address": "abc street"
+    "orderItemRequestDtos": [
+      {
+        "diamondId": "01JAMFQWMXTWM7DKAYH4BXBAVV",
+        "warrantyCode": "Default_Diamond_Warranty",
+        "warrantyType": 1
+      }
+    ]
+  }
 }

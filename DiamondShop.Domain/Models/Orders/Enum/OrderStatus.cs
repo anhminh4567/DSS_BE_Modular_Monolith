@@ -8,6 +8,6 @@ namespace DiamondShop.Domain.Models.Orders.Enum
 {
     public enum OrderStatus
     {
-        Pending, Processing, Rejected, Cancelled, Prepared, Delivering, Delivery_Failed, Success, Refused
+        Pending = 1, Processing = 2, Rejected = 3, Cancelled = 4, Prepared = 5, Delivering = 6, Delivery_Failed = 7, Success = 8, Refused = 9
     }
 }

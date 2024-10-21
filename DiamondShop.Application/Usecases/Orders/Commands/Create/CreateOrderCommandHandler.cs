@@ -1,14 +1,11 @@
-﻿using DiamondShop.Application.Dtos.Requests.Orders;
+﻿using DiamondShop.Application.Dtos.Requests.Carts;
+using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Models;
-using DiamondShop.Application.Usecases.Carts.Commands.Validate;
-using DiamondShop.Application.Usecases.Orders.Commands.Validate;
-using DiamondShop.Domain.Common.Carts;
+using DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
-using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries;
-using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Warranties.Enum;
@@ -20,11 +17,10 @@ using DiamondShop.Domain.Repositories.TransactionRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
-using System.Collections.Generic;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 {
-    public record BillingDetail(string FirstName, string LastName, string Phone, string Email, string Providence, string Ward, string Address, string Note);
+    public record BillingDetail(string FirstName, string LastName, string Phone, string Email, string Providence, string District, string Ward, string Address, string? Note);
     public record CreateOrderInfo(OrderRequestDto OrderRequestDto, List<OrderItemRequestDto> OrderItemRequestDtos);
     public record CreateOrderCommand(string AccountId, BillingDetail BillingDetail, CreateOrderInfo CreateOrderInfo) : IRequest<Result<PaymentLinkResponse>>;
     internal class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Result<PaymentLinkResponse>>
@@ -71,93 +67,84 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 return Result.Fail("This account doesn't exist");
             //TODO: Validate account status
 
-            List<CartProduct> products = new();
-            HashSet<Jewelry> jewelrySet = new();
-            HashSet<Diamond> diamondSet = new();
             List<IError> errors = new List<IError>();
-            foreach (var item in orderItemReqs)
-            {
-                CartProduct cartProduct = new();
-                if (item.JewelryId != null)
-                {
-                    if (item.DiamondId == null)
-                    {
 
-                        if (item.WarrantyType != WarrantyType.Jewelry)
-                        {
-                            errors.Add(new Error($"Wrong Type of warranty for jewelry #{item.JewelryId}"));
-                            continue;
-                        }
-                        cartProduct.Jewelry = await _jewelryRepository.GetById(JewelryId.Parse(item.JewelryId));
-                        cartProduct.EngravedFont = item.EngravedFont;
-                        cartProduct.EngravedText = item.EngravedText;
-                        jewelrySet.Add(cartProduct.Jewelry);
-                    }
-                    else
+            var items = orderItemReqs.Select((item) =>
+            {
+                CartItemRequestDto cartItemRequest = new();
+                if (item.JewelryId != null && item.DiamondId == null)
+                {
+                    if (item.WarrantyType != WarrantyType.Jewelry)
                     {
-                        cartProduct.Jewelry = jewelrySet.LastOrDefault();
+                        errors.Add(new Error($"Wrong Type of warranty for jewelry #{item.JewelryId}"));
                     }
                 }
-                if (item.DiamondId != null)
+                else if (item.DiamondId != null)
                 {
                     if (item.WarrantyType != WarrantyType.Diamond)
                     {
                         errors.Add(new Error($"Wrong Type of warranty for diamond #{item.DiamondId}"));
-                        continue;
                     }
-                    cartProduct.Diamond = await _diamondRepository.GetById(DiamondId.Parse(item.DiamondId));
-                    if (item.JewelryId != null)
-                    {
-                        if (cartProduct.Diamond.JewelryId != null && cartProduct.Diamond.JewelryId != cartProduct.Jewelry?.Id)
-                            errors.Add(new Error($"Diamond #{cartProduct.Diamond.Id} is already attached to another Jewelry"));
-                        cartProduct.Diamond.JewelryId = JewelryId.Parse(item.JewelryId);
-                    }
-                    diamondSet.Add(cartProduct.Diamond);
                 }
-                products.Add(cartProduct);
-            }
+                cartItemRequest.JewelryId = item.JewelryId;
+                cartItemRequest.EngravedFont = item.EngravedFont;
+                cartItemRequest.EngravedText = item.EngravedText;
+                cartItemRequest.DiamondId = item.DiamondId;
+                return cartItemRequest;
+            }).ToList();
             if (errors.Count > 0)
                 return Result.Fail(errors);
             else
                 errors = new List<IError>();
-            //Validate matching diamond
-            foreach (var jewelry in jewelrySet)
+            CartRequestDto cartRequestDto = new CartRequestDto()
             {
-                var attachedDiamond = diamondSet.Where(p => p.JewelryId == jewelry.Id).ToList();
-                var result = await _mainDiamondService.CheckMatchingDiamond(jewelry.ModelId, attachedDiamond, _mainDiamondRepository);
-                if (result.IsFailed) errors.AddRange(result.Errors);
-            }
-            if (errors.Count > 0)
-                return Result.Fail(errors);
+                PromotionId = orderReq.PromotionId,
+                Items = items
+            };
             //Validate CartModel
-            var cartModelResult = await _sender.Send(new ValidateOrderCommand(products));
+            var cartModelResult = await _sender.Send(new ValidateCartFromListCommand(cartRequestDto));
             if (cartModelResult.IsFailed)
                 return Result.Fail(cartModelResult.Errors);
 
             var cartModel = cartModelResult.Value;
             if (!cartModel.OrderValidation.IsOrderValid)
-                return Result.Fail("error in handling cart. Please validate again");
+            {
+                foreach (var index in cartModel.OrderValidation.UnavailableItemIndex)
+                {
+                    errors.Add(new Error(cartModel.Products[index].ErrorMessage));
+                }
+                foreach (var index in cartModel.OrderValidation.UnavailableItemIndex)
+                {
+                    errors.Add(new Error(cartModel.Products[index].ErrorMessage));
+                }
+            }
+            if (errors.Count > 0) return Result.Fail(errors);
             //TODO: ADD seperate error validation
             //    foreach (var index in cartModel.OrderValidation.InvalidItemIndex)
             //    {
             //        var invalidItem = cartModel.Products[index];
             //        var error = Result.Fail(cartModel);
             //    }
-            
+
             var orderPromo = cartModel.Promotion.Promotion;
 
-            var order = Order.Create(account.Id, orderReq.PaymentType, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice, billingDetail.Address, orderPromo?.Id);
+            var order = Order.Create(account.Id, orderReq.PaymentType, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice, 
+                String.Join(" ", [billingDetail.Providence, billingDetail.District, billingDetail.Ward, billingDetail.Address]), orderPromo?.Id);
             await _orderRepository.Create(order, token);
-
-            List<OrderItem> orderItems = cartModel.Products.Select(p =>
+            List<OrderItem> orderItems = new();
+            HashSet<Jewelry> jewelrySet = new();
+            HashSet<Diamond> diamondSet = new();
+            foreach (var product in cartModel.Products)
             {
-                string giftedId = p.Diamond?.Id?.Value ?? p.Jewelry?.Id?.Value;
+                string giftedId = product.Diamond?.Id?.Value ?? product.Jewelry?.Id?.Value;
                 var gift = giftedId is null ? null : orderPromo?.Gifts.FirstOrDefault(k => k.ItemId == giftedId);
-                return OrderItem.Create(order.Id, p.Jewelry?.Id, p.Diamond?.Id,
-                p.EngravedText, p.EngravedFont, p.ReviewPrice.FinalPrice,
-                p.DiscountId, p.DiscountPercent,
-                gift?.UnitType, gift?.UnitValue);
-            }).ToList();
+                orderItems.Add(OrderItem.Create(order.Id, product.Jewelry?.Id, product.Diamond?.Id,
+                product.EngravedText, product.EngravedFont, product.ReviewPrice.FinalPrice,
+                product.DiscountId, product.DiscountPercent,
+                gift?.UnitType, gift?.UnitValue));
+                if (product.Jewelry != null) jewelrySet.Add(product.Jewelry);
+                if (product.Diamond != null) diamondSet.Add(product.Diamond);
+            }
             await _orderItemRepository.CreateRange(orderItems);
 
             var jewelries = jewelrySet.ToList();
@@ -169,26 +156,23 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             _diamondRepository.UpdateRange(diamonds);
 
             await _unitOfWork.SaveChangesAsync(token);
-            await _unitOfWork.CommitAsync(token);
 
             //Create Paymentlink if not transfer
-            if (orderReq.IsTransfer) return new PaymentLinkResponse() { };
-            string title = "";
-            string callbackURL = "";
-            string returnURL = "";
-            string description = "";
             PaymentLinkRequest paymentLinkRequest = new PaymentLinkRequest()
             {
                 Account = account,
                 Order = order,
                 Email = account.Email,
                 Phone = billingDetail.Phone,
-                Address = billingDetail.Address,
-                Title = title,
-                Description = description,
+                Address = order.ShippingAddress,
+                Title = "Payment",
+                Description = $"Payment for order #{order.Id}",
                 Amount = order.TotalPrice,
             };
-            return await _paymentService.CreatePaymentLink(paymentLinkRequest, token);
+            var paymentLink = await _paymentService.CreatePaymentLink(paymentLinkRequest, token);
+            await _unitOfWork.CommitAsync(token);
+            return paymentLink;
+
         }
 
     }

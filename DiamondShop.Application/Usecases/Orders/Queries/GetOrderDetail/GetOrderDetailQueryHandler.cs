@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail
 {
-    public record GetOrderDetailQuery(string orderId, string accountId) : IRequest<Result<Order>>;
+    public record GetOrderDetailQuery(string orderId, string accountId, bool isStaff) : IRequest<Result<Order>>;
     internal class GetOrderDetailQueryHandler : IRequestHandler<GetOrderDetailQuery, Result<Order>>
     {
         private readonly IOrderRepository _orderRepository;
@@ -24,10 +24,11 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail
 
         public async Task<Result<Order>> Handle(GetOrderDetailQuery request, CancellationToken cancellationToken)
         {
-            request.Deconstruct(out string orderId, out string accountId);
+            request.Deconstruct(out string orderId, out string accountId, out bool isStaff);
             var orderQuery = _orderRepository.GetQuery();
             orderQuery = _orderRepository.QueryInclude(orderQuery, p => p.Items);
-            orderQuery = _orderRepository.QueryFilter(orderQuery, p => p.Id == OrderId.Parse(orderId) && p.AccountId == AccountId.Parse(accountId));
+            orderQuery = _orderRepository.QueryFilter(orderQuery, p => p.Id == OrderId.Parse(orderId));
+            if(!isStaff) orderQuery = _orderRepository.QueryFilter(orderQuery, p => p.AccountId == AccountId.Parse(accountId));
             var order = orderQuery.FirstOrDefault();
             if (order == null)
                 return Result.Fail("This order doesn't exist.");
