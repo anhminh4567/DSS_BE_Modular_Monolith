@@ -72,9 +72,14 @@ jobs:
         inlineScript: |
             az account show
     
-    - name: 'Set ASPNETCORE_ENVIRONMENT' #${{ inputs.environment_to_deploy }}
+    - name: 'Set ASPNETCORE_ENVIRONMENT for Development' #${{ inputs.environment_to_deploy }}
+      if: eq('${{ inputs.environment_to_deploy }}', 'Development')
       run: |
           az webapp config appsettings set --name '${{ env.AZURE_WEBAPP_NAME }}' --resource-group '${{ secrets.RESOURCE_GROUP }}' --settings "ASPNETCORE_ENVIRONMENT=Development"
+    - name: 'Set ASPNETCORE_ENVIRONMENT for Development' #${{ inputs.environment_to_deploy }}
+      if: eq('${{ inputs.environment_to_deploy }}', 'Test')
+      run: |
+          az webapp config appsettings set --name '${{ env.AZURE_WEBAPP_NAME_TEST }}' --resource-group '${{ secrets.RESOURCE_GROUP }}' --settings "ASPNETCORE_ENVIRONMENT=Development"
 
     - name: Deploy to Azure WebApp Development
       if: eq('${{ inputs.environment_to_deploy }}', 'Development')
