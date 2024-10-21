@@ -37,6 +37,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         public float WidthLengthRatio { get; set; }
         public float Depth { get; set; }
         public float Table { get; set; }
+        public string? SerialCode { get; set; }
         public Polish Polish { get; set; }
         public Symmetry Symmetry { get; set; }
         public Girdle Girdle { get; set; }

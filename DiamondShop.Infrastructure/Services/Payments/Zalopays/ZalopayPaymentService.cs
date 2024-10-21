@@ -130,6 +130,11 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
         public async Task<Result<PaymentLinkResponse>> CreatePaymentLink(PaymentLinkRequest paymentLinkRequest, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(paymentLinkRequest.Amount);
+            ArgumentNullException.ThrowIfNull(paymentLinkRequest.Order);
+            if (paymentLinkRequest.Order.ExpiredDate != null)
+            {
+                return Result.Fail("order expired already");
+            }
             var callbackUrl = string.Concat(_urlOptions.Value.HttpsUrl, CallbackUri);
             var returnUrl = string.Concat(_urlOptions.Value.HttpsUrl, ReturnUri);
 

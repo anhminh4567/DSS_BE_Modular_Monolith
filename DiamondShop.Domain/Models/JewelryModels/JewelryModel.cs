@@ -21,7 +21,7 @@ namespace DiamondShop.Domain.Models.JewelryModels
         public BackType? BackType { get; set; }
         public ClaspType? ClaspType { get; set; }
         public ChainType? ChainType { get; set; }
-        public decimal PriceOffset { get; set;}
+        public decimal CraftmanFee { get; set;}
         public List<MainDiamondReq> MainDiamonds { get; set; } = new ();
         public List<SideDiamondReq> SideDiamonds { get; set; } = new();
         public List<SizeMetal> SizeMetals { get; set; } = new();

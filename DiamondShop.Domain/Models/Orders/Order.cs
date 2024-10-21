@@ -46,6 +46,11 @@ namespace DiamondShop.Domain.Models.Orders
 
         public OrderId? ParentOrderId { get; set; } // for replacement order
         public DeliveryPackageId? DeliveryPackageId { get; set; }
+
+        public string? Note { get; set; }
+        public DateTime? ExpiredDate { get; set; }
+        public DateTime? ShipFailedDate{ get; set; }
+        public int ShipFailedCount { get; set; } = 0;
         public void AddTransaction(Transaction transactionTypePay) 
         {
             if(transactionTypePay.TransactionType != Models.Transactions.Enum.TransactionType.Pay)

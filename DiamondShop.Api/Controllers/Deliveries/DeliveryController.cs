@@ -27,7 +27,7 @@ namespace DiamondShop.Api.Controllers.Deliveries
             _mapper = mapper;
         }
         [HttpGet("All")]
-        [Authorize(Roles = AccountRole.ManagerId)]
+        [Authorize(Roles = AccountRole.StaffId)]
         public async Task<ActionResult> GetAllDelivery()
         {
             var result = await _sender.Send(new GetAllDeliveryCommand());
@@ -73,7 +73,7 @@ namespace DiamondShop.Api.Controllers.Deliveries
                 return MatchError(result.Errors, ModelState);
         }
         [HttpPost("Create")]
-        [Authorize(Roles = AccountRole.ManagerId)]
+        [Authorize(Roles = AccountRole.StaffId)]
         public async Task<ActionResult> CreateDelivery([FromBody] CreateDeliveryCommand createDeliveryCommand)
         {
             var result = await _sender.Send(createDeliveryCommand);
