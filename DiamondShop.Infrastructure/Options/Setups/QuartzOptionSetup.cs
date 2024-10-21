@@ -48,6 +48,13 @@ namespace DiamondShop.Infrastructure.Options.Setups
                         .WithIntervalInMinutes(10)
                         .RepeatForever()));
 
+            string orderJobName = nameof(OrderManagementWorker);
+            options.AddJob<OrderManagementWorker>(config => config.WithIdentity(orderJobName))
+                .AddTrigger(config => config.ForJob(orderJobName)
+                    .WithSimpleSchedule(schedule => schedule
+                        .WithIntervalInMinutes(40)
+                        .RepeatForever()));
+
         }
     }
 }

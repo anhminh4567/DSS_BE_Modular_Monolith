@@ -8,6 +8,7 @@ using DiamondShop.Application.Usecases.Orders.Commands.Complete;
 using DiamondShop.Application.Usecases.Orders.Commands.Create;
 using DiamondShop.Application.Usecases.Orders.Commands.Preparing;
 using DiamondShop.Application.Usecases.Orders.Queries.GetAll;
+using DiamondShop.Application.Usecases.Orders.Queries.GetPaymentLink;
 using DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail;
 using DiamondShop.Application.Usecases.Orders.Queries.GetUserOrders;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
@@ -198,6 +199,14 @@ namespace DiamondShop.Api.Controllers.Orders
             }
             else
                 return Unauthorized();
+        }
+        [HttpGet("PaymentLink/{orderId}")]
+        public async Task<ActionResult> GetPaymentLink([FromRoute] GetOrderPaymentLink getOrderPaymentLink)
+        {
+            var result = await _sender.Send(getOrderPaymentLink);
+            if(result.IsFailed)
+                return MatchError(result.Errors, ModelState);
+            return Ok(result.Value);
         }
     }
 }
