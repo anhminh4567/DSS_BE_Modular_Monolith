@@ -47,6 +47,8 @@ namespace DiamondShop.Test.Integration
                 foreach (var item in items)
                     _output.WriteLine($"{item.JewelryId} {item.DiamondId} {item.PurchasedPrice}");
             }
+            //_output.WriteLine(result.Value.PaymentUrl);
+            //_output.WriteLine(result.Value.QrCode);
             Assert.True(result.IsSuccess);
         }
     }

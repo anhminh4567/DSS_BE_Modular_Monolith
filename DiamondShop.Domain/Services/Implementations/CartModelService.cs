@@ -232,10 +232,14 @@ namespace DiamondShop.Domain.Services.Implementations
                 if (product.Diamond.DiamondPrice!.ForUnknownPrice != null)
                     return Result.Fail("unknown price");
                 if (product.Diamond.IsSold is true)
-                    Result.Fail("already sold");
+                    return Result.Fail("already sold");
                 if(product.Jewelry != null || product.JewelryModel != null)
-                    return CheckIfDiamondJewelryIsValid(product);
-                
+                {
+                    var result = CheckIfDiamondJewelryIsValid(product);
+                    if (result.IsSuccess)
+                        return CheckDuplicate(CurrentCart, product);
+                    return result;
+                }
                 return CheckDuplicate(CurrentCart,product);
             }
             if (product.Jewelry is not null)
@@ -248,17 +252,28 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             var products = cartModel.Products;
             List<CartProduct> matchedProduct = new();
-            if(cartProduct.Diamond != null)
+            //products.Remove(cartProduct);
+            int productIndex = products.IndexOf(cartProduct);
+            if (cartProduct.Diamond != null)
             {
-                matchedProduct = products.Where(p => p.Diamond.Id == cartProduct.Diamond.Id).ToList(); 
+                matchedProduct = products.Where(p => p.Diamond != null 
+                && products.IndexOf(p) != productIndex 
+                && p.Diamond.Id == cartProduct.Diamond.Id).ToList(); 
             }
             else if(cartProduct.Jewelry != null)
             {
-                matchedProduct = products.Where(p => p.Jewelry.Id == cartProduct.Jewelry.Id).ToList();
+                matchedProduct = products.Where(p => p.Jewelry != null
+                && p.Diamond == null 
+                && products.IndexOf(p) != productIndex 
+                && p.Jewelry.Id == cartProduct.Jewelry.Id).ToList();
             }
+            //products.Add(cartProduct);
             matchedProduct.ForEach(p => p.IsDuplicate = true);
-            if(matchedProduct.Count > 0)
+            
+
+            if (matchedProduct.Count > 0)
             {
+                cartProduct.IsDuplicate = true;
                 return Result.Fail("duplicate products found");
             }
             else

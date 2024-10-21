@@ -4,6 +4,7 @@ using DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson;
 using DiamondShop.Application.Usecases.Orders.Commands.Create;
 using DiamondShop.Domain.Models.Warranties.Enum;
 using DiamondShop.Test.Integration.Data;
+using Mapster;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,6 +82,104 @@ namespace DiamondShop.Test.Integration
             Assert.True(result.IsSuccess);
             var cartModel = result.Value;
             Assert.False(cartModel.OrderValidation.IsOrderValid);
+        }
+        [Trait("ReturnFalse", "Cart_DuplicateJewelry")]
+        [Fact]
+        public async Task Duplicate_Should_InvalidOrder()
+        {
+            var ring_1 = await TestData.SeedDefaultJewelry(_context, "1", "1");
+            var ring_2 = await TestData.SeedDefaultJewelry(_context, "1", "2");
+            var diamond = await TestData.SeedDefaultDiamond(_context, ring_1.Id);
+            var diamond2 = await TestData.SeedDefaultDiamond(_context, ring_2.Id);
+            var criteria = await TestData.SeedDefaultDiamondCriteria(_context, diamond.Cut, diamond.Clarity, diamond.Color, diamond.IsLabDiamond);
+            await TestData.SeedDefaultDiamondPrice(_context, diamond.DiamondShapeId, criteria.Id);
+
+            var items = new CartRequestDto()
+            {
+                Items = new List<CartItemRequestDto>()
+                {
+                    new CartItemRequestDto()
+                    {
+                        JewelryId = ring_1.Id.Value
+                    },
+                    new CartItemRequestDto()
+                    {
+                        JewelryId = ring_1.Id.Value,
+                        DiamondId = diamond.Id.Value
+                    },
+                    new CartItemRequestDto()
+                    {
+                        JewelryId = ring_1.Id.Value
+                    },
+                    new CartItemRequestDto()
+                    {
+                        JewelryId = ring_2.Id.Value
+                    },
+                    new CartItemRequestDto()
+                    {
+                        JewelryId = ring_2.Id.Value,
+                        DiamondId = diamond2.Id.Value
+                    },
+                    new CartItemRequestDto()
+                    {
+                        JewelryId = ring_2.Id.Value
+                    },
+                    new CartItemRequestDto()
+                    {
+                        JewelryId = ring_2.Id.Value,
+                        DiamondId = diamond2.Id.Value
+                    },
+
+                }
+            };
+            var command = new ValidateCartFromListCommand(items);
+            var result = await _sender.Send(command);
+            if (result.IsFailed)
+            {
+                foreach (var error in result.Errors) { }
+                 // _output.WriteLine(error.Message);
+            }
+            Assert.True(result.IsSuccess);
+            Assert.Equal(6, result.Value.Products.Where(s => s.IsDuplicate).Count());
+            var cartModel = result.Value;
+            Assert.False(cartModel.OrderValidation.IsOrderValid);
+        }
+        [Trait("ReturnTrue", "Cart_Valid")]
+        [Fact]
+        public async Task Valid_Should_ReturnTrue()
+        {
+            var ring_1 = await TestData.SeedDefaultJewelry(_context, "1", "1");
+            var ring_2 = await TestData.SeedDefaultJewelry(_context, "1", "2");
+            var diamond = await TestData.SeedDefaultDiamond(_context, ring_1.Id);
+            var criteria = await TestData.SeedDefaultDiamondCriteria(_context, diamond.Cut, diamond.Clarity, diamond.Color, diamond.IsLabDiamond);
+            await TestData.SeedDefaultDiamondPrice(_context, diamond.DiamondShapeId, criteria.Id);
+
+            var items = new CartRequestDto()
+            {
+                Items = new List<CartItemRequestDto>()
+                {
+                    new CartItemRequestDto()
+                    {
+                        JewelryId = ring_1.Id.Value
+                    },
+                    new CartItemRequestDto()
+                    {
+                        JewelryId = ring_1.Id.Value,
+                        DiamondId = diamond.Id.Value
+                    },
+
+                }
+            };
+            var command = new ValidateCartFromListCommand(items);
+            var result = await _sender.Send(command);
+            if (result.IsFailed)
+            {
+                foreach (var error in result.Errors) { }
+                // _output.WriteLine(error.Message);
+            }
+            Assert.True(result.IsSuccess);
+            var cartModel = result.Value;
+            Assert.True(cartModel.OrderValidation.IsOrderValid);
         }
     }
 }
