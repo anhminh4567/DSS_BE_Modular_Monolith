@@ -11,15 +11,15 @@ on:
       description: 'provide the environement to deploy, dev or production or test'
       type: choice 
       options:
-        - 'Test'
         - 'Development'
+        - 'Production'
         
 permissions:
   id-token: write
   contents: read
 env:
-  AZURE_WEBAPP_NAME: Diamondshop
-  AZURE_WEBAPP_NAME_TEST: devdiamondshop
+  AZURE_WEBAPP_NAME_PRODUCTION: Diamondshop
+  AZURE_WEBAPP_NAME_DEV: devdiamondshop
   AZURE_WEBAPP_PACKAGE_PATH: DiamondShop.Api/publish
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 8.0.x
@@ -35,6 +35,14 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+    - name: 'test if work correctly' #${{ inputs.environment_to_deploy }}
+      if: ${{ inputs.environment_to_deploy == 'Development' }}
+      run: echo "This is the Development environment"
+      
+    - name: 'test if work correctly ' #${{ inputs.environment_to_deploy }}
+      if: ${{ inputs.environment_to_deploy == 'Production' }}
+      run: echo "This is the Production environment"
+      
     - name: Restore
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
     - name: Build
@@ -75,26 +83,26 @@ jobs:
     - name: 'Set ASPNETCORE_ENVIRONMENT for Development' #${{ inputs.environment_to_deploy }}
       if: ${{ inputs.environment_to_deploy == 'Development' }}
       run: |
-          az webapp config appsettings set --name '${{ env.AZURE_WEBAPP_NAME }}' --resource-group '${{ secrets.RESOURCE_GROUP }}' --settings "ASPNETCORE_ENVIRONMENT=Development"
-    - name: 'Set ASPNETCORE_ENVIRONMENT for Test' #${{ inputs.environment_to_deploy }}
-      if: ${{ inputs.environment_to_deploy == 'Test' }}
+          az webapp config appsettings set --name '${{ env.AZURE_WEBAPP_NAME_DEV }}' --resource-group '${{ secrets.RESOURCE_GROUP }}' --settings "ASPNETCORE_ENVIRONMENT=Development"
+    - name: 'Set ASPNETCORE_ENVIRONMENT for Production' #${{ inputs.environment_to_deploy }}
+      if: ${{ inputs.environment_to_deploy == 'Production' }}
       run: |
-          az webapp config appsettings set --name '${{ env.AZURE_WEBAPP_NAME_TEST }}' --resource-group '${{ secrets.RESOURCE_GROUP }}' --settings "ASPNETCORE_ENVIRONMENT=Development"
+          az webapp config appsettings set --name '${{ env.AZURE_WEBAPP_NAME_PRODUCTION }}' --resource-group '${{ secrets.RESOURCE_GROUP }}' --settings "ASPNETCORE_ENVIRONMENT=Production"
 
     - name: Deploy to Azure WebApp Development
       if: ${{ inputs.environment_to_deploy == 'Development' }}
       uses: azure/webapps-deploy@v2
       with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.Diamondshop_PublishProfile_001 }}
+        app-name: ${{ env.AZURE_WEBAPP_NAME_DEV }}
+        publish-profile: ${{ secrets.DIAMONDSHOP_PUBLISHPROFILE_001_TEST }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
         
     - name: Deploy to Azure WebApp Test
-      if: ${{ inputs.environment_to_deploy == 'Test' }}
+      if: ${{ inputs.environment_to_deploy == 'Production' }}
       uses: azure/webapps-deploy@v2
       with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME_TEST }}
-        publish-profile: ${{ secrets.DIAMONDSHOP_PUBLISHPROFILE_001_TEST }}
+        app-name: ${{ env.AZURE_WEBAPP_NAME_PRODUCTION }}
+        publish-profile: ${{ secrets.Diamondshop_PublishProfile_001 }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
         
