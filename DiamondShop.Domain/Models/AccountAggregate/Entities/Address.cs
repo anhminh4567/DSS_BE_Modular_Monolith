@@ -44,6 +44,12 @@ namespace DiamondShop.Domain.Models.AccountAggregate.Entities
             Ward = ward.Trim();
             Street = street.Trim();
         }
+
+        public override string? ToString()
+        {
+            return $"{Province}, {District}, {Ward}, {Street}";
+        }
+
         private Address()
         {
         }

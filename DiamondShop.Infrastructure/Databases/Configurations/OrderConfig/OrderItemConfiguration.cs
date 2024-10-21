@@ -17,6 +17,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
         public void Configure(EntityTypeBuilder<OrderItem> builder)
         {
             builder.ToTable("OrderItem");
+            builder.Property(o => o.WarrantyId)
+                .HasConversion(
+                 o => o.Value,
+                dbValue => OrderItemWarrantyId.Parse(dbValue));
             builder.Property(o => o.Id)
                 .HasConversion(
                     o => o.Value,
@@ -33,6 +37,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
             builder.HasOne(o => o.Discount).WithMany().HasForeignKey(o => o.DiscountId).IsRequired(false);
             builder.HasOne(o => o.Jewelry).WithMany().HasForeignKey(o => o.JewelryId).IsRequired(false);
             builder.HasOne(o => o.Diamond).WithMany().HasForeignKey(o => o.DiamondId).IsRequired(false);
+            builder.HasOne(o => o.Warranty).WithOne(w => w.OrderItem).HasForeignKey<OrderItemWarranty>(o => o.OrderItemId).IsRequired().OnDelete(DeleteBehavior.Cascade);
             builder.HasKey(o => o.Id);
         }
     }

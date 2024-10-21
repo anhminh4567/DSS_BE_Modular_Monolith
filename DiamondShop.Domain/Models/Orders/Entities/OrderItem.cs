@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Warranties.ValueObjects;
+using DiamondShop.Domain.Models.Warranties;
 
 namespace DiamondShop.Domain.Models.Orders.Entities
 {
@@ -32,7 +34,9 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public int? DiscountPercent { get; set; }
         public UnitType? PromoType { get; set; }
         public decimal? PromoValue { get; set; }
-        public List<OrderItemWarranty>? Warranties { get; set; } = new();
+        //public List<OrderItemWarranty>? Warranties { get; set; } = new();
+        public OrderItemWarrantyId? WarrantyId { get; set; }
+        public OrderItemWarranty? Warranty { get; set; }
         public OrderItem() { }
         public static OrderItem Create(OrderId orderId, JewelryId? jewelryId, DiamondId? diamondId, string? engravedText, string? engravedFont, decimal? purchasedPrice = 0, DiscountId? discountId = null,  int? discountPercent = 0, UnitType? promoType = UnitType.Percent, decimal? promoValue = 0, OrderItemId? givenId = null)
         {
