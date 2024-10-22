@@ -72,7 +72,7 @@ namespace DiamondShop.Api.Controllers.Diamonds
         }
         [HttpPost]
         [Produces(typeof(DiamondDto))]
-        public async Task<ActionResult> Create([FromForm] CreateDiamondCommand createDiamondCommand)
+        public async Task<ActionResult> Create([FromBody] CreateDiamondCommand createDiamondCommand)
         {
             var result = await _sender.Send(createDiamondCommand);
             if (result.IsSuccess)

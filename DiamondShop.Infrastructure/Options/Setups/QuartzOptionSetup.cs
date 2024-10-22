@@ -31,7 +31,7 @@ namespace DiamondShop.Infrastructure.Options.Setups
             options.AddJob<ProcessOutboxMessagesWorker>(config => config.WithIdentity(outboxJobName))
                 .AddTrigger(config => config.ForJob(outboxJobName)
                     .WithSimpleSchedule(schedule => schedule
-                        .WithIntervalInSeconds(_outboxOption.Value.IntervalSeconds)
+                        .WithIntervalInSeconds(_outboxOption.Value.IntervalSeconds * 100)
                         .RepeatForever()));
 
             string promotionJobName = nameof(PromotionManagerWorker);
