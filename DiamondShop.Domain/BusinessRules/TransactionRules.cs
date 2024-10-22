@@ -10,7 +10,7 @@ namespace DiamondShop.Domain.BusinessRules
     public static class TransactionRules
     {
         public static long MinimumPerTransaction { get; set; } = 10000;// 10k
-        public static long MaximumPerTransaction { get; set; } = 200000000;//200tr
+        public static long MaximumPerTransaction { get; set; } = 50000000;//200tr
         public static int TransactionDurationMinute { get; set; } = 15;
         /// <summary>
         /// đây là giá trị tối đa của dơn hàng mà nếu nó lớn hơn giá trị này thì bắt buộc phải 

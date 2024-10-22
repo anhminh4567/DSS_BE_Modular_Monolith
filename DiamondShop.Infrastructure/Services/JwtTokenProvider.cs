@@ -37,13 +37,13 @@ internal class JwtTokenProvider : IJwtTokenProvider
         var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SigningKey));
         var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
         // need .ToLocalTime() since .net only work with DateTime.Now to validate token
-        var expiredTime = _dateTimeProvider.UtcNow.AddMinutes(100).ToLocalTime();
+        var expiredTime = _dateTimeProvider.UtcNow.AddDays(100).ToLocalTime();
         var tokeOptions = new JwtSecurityToken(
             issuer: _jwtBearerOptions.TokenValidationParameters.ValidIssuer,
             claims: claims,
             expires: expiredTime,
             signingCredentials: signinCredentials
-        ); ;
+        ); 
 
         var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
         return (tokenString, expiredTime);
@@ -51,7 +51,7 @@ internal class JwtTokenProvider : IJwtTokenProvider
 
     public (string refreshToken, DateTime expiredDate) GenerateRefreshToken(string identityId)
     {
-        return (Convert.ToBase64String(Guid.NewGuid().ToByteArray()), _dateTimeProvider.UtcNow.AddHours(7));
+        return (Convert.ToBase64String(Guid.NewGuid().ToByteArray()), _dateTimeProvider.UtcNow.AddDays(101));
     }
 
     public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)

@@ -1,4 +1,5 @@
-﻿using MapsterMapper;
+﻿using FluentResults;
+using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -44,6 +45,26 @@ namespace DiamondShop.Api.Controllers
                     response.Add(enumType.Name, enumDict);
                 }
             }
+            return Ok(response);
+        }
+        [HttpGet("Timeline")]
+        public async Task<ActionResult> PrintAllTimeline()
+        {
+            var response = new Dictionary<string, List<string>>();
+            response.Add("Pending", new List<string> { "process", });
+            response.Add("Processing", new List<string> { "process", });
+            response.Add("Prepared", new List<string> { "process", });
+            response.Add("Delivering", new List<string> { "process", });
+            response.Add("Success", new List<string> { "process", });
+
+            response.Add("Cancelled", new List<string> { "error" });
+            response.Add("Rejected", new List<string> { "error" });
+            response.Add("Delivery_Failed", new List<string> { "error" });
+            response.Add("Refused", new List<string> { "error" });
+
+
+            // List of assemblies to scan
+
             return Ok(response);
         }
     }
