@@ -135,8 +135,8 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             {
                 return Result.Fail("order expired already");
             }
-            var callbackUrl = string.Concat(_urlOptions.Value.HttpsUrl, CallbackUri);
-            var returnUrl = string.Concat(_urlOptions.Value.HttpsUrl, ReturnUri);
+            var callbackUrl = string.Concat(_urlOptions.Value.HttpsUrl,"/", CallbackUri);
+            var returnUrl = string.Concat(_urlOptions.Value.HttpsUrl,"/", ReturnUri);
 
             var embed_data = new ZalopayEmbeddedData
             {

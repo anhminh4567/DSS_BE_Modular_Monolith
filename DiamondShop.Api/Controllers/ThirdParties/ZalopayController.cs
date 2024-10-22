@@ -20,12 +20,14 @@ namespace DiamondShop.Api.Controllers.ThirdParties
         private readonly IOptions<UrlOptions> _urlOptions;
         private readonly ZalopayClient _zalopayClient;
         private readonly IPaymentService _paymentService;
+        private readonly IOptions<FrontendOptions> _frontendOptions;
 
-        public ZalopayController(IOptions<UrlOptions> urlOptions, ZalopayClient zalopayClient, IPaymentService paymentService)
+        public ZalopayController(IOptions<UrlOptions> urlOptions, ZalopayClient zalopayClient, IPaymentService paymentService, IOptions<FrontendOptions> frontendOptions)
         {
             _urlOptions = urlOptions;
             _zalopayClient = zalopayClient;
             _paymentService = paymentService;
+            _frontendOptions = frontendOptions;
         }
 
         [HttpPost]
@@ -77,7 +79,7 @@ namespace DiamondShop.Api.Controllers.ThirdParties
         public async Task<ActionResult> Return()
         {
             //this will redirect client to the frontend, but not important for now, so just return ok
-            return Ok();
+            return Ok(HttpContext.Request.QueryString.Value);
         }
     }
 }
