@@ -23,7 +23,6 @@
     <Folder Include="Usecases\JewelryModelCategories\Commands\Update\" />
     <Folder Include="Usecases\JewelryModels\Commands\Delete\" />
     <Folder Include="Usecases\JewelryModels\Commands\Update\" />
-    <Folder Include="Usecases\DiamondPrices\Commands\UpdateMany\" />
     <Folder Include="Usecases\JewelryModels\Files\Commands\AddMany\" />
     <Folder Include="Usecases\JewelryModels\Files\Commands\RemoveMany\" />
     <Folder Include="Usecases\JewelryModels\Files\Queries\" />

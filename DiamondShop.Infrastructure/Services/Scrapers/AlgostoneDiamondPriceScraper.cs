@@ -76,8 +76,7 @@ namespace DiamondShop.Infrastructure.Services.Scrapers
             {
                 >= 3.0 and < 4.0 => Cut.Good,
                 >= 4.0 and < 6.0 => Cut.Very_Good,
-                >= 6.0 and < 8.0 => Cut.Ideal,
-                >= 8.0 and <= 10.0 => Cut.Astor_Ideal,
+                >= 8.0 and <= 10.0 => Cut.Excelent,
                 _ => null
             };
             return correctCutFromScore;

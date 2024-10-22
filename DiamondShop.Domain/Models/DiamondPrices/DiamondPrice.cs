@@ -45,7 +45,12 @@ namespace DiamondShop.Domain.Models.DiamondPrices
                 ForUnknownPrice = "Liên hệ chúng tôi để được tư vấn giá"
             };
         }
-
+        public void ChangePrice(decimal price)
+        {
+            if(price <= 1000)
+                throw new Exception();
+            Price = price;
+        }
         private DiamondPrice() { }
     }
 }

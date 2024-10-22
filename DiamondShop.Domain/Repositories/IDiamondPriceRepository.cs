@@ -4,6 +4,7 @@ using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
+using Microsoft.AspNetCore.DataProtection.KeyManagement.Internal;
 
 namespace DiamondShop.Domain.Repositories
 {
