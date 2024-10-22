@@ -25,6 +25,10 @@ using DiamondShop.Domain.BusinessRules;
 using OpenQA.Selenium.DevTools.V127.Page;
 using Microsoft.Extensions.Options;
 using DiamondShop.Infrastructure.Options;
+using MediatR;
+using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Infrastructure.Databases.Repositories.OrderRepo;
+using HtmlAgilityPack.CssSelectors.NetCore;
 
 namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
 {
@@ -33,11 +37,13 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
         private readonly ILogger<ZalopayPaymentService> _logger;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderRepository _orderRepository;
+        private readonly IOrderItemRepository _orderItemRepository;
         private readonly ITransactionRepository _transactionRepository;
         private readonly IPaymentMethodRepository _paymentMethodRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IOrderTransactionService _orderTransactionService;
         private readonly IOptions<UrlOptions> _urlOptions;
+        private readonly ISender _sender;
         private static string appid = "2554";
         private static string key1 = "sdngKKJmqEMzvh5QQcdD2A9XBSKUNaYn";
         private static string key2 = "trMrHtvjo6myautxDUiAcYsVtaeQ8nhf";
@@ -51,16 +57,18 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
         private static string refund_url = "https://sb-openapi.zalopay.vn/v2/refund";
         private static string query_refund_url = "https://sb-openapi.zalopay.vn/v2/query_refund";
 
-        public ZalopayPaymentService(ILogger<ZalopayPaymentService> logger, IUnitOfWork unitOfWork, IOrderRepository orderRepository, ITransactionRepository transactionRepository, IPaymentMethodRepository paymentMethodRepository, IHttpContextAccessor httpContextAccessor, IOrderTransactionService orderTransactionService, IOptions<UrlOptions> urlOptions)
+        public ZalopayPaymentService(ILogger<ZalopayPaymentService> logger, IUnitOfWork unitOfWork, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IPaymentMethodRepository paymentMethodRepository, IHttpContextAccessor httpContextAccessor, IOrderTransactionService orderTransactionService, IOptions<UrlOptions> urlOptions, ISender sender)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
             _orderRepository = orderRepository;
+            _orderItemRepository = orderItemRepository;
             _transactionRepository = transactionRepository;
             _paymentMethodRepository = paymentMethodRepository;
             _httpContextAccessor = httpContextAccessor;
             _orderTransactionService = orderTransactionService;
             _urlOptions = urlOptions;
+            _sender = sender;
         }
 
         public async Task<object> Callback()
@@ -104,17 +112,34 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                     _logger.LogInformation("update order's status = success where app_trans_id = {0}", dataObject.app_trans_id);
                     if (tryGetTransaction == null) // check neu thanh cong, check DB xem transaction ton tai hay chuaw thi tra ve return_code = 1
                     {
+                        await _unitOfWork.BeginTransactionAsync();
                         var orderIdParsed = OrderId.Parse(metaData.ForOrderId);
                         var newTran = Transaction.CreatePayment(zalopayMethod.Id, orderIdParsed, metaData.Description,dataObject.app_trans_id,dataObject.zp_trans_id.ToString(),metaData.TimeStampe,dataObject.amount,DateTime.UtcNow);
                         await _transactionRepository.Create(newTran);
                         result["return_code"] = 1;
                         result["return_message"] = "success";
+                        var getOrderDetail = await _orderRepository.GetById(orderIdParsed);
+                        getOrderDetail.Status = OrderStatus.Processing;
+                        getOrderDetail.PaymentStatus = getOrderDetail.PaymentType == PaymentType.Payall ? PaymentStatus.PaidAll : PaymentStatus.Deposited;
+                        await _orderRepository.Update(getOrderDetail);
+                        await _unitOfWork.SaveChangesAsync();
+
+                        var orderItemQuery = _orderItemRepository.GetQuery();
+                        orderItemQuery = _orderItemRepository.QueryFilter(orderItemQuery, p => p.OrderId == getOrderDetail.Id);
+                        var orderItems = orderItemQuery.ToList();
+                        orderItems.ForEach(p => p.Status = OrderItemStatus.Preparing);
+                        _orderItemRepository.UpdateRange(orderItems);
+
+                        await _unitOfWork.SaveChangesAsync();
+                        await _unitOfWork.CommitAsync();
+
                     }
                     else// neu ton tai Transaction, laf transaction da callback roi => tra ve = 2, la giao dich da xu ly
                     {
                         result["return_code"] = 2;
                         result["return_message"] = "success";
-                    } 
+                    }
+                    
                     //if () { } // con lai thi loi, ko callback
                 }
             }
