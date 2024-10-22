@@ -15,7 +15,7 @@ namespace DiamondShop.Domain.Models.Orders.ValueObjects
         }
         public static OrderLogId Create()
         {
-            return new OrderLogId(Guid.NewGuid().ToString());
+            return new OrderLogId(Ulid.NewUlid().ToString());
         }
     }
 }

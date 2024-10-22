@@ -8,7 +8,7 @@ namespace DiamondShop.Domain.Models.Diamonds.Enums
 {
     public enum Cut
     {
-        Good = 1, Very_Good = 2 , Ideal = 3, Astor_Ideal = 4
+        Good = 1, Very_Good = 2 , Excelent = 3
     }
 
 }

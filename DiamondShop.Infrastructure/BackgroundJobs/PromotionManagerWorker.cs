@@ -46,7 +46,7 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
                                             && promotions.StartDate < dateTimeNow
                                             && promotions.EndDate > dateTimeNow
                                             && promotions.Status == Domain.Models.Promotions.Enum.Status.Scheduled
-                                            select promotions).ToListAsync();
+                                            select promotions).Include(d => d.PromoReqs).ToListAsync();
             foreach (var promotion in unstartedPromotion)
             {
                 var result = promotion.SetActive();

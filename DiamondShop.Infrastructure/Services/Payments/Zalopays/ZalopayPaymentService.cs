@@ -142,7 +142,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             {
                 columninfo = "",
                 redirecturl = returnUrl,
-                preferred_payment_method =["domestic_card", "account"],
+                preferred_payment_method =[]//["domestic_card", "account"],
             };
             var param = new Dictionary<string, string>();
             var app_trans_id = DateTime.UtcNow.ToString("yyyyMMddHHmmss"); //rnd.Next(100000000); // Generate a random order's ID.
