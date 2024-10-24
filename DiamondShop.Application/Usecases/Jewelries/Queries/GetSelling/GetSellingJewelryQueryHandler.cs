@@ -13,8 +13,7 @@ using MediatR;
 
 namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetSelling
 {
-    public record GetJewelryDetail(string? Category, MetalId? MetalId, decimal? MinPrice, decimal? MaxPrice, bool? IsRhodiumFinished, bool? IsEngravable, bool? isFinished);
-    public record GetSellingJewelryQuery(int pageSize = 20, int start = 0, GetJewelryDetail GetJewelryDetail = null) : IRequest<Result<PagingResponseDto<Jewelry>>>;
+    public record GetSellingJewelryQuery(int pageSize = 20, int start = 0, string? Category = null, MetalId? MetalId = null, decimal? MinPrice = null, decimal? MaxPrice = null, bool? IsRhodiumFinished = null, bool? IsEngravable = null, bool? isFinished = null) : IRequest<Result<PagingResponseDto<Jewelry>>>;
     internal class GetSellingJewelryQueryHandler : IRequestHandler<GetSellingJewelryQuery, Result<PagingResponseDto<Jewelry>>>
     {
         private readonly IJewelryModelCategoryRepository _categoryRepository;
@@ -36,58 +35,58 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetSelling
 
         public async Task<Result<PagingResponseDto<Jewelry>>> Handle(GetSellingJewelryQuery request, CancellationToken cancellationToken)
         {
-            request.Deconstruct(out int pageSize, out int start, out GetJewelryDetail getJewelryDetail);
+            request.Deconstruct(out int pageSize, out int start, out string ? Category, out MetalId ? MetalId, out decimal ? MinPrice, out decimal ? MaxPrice, out bool ? IsRhodiumFinished, out bool ? IsEngravable, out bool ? isFinished);
             var sizeMetalQuery = _sizeMetalRepository.GetQuery();
             sizeMetalQuery = _sizeMetalRepository.QueryInclude(sizeMetalQuery, p => p.Metal);
 
             var query = _jewelryRepository.GetQuery();
-            query = _jewelryRepository.QueryInclude(query, p => p.Metal); 
+            query = _jewelryRepository.QueryInclude(query, p => p.Metal);
             query = _jewelryRepository.QueryInclude(query, p => p.Model);
             query = _jewelryRepository.QueryInclude(query, p => p.Model.MainDiamonds);
             query = _jewelryRepository.QueryInclude(query, p => p.Diamonds);
             query = _jewelryRepository.QueryInclude(query, p => p.SideDiamonds);
             query = _jewelryRepository.QueryFilter(query, p => p.Status == ProductStatus.Active);
-            if (!String.IsNullOrEmpty(getJewelryDetail?.Category))
+            if (!String.IsNullOrEmpty(Category))
             {
-                var category = await _categoryRepository.ContainsName(getJewelryDetail.Category);
+                var category = await _categoryRepository.ContainsName(Category);
                 if (category == null)
                 {
                     return BlankPaging();
                 }
                 query = _jewelryRepository.QueryFilter(query, p => p.Model.CategoryId == category.Id);
             }
-            if (getJewelryDetail?.MetalId != null)
+            if (MetalId != null)
             {
-                sizeMetalQuery = _sizeMetalRepository.QueryFilter(sizeMetalQuery, p => p.MetalId == getJewelryDetail.MetalId);
-                query = _jewelryRepository.QueryFilter(query, p => p.MetalId == getJewelryDetail.MetalId);
+                sizeMetalQuery = _sizeMetalRepository.QueryFilter(sizeMetalQuery, p => p.MetalId == MetalId);
+                query = _jewelryRepository.QueryFilter(query, p => p.MetalId == MetalId);
             }
-            if (getJewelryDetail?.IsRhodiumFinished != null)
+            if (IsRhodiumFinished != null)
             {
-                query = _jewelryRepository.QueryFilter(query, p => p.Model.IsRhodiumFinish == getJewelryDetail.IsRhodiumFinished);
+                query = _jewelryRepository.QueryFilter(query, p => p.Model.IsRhodiumFinish == IsRhodiumFinished);
             }
-            if (getJewelryDetail?.IsEngravable != null)
+            if (IsEngravable != null)
             {
-                query = _jewelryRepository.QueryFilter(query, p => p.Model.IsEngravable == getJewelryDetail.IsEngravable);
+                query = _jewelryRepository.QueryFilter(query, p => p.Model.IsEngravable == IsEngravable);
             }
             var sizeMetals = sizeMetalQuery.ToList();
             sizeMetals.ForEach(p => { p.Price = (decimal)p.Weight * p.Metal?.Price ?? 0; });
-            if (getJewelryDetail?.MinPrice != null)
+            if (MinPrice != null)
             {
-                sizeMetals = sizeMetals.Where(p => p.Price >= getJewelryDetail.MinPrice).ToList();
+                sizeMetals = sizeMetals.Where(p => p.Price >= MinPrice).ToList();
             }
-            if (getJewelryDetail?.MaxPrice != null)
+            if (MaxPrice != null)
             {
-                sizeMetals = sizeMetals.Where(p => p.Price <= getJewelryDetail.MaxPrice).ToList();
+                sizeMetals = sizeMetals.Where(p => p.Price <= MaxPrice).ToList();
             }
             if (sizeMetals.Count == 0)
                 return BlankPaging();
             query = _jewelryRepository.QuerySplit(query);
             var enumerables = query.AsEnumerable().Where(
                 p => sizeMetals.Any(k => k.SizeId == p.SizeId && k.MetalId == p.MetalId && k.ModelId == p.ModelId));
-            if (getJewelryDetail?.isFinished != null)
+            if (isFinished != null)
             {
                 enumerables = enumerables.Where(p =>
-                (p.Diamonds.Count() == p.Model.MainDiamonds.Sum(p => p.Quantity)) && (bool)getJewelryDetail.isFinished);
+                (p.Diamonds.Count() == p.Model.MainDiamonds.Sum(p => p.Quantity)) && (bool)isFinished);
             }
             var count = query.Count();
             query.Skip(start * pageSize);

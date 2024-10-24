@@ -1,5 +1,7 @@
 ﻿using DiamondShop.Api.Controllers.Orders.Cancel;
 using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Application.Usecases.OrderItems.Command.Cancel;
+using DiamondShop.Application.Usecases.OrderItems.Command.Prepare;
 using DiamondShop.Domain.Models.RoleAggregate;
 using MapsterMapper;
 using MediatR;
@@ -21,24 +23,29 @@ namespace DiamondShop.Api.Controllers.OrderItems
             _sender = sender;
             _mapper = mapper;
         }
-        [HttpPut("Reject/{orderId}")]
+        [HttpPut("Prepare")]
         [Authorize(Roles = AccountRole.StaffId)]
-        [Authorize(Roles = AccountRole.AdminId)]
-        public async Task<ActionResult> RejectOrder([FromQuery] string orderItemId)
+        public async Task<ActionResult> PrepareOrderItem([FromQuery] PrepareOrderItemCommand prepareOrderItemCommand)
         {
-            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
-            if (userId != null)
+            var result = await _sender.Send(prepareOrderItemCommand);
+            if (result.IsSuccess)
             {
-                var result = await _sender.Send(new CancelOrderCommand(orderItemId, userId.Value, true));
-                if (result.IsSuccess)
-                {
-                    return Ok("Order rejected!");
-                }
-                else
-                    return MatchError(result.Errors, ModelState);
+                return Ok(result.Value);
             }
             else
-                return Unauthorized();
+                return MatchError(result.Errors, ModelState);
+        }
+        [HttpPut()]
+        [Authorize(Roles = AccountRole.StaffId)]
+        public async Task<ActionResult> CancelOrderItem([FromQuery] List<string> orderItemIds)
+        {
+            var result = await _sender.Send(new CancelOrderItemCommand(orderItemIds));
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+            else
+                return MatchError(result.Errors, ModelState);
         }
     }
 }

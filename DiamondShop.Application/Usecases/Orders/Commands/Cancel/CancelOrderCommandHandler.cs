@@ -1,11 +1,11 @@
-﻿using DiamondShop.Application.Dtos.Requests.Orders;
-using DiamondShop.Application.Services.Interfaces;
+﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
+using DiamondShop.Domain.Models.Transactions;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.OrderRepo;
@@ -16,7 +16,7 @@ using MediatR;
 
 namespace DiamondShop.Api.Controllers.Orders.Cancel
 {
-    public record CancelOrderCommand(string OrderId, string AccountId, bool ByShop) : IRequest<Result<Order>>;
+    public record CancelOrderCommand(string OrderId, string AccountId, string reason) : IRequest<Result<Order>>;
     public record CancelOrderCommandHandler : IRequestHandler<CancelOrderCommand, Result<Order>>
     {
         private readonly IOrderRepository _orderRepository;
@@ -40,25 +40,25 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
 
         public async Task<Result<Order>> Handle(CancelOrderCommand request, CancellationToken token)
         {
-            request.Deconstruct(out string orderId, out string accountId, out bool byShop);
-            await _unitOfWork.BeginTransactionAsync();
+            request.Deconstruct(out string orderId, out string accountId, out string reason);
+            await _unitOfWork.BeginTransactionAsync(token);
             var orderQuery = _orderRepository.GetQuery();
             var order = orderQuery.FirstOrDefault(p => p.Id == OrderId.Parse(orderId));
             if (order == null)
                 return Result.Fail("No order found!");
             else if (!_orderService.IsCancellable(order.Status))
                 return Result.Fail("This order can't be cancelled anymore!");
-            if (byShop)
-            {
-                order.Status = OrderStatus.Rejected;
-            }
-            else
-            {
-                if (order.AccountId != AccountId.Parse(accountId))
-                    return Result.Fail("You're not allowed to cancel this order");
-                order.Status = OrderStatus.Cancelled;
-            }
+            if (order.AccountId != AccountId.Parse(accountId))
+                return Result.Fail("You're not allowed to cancel this order");
+            order.Status = OrderStatus.Cancelled;
+            order.CancelledDate = DateTime.UtcNow;
+            order.CancelledReason = reason;
+            await _orderRepository.Update(order);
+
             //TODO: Add Refund
+            var transacQuery = _transactionRepository.GetQuery();
+            transacQuery = _transactionRepository.QueryFilter(transacQuery, p => p.OrderId == order.Id);
+            var transaction = transacQuery.FirstOrDefault();
 
             //Return to selling
             var orderItemQuery = _orderItemRepository.GetQuery();
@@ -86,12 +86,9 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
             _orderItemRepository.UpdateRange(items);
             _jewelryRepository.UpdateRange(jewelries);
             _diamondRepository.UpdateRange(diamonds);
-            await _unitOfWork.SaveChangesAsync();
-
-
-
-            await _unitOfWork.SaveChangesAsync();
-            await _unitOfWork.CommitAsync();
+            
+            await _unitOfWork.SaveChangesAsync(token);
+            await _unitOfWork.CommitAsync(token);
             return Result.Ok(order);
         }
     }
