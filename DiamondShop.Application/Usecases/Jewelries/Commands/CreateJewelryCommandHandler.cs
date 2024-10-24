@@ -89,7 +89,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
                     sizeMetal.MetalId,
                     sizeMetal.Weight,
                     jewelryRequest.SerialCode,
-                    isActive: jewelryRequest.IsActive
+                    status: jewelryRequest.Status
                 );
             await _jewelryRepository.Create(jewelry, token);
             await _unitOfWork.SaveChangesAsync(token);

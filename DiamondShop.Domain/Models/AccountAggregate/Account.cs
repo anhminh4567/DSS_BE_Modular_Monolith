@@ -24,7 +24,7 @@ namespace DiamondShop.Domain.Models.AccountAggregate
         public List<Address> Addresses { get; private set; }
         public FullName FullName { get; private set; }
         public string Email { get; private set; }
-
+        public long? PhoneNumber { get; set; }
         //public List<Blog> Blogs { get; private set; }
         //public List<JewelryReview> JewelryReviews { get; private set; }
         //public List<Order> Orders { get; private set; }

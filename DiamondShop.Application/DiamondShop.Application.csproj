@@ -19,6 +19,10 @@
 
   <ItemGroup>
     <Folder Include="Usecases\Addresses\Queries\GetAllUserAddresses\" />
+    <Folder Include="Usecases\Deliveries\Commands\Begin\" />
+    <Folder Include="Usecases\Deliveries\Commands\Create\" />
+    <Folder Include="Usecases\Deliveries\Queries\GetAll\" />
+    <Folder Include="Usecases\Deliveries\Queries\GetUser\" />
     <Folder Include="Usecases\JewelryModelCategories\Commands\Delete\" />
     <Folder Include="Usecases\JewelryModelCategories\Commands\Update\" />
     <Folder Include="Usecases\JewelryModels\Commands\Delete\" />
@@ -26,6 +30,8 @@
     <Folder Include="Usecases\JewelryModels\Files\Commands\AddMany\" />
     <Folder Include="Usecases\JewelryModels\Files\Commands\RemoveMany\" />
     <Folder Include="Usecases\JewelryModels\Files\Queries\" />
+    <Folder Include="Usecases\Orders\Commands\AddToDelivery\" />
+    <Folder Include="Usecases\Orders\Commands\Complete\" />
     <Folder Include="Usecases\Sizes\Commands\" />
     <Folder Include="Usecases\Transactions\Commands\CreateRefunds\" />
   </ItemGroup>

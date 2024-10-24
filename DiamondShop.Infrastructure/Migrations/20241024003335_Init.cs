@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -8,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiamondShop.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Reinitial : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -35,8 +36,10 @@ namespace DiamondShop.Infrastructure.Migrations
                     DeliveryMethod = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Cost = table.Column<decimal>(type: "numeric", nullable: false),
-                    FromKm = table.Column<int>(type: "integer", nullable: false),
-                    ToKm = table.Column<int>(type: "integer", nullable: false)
+                    FromKm = table.Column<int>(type: "integer", nullable: true),
+                    ToKm = table.Column<int>(type: "integer", nullable: true),
+                    FromLocation = table.Column<string>(type: "text", nullable: true),
+                    ToLocation = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -80,9 +83,9 @@ namespace DiamondShop.Infrastructure.Migrations
                     Name = table.Column<string>(type: "text", nullable: false),
                     StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     DiscountCode = table.Column<string>(type: "text", nullable: false),
                     DiscountPercent = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
                     Thumbnail = table.Column<string>(type: "jsonb", nullable: true)
                 },
                 constraints: table =>
@@ -165,7 +168,7 @@ namespace DiamondShop.Infrastructure.Migrations
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
                     MethodName = table.Column<string>(type: "text", nullable: false),
-                    MethodThumbnailPath = table.Column<string>(type: "text", nullable: false),
+                    MethodThumbnailPath = table.Column<string>(type: "text", nullable: true),
                     Status = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
@@ -179,13 +182,14 @@ namespace DiamondShop.Infrastructure.Migrations
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
+                    PromoCode = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     Priority = table.Column<int>(type: "integer", nullable: false),
                     IsExcludeQualifierProduct = table.Column<bool>(type: "boolean", nullable: false),
                     RedemptionMode = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
                     Thumbnail = table.Column<string>(type: "jsonb", nullable: true)
                 },
                 constraints: table =>
@@ -255,6 +259,7 @@ namespace DiamondShop.Infrastructure.Migrations
                     Type = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Code = table.Column<string>(type: "text", nullable: false),
+                    MonthDuration = table.Column<int>(type: "integer", nullable: false),
                     CreateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Price = table.Column<decimal>(type: "numeric", nullable: false)
                 },
@@ -302,6 +307,7 @@ namespace DiamondShop.Infrastructure.Migrations
                     BackType = table.Column<string>(type: "text", nullable: true),
                     ClaspType = table.Column<string>(type: "text", nullable: true),
                     ChainType = table.Column<string>(type: "text", nullable: true),
+                    CraftmanFee = table.Column<decimal>(type: "numeric", nullable: false),
                     Gallery = table.Column<string>(type: "jsonb", nullable: true),
                     Thumbnail = table.Column<string>(type: "jsonb", nullable: true)
                 },
@@ -314,38 +320,6 @@ namespace DiamondShop.Infrastructure.Migrations
                         principalTable: "JewelryModelCategory",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Transaction",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "text", nullable: false),
-                    PayMethodId = table.Column<string>(type: "text", nullable: false),
-                    TransactionType = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
-                    PayDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    AppTransactionCode = table.Column<string>(type: "text", nullable: false),
-                    PaygateTransactionCode = table.Column<string>(type: "text", nullable: false),
-                    TimeStampe = table.Column<string>(type: "text", nullable: false),
-                    TransactionAmount = table.Column<decimal>(type: "numeric", nullable: false),
-                    FineAmount = table.Column<decimal>(type: "numeric", nullable: false),
-                    RefundedTransacId = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Transaction", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Transaction_PaymentMethod_PayMethodId",
-                        column: x => x.PayMethodId,
-                        principalTable: "PaymentMethod",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Transaction_Transaction_RefundedTransacId",
-                        column: x => x.RefundedTransacId,
-                        principalTable: "Transaction",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -520,7 +494,6 @@ namespace DiamondShop.Infrastructure.Migrations
                     MetalId = table.Column<string>(type: "text", nullable: false),
                     Weight = table.Column<float>(type: "real", nullable: false),
                     SerialCode = table.Column<string>(type: "text", nullable: false),
-                    IsAwaiting = table.Column<bool>(type: "boolean", nullable: false),
                     IsSold = table.Column<bool>(type: "boolean", nullable: false),
                     ReviewId = table.Column<string>(type: "text", nullable: true),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
@@ -621,7 +594,6 @@ namespace DiamondShop.Infrastructure.Migrations
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
                     ModelId = table.Column<string>(type: "text", nullable: false),
-                    ModelId1 = table.Column<string>(type: "text", nullable: true),
                     ShapeId = table.Column<string>(type: "text", nullable: false),
                     ColorMin = table.Column<int>(type: "integer", nullable: false),
                     ColorMax = table.Column<int>(type: "integer", nullable: false),
@@ -644,11 +616,6 @@ namespace DiamondShop.Infrastructure.Migrations
                         principalTable: "JewelryModel",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SideDiamondReq_JewelryModel_ModelId1",
-                        column: x => x.ModelId1,
-                        principalTable: "JewelryModel",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -658,17 +625,11 @@ namespace DiamondShop.Infrastructure.Migrations
                     SizeId = table.Column<string>(type: "text", nullable: false),
                     MetalId = table.Column<string>(type: "text", nullable: false),
                     ModelId = table.Column<string>(type: "text", nullable: false),
-                    Weight = table.Column<float>(type: "real", nullable: false),
-                    JewelryModelId = table.Column<string>(type: "text", nullable: true)
+                    Weight = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SizeMetal", x => new { x.SizeId, x.MetalId, x.ModelId });
-                    table.ForeignKey(
-                        name: "FK_SizeMetal_JewelryModel_JewelryModelId",
-                        column: x => x.JewelryModelId,
-                        principalTable: "JewelryModel",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_SizeMetal_JewelryModel_ModelId",
                         column: x => x.ModelId,
@@ -808,7 +769,7 @@ namespace DiamondShop.Infrastructure.Migrations
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
                     DeliveryDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CompleteDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CompleteDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     DeliveryMethod = table.Column<string>(type: "text", nullable: true),
                     DelivererId = table.Column<string>(type: "text", nullable: true)
@@ -836,17 +797,18 @@ namespace DiamondShop.Infrastructure.Migrations
                     Cut = table.Column<int>(type: "integer", nullable: true),
                     PriceOffset = table.Column<decimal>(type: "numeric", nullable: false),
                     Carat = table.Column<float>(type: "real", nullable: false),
-                    HasGIACert = table.Column<bool>(type: "boolean", nullable: false),
                     IsLabDiamond = table.Column<bool>(type: "boolean", nullable: false),
                     WidthLengthRatio = table.Column<float>(type: "real", nullable: false),
                     Depth = table.Column<float>(type: "real", nullable: false),
                     Table = table.Column<float>(type: "real", nullable: false),
+                    SerialCode = table.Column<string>(type: "text", nullable: true),
                     Polish = table.Column<int>(type: "integer", nullable: false),
                     Symmetry = table.Column<int>(type: "integer", nullable: false),
                     Girdle = table.Column<int>(type: "integer", nullable: false),
                     Culet = table.Column<int>(type: "integer", nullable: false),
                     Fluorescence = table.Column<int>(type: "integer", nullable: false),
                     Measurement = table.Column<string>(type: "text", nullable: false),
+                    IsSold = table.Column<bool>(type: "boolean", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     Gallery = table.Column<string>(type: "jsonb", nullable: true),
                     Thumbnail = table.Column<string>(type: "jsonb", nullable: true)
@@ -927,8 +889,7 @@ namespace DiamondShop.Infrastructure.Migrations
                     MainDiamondReqId = table.Column<string>(type: "text", nullable: false),
                     ShapeId = table.Column<string>(type: "text", nullable: false),
                     CaratFrom = table.Column<float>(type: "real", nullable: false),
-                    CaratTo = table.Column<float>(type: "real", nullable: false),
-                    MainDiamondReqId1 = table.Column<string>(type: "text", nullable: true)
+                    CaratTo = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -945,11 +906,6 @@ namespace DiamondShop.Infrastructure.Migrations
                         principalTable: "MainDiamondReq",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_MainDiamondShape_MainDiamondReq_MainDiamondReqId1",
-                        column: x => x.MainDiamondReqId1,
-                        principalTable: "MainDiamondReq",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -957,8 +913,7 @@ namespace DiamondShop.Infrastructure.Migrations
                 columns: table => new
                 {
                     PromoReqId = table.Column<string>(type: "text", nullable: false),
-                    ShapeId = table.Column<string>(type: "text", nullable: false),
-                    PromoReqId1 = table.Column<string>(type: "text", nullable: true)
+                    ShapeId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -975,11 +930,6 @@ namespace DiamondShop.Infrastructure.Migrations
                         principalTable: "PromoReq",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_PromoReqShape_PromoReq_PromoReqId1",
-                        column: x => x.PromoReqId1,
-                        principalTable: "PromoReq",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -989,8 +939,7 @@ namespace DiamondShop.Infrastructure.Migrations
                     Id = table.Column<string>(type: "text", nullable: false),
                     CaratWeight = table.Column<float>(type: "real", nullable: false),
                     Quantity = table.Column<int>(type: "integer", nullable: false),
-                    SideDiamondReqId = table.Column<string>(type: "text", nullable: false),
-                    SideDiamondReqId1 = table.Column<string>(type: "text", nullable: false)
+                    SideDiamondReqId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -998,12 +947,6 @@ namespace DiamondShop.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_SideDiamondOpt_SideDiamondReq_SideDiamondReqId",
                         column: x => x.SideDiamondReqId,
-                        principalTable: "SideDiamondReq",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SideDiamondOpt_SideDiamondReq_SideDiamondReqId1",
-                        column: x => x.SideDiamondReqId1,
                         principalTable: "SideDiamondReq",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -1042,21 +985,26 @@ namespace DiamondShop.Infrastructure.Migrations
                     Id = table.Column<string>(type: "text", nullable: false),
                     AccountId = table.Column<string>(type: "text", nullable: false),
                     CustomizeRequestId = table.Column<string>(type: "text", nullable: true),
+                    PromotionId = table.Column<string>(type: "text", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ExpectedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ShippedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CancelledDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CancelledReason = table.Column<string>(type: "text", nullable: true),
                     Status = table.Column<string>(type: "text", nullable: false),
+                    PaymentType = table.Column<string>(type: "text", nullable: false),
                     PaymentStatus = table.Column<string>(type: "text", nullable: false),
                     ShippingFee = table.Column<decimal>(type: "numeric", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "numeric", nullable: false),
                     TotalRefund = table.Column<decimal>(type: "numeric", nullable: false),
                     TotalFine = table.Column<decimal>(type: "numeric", nullable: false),
                     ShippingAddress = table.Column<string>(type: "text", nullable: false),
-                    TransactionId = table.Column<string>(type: "text", nullable: true),
                     ParentOrderId = table.Column<string>(type: "text", nullable: true),
-                    DeliveryPackageId = table.Column<string>(type: "text", nullable: true)
+                    DeliveryPackageId = table.Column<string>(type: "text", nullable: true),
+                    Note = table.Column<string>(type: "text", nullable: true),
+                    ExpiredDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    ShipFailedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    ShipFailedCount = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1084,9 +1032,9 @@ namespace DiamondShop.Infrastructure.Migrations
                         principalTable: "Order",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Order_Transaction_TransactionId",
-                        column: x => x.TransactionId,
-                        principalTable: "Transaction",
+                        name: "FK_Order_Promotion_PromotionId",
+                        column: x => x.PromotionId,
+                        principalTable: "Promotion",
                         principalColumn: "Id");
                 });
 
@@ -1170,13 +1118,14 @@ namespace DiamondShop.Infrastructure.Migrations
                     Status = table.Column<string>(type: "text", nullable: false),
                     JewelryId = table.Column<string>(type: "text", nullable: true),
                     DiamondId = table.Column<string>(type: "text", nullable: true),
-                    EngravedText = table.Column<string>(type: "text", nullable: false),
-                    EngravedFont = table.Column<string>(type: "text", nullable: false),
+                    EngravedText = table.Column<string>(type: "text", nullable: true),
+                    EngravedFont = table.Column<string>(type: "text", nullable: true),
                     PurchasedPrice = table.Column<decimal>(type: "numeric", nullable: false),
-                    DiscountCode = table.Column<string>(type: "text", nullable: false),
-                    DiscountPercent = table.Column<int>(type: "integer", nullable: false),
-                    PromoCode = table.Column<string>(type: "text", nullable: false),
-                    PromoPercent = table.Column<int>(type: "integer", nullable: false)
+                    DiscountId = table.Column<string>(type: "text", nullable: true),
+                    DiscountPercent = table.Column<int>(type: "integer", nullable: true),
+                    PromoType = table.Column<int>(type: "integer", nullable: true),
+                    PromoValue = table.Column<decimal>(type: "numeric", nullable: true),
+                    WarrantyId = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1185,6 +1134,11 @@ namespace DiamondShop.Infrastructure.Migrations
                         name: "FK_OrderItem_Diamond_DiamondId",
                         column: x => x.DiamondId,
                         principalTable: "Diamond",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_OrderItem_Discount_DiscountId",
+                        column: x => x.DiscountId,
+                        principalTable: "Discount",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_OrderItem_Jewelry_JewelryId",
@@ -1233,11 +1187,49 @@ namespace DiamondShop.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Transaction",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    PayMethodId = table.Column<string>(type: "text", nullable: true),
+                    TransactionType = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    PayDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    AppTransactionCode = table.Column<string>(type: "text", nullable: false),
+                    PaygateTransactionCode = table.Column<string>(type: "text", nullable: false),
+                    TimeStampe = table.Column<string>(type: "text", nullable: false),
+                    TransactionAmount = table.Column<decimal>(type: "numeric", nullable: false),
+                    FineAmount = table.Column<decimal>(type: "numeric", nullable: false),
+                    RefundedTransacId = table.Column<string>(type: "text", nullable: true),
+                    OrderId = table.Column<string>(type: "text", nullable: true),
+                    IsManual = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Transaction", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Transaction_Order_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Order",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Transaction_PaymentMethod_PayMethodId",
+                        column: x => x.PayMethodId,
+                        principalTable: "PaymentMethod",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Transaction_Transaction_RefundedTransacId",
+                        column: x => x.RefundedTransacId,
+                        principalTable: "Transaction",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "OrderItemWarranty",
                 columns: table => new
                 {
+                    Id = table.Column<string>(type: "text", nullable: false),
                     OrderItemId = table.Column<string>(type: "text", nullable: false),
-                    ItemId = table.Column<string>(type: "text", nullable: false),
                     Status = table.Column<string>(type: "text", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     EffectiveDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -1249,7 +1241,7 @@ namespace DiamondShop.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OrderItemWarranty", x => new { x.OrderItemId, x.ItemId });
+                    table.PrimaryKey("PK_OrderItemWarranty", x => x.Id);
                     table.ForeignKey(
                         name: "FK_OrderItemWarranty_OrderItem_OrderItemId",
                         column: x => x.OrderItemId,
@@ -1291,6 +1283,17 @@ namespace DiamondShop.Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "JewelryModelCategory",
+                columns: new[] { "Id", "Description", "IsGeneral", "Name", "ParentCategoryId", "ThumbnailPath" },
+                values: new object[,]
+                {
+                    { "1", "A normal ring", true, "Ring", null, "" },
+                    { "2", "A normal necklace", true, "Necklace", null, "" },
+                    { "3", "A normal bracelace", true, "Bracelace", null, "" },
+                    { "4", "A normal earring", true, "Earring", null, "" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Metal",
                 columns: new[] { "Id", "Name", "Price" },
                 values: new object[,]
@@ -1308,48 +1311,51 @@ namespace DiamondShop.Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "PaymentMethod",
+                columns: new[] { "Id", "MethodName", "MethodThumbnailPath", "Status" },
+                values: new object[,]
+                {
+                    { "1", "COD", null, true },
+                    { "2", "ZALOPAY", null, true }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Size",
                 columns: new[] { "Id", "Unit", "Value" },
                 values: new object[,]
                 {
-                    { "1", "milimeter", 3f },
-                    { "10", "milimeter", 12f },
-                    { "17f683b8-f15d-41fb-9eb1-f33b06412e77", "milimeter", 18f },
-                    { "18f25077-96d2-46f0-bf46-314dbe2ad407", "milimeter", 14f },
-                    { "190d6400-af5a-47a6-9ded-3f6258b800cf", "milimeter", 10f },
-                    { "2", "milimeter", 4f },
-                    { "26efce5f-7952-4480-a05a-ce0a1334d715", "milimeter", 23f },
-                    { "3", "milimeter", 5f },
-                    { "36b167cc-d42f-4ab6-95cd-06453a15d773", "milimeter", 17f },
-                    { "3a4e3119-bcf2-45b3-a1bb-6d51273646ca", "milimeter", 11f },
-                    { "3d9622ea-4448-4172-96a5-9c55eb6bdd1a", "milimeter", 15f },
-                    { "4", "milimeter", 6f },
-                    { "4a0cd35c-4f4e-47cb-af78-8cbca797d511", "milimeter", 3f },
-                    { "5", "milimeter", 7f },
-                    { "5894ca7c-e56c-461a-a155-9e03a423d8c3", "milimeter", 7f },
-                    { "6", "milimeter", 8f },
-                    { "60d44e05-0689-4161-8384-3bc7cf06bf05", "milimeter", 12f },
-                    { "66350f7b-6600-4c64-83dc-c4f82da068c2", "milimeter", 13f },
-                    { "7", "milimeter", 9f },
-                    { "75136cfd-a509-4d45-a0c9-7120caa75743", "milimeter", 6f },
-                    { "8", "milimeter", 10f },
-                    { "827b229a-7bef-443e-be13-4502208c2caa", "milimeter", 16f },
-                    { "8fa384d8-71f9-4861-b45e-87454c808bf6", "milimeter", 24f },
-                    { "9", "milimeter", 11f },
-                    { "a1c94f37-324b-4fc4-b9c4-5f37af8edc39", "milimeter", 9f },
-                    { "a5305a21-f3c0-4124-8dac-d2b6da162ea4", "milimeter", 19f },
-                    { "b82d80f8-2a15-49f1-aaa7-675046ffacc8", "milimeter", 8f },
-                    { "cd9f1304-b7f4-4080-93f5-19e5729ced51", "milimeter", 20f },
-                    { "d5f55296-ebbc-434c-8a6d-33214741b3dd", "milimeter", 22f },
-                    { "e8504aaa-7048-4ac9-8a70-ca66ba865926", "milimeter", 21f },
-                    { "eee909fe-bb68-4090-a621-9cd148e5198e", "milimeter", 4f },
-                    { "ef82fe7c-3921-48b6-b7aa-d9f2c01ade2e", "milimeter", 5f }
+                    { "10", "milimeter", 10f },
+                    { "11", "milimeter", 11f },
+                    { "12", "milimeter", 12f },
+                    { "13", "milimeter", 13f },
+                    { "14", "milimeter", 14f },
+                    { "15", "milimeter", 15f },
+                    { "16", "milimeter", 16f },
+                    { "17", "milimeter", 17f },
+                    { "18", "milimeter", 18f },
+                    { "19", "milimeter", 19f },
+                    { "20", "milimeter", 20f },
+                    { "21", "milimeter", 21f },
+                    { "22", "milimeter", 22f },
+                    { "23", "milimeter", 23f },
+                    { "24", "milimeter", 24f },
+                    { "3", "milimeter", 3f },
+                    { "4", "milimeter", 4f },
+                    { "5", "milimeter", 5f },
+                    { "6", "milimeter", 6f },
+                    { "7", "milimeter", 7f },
+                    { "8", "milimeter", 8f },
+                    { "9", "milimeter", 9f }
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Account_Id",
-                table: "Account",
-                column: "Id");
+            migrationBuilder.InsertData(
+                table: "Warranty",
+                columns: new[] { "Id", "Code", "CreateDate", "MonthDuration", "Name", "Price", "Type" },
+                values: new object[,]
+                {
+                    { "1", "THREE_MONTHS", new DateTime(2024, 10, 23, 17, 0, 0, 0, DateTimeKind.Utc), 3, "Default_Jewelry_Warranty", 0m, "0" },
+                    { "2", "THREE_MONTHS", new DateTime(2024, 10, 23, 17, 0, 0, 0, DateTimeKind.Utc), 3, "Default_Diamond_Warranty", 0m, "0" }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Account_IdentityId",
@@ -1411,23 +1417,12 @@ namespace DiamondShop.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Diamond_DiamondShapeId",
                 table: "Diamond",
-                column: "DiamondShapeId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Diamond_Id",
-                table: "Diamond",
-                column: "Id");
+                column: "DiamondShapeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Diamond_JewelryId",
                 table: "Diamond",
                 column: "JewelryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Diamond_Shape_Id",
-                table: "Diamond_Shape",
-                column: "Id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DiamondPrice_CriteriaId",
@@ -1455,38 +1450,24 @@ namespace DiamondShop.Infrastructure.Migrations
                 column: "PromotionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Jewelry_Id",
-                table: "Jewelry",
-                column: "Id");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Jewelry_MetalId",
                 table: "Jewelry",
-                column: "MetalId",
-                unique: true);
+                column: "MetalId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Jewelry_ModelId",
                 table: "Jewelry",
-                column: "ModelId",
-                unique: true);
+                column: "ModelId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Jewelry_SizeId",
                 table: "Jewelry",
-                column: "SizeId",
-                unique: true);
+                column: "SizeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_JewelryModel_CategoryId",
                 table: "JewelryModel",
-                column: "CategoryId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_JewelryModel_Id",
-                table: "JewelryModel",
-                column: "Id");
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_JewelryModelCategory_ParentCategoryId",
@@ -1500,11 +1481,6 @@ namespace DiamondShop.Infrastructure.Migrations
                 column: "AccountId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_JewelrySideDiamond_Id",
-                table: "JewelrySideDiamond",
-                column: "Id");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_JewelrySideDiamond_JewelryId",
                 table: "JewelrySideDiamond",
                 column: "JewelryId");
@@ -1515,21 +1491,9 @@ namespace DiamondShop.Infrastructure.Migrations
                 column: "ModelId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MainDiamondShape_MainDiamondReqId",
-                table: "MainDiamondShape",
-                column: "MainDiamondReqId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MainDiamondShape_MainDiamondReqId1",
-                table: "MainDiamondShape",
-                column: "MainDiamondReqId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_MainDiamondShape_ShapeId",
                 table: "MainDiamondShape",
-                column: "ShapeId",
-                unique: true);
+                column: "ShapeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Metal_Id",
@@ -1571,26 +1535,35 @@ namespace DiamondShop.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Order_TransactionId",
+                name: "IX_Order_PromotionId",
                 table: "Order",
-                column: "TransactionId");
+                column: "PromotionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderItem_DiamondId",
                 table: "OrderItem",
-                column: "DiamondId",
-                unique: true);
+                column: "DiamondId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderItem_DiscountId",
+                table: "OrderItem",
+                column: "DiscountId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderItem_JewelryId",
                 table: "OrderItem",
-                column: "JewelryId",
-                unique: true);
+                column: "JewelryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderItem_OrderId",
                 table: "OrderItem",
                 column: "OrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderItemWarranty_OrderItemId",
+                table: "OrderItemWarranty",
+                column: "OrderItemId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderLog_DeliveryPackageId",
@@ -1629,11 +1602,6 @@ namespace DiamondShop.Infrastructure.Migrations
                 column: "PromotionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PromoReqShape_PromoReqId1",
-                table: "PromoReqShape",
-                column: "PromoReqId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_PromoReqShape_ShapeId",
                 table: "PromoReqShape",
                 column: "ShapeId");
@@ -1655,40 +1623,19 @@ namespace DiamondShop.Infrastructure.Migrations
                 column: "SideDiamondReqId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SideDiamondOpt_SideDiamondReqId1",
-                table: "SideDiamondOpt",
-                column: "SideDiamondReqId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_SideDiamondReq_ModelId",
                 table: "SideDiamondReq",
                 column: "ModelId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SideDiamondReq_ModelId1",
-                table: "SideDiamondReq",
-                column: "ModelId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_SideDiamondReq_ShapeId",
                 table: "SideDiamondReq",
-                column: "ShapeId",
-                unique: true);
+                column: "ShapeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SideDiamondRequest_CustomizeRequestId",
                 table: "SideDiamondRequest",
                 column: "CustomizeRequestId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Size_Id",
-                table: "Size",
-                column: "Id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SizeMetal_JewelryModelId",
-                table: "SizeMetal",
-                column: "JewelryModelId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SizeMetal_MetalId",
@@ -1701,10 +1648,14 @@ namespace DiamondShop.Infrastructure.Migrations
                 column: "ModelId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Transaction_OrderId",
+                table: "Transaction",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Transaction_PayMethodId",
                 table: "Transaction",
-                column: "PayMethodId",
-                unique: true);
+                column: "PayMethodId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transaction_RefundedTransacId",
@@ -1803,6 +1754,9 @@ namespace DiamondShop.Infrastructure.Migrations
                 name: "SizeMetal");
 
             migrationBuilder.DropTable(
+                name: "Transaction");
+
+            migrationBuilder.DropTable(
                 name: "UserClaims");
 
             migrationBuilder.DropTable(
@@ -1836,6 +1790,9 @@ namespace DiamondShop.Infrastructure.Migrations
                 name: "SideDiamondReq");
 
             migrationBuilder.DropTable(
+                name: "PaymentMethod");
+
+            migrationBuilder.DropTable(
                 name: "Role");
 
             migrationBuilder.DropTable(
@@ -1846,9 +1803,6 @@ namespace DiamondShop.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Discount");
-
-            migrationBuilder.DropTable(
-                name: "Promotion");
 
             migrationBuilder.DropTable(
                 name: "Diamond_Shape");
@@ -1863,7 +1817,7 @@ namespace DiamondShop.Infrastructure.Migrations
                 name: "DeliveryPackage");
 
             migrationBuilder.DropTable(
-                name: "Transaction");
+                name: "Promotion");
 
             migrationBuilder.DropTable(
                 name: "JewelryModel");
@@ -1876,9 +1830,6 @@ namespace DiamondShop.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Account");
-
-            migrationBuilder.DropTable(
-                name: "PaymentMethod");
 
             migrationBuilder.DropTable(
                 name: "JewelryModelCategory");

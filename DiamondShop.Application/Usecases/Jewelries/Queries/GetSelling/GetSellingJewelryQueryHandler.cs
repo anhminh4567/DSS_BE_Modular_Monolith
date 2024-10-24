@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Commons.Responses;
 using DiamondShop.Commons;
+using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
@@ -45,7 +46,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetSelling
             query = _jewelryRepository.QueryInclude(query, p => p.Model.MainDiamonds);
             query = _jewelryRepository.QueryInclude(query, p => p.Diamonds);
             query = _jewelryRepository.QueryInclude(query, p => p.SideDiamonds);
-            query = _jewelryRepository.QueryFilter(query, p => p.IsActive);
+            query = _jewelryRepository.QueryFilter(query, p => p.Status == ProductStatus.Active);
             if (!String.IsNullOrEmpty(getJewelryDetail?.Category))
             {
                 var category = await _categoryRepository.ContainsName(getJewelryDetail.Category);

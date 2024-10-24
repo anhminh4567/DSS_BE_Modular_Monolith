@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiamondShop.Infrastructure.Migrations
 {
     [DbContext(typeof(DiamondShopDbContext))]
-    [Migration("20241016043753_UpdateModel")]
-    partial class UpdateModel
+    [Migration("20241024003335_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -454,6 +454,9 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<decimal>("PriceOffset")
                         .HasColumnType("numeric");
 
+                    b.Property<string>("SerialCode")
+                        .HasColumnType("text");
+
                     b.Property<int>("Symmetry")
                         .HasColumnType("integer");
 
@@ -614,6 +617,40 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("JewelryModelCategory", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "1",
+                            Description = "A normal ring",
+                            IsGeneral = true,
+                            Name = "Ring",
+                            ThumbnailPath = ""
+                        },
+                        new
+                        {
+                            Id = "2",
+                            Description = "A normal necklace",
+                            IsGeneral = true,
+                            Name = "Necklace",
+                            ThumbnailPath = ""
+                        },
+                        new
+                        {
+                            Id = "3",
+                            Description = "A normal bracelace",
+                            IsGeneral = true,
+                            Name = "Bracelace",
+                            ThumbnailPath = ""
+                        },
+                        new
+                        {
+                            Id = "4",
+                            Description = "A normal earring",
+                            IsGeneral = true,
+                            Name = "Earring",
+                            ThumbnailPath = ""
+                        });
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.JewelryModels.Entities.MainDiamondReq", b =>
@@ -796,8 +833,7 @@ namespace DiamondShop.Infrastructure.Migrations
 
                     b.HasIndex("ModelId");
 
-                    b.HasIndex("ShapeId")
-                        .IsUnique();
+                    b.HasIndex("ShapeId");
 
                     b.ToTable("SideDiamondReq", (string)null);
                 });
@@ -994,6 +1030,9 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<string>("ClaspType")
                         .HasColumnType("text");
 
+                    b.Property<decimal>("CraftmanFee")
+                        .HasColumnType("numeric");
+
                     b.Property<bool>("IsEngravable")
                         .HasColumnType("boolean");
 
@@ -1143,6 +1182,9 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("WarrantyId")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DiamondId");
@@ -1195,7 +1237,8 @@ namespace DiamondShop.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderItemId");
+                    b.HasIndex("OrderItemId")
+                        .IsUnique();
 
                     b.ToTable("OrderItemWarranty");
                 });
@@ -1261,6 +1304,12 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<DateTime>("ExpectedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("ExpiredDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text");
+
                     b.Property<string>("ParentOrderId")
                         .HasColumnType("text");
 
@@ -1274,6 +1323,12 @@ namespace DiamondShop.Infrastructure.Migrations
 
                     b.Property<string>("PromotionId")
                         .HasColumnType("text");
+
+                    b.Property<int>("ShipFailedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ShipFailedDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("ShippedDate")
                         .HasColumnType("timestamp with time zone");
@@ -1742,9 +1797,9 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "10c26601-ee6f-4e37-ab7b-52e89d4b0416",
+                            Id = "1",
                             Code = "THREE_MONTHS",
-                            CreateDate = new DateTime(2024, 10, 15, 17, 0, 0, 0, DateTimeKind.Utc),
+                            CreateDate = new DateTime(2024, 10, 23, 17, 0, 0, 0, DateTimeKind.Utc),
                             MonthDuration = 3,
                             Name = "Default_Jewelry_Warranty",
                             Price = 0m,
@@ -1752,9 +1807,9 @@ namespace DiamondShop.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = "6fa48c71-8a15-4fdb-9771-0a36d09fbee3",
+                            Id = "2",
                             Code = "THREE_MONTHS",
-                            CreateDate = new DateTime(2024, 10, 15, 17, 0, 0, 0, DateTimeKind.Utc),
+                            CreateDate = new DateTime(2024, 10, 23, 17, 0, 0, 0, DateTimeKind.Utc),
                             MonthDuration = 3,
                             Name = "Default_Diamond_Warranty",
                             Price = 0m,
@@ -2453,8 +2508,8 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("DiamondShop.Domain.Models.DiamondShapes.DiamondShape", "Shape")
-                        .WithOne()
-                        .HasForeignKey("DiamondShop.Domain.Models.JewelryModels.Entities.SideDiamondReq", "ShapeId")
+                        .WithMany()
+                        .HasForeignKey("ShapeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -2620,8 +2675,8 @@ namespace DiamondShop.Infrastructure.Migrations
             modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderItemWarranty", b =>
                 {
                     b.HasOne("DiamondShop.Domain.Models.Orders.Entities.OrderItem", "OrderItem")
-                        .WithMany("Warranties")
-                        .HasForeignKey("OrderItemId")
+                        .WithOne("Warranty")
+                        .HasForeignKey("DiamondShop.Domain.Models.Orders.Entities.OrderItemWarranty", "OrderItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -2973,7 +3028,7 @@ namespace DiamondShop.Infrastructure.Migrations
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderItem", b =>
                 {
-                    b.Navigation("Warranties");
+                    b.Navigation("Warranty");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Order", b =>

@@ -138,8 +138,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             {
                 string giftedId = product.Diamond?.Id?.Value ?? product.Jewelry?.Id?.Value;
                 var gift = giftedId is null ? null : orderPromo?.Gifts.FirstOrDefault(k => k.ItemId == giftedId);
-                orderItems.Add(OrderItem.Create(order.Id, product.Jewelry?.Id, product.Diamond?.Id,
-                product.EngravedText, product.EngravedFont, product.ReviewPrice.FinalPrice,
+                orderItems.Add(OrderItem.Create(order.Id, product.Jewelry?.Id, product.Diamond?.Id, product.ReviewPrice.FinalPrice,
                 product.DiscountId, product.DiscountPercent,
                 gift?.UnitType, gift?.UnitValue));
                 if (product.Jewelry != null) jewelrySet.Add(product.Jewelry);

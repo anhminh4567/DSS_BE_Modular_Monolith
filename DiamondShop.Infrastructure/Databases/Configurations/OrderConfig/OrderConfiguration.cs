@@ -27,10 +27,6 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
             builder.Property(o => o.AccountId).HasConversion(
                 o => o.Value,
                 dbValue => AccountId.Parse(dbValue));
-            builder.Property(p => p.DeliveryPackageId)
-            .HasConversion(
-                Id => Id.Value,
-                dbValue => DeliveryPackageId.Parse(dbValue));
             builder.Property(p => p.CustomizeRequestId)
             .HasConversion(
                 Id => Id.Value,
@@ -47,7 +43,9 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
             builder.HasMany(o => o.Logs).WithOne().HasForeignKey(p => p.OrderId).IsRequired();
             builder.HasOne(p => p.Promotion).WithMany().HasForeignKey(p => p.PromotionId).IsRequired(false);
             builder.HasOne<Order>().WithOne().HasForeignKey<Order>(o => o.ParentOrderId).IsRequired(false);
-            builder.HasOne<DeliveryPackage>().WithMany(p => p.Orders).HasForeignKey(o => o.DeliveryPackageId).IsRequired(false).OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(o => o.Account).WithMany().HasForeignKey(o => o.AccountId).IsRequired().OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(o => o.Deliverer).WithMany().HasForeignKey(o => o.DelivererId).IsRequired(false).OnDelete(DeleteBehavior.NoAction);
+
             builder.HasOne<CustomizeRequest>().WithOne().HasForeignKey<Order>(o => o.CustomizeRequestId).IsRequired(false);
             builder.HasKey(o => o.Id);
         }
