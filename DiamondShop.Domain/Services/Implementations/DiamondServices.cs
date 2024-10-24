@@ -125,7 +125,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 && diamond.Clarity == criteria.Clarity
                 && diamond.Carat < criteria.CaratTo
                 && diamond.Carat >= criteria.CaratFrom
-                && diamond.IsLabDiamond == price.Criteria.IsLabGrown)
+                && diamond.IsLabDiamond == price.IsLabDiamond)
             {
                 return true;
             }
