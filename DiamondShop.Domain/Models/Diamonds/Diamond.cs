@@ -108,6 +108,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         public void SetSell()
         {
             Status = ProductStatus.Active;
+            SoldPrice = 0;
         }
         public void SetCorrectPrice(decimal truePrice)
         {

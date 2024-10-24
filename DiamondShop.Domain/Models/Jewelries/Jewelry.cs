@@ -64,6 +64,9 @@ namespace DiamondShop.Domain.Models.Jewelries
         public void SetSell()
         {
             Status = ProductStatus.Active;
+            ND_Price = 0;
+            D_Price = 0;
+            SoldPrice = 0;
         }
     }
 }

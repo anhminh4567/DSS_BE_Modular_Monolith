@@ -5,8 +5,8 @@
     "phone": "123456789",
     "email": "test@gmail.com",
     "providence": "Tp HCM",
-    "district": "Thu Duc",
-    "ward": "Tam Phu",
+    "district": "Binh Vu",
+    "ward": "Tan Phu",
     "address": "12 street 2"
   },
   "createOrderInfo": {

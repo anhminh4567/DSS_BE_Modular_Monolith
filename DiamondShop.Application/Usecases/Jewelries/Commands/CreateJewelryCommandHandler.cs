@@ -59,27 +59,24 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
 
             var attachedDiamonds = new List<Diamond>();
             await _unitOfWork.BeginTransactionAsync(token);
-            if (jewelryRequest.AttachDiamond)
-            {
-                var flagDuplicatedSerial = await _jewelryRepository.CheckDuplicatedSerial(jewelryRequest.SerialCode);
-                if (flagDuplicatedSerial) return Result.Fail(new ConflictError($"This serial number has already existed ({jewelryRequest.SerialCode})"));
+            var flagDuplicatedSerial = await _jewelryRepository.CheckDuplicatedSerial(jewelryRequest.SerialCode);
+            if (flagDuplicatedSerial) return Result.Fail(new ConflictError($"This serial number has already existed ({jewelryRequest.SerialCode})"));
 
-                if (attachedDiamondIds is not null)
-                {
-                    var convertedId = attachedDiamondIds.Select(DiamondId.Parse).ToList();
-                    if (convertedId.Count == 0)
-                        return Result.Fail($"Theres no diamond selected.");
-                    var diamondQuery = _diamondRepository.GetQuery();
-                    diamondQuery = _diamondRepository.QueryFilter(diamondQuery, p => convertedId.Contains(p.Id));
-                    attachedDiamonds = diamondQuery.ToList();
-                    if (attachedDiamondIds.Count == 0)
-                        return Result.Fail($"The selected {(convertedId.Count > 1 ? "diamonds dont" : "diamond doesn't")} exist.");
-                    if (attachedDiamonds.Any(p => p.JewelryId != null))
-                        return Result.Fail("Some diamonds have already attached to other jewelries.");
-                    var flagUnmatchedDiamonds = await _mainDiamondService.CheckMatchingDiamond(model.Id, attachedDiamonds, _mainDiamondRepository);
-                    if (flagUnmatchedDiamonds.IsFailed)
-                        return Result.Fail(flagUnmatchedDiamonds.Errors);
-                }
+            if (attachedDiamondIds is not null)
+            {
+                var convertedId = attachedDiamondIds.Select(DiamondId.Parse).ToList();
+                if (convertedId.Count == 0)
+                    return Result.Fail($"Theres no diamond selected.");
+                var diamondQuery = _diamondRepository.GetQuery();
+                diamondQuery = _diamondRepository.QueryFilter(diamondQuery, p => convertedId.Contains(p.Id));
+                attachedDiamonds = diamondQuery.ToList();
+                if (attachedDiamondIds.Count == 0)
+                    return Result.Fail($"The selected {(convertedId.Count > 1 ? "diamonds dont" : "diamond doesn't")} exist.");
+                if (attachedDiamonds.Any(p => p.JewelryId != null))
+                    return Result.Fail("Some diamonds have already attached to other jewelries.");
+                var flagUnmatchedDiamonds = await _mainDiamondService.CheckMatchingDiamond(model.Id, attachedDiamonds, _mainDiamondRepository);
+                if (flagUnmatchedDiamonds.IsFailed)
+                    return Result.Fail(flagUnmatchedDiamonds.Errors);
             }
 
             var jewelry = Jewelry.Create

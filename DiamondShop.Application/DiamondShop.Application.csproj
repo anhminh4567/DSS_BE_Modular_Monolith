@@ -8,8 +8,14 @@
 
   <ItemGroup>
     <Compile Remove="Usecases\DiamondPrices\Commands\Update\**" />
+    <Compile Remove="Usecases\Orders\Commands\AddToDelivery\**" />
+    <Compile Remove="Usecases\Orders\Commands\Complete\**" />
     <EmbeddedResource Remove="Usecases\DiamondPrices\Commands\Update\**" />
+    <EmbeddedResource Remove="Usecases\Orders\Commands\AddToDelivery\**" />
+    <EmbeddedResource Remove="Usecases\Orders\Commands\Complete\**" />
     <None Remove="Usecases\DiamondPrices\Commands\Update\**" />
+    <None Remove="Usecases\Orders\Commands\AddToDelivery\**" />
+    <None Remove="Usecases\Orders\Commands\Complete\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,8 +36,6 @@
     <Folder Include="Usecases\JewelryModels\Files\Commands\AddMany\" />
     <Folder Include="Usecases\JewelryModels\Files\Commands\RemoveMany\" />
     <Folder Include="Usecases\JewelryModels\Files\Queries\" />
-    <Folder Include="Usecases\Orders\Commands\AddToDelivery\" />
-    <Folder Include="Usecases\Orders\Commands\Complete\" />
     <Folder Include="Usecases\Sizes\Commands\" />
     <Folder Include="Usecases\Transactions\Commands\CreateRefunds\" />
   </ItemGroup>

@@ -9,6 +9,5 @@ namespace DiamondShop.Domain.Repositories.OrderRepo
 {
     public interface IOrderRepository : IBaseRepository<Order>
     {
-        public void UpdateRange(List<Order> orders);
     }
 }
