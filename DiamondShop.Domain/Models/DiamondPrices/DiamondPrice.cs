@@ -18,6 +18,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices
         public DiamondShape Shape { get; set; }
         public DiamondCriteriaId CriteriaId { get; set; }
         public DiamondCriteria Criteria { get; set; }
+        public bool IsLabDiamond { get; set; } = true;
         public decimal Price { get; set; }
         [NotMapped]
         public string? ForUnknownPrice { get; set; }

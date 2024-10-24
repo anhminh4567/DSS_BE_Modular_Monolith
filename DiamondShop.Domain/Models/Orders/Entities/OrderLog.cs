@@ -17,9 +17,8 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public DateTime CreatedDate { get; set; }
         public OrderLogId? PreviousLogId { get; set; }
         public OrderLog? PreviousLog { get; set; }
-
+        public OrderStatus Status { get; set; }
         public List<Media>? LogImages { get; set; }
-        public DeliveryPackageId? DeliveryPackageId { get; set; }
         public static OrderLog CreateByChangeStatus(Order order, OrderStatus statusToChange) 
         {
             return new OrderLog
@@ -50,7 +49,6 @@ namespace DiamondShop.Domain.Models.Orders.Entities
                 Message = message,
                 CreatedDate = DateTime.UtcNow,
                 PreviousLogId = parentLog.Id,
-                DeliveryPackageId = order.DeliveryPackageId,
             };
 
         }

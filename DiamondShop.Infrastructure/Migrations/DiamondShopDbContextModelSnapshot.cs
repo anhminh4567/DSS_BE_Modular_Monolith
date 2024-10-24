@@ -50,6 +50,9 @@ namespace DiamondShop.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<long?>("PhoneNumber")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
                     b.HasIndex("IdentityId")
@@ -292,6 +295,9 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<string>("CriteriaId")
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsLabDiamond")
+                        .HasColumnType("boolean");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
 
@@ -429,13 +435,7 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<int>("Girdle")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsLabDiamond")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsSold")
                         .HasColumnType("boolean");
 
                     b.Property<string>("JewelryId")
@@ -453,6 +453,12 @@ namespace DiamondShop.Infrastructure.Migrations
 
                     b.Property<string>("SerialCode")
                         .HasColumnType("text");
+
+                    b.Property<decimal?>("SoldPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Symmetry")
                         .HasColumnType("integer");
@@ -546,11 +552,14 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                    b.Property<decimal?>("D_Price")
+                        .HasColumnType("numeric");
 
-                    b.Property<bool>("IsSold")
-                        .HasColumnType("boolean");
+                    b.Property<string>("EngravedFont")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EngravedText")
+                        .HasColumnType("text");
 
                     b.Property<string>("MetalId")
                         .IsRequired()
@@ -559,6 +568,9 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<string>("ModelId")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<decimal?>("ND_Price")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("ReviewId")
                         .HasColumnType("text");
@@ -570,6 +582,12 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<string>("SizeId")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<decimal?>("SoldPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<float>("Weight")
                         .HasColumnType("real");
@@ -1112,33 +1130,6 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.ToTable("Notification", (string)null);
                 });
 
-            modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.DeliveryPackage", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("CompleteDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DelivererId")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("DeliveryDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DeliveryMethod")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DelivererId");
-
-                    b.ToTable("DeliveryPackage");
-                });
-
             modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderItem", b =>
                 {
                     b.Property<string>("Id")
@@ -1153,11 +1144,8 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<int?>("DiscountPercent")
                         .HasColumnType("integer");
 
-                    b.Property<string>("EngravedFont")
-                        .HasColumnType("text");
-
-                    b.Property<string>("EngravedText")
-                        .HasColumnType("text");
+                    b.Property<decimal>("FinalPrice")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("JewelryId")
                         .HasColumnType("text");
@@ -1248,9 +1236,6 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("DeliveryPackageId")
-                        .HasColumnType("text");
-
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1262,9 +1247,11 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<string>("PreviousLogId")
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.HasIndex("DeliveryPackageId");
+                    b.HasKey("Id");
 
                     b.HasIndex("OrderId");
 
@@ -1295,7 +1282,7 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<string>("CustomizeRequestId")
                         .HasColumnType("text");
 
-                    b.Property<string>("DeliveryPackageId")
+                    b.Property<string>("DelivererId")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("ExpectedDate")
@@ -1357,7 +1344,7 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.HasIndex("CustomizeRequestId")
                         .IsUnique();
 
-                    b.HasIndex("DeliveryPackageId");
+                    b.HasIndex("DelivererId");
 
                     b.HasIndex("ParentOrderId")
                         .IsUnique();
@@ -1796,7 +1783,7 @@ namespace DiamondShop.Infrastructure.Migrations
                         {
                             Id = "1",
                             Code = "THREE_MONTHS",
-                            CreateDate = new DateTime(2024, 10, 20, 17, 0, 0, 0, DateTimeKind.Utc),
+                            CreateDate = new DateTime(2024, 10, 23, 17, 0, 0, 0, DateTimeKind.Utc),
                             MonthDuration = 3,
                             Name = "Default_Jewelry_Warranty",
                             Price = 0m,
@@ -1806,7 +1793,7 @@ namespace DiamondShop.Infrastructure.Migrations
                         {
                             Id = "2",
                             Code = "THREE_MONTHS",
-                            CreateDate = new DateTime(2024, 10, 20, 17, 0, 0, 0, DateTimeKind.Utc),
+                            CreateDate = new DateTime(2024, 10, 23, 17, 0, 0, 0, DateTimeKind.Utc),
                             MonthDuration = 3,
                             Name = "Default_Diamond_Warranty",
                             Price = 0m,
@@ -2632,16 +2619,6 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.DeliveryPackage", b =>
-                {
-                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", "Deliverer")
-                        .WithMany()
-                        .HasForeignKey("DelivererId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Deliverer");
-                });
-
             modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderItem", b =>
                 {
                     b.HasOne("DiamondShop.Domain.Models.Diamonds.Diamond", "Diamond")
@@ -2682,10 +2659,6 @@ namespace DiamondShop.Infrastructure.Migrations
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderLog", b =>
                 {
-                    b.HasOne("DiamondShop.Domain.Models.Orders.Entities.DeliveryPackage", null)
-                        .WithMany()
-                        .HasForeignKey("DeliveryPackageId");
-
                     b.HasOne("DiamondShop.Domain.Models.Orders.Order", null)
                         .WithMany("Logs")
                         .HasForeignKey("OrderId")
@@ -2736,17 +2709,17 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", "Account")
                         .WithMany()
                         .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.HasOne("DiamondShop.Domain.Models.CustomizeRequests.CustomizeRequest", null)
                         .WithOne()
                         .HasForeignKey("DiamondShop.Domain.Models.Orders.Order", "CustomizeRequestId");
 
-                    b.HasOne("DiamondShop.Domain.Models.Orders.Entities.DeliveryPackage", null)
-                        .WithMany("Orders")
-                        .HasForeignKey("DeliveryPackageId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                    b.HasOne("DiamondShop.Domain.Models.AccountAggregate.Account", "Deliverer")
+                        .WithMany()
+                        .HasForeignKey("DelivererId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("DiamondShop.Domain.Models.Orders.Order", null)
                         .WithOne()
@@ -2757,6 +2730,8 @@ namespace DiamondShop.Infrastructure.Migrations
                         .HasForeignKey("PromotionId");
 
                     b.Navigation("Account");
+
+                    b.Navigation("Deliverer");
 
                     b.Navigation("Promotion");
                 });
@@ -3016,11 +2991,6 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Navigation("SideDiamonds");
 
                     b.Navigation("SizeMetals");
-                });
-
-            modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.DeliveryPackage", b =>
-                {
-                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Orders.Entities.OrderItem", b =>

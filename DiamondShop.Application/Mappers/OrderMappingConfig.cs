@@ -14,8 +14,6 @@ namespace DiamondShop.Application.Mappers
             config.NewConfig<OrderItem, OrderItemDto>();
 
             config.NewConfig<OrderLog, OrderLogDto>();
-
-            config.NewConfig<DeliveryPackage, DeliveryPackageDto>();
         }
     }
 }

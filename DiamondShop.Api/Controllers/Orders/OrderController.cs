@@ -3,8 +3,6 @@ using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Dtos.Responses.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Orders.Commands.Accept;
-using DiamondShop.Application.Usecases.Orders.Commands.AddToDelivery;
-using DiamondShop.Application.Usecases.Orders.Commands.Complete;
 using DiamondShop.Application.Usecases.Orders.Commands.Create;
 using DiamondShop.Application.Usecases.Orders.Commands.Preparing;
 using DiamondShop.Application.Usecases.Orders.Queries.GetAll;
@@ -176,15 +174,9 @@ namespace DiamondShop.Api.Controllers.Orders
 
         [HttpPut("AddToDelivery")]
         [Authorize(Roles = AccountRole.ManagerId)]
-        public async Task<ActionResult> DeliveringOrder([FromQuery] AddOrderToDeliveryCommand addOrderToDeliveryCommand)
+        public async Task<ActionResult> DeliveringOrder()
         {
-            var result = await _sender.Send(addOrderToDeliveryCommand);
-            if (result.IsSuccess)
-            {
-                return Ok("Order added to delivery!");
-            }
-            else
-                return MatchError(result.Errors, ModelState);
+            throw new NotImplementedException();
         }
         [HttpPut("Complete")]
         [Authorize(Roles = AccountRole.StaffId)]
@@ -193,14 +185,15 @@ namespace DiamondShop.Api.Controllers.Orders
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
             {
-                var result = await _sender.Send(new CompleteOrderCommand(orderId, userId.Value));
-                if (result.IsSuccess)
-                {
-                    var mappedResult = _mapper.Map<OrderDto>(result.Value);
-                    return Ok(mappedResult);
-                }
-                else
-                    return MatchError(result.Errors, ModelState);
+                //var result = await _sender.Send(new CompleteOrderCommand(orderId, userId.Value));
+                //if (result.IsSuccess)
+                //{
+                //    var mappedResult = _mapper.Map<OrderDto>(result.Value);
+                //    return Ok(mappedResult);
+                //}
+                //else
+                //    return MatchError(result.Errors, ModelState);
+                throw new NotImplementedException();
             }
             else
                 return Unauthorized();

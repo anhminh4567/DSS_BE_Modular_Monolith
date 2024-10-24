@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds.Enums;
@@ -31,7 +32,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         public Clarity Clarity { get; set;}
         public Color Color { get; set;}
         public Cut? Cut { get; set;}
-        public decimal PriceOffset { get; set;}
+        public decimal PriceOffset { get; set; } = 1;
         public float Carat { get; set; } 
         public bool IsLabDiamond { get; set;}
         public float WidthLengthRatio { get; set; }
@@ -46,8 +47,9 @@ namespace DiamondShop.Domain.Models.Diamonds
         public string Measurement { get; set; }
         public Media? Thumbnail { get; set; }
         public List<Media>? Gallery { get; set; } = new();
-        public bool IsSold { get; set; } = false;
-        public bool IsActive { get; set; } = true;
+        public ProductStatus Status { get; set; } = ProductStatus.Active;
+        public decimal? SoldPrice { get; set; }
+
         [NotMapped]
         public DiamondPrice? DiamondPrice { get; set; }
         [NotMapped]
@@ -101,13 +103,11 @@ namespace DiamondShop.Domain.Models.Diamonds
         }
         public void SetSold()
         {
-            IsActive = false;
-            IsSold = true;
+            Status = ProductStatus.Sold;
         }
         public void SetSell()
         {
-            IsActive = true;
-            IsSold = false;
+            Status = ProductStatus.Active;
         }
         public void SetCorrectPrice(decimal truePrice)
         {

@@ -25,6 +25,8 @@ namespace DiamondShop.Domain.Models.Orders
     {
         public AccountId AccountId { get; set; }
         public Account? Account { get; set; }
+        public AccountId? DelivererId { get; set; }
+        public Account? Deliverer { get; set; }
         public CustomizeRequestId? CustomizeRequestId { get; set; }
         public PromotionId? PromotionId { get; set; }
         public Promotion? Promotion { get; set; }
@@ -46,7 +48,6 @@ namespace DiamondShop.Domain.Models.Orders
         public List<Transaction> Transactions { get; set; } = new();
 
         public OrderId? ParentOrderId { get; set; } // for replacement order
-        public DeliveryPackageId? DeliveryPackageId { get; set; }
 
         public string? Note { get; set; }
         public DateTime? ExpiredDate { get; set; }

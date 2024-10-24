@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Common.Carts;
+using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
@@ -227,11 +228,11 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             if (product.Diamond is not null)
             {
-                if (product.Diamond.IsActive is false)
+                if (product.Diamond.Status == ProductStatus.Active)
                     return Result.Fail("not active");
                 if (product.Diamond.DiamondPrice!.ForUnknownPrice != null)
                     return Result.Fail("unknown price");
-                if (product.Diamond.IsSold is true)
+                if (product.Diamond.Status == ProductStatus.Sold)
                     return Result.Fail("already sold");
                 if(product.Jewelry != null || product.JewelryModel != null)
                 {
@@ -243,7 +244,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 return CheckDuplicate(CurrentCart,product);
             }
             if (product.Jewelry is not null)
-                return product.Jewelry.IsSold ? Result.Fail("already sold") : CheckDuplicate(CurrentCart, product);
+                return product.Jewelry.Status == ProductStatus.Sold ? Result.Fail("already sold") : CheckDuplicate(CurrentCart, product);
             if (product.JewelryModel is not null) { }
             return Result.Fail("unknonw product type");
             //return product.JewelryModel.

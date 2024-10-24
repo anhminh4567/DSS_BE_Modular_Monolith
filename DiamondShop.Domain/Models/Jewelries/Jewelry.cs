@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries.Entities;
@@ -20,7 +21,6 @@ namespace DiamondShop.Domain.Models.Jewelries
         public Metal Metal { get; set; }
         public float Weight { get; set; }
         public string SerialCode { get; set; }
-        public bool IsSold { get; set; }
         [NotMapped]
         public bool IsPreset { get; set; }
         [NotMapped]
@@ -31,13 +31,20 @@ namespace DiamondShop.Domain.Models.Jewelries
         public List<JewelrySideDiamond>? SideDiamonds { get; set; } = new();
         public JewelryReviewId? ReviewId { get; set; }
         public JewelryReview? Review { get; set; }
-        public bool IsActive { get; set; } = true;
 
         public Media? Thumbnail { get; set; }
+
+        public decimal? ND_Price { get; set; }
+        public decimal? D_Price { get; set; }
+        public decimal? SoldPrice { get; set; }
+        public string? EngravedText { get; set; }
+        public string? EngravedFont { get; set; }
+        public ProductStatus Status { get; set; } = ProductStatus.Active;
+
         private Jewelry() { }
         public static Jewelry Create(
             JewelryModelId modelId, SizeId sizeId, MetalId metalId,
-            float weight, string serialCode, bool isSold = false, bool isActive = true, JewelryId givenId = null)
+            float weight, string serialCode,ProductStatus status, JewelryId givenId = null)
         {
             return new Jewelry()
             {
@@ -47,19 +54,16 @@ namespace DiamondShop.Domain.Models.Jewelries
                 MetalId = metalId,
                 Weight = weight,
                 SerialCode = serialCode,
-                IsSold = isSold,
-                IsActive = isActive,
+                Status = status,
             };
         }
         public void SetSold()
         {
-            IsActive = false; 
-            IsSold = true;
+            Status = ProductStatus.Sold;
         }
         public void SetSell()
         {
-            IsActive = true;
-            IsSold = false;
+            Status = ProductStatus.Active;
         }
     }
 }

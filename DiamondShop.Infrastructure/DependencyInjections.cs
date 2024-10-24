@@ -94,7 +94,6 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IOrderItemRepository, OrderItemRepository>();
             services.AddScoped<IOrderLogRepository, OrderLogRepository>();
-            services.AddScoped<IDeliveryPackageRepository, DeliveryPackageRepository>();
 
             services.AddScoped<ITransactionRepository, TransactionRepository>();
             services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
