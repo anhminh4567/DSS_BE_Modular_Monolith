@@ -72,14 +72,11 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                 order.Status = OrderStatus.Processing;
                 order.PaymentStatus = order.PaymentType == PaymentType.Payall ? PaymentStatus.PaidAll : PaymentStatus.Deposited;
                 await _orderRepository.Update(order);
-                orderItems.ForEach(p => p.Status = OrderItemStatus.Active);
+                orderItems.ForEach(p => p.Status = OrderItemStatus.Prepared);
                 _orderItemRepository.UpdateRange(orderItems);
             }
             else if (order.Status == OrderStatus.Processing)
             {
-                if (orderItems.Any(p => p.Status == OrderItemStatus.Active))
-                    return Result.Fail("Items in order need to be prepared.");
-                _orderItemRepository.UpdateRange(orderItems);
                 order.Status = OrderStatus.Prepared;
             }
             else if (order.Status == OrderStatus.Prepared)

@@ -55,11 +55,6 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
             order.CancelledReason = reason;
             await _orderRepository.Update(order);
 
-            //TODO: Add Refund
-            var transacQuery = _transactionRepository.GetQuery();
-            transacQuery = _transactionRepository.QueryFilter(transacQuery, p => p.OrderId == order.Id);
-            var transaction = transacQuery.FirstOrDefault();
-
             //Return to selling
             var orderItemQuery = _orderItemRepository.GetQuery();
             orderItemQuery = _orderItemRepository.QueryInclude(orderItemQuery, p => p.Jewelry);

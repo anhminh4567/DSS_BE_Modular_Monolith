@@ -22,8 +22,6 @@ namespace DiamondShop.Domain.Models.Jewelries
         public float Weight { get; set; }
         public string SerialCode { get; set; }
         [NotMapped]
-        public bool IsPreset { get; set; }
-        [NotMapped]
         public string Name { get; set; }
         [NotMapped] // this is not sold price, this is just price from diamond and jewelry, no discount or promotion is applied
         public decimal TotalPrice
