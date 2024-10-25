@@ -53,9 +53,6 @@ namespace DiamondShop.Domain.Services.Implementations
                 if (sizeMetal?.Metal == null)
                     return false;
                 jewelry.ND_Price = sizeMetal.Price != null ? sizeMetal.Price : GetPrice(sizeMetal.Weight, jewelry.Metal.Price);
-
-                if (jewelry.Model.MainDiamonds != null && jewelry.Diamonds != null)
-                    jewelry.IsPreset = jewelry.Diamonds.Count() == jewelry.Model.MainDiamonds.Count();
             }
             return true;
         }
