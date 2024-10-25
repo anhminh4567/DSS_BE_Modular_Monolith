@@ -27,6 +27,7 @@ namespace DiamondShop.Domain.Models.Orders.Entities
                 OrderId = order.Id,
                 Message = $"Trạng thái từ {OrderStatusExtension.ToFriendlyString(order.Status)} sang {OrderStatusExtension.ToFriendlyString(statusToChange)} ",
                 CreatedDate = DateTime.UtcNow,
+                Status = statusToChange,
             };
         }
         public static OrderLog CreateProcessingLog(Order order, OrderLog parentLog, string message)
@@ -37,6 +38,7 @@ namespace DiamondShop.Domain.Models.Orders.Entities
                 OrderId = order.Id,
                 Message = message,
                 CreatedDate = DateTime.UtcNow,
+                Status = OrderStatus.Processing,
                 PreviousLogId = parentLog.Id,
             };
         }
@@ -48,6 +50,7 @@ namespace DiamondShop.Domain.Models.Orders.Entities
                 OrderId = order.Id,
                 Message = message,
                 CreatedDate = DateTime.UtcNow,
+                Status = OrderStatus.Delivering,
                 PreviousLogId = parentLog.Id,
             };
 

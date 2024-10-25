@@ -17,7 +17,7 @@ namespace DiamondShop.Domain.Services.interfaces
         decimal GetRemaingValueForOrder(Order order);
         decimal GetCODValueForOrder(Order order);
         decimal GetCorrectAmountFromOrder(Order order);
-        Task<Transaction> GetRefundAmountFromOrder(Order order, decimal fineAmount, string description);
-
+        decimal GetRefundAmountFromOrder(Order order, decimal fineAmount);
+        decimal GetFinedAmountFromOrder(Order order);
     }
 }

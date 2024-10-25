@@ -12,6 +12,8 @@ namespace DiamondShop.Domain.Services.interfaces
     public interface IDiscountService
     {
         Result ApplyDiscountOnCartModel(CartModel cartModel, Discount discount);
+        Result ApplyDiscountOnCartProduct(CartProduct cartProduct, Discount discount);
+
         void SetOrderPrice(CartModel cartModel);
     }
 }

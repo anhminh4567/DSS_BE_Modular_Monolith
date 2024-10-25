@@ -18,7 +18,9 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
         public override async Task<Jewelry?> GetById(params object[] ids)
         {
             JewelryId id = (JewelryId)ids[0];
-            return await _set.Include(d => d.SideDiamonds).FirstOrDefaultAsync(d => d.Id == id);
+            return await _set.Include(d => d.SideDiamonds)
+                .Include(d => d.Diamonds)
+                .ThenInclude(d => d.DiamondShape).FirstOrDefaultAsync(d => d.Id == id);
         }
         public void UpdateRange(List<Jewelry> jewelries)
         {
@@ -28,6 +30,11 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
         public async Task<bool> CheckDuplicatedSerial(string serialNumber)
         {
             return await _set.AnyAsync(p => p.SerialCode == serialNumber);
+        }
+
+        public Task<bool> IsHavingDiamond(Jewelry jewelry, CancellationToken cancellationToken = default)
+        {
+            return _dbContext.Diamonds.AnyAsync(d => d.JewelryId == jewelry.Id, cancellationToken);
         }
     }
 }

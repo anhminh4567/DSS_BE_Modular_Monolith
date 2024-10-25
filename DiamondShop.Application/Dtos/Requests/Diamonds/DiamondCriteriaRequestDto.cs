@@ -14,6 +14,6 @@ namespace DiamondShop.Application.Dtos.Requests.Diamonds
         public Color Color { get; set; }
         public float CaratFrom { get; set; }
         public float CaratTo { get; set; }
-        public bool isLabGrown { get; set; }
+        //public bool? isLabGrown { get; set; }
     }
 }

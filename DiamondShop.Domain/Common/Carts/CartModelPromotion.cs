@@ -15,8 +15,16 @@ namespace DiamondShop.Domain.Common.Carts
         public List<int> GiftProductsIndex { get; set; } = new();
         // the missing gift only happen if the promotion is for type product, and not order as gift
         public List<MissingGift> MissingGifts { get; set; } = new();
-        public PromoReq? MissingRequirement { get; set; }
-        public bool IsPromotionValidTobeUsed { get => MissingRequirement != null; } 
+        public List<PromoReq>? MissingRequirement { get; set; } = new();
+        public bool IsPromotionValidTobeUsed { get => MissingRequirement == null || MissingRequirement.Count == 0; } 
+        public void ClearPreviousPromotionData()
+        {
+            Promotion = null;
+            RequirementProductsIndex = new();
+            GiftProductsIndex = new();
+            MissingRequirement = new();
+            MissingGifts = new();
+        }
         public class MissingGift
         {
             public TargetType GiftType { get; set; } 

@@ -23,14 +23,14 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Create
                 var isValidEnd = DateTime.TryParseExact(command.endDate, DateTimeFormatingRules.DateTimeFormat, null, DateTimeStyles.None, out DateTime endDate);
                 if (isValidStart && isValidEnd)
                 {
-                    if (startDate < DateTime.Now) 
+                    if (startDate < DateTime.Now)
                     {
                         return false;
                     }
                     return startDate < endDate;//&& (endDate - startDate).TotalDays >= settings.MinimumPromotionDuration;
                 }
                 return false;
-            });
+            }).WithName("Date Time Things");
             RuleFor(x => x.code).Must(code =>
             {
                 if (code is null)

@@ -26,7 +26,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
 
         public async Task<Result<List<DiamondCriteria>>> Handle(CreateManyDiamondCriteriasCommand request, CancellationToken cancellationToken)
         {
-            var mappedItems = request.listCriteria.Select(c => DiamondCriteria.Create(c.Cut, c.Clarity, c.Color, c.CaratFrom, c.CaratTo,c.isLabGrown)).ToList();
+            var mappedItems = request.listCriteria.Select(c => DiamondCriteria.Create(c.Cut, c.Clarity, c.Color, c.CaratFrom, c.CaratTo)).ToList();
             await _unitOfWork.BeginTransactionAsync();
             await _diamondCriteriaRepository.CreateMany(mappedItems);
             await _unitOfWork.SaveChangesAsync();

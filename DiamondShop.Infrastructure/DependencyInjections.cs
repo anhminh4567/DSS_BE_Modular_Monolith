@@ -30,6 +30,7 @@ using DiamondShop.Infrastructure.Securities;
 using DiamondShop.Infrastructure.Securities.Authentication;
 using DiamondShop.Infrastructure.Services;
 using DiamondShop.Infrastructure.Services.Blobs;
+using DiamondShop.Infrastructure.Services.Excels;
 using DiamondShop.Infrastructure.Services.Locations;
 using DiamondShop.Infrastructure.Services.Locations.Locally;
 using DiamondShop.Infrastructure.Services.Locations.OApi;
@@ -182,6 +183,7 @@ namespace DiamondShop.Infrastructure
         {
             services.AddSingleton<ILocationService, LocalLocationService>();
             services.AddScoped<IDiamondFileService, DiamondFileService>();
+            services.AddScoped<IExcelService, ExcelSyncfunctionService>();
 
             var serviceProviderInstrance = services.BuildServiceProvider();
             var mailOptions = serviceProviderInstrance.GetRequiredService<IOptions<MailOptions>>().Value;

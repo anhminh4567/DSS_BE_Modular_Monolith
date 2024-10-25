@@ -139,9 +139,9 @@ namespace DiamondShop.Test.Domain
             order.Transactions.Add(transaction);
             order.PaymentStatus = PaymentStatus.Deposited;
             //act
-            var refundAmount = OrderTransactionService.GetRefundAmountFromOrder(order, 0, "asdf").Result;
+            var refundAmount = OrderTransactionService.GetRefundAmountFromOrder(order, 0);
             //assert
-            Assert.Equal(transactionAmount, refundAmount.TotalAmount);
+            Assert.Equal(transactionAmount, refundAmount);
         }
     }
 }
