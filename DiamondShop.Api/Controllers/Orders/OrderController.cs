@@ -1,16 +1,16 @@
-﻿using DiamondShop.Api.Controllers.Orders.Cancel;
+﻿using DiamondShop.Api.Controllers.Orders.AssignDeliverer;
+using DiamondShop.Api.Controllers.Orders.Cancel;
 using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Dtos.Responses.Orders;
 using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Application.Usecases.Orders.Commands.Accept;
 using DiamondShop.Application.Usecases.Orders.Commands.Create;
-using DiamondShop.Application.Usecases.Orders.Commands.Preparing;
+using DiamondShop.Application.Usecases.Orders.Commands.Proceed;
+using DiamondShop.Application.Usecases.Orders.Commands.Reject;
 using DiamondShop.Application.Usecases.Orders.Queries.GetAll;
+using DiamondShop.Application.Usecases.Orders.Queries.GetOrderFilter;
 using DiamondShop.Application.Usecases.Orders.Queries.GetPaymentLink;
 using DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail;
 using DiamondShop.Application.Usecases.Orders.Queries.GetUserOrders;
-using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
-using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
 using MapsterMapper;
 using MediatR;
@@ -34,23 +34,23 @@ namespace DiamondShop.Api.Controllers.Orders
         }
         [HttpGet("All")]
         [Produces<List<OrderDto>>]
-        [Authorize(Roles = AccountRole.ManagerId)]
         [Authorize(Roles = AccountRole.StaffId)]
-        public async Task<ActionResult> GetAllOrder()
+        public async Task<ActionResult> GetAllOrder([FromQuery] OrderPaging orderPaging)
         {
-            var result = await _sender.Send(new GetAllOrderQuery());
+            var result = await _sender.Send(new GetAllOrderQuery(orderPaging));
             var mappedResult = _mapper.Map<List<OrderDto>>(result);
             return Ok(mappedResult);
         }
 
         [HttpGet("User/All")]
         [Produces<List<OrderDto>>]
-        public async Task<ActionResult> GetUserOrder()
+        [Authorize(Roles = AccountRole.CustomerId)]
+        public async Task<ActionResult> GetUserOrder([FromQuery] OrderPaging orderPaging)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
             {
-                var result = await _sender.Send(new GetUserOrdersQuery(userId.Value));
+                var result = await _sender.Send(new GetUserOrderQuery(userId.Value, orderPaging));
                 var mappedResult = _mapper.Map<List<OrderDto>>(result);
                 return Ok(mappedResult);
             }
@@ -106,12 +106,12 @@ namespace DiamondShop.Api.Controllers.Orders
 
         [HttpPut("Cancel")]
         [Authorize(Roles = AccountRole.CustomerId)]
-        public async Task<ActionResult> CancelOrder([FromRoute] string orderId)
+        public async Task<ActionResult> CustomerCancelOrder([FromRoute] string orderId, string reason)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
             {
-                var result = await _sender.Send(new CancelOrderCommand(orderId, userId.Value, false));
+                var result = await _sender.Send(new CancelOrderCommand(orderId, userId.Value, reason));
                 if (result.IsSuccess)
                 {
                     var mappedResult = _mapper.Map<OrderDto>(result.Value);
@@ -126,12 +126,12 @@ namespace DiamondShop.Api.Controllers.Orders
 
         [HttpPut("Reject")]
         [Authorize(Roles = AccountRole.StaffId)]
-        public async Task<ActionResult> RejectOrder([FromQuery] string orderId)
+        public async Task<ActionResult> ShopRejectOrder([FromQuery] string orderId, string reason)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
             {
-                var result = await _sender.Send(new CancelOrderCommand(orderId, userId.Value, true));
+                var result = await _sender.Send(new RejectOrderCommand(orderId, userId.Value, reason));
                 if (result.IsSuccess)
                 {
                     var mappedResult = _mapper.Map<OrderDto>(result.Value);
@@ -144,65 +144,45 @@ namespace DiamondShop.Api.Controllers.Orders
                 return Unauthorized();
         }
 
-        [HttpPut("Accept")]
-        [Authorize(Roles = AccountRole.StaffId)]
-        public async Task<ActionResult> AcceptOrder([FromQuery] AcceptOrderCommand acceptOrderCommand)
-        {
-            var result = await _sender.Send(acceptOrderCommand);
-            if (result.IsSuccess)
-            {
-                var mappedResult = _mapper.Map<OrderDto>(result.Value);
-                return Ok(mappedResult);
-            }
-            else
-                return MatchError(result.Errors, ModelState);
-        }
-
-        [HttpPut("Preparing")]
-        [Authorize(Roles = AccountRole.StaffId)]
-        public async Task<ActionResult> PreparingOrder([FromQuery] PreparingOrderCommand preparingOrderCommand)
-        {
-            var result = await _sender.Send(preparingOrderCommand);
-            if (result.IsSuccess)
-            {
-                var mappedResult = _mapper.Map<OrderDto>(result.Value);
-                return Ok(mappedResult);
-            }
-            else
-                return MatchError(result.Errors, ModelState);
-        }
-
-        [HttpPut("AddToDelivery")]
-        [Authorize(Roles = AccountRole.ManagerId)]
-        public async Task<ActionResult> DeliveringOrder()
-        {
-            throw new NotImplementedException();
-        }
-        [HttpPut("Complete")]
-        [Authorize(Roles = AccountRole.StaffId)]
-        public async Task<ActionResult> CompleteOrder([FromQuery] string orderId)
+        [HttpPut("Proceed")]
+        [Authorize(Roles = AccountRole.StaffId + "," + AccountRole.DelivererId)]
+        public async Task<ActionResult> AcceptOrder([FromQuery] string orderId)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
             {
-                //var result = await _sender.Send(new CompleteOrderCommand(orderId, userId.Value));
-                //if (result.IsSuccess)
-                //{
-                //    var mappedResult = _mapper.Map<OrderDto>(result.Value);
-                //    return Ok(mappedResult);
-                //}
-                //else
-                //    return MatchError(result.Errors, ModelState);
-                throw new NotImplementedException();
+                var result = await _sender.Send(new ProceedOrderCommand(orderId, userId.Value));
+                if (result.IsSuccess)
+                {
+                    var mappedResult = _mapper.Map<OrderDto>(result.Value);
+                    return Ok(mappedResult);
+                }
+                else
+                    return MatchError(result.Errors, ModelState);
             }
             else
                 return Unauthorized();
         }
+
+        [HttpPut("AssignDeliverer")]
+        [Authorize(Roles = AccountRole.StaffId)]
+        public async Task<ActionResult> DeliveringOrder([FromQuery] AssignDelivererOrderCommand assignDelivererOrderCommand)
+        {
+            var result = await _sender.Send(assignDelivererOrderCommand);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<OrderDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            else
+                return MatchError(result.Errors, ModelState);
+        }
+
         [HttpGet("PaymentLink/{orderId}")]
         public async Task<ActionResult> GetPaymentLink([FromRoute] GetOrderPaymentLink getOrderPaymentLink)
         {
             var result = await _sender.Send(getOrderPaymentLink);
-            if(result.IsFailed)
+            if (result.IsFailed)
                 return MatchError(result.Errors, ModelState);
             return Ok(result.Value);
         }

@@ -21,10 +21,5 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
         {
             return _set.Include(o => o.Transactions).Include(x => x.Items).FirstOrDefaultAsync(o => o.Id == (OrderId)ids[0]);
         }
-
-        public void UpdateRange(List<Order> orders)
-        {
-            _set.UpdateRange(orders);
-        }
     }
 }

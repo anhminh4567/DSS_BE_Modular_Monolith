@@ -128,12 +128,12 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 
             var orderPromo = cartModel.Promotion.Promotion;
 
-            var order = Order.Create(account.Id, orderReq.PaymentType, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice, 
+            var order = Order.Create(account.Id, orderReq.PaymentType, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice,
                 String.Join(" ", [billingDetail.Providence, billingDetail.District, billingDetail.Ward, billingDetail.Address]), orderPromo?.Id);
             await _orderRepository.Create(order, token);
             List<OrderItem> orderItems = new();
-            HashSet<Jewelry> jewelrySet = new();
-            HashSet<Diamond> diamondSet = new();
+            List<Jewelry> jewelries = new();
+            List<Diamond> diamonds = new();
             foreach (var product in cartModel.Products)
             {
                 string giftedId = product.Diamond?.Id?.Value ?? product.Jewelry?.Id?.Value;
@@ -141,17 +141,21 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 orderItems.Add(OrderItem.Create(order.Id, product.Jewelry?.Id, product.Diamond?.Id, product.ReviewPrice.FinalPrice,
                 product.DiscountId, product.DiscountPercent,
                 gift?.UnitType, gift?.UnitValue));
-                if (product.Jewelry != null) jewelrySet.Add(product.Jewelry);
-                if (product.Diamond != null) diamondSet.Add(product.Diamond);
+                if (product.Jewelry != null)
+                {
+                    product.Jewelry.SetSold();
+                    jewelries.Add(product.Jewelry);
+                }
+                if (product.Diamond != null)
+                {
+                    product.Diamond.SetSold();
+                    diamonds.Add(product.Diamond);
+                }
             }
             await _orderItemRepository.CreateRange(orderItems);
 
-            var jewelries = jewelrySet.ToList();
-            jewelries.ForEach(p => p.SetSold());
             _jewelryRepository.UpdateRange(jewelries);
 
-            var diamonds = diamondSet.ToList();
-            diamonds.ForEach(p => p.SetSold());
             _diamondRepository.UpdateRange(diamonds);
 
             await _unitOfWork.SaveChangesAsync(token);

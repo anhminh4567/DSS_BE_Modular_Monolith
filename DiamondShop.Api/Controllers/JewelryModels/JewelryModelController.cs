@@ -28,17 +28,6 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             var mappedResult = _mapper.Map<List<JewelryModelDto>>(result);
             return Ok(mappedResult);
         }
-        [HttpGet("Selling")]
-        public async Task<ActionResult> GetSellingModel([FromQuery] GetSellingJewelryModelQuery getSellingJewelryModelQuery)
-        {
-            var result = await _sender.Send(getSellingJewelryModelQuery);
-            if (result.IsSuccess)
-            {
-                var mappedResult = result.Value;
-                return Ok(mappedResult);
-            }
-            return MatchError(result.Errors, ModelState);
-        }
         [HttpPost("Create")]
         public async Task<ActionResult> Create([FromBody] CreateJewelryModelCommand command)
         {
