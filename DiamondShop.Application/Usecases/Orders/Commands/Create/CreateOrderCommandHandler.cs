@@ -148,7 +148,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 }
                 if (product.Diamond != null)
                 {
-                    product.Diamond.SetSold(product.ReviewPrice.FinalPrice);
+                    product.Diamond.SetSold(product.ReviewPrice.DefaultPrice,product.ReviewPrice.FinalPrice);
                     diamonds.Add(product.Diamond);
                 }
             }

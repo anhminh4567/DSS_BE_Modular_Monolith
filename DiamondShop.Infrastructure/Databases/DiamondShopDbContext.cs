@@ -9,6 +9,7 @@ using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.Locations;
 using DiamondShop.Domain.Models.News;
 using DiamondShop.Domain.Models.Notifications;
 using DiamondShop.Domain.Models.Orders;
@@ -58,7 +59,7 @@ namespace DiamondShop.Infrastructure.Databases
         //Roles Related//
         #region Dbset
         public DbSet<AccountRole> AccountRoles { get; set; }
-
+        public DbSet<AppProvince> AppProvinces { get; set; }
         //Roles Related//
 
         //Application//

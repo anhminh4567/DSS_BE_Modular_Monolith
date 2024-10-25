@@ -18,8 +18,8 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
     public class JewelrySideDiamond : Entity<JewelrySideDiamondId>
     {
         public JewelryId JewelryId { get; set; }
-        //public DiamondShapeId DiamondShapeId { get; set; }   
-        //public DiamondShape DiamondShape { get; set; }
+        public DiamondShapeId? DiamondShapeId { get; set; }   
+        public DiamondShape? DiamondShape { get; set; }
         public float Carat { get; set; }
         public int Quantity { get; set; }
         public Color ColorMin { get; set; }
@@ -31,6 +31,8 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
         public DiamondPrice? DiamondPrice{ get; set; }
         [NotMapped]
         public decimal Price { get; set; } = 0;
+        // price is not just from diamondPrice, must * the amount of diamond to get real price
+        // price from diamondPrice is average price per diamond not total price
         [NotMapped]
         public float AverageCarat { get => (float)Carat / Quantity; }
         [NotMapped]
@@ -50,7 +52,8 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
                 ColorMax = sideDiamondOpt.SideDiamondReq.ColorMax,
                 ClarityMin = sideDiamondOpt.SideDiamondReq.ClarityMin,
                 ClarityMax = sideDiamondOpt.SideDiamondReq.ClarityMax,
-                SettingType = sideDiamondOpt.SideDiamondReq.SettingType
+                SettingType = sideDiamondOpt.SideDiamondReq.SettingType,
+                DiamondShapeId = sideDiamondOpt.SideDiamondReq.ShapeId,
             };
         }
         public static JewelrySideDiamond Create(JewelryId jewelryId, float carat, int quantity, Color colorMin, Color colorMax, Clarity clarityMin, Clarity clarityMax, SettingType settingType, JewelrySideDiamondId givenId = null)
