@@ -2,6 +2,6 @@
 {
     public static class DeliveryRules
     {
-        public static int MaxOrderInAPackage = 6;
+        public static int MaxRedelivery = 3;
     }
 }

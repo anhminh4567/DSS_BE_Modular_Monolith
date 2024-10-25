@@ -21,5 +21,16 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
         {
             return _set.Include(o => o.Transactions).Include(x => x.Items).FirstOrDefaultAsync(o => o.Id == (OrderId)ids[0]);
         }
+
+        public IQueryable<Order> GetDetailQuery(IQueryable<Order> query)
+        {
+            return query
+                .Include(p => p.Account)
+                .Include(p => p.Items)
+                    .ThenInclude(c => c.Jewelry)
+                .Include(p => p.Items)
+                    .ThenInclude(c => c.Diamond)
+                .AsSplitQuery();
+        }
     }
 }

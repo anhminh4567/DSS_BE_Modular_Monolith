@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Domain.Models.Orders.Enum
+namespace DiamondShop.Application.Usecases.Orders.Commands.Redeliver
 {
-    public enum OrderItemStatus
+    internal class RedeliverOrderCommandValidator
     {
-        Pending, Prepared, Done, Removed, Replaced
     }
 }
