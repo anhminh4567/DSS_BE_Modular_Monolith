@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.AccountAggregate.Events;
 using DiamondShop.Domain.Repositories;
+using FluentValidation.Results;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -12,15 +13,13 @@ namespace DiamondShop.Application.DomainEventConsumers
 {
     internal class SendConfirmationEmail : INotificationHandler<CustomerCreatedMessage>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IEmailService _emailService;
         private readonly IAccountRepository _accountRepository;
+        private readonly IAuthenticationService _authenticationService;
 
-        public SendConfirmationEmail(IUnitOfWork unitOfWork, IEmailService emailService, IAccountRepository accountRepository)
+        public SendConfirmationEmail(IAccountRepository accountRepository, IAuthenticationService authenticationService)
         {
-            _unitOfWork = unitOfWork;
-            _emailService = emailService;
             _accountRepository = accountRepository;
+            _authenticationService = authenticationService;
         }
 
         public async Task Handle(CustomerCreatedMessage notification, CancellationToken cancellationToken)
@@ -30,8 +29,9 @@ namespace DiamondShop.Application.DomainEventConsumers
             {
                 return;
             }
-
-            throw new NotImplementedException();
+            var result =await _authenticationService.SendConfirmEmail(account.Id.Value);
+            if (result.IsFailed)
+                throw new Exception($"fail to send email to user, reasons: {result.Errors.First().Message}");
         }
     }
 }
