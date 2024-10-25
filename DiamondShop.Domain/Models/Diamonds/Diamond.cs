@@ -49,11 +49,14 @@ namespace DiamondShop.Domain.Models.Diamonds
         public List<Media>? Gallery { get; set; } = new();
         public ProductStatus Status { get; set; } = ProductStatus.Active;
         public decimal? SoldPrice { get; set; }
-
+        [NotMapped]
+        public bool IsSetForJewelry { get => JewelryId != null; }
         [NotMapped]
         public DiamondPrice? DiamondPrice { get; set; }
         [NotMapped]
         public decimal TruePrice { get; set; }
+        [NotMapped]
+        public bool IsPriceKnown { get =>  TruePrice > 0 ; }
         [NotMapped]
         public Discount? Discount { get; set; }
         [NotMapped]
@@ -101,9 +104,10 @@ namespace DiamondShop.Domain.Models.Diamonds
         {
             return GetTitle(diamond);
         }
-        public void SetSold()
+        public void SetSold(decimal soldPrice)
         {
             Status = ProductStatus.Sold;
+            SoldPrice = soldPrice;
         }
         public void SetSell()
         {

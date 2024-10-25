@@ -6,11 +6,13 @@ using DiamondShop.Application.Usecases.Accounts.Commands.Login;
 using DiamondShop.Application.Usecases.Accounts.Commands.RefreshingToken;
 using DiamondShop.Application.Usecases.Accounts.Commands.RegisterAdmin;
 using DiamondShop.Application.Usecases.Accounts.Commands.RegisterCustomer;
+using DiamondShop.Application.Usecases.Accounts.Commands.RegisterDeliverer;
 using DiamondShop.Application.Usecases.Accounts.Commands.RegisterStaff;
 using DiamondShop.Application.Usecases.Accounts.Commands.RoleAdd;
 using DiamondShop.Application.Usecases.Accounts.Commands.RoleRemove;
 using DiamondShop.Application.Usecases.Accounts.Queries.GetDetail;
 using DiamondShop.Application.Usecases.Accounts.Queries.GetPaging;
+using DiamondShop.Application.Usecases.Accounts.Roles.Queries;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
@@ -22,6 +24,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 
 namespace DiamondShop.Api.Controllers.Accounts
@@ -111,6 +114,16 @@ namespace DiamondShop.Api.Controllers.Accounts
         public async Task<ActionResult> RegisterStaff([FromBody] RegisterCommand registerCommand, CancellationToken cancellationToken = default)
         {
             var result = await _sender.Send(registerCommand, cancellationToken);
+            if (result.IsSuccess is false)
+                return MatchError(result.Errors, ModelState);
+            return Ok(result.Value);
+        }
+        [HttpPost("RegisterDeliverer")]
+        [Consumes("application/json")]
+        [ProducesResponseType(typeof(AuthenticationResultDto), 200)]
+        public async Task<ActionResult> RegisterAdmin([FromBody] RegisterDeliveryCommand registerDeliveryCommand, CancellationToken cancellationToken = default)
+        {
+            var result = await _sender.Send(registerDeliveryCommand, cancellationToken);
             if (result.IsSuccess is false)
                 return MatchError(result.Errors, ModelState);
             return Ok(result.Value);
@@ -212,10 +225,42 @@ namespace DiamondShop.Api.Controllers.Accounts
             }
             return MatchError(result.Errors, ModelState);
         }
-        [HttpGet("ConfirmEmail")]
+        [HttpGet("Role/Staff")]
+        [ProducesResponseType(typeof(List<AccountRoleDto>), 200)]
+        //[Authorize]
+        public async Task<ActionResult> GetStaffRoles(CancellationToken cancellationToken = default)
+        {
+            var result = await _sender.Send(new GetAllStaffRolesQuery(), cancellationToken);
+            var mappedResult = _mapper.Map<List<AccountRoleDto>>(result);
+            return Ok(mappedResult);
+        }
+        [HttpGet("Role/User")]
+        [ProducesResponseType(typeof(List<AccountRoleDto>), 200)]
+        //[Authorize]
+        public async Task<ActionResult> GetUserRoles(CancellationToken cancellationToken = default)
+        {
+            var result = await _sender.Send(new GetAllUserRolesQuery(), cancellationToken);
+            var mappedResult = _mapper.Map<List<AccountRoleDto>>(result);
+            return Ok(mappedResult);
+        }
+        [HttpGet("Email/Confirm")]
         public async Task<ActionResult> ConfirmEmail([FromQuery] string token, [FromQuery] string userId)
         {
-            return Ok( new { token = token , userid = userId });
+            var result = await _authenticationService.ConfirmEmail(token, userId);
+            if (result.IsFailed)
+            {
+                var url = _options.Value.ConfirmEmailFailedUrl + "?errorMessage=" + result.Errors.First().Message;
+                return Redirect(url);
+            }
+            return Ok(_options.Value.ConfirmEmailSuccessUrl + "?userId=" + userId + "&token=" + token);
+        }
+        [HttpGet("{accountId}/Email/SendConfirm")]
+        public async Task<ActionResult> SendConfirmEmail([FromQuery] string accountId)
+        {
+            var result = await _authenticationService.SendConfirmEmail(accountId);
+            if(result.IsSuccess)
+                return Ok();
+            return MatchError(result.Errors, ModelState);
         }
     }
 }

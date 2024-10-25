@@ -1,8 +1,10 @@
 ﻿using DiamondShop.Application.Commons.Responses;
 using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Infrastructure.Identity.Models;
@@ -14,6 +16,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -40,9 +43,11 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
         private readonly IAccountRoleRepository _accountRoleRepository;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IMemoryCache _cache;
+        private readonly IEmailService _emailService;
         private const string BEARER_HEADER = "Bearer ";
 
-        public AuthenticationService(CustomRoleManager roleManager, CustomSigninManager signinManager, CustomUserManager userManager, IUnitOfWork unitOfWork, ILogger<AuthenticationService> logger, IJwtTokenProvider jwtTokenProvider, IAccountRepository accountRepository, IAccountRoleRepository accountRoleRepository, IHttpContextAccessor contextAccessor, IDateTimeProvider dateTimeProvider)
+        public AuthenticationService(CustomRoleManager roleManager, CustomSigninManager signinManager, CustomUserManager userManager, IUnitOfWork unitOfWork, ILogger<AuthenticationService> logger, IJwtTokenProvider jwtTokenProvider, IAccountRepository accountRepository, IAccountRoleRepository accountRoleRepository, IHttpContextAccessor contextAccessor, IDateTimeProvider dateTimeProvider, IMemoryCache cache, IEmailService emailService)
         {
             _roleManager = roleManager;
             _signinManager = signinManager;
@@ -54,6 +59,8 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             _accountRoleRepository = accountRoleRepository;
             _contextAccessor = contextAccessor;
             _dateTimeProvider = dateTimeProvider;
+            _cache = cache;
+            _emailService = emailService;
         }
 
         public async Task<Result<AuthenticationResultDto>> ExternalLogin(CancellationToken cancellationToken = default)
@@ -299,13 +306,15 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             await _userManager.UpdateAsync(tryGetAccount);
             return Result.Ok();
         }
-        public Task<Result> ConfirmEmail()
+        public async Task<Result<string>> ConfirmEmail(string identityId, string token)
         {
-            throw new NotImplementedException();
-        }
-        public Task<Result<string>> GenerateResetPasswordToken()
-        {
-            throw new NotImplementedException();
+            var getUser = await _userManager.FindByIdAsync(identityId);
+            if (getUser is null)
+                return Result.Fail(new NotFoundError("user with this email not found to confirm"));
+            var checkResult = await _userManager.ConfirmEmailAsync(getUser, token);
+            if (checkResult.Succeeded is false)
+                return Result.Fail(new ConflictError("unknown token might expired or invalid token"));
+            return Result.Ok("Success");
         }
         public async Task<Result> ChangePassword(string identityId, string oldPassword, string newPassword, CancellationToken cancellationToken = default)
         {
@@ -324,10 +333,17 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             }
             return Result.Ok();
         }
-
-        public Task<Result> SendConfirmEmail()
+        public async Task<Result> SendConfirmEmail(string accountId, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var parsedId = AccountId.Parse(accountId);
+            var getUserAccount = await _accountRepository.GetById(parsedId, cancellationToken);
+            if (getUserAccount is null)
+                return Result.Fail(new NotFoundError());
+            var getUserIdentity = await _userManager.FindByIdAsync(getUserAccount.IdentityId);
+            if (getUserIdentity is null)
+                return Result.Fail(new NotFoundError());
+            var generateToken = await _userManager.GenerateEmailConfirmationTokenAsync(getUserIdentity);
+            return await _emailService.SendConfirmAccountEmail(getUserAccount,generateToken,cancellationToken);
         }
     }
 }

@@ -127,7 +127,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                         var orderItemQuery = _orderItemRepository.GetQuery();
                         orderItemQuery = _orderItemRepository.QueryFilter(orderItemQuery, p => p.OrderId == getOrderDetail.Id);
                         var orderItems = orderItemQuery.ToList();
-                        orderItems.ForEach(p => p.Status = OrderItemStatus.Preparing);
+                        orderItems.ForEach(p => p.Status = OrderItemStatus.Active);
                         _orderItemRepository.UpdateRange(orderItems);
 
                         await _unitOfWork.SaveChangesAsync();

@@ -2,6 +2,8 @@
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
+using DiamondShop.Domain.Models.Diamonds.ValueObjects;
+using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
@@ -24,13 +26,12 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             //_logger = logger;
         }
-
-        public Task<Discount?> AssignDiamondDiscount(Diamond diamond, List<Discount> discounts)
+        public static Discount? AssignDiamondDiscountGlobal(Diamond diamond, List<Discount> discounts)
         {
             ArgumentNullException.ThrowIfNull(diamond.DiamondPrice);
-            if(diamond.DiamondPrice.ForUnknownPrice != null)// means price is unknown
+            if (diamond.DiamondPrice.ForUnknownPrice != null)// means price is unknown
             {
-                return Task.FromResult(diamond.Discount);
+                return diamond.Discount;
             }
             foreach (var discount in discounts)
             {
@@ -41,34 +42,39 @@ namespace DiamondShop.Domain.Services.Implementations
                     if (ValidateDiamond4CGlobal(diamond, req.CaratFrom.Value, req.CaratTo.Value, req.ColorFrom.Value, req.ColorTo.Value, req.ClarityFrom.Value, req.ClarityTo.Value, req.CutFrom.Value, req.CutTo.Value))
                     {
                         var discountValue = discount.DiscountPercent;
-                        if(diamond.Discount != null &&discountValue > diamond.Discount.DiscountPercent)
+                        if (diamond.Discount != null && discountValue > diamond.Discount.DiscountPercent)
                         {
                             diamond.Discount = discount;
                         }
-                        else if(diamond.Discount != null)
+                        else if (diamond.Discount != null)
                         {
-                            
-                        }else
+
+                        }
+                        else
                         {
                             diamond.Discount = discount;
-                        }    
+                        }
                     }
                 }
             }
-            if(diamond.Discount != null)
+            if (diamond.Discount != null)
             {
-                var reducedAmount = diamond.TruePrice * ( (decimal)diamond.Discount.DiscountPercent / (decimal)100 );
+                var reducedAmount = diamond.TruePrice * ((decimal)diamond.Discount.DiscountPercent / (decimal)100);
                 var discountPrice = diamond.TruePrice - reducedAmount;
                 var finalDiscountPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(discountPrice);
                 diamond.DiscountPrice = finalDiscountPrice;
             }
-            return Task.FromResult(diamond.Discount);
+            return diamond.Discount;
         }
-        public Task<List<Promotion?>> CheckDiamondPromotion(Diamond diamond, List<Promotion> promotions)
+        public Task<Discount?> AssignDiamondDiscount(Diamond diamond, List<Discount> discounts)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(AssignDiamondDiscountGlobal(diamond, discounts));
         }
         public async Task<DiamondPrice> GetDiamondPrice(Diamond diamond, List<DiamondPrice> diamondPrices)
+        {
+            return await GetDiamondPriceGlobal(diamond,diamondPrices);
+        }
+        public async Task<DiamondPrice> GetDiamondPriceGlobal(Diamond diamond, List<DiamondPrice> diamondPrices)
         {
             foreach (var price in diamondPrices)
             {
@@ -106,14 +112,47 @@ namespace DiamondShop.Domain.Services.Implementations
                 }
             }
             return false;
-
         }
         public bool ValidateDiamond4C(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo, Cut cutFrom, Cut cutTo)
         {
             return ValidateDiamond4CGlobal(diamond, caratFrom, caratTo, colorFrom, colorTo, clarityFrom, clarityTo, cutFrom, cutTo);
         }
-
-        private bool IsCorrectPrice(Diamond diamond, DiamondPrice price)
+        public static bool ValidateSideDiamond3C(JewelrySideDiamond sideDiamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo)
+        {
+            if (caratFrom <= sideDiamond.AverageCarat && caratTo >= sideDiamond.AverageCarat)
+            {
+                if (colorFrom <= sideDiamond.AverageColor && colorTo >= sideDiamond.AverageColor)
+                {
+                    if (clarityFrom <= sideDiamond.AverageClarity && clarityTo >= sideDiamond.AverageClarity)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        public static async Task<DiamondPrice> GetSideDiamondPrice(JewelrySideDiamond sideDiamond, List<DiamondPrice> diamondPrices)
+        {
+            foreach (var price in diamondPrices)
+            {
+                var isCorrectPrice = IsCorrectSideDiamondPrice(sideDiamond, price);
+                if (isCorrectPrice)
+                {
+                    decimal correctOffsetPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(price.Price);
+                    sideDiamond.DiamondPrice = price;
+                    sideDiamond.Price = correctOffsetPrice;
+                    return price;
+                }
+                continue;
+            }
+            throw new Exception("somehow none of the price match the diamond");
+            //var emptyPrice = DiamondPrice.CreateUnknownPrice(, null);
+            //.DiamondPrice = emptyPrice;
+            //diamond.SetCorrectPrice(diamond.DiamondPrice.Price);
+            ////emptyPrice.ForUnknownPrice = "unknown , please contact us for more information";
+            //return emptyPrice;
+        }
+        private static bool IsCorrectPrice(Diamond diamond, DiamondPrice price)
         {
             if (diamond.DiamondShape.Id != price.ShapeId)
             {
@@ -131,7 +170,24 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             return false;
         }
-
-
+        private static bool IsCorrectSideDiamondPrice(JewelrySideDiamond sideDiamond, DiamondPrice price)
+        {
+            //TODO: change to db the thing
+            //if (sideDiamond.Id != price.ShapeId)
+            //{
+            //    return false;
+            //}
+            //BUSINESS RULES: all side diamonds are LabDiamonds
+            var criteria = price.Criteria;
+            if (sideDiamond.AverageColor == criteria.Color
+                && sideDiamond.AverageClarity == criteria.Clarity
+                && sideDiamond.AverageCarat < criteria.CaratTo
+                && sideDiamond.AverageCarat>= criteria.CaratFrom
+                && price.IsLabDiamond)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

@@ -2,6 +2,7 @@
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Transactions;
+using DiamondShop.Domain.Models.Transactions.Enum;
 using DiamondShop.Domain.Repositories.TransactionRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
@@ -91,25 +92,48 @@ namespace DiamondShop.Domain.Services.Implementations
             return roundedValue;
         }
 
+        public decimal GetFinedAmountFromOrder(Order order)
+        {
+            var orderCurrentStatusBeforeCancel = order.Status;
+            decimal fine = 0;
+            switch (orderCurrentStatusBeforeCancel)
+            {
+                case OrderStatus.Pending:
+                    break;
+                case OrderStatus.Processing:
+                    break;
+                case OrderStatus.Delivery_Failed:
+                    break;
+                default:
+                    break;
+            }
+            return fine;
+        }
+
         public decimal GetFullPaymentValueForOrder(Order order)
         {
             return order.TotalPrice;
         }
 
-        public async Task<Transaction> GetRefundAmountFromOrder(Order order, decimal fineAmount, string description)
+        public decimal GetRefundAmountFromOrder(Order order, decimal fineAmount)
         {
             if (order.PaymentStatus == Models.Orders.Enum.PaymentStatus.Refunded)
             {
                 throw new Exception("this order is already refunded");
             }
-            var sumTransactions = order.Transactions.Where(t => t.TransactionType == Models.Transactions.Enum.TransactionType.Pay).Sum(x => x.TotalAmount);
-            var refundTrans = order.Transactions.Where(t => t.TransactionType == Models.Transactions.Enum.TransactionType.Refund || t.TransactionType == Models.Transactions.Enum.TransactionType.Partial_Refund).Sum(x => x.TotalAmount);
+            var sumTransactions = order.Transactions
+                .Where(t => t.TransactionType == TransactionType.Pay)
+                .Sum(x => x.TotalAmount);
+            var refundTrans = order.Transactions
+                .Where(t => t.TransactionType == TransactionType.Refund || t.TransactionType == TransactionType.Partial_Refund)
+                .Sum(x => x.TotalAmount);
             var leftAmount = sumTransactions - refundTrans;
+            
             if (leftAmount <= 0)
                 throw new Exception("the order is already refunded");
             if (leftAmount - fineAmount <= 0)
                 throw new Exception("the fine amount is more or the same as the left amount to refund");
-            return Transaction.CreateManualRefund(order.Id, description, leftAmount - fineAmount, fineAmount);
+            return leftAmount;
         }
 
         public decimal GetRemaingValueForOrder(Order order)

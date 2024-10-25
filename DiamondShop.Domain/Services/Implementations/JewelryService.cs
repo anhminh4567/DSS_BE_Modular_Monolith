@@ -1,7 +1,14 @@
-﻿using DiamondShop.Domain.Models.Jewelries;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common.Carts;
+using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.Enum;
+using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
+using DiamondShop.Domain.Repositories.JewelryRepo;
+using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
 using System;
 using System.Collections.Generic;
@@ -13,7 +20,21 @@ namespace DiamondShop.Domain.Services.Implementations
 {
     public class JewelryService : IJewelryService
     {
-        public JewelryService() { }
+        private readonly IJewelrySideDiamondRepository _jewelrySideDiamondRepository;
+        private readonly IDiamondRepository _diamondRepository;
+        private readonly IDiamondServices _diamondServices;
+        private readonly IDiamondPriceRepository _diamondPriceRepository;
+        private readonly IDiscountRepository _discountRepository;
+
+        public JewelryService(IJewelrySideDiamondRepository jewelrySideDiamondRepository, IDiamondRepository diamondRepository, IDiamondServices diamondServices, IDiamondPriceRepository diamondPriceRepository, IDiscountRepository discountRepository)
+        {
+            _jewelrySideDiamondRepository = jewelrySideDiamondRepository;
+            _diamondRepository = diamondRepository;
+            _diamondServices = diamondServices;
+            _diamondPriceRepository = diamondPriceRepository;
+            _discountRepository = discountRepository;
+        }
+
         public bool SetupUnmapped(List<Jewelry> jewelries, List<SizeMetal> sizeMetals)
         {
             foreach (var jewelry in jewelries)
@@ -31,7 +52,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 var sizeMetal = sizeMetals.FirstOrDefault(k => jewelry.ModelId == k.ModelId && jewelry.SizeId == k.SizeId && jewelry.MetalId == k.MetalId);
                 if (sizeMetal?.Metal == null)
                     return false;
-                jewelry.Price = sizeMetal.Price != null ? sizeMetal.Price : GetPrice(sizeMetal.Weight, jewelry.Metal.Price);
+                jewelry.ND_Price = sizeMetal.Price != null ? sizeMetal.Price : GetPrice(sizeMetal.Weight, jewelry.Metal.Price);
 
                 if (jewelry.Model.MainDiamonds != null && jewelry.Diamonds != null)
                     jewelry.IsPreset = jewelry.Diamonds.Count() == jewelry.Model.MainDiamonds.Count();
@@ -46,7 +67,7 @@ namespace DiamondShop.Domain.Services.Implementations
             var sizeMetal = query.FirstOrDefault();
             if (sizeMetal != null)
             {
-                jewelry.Price = GetPrice(sizeMetal.Weight, sizeMetal.Metal.Price);
+                jewelry.ND_Price = GetPrice(sizeMetal.Weight, sizeMetal.Metal.Price);
             }
             return jewelry;
         }
@@ -54,9 +75,59 @@ namespace DiamondShop.Domain.Services.Implementations
         public Jewelry AddPrice(Jewelry jewelry, SizeMetal sizeMetal)
         {
             if (sizeMetal.Metal == null) return null;
-            jewelry.Price = GetPrice(sizeMetal.Weight, sizeMetal.Metal.Price);
+            jewelry.ND_Price = GetPrice(sizeMetal.Weight, sizeMetal.Metal.Price);
             return jewelry;
         }
         private decimal GetPrice(float Weight, decimal Price) => (decimal)Weight * Price;
+
+        private async Task<decimal> GetJewelryDiamondPrice(Jewelry jewelry) 
+        {
+            var getJewelryDiamonds = await _diamondRepository.GetDiamondsJewelry(jewelry.Id);
+            jewelry.Diamonds = getJewelryDiamonds;
+            decimal D_price= 0;
+            foreach (var diamond in getJewelryDiamonds)
+            {
+                var prices = await _diamondPriceRepository.GetPriceByShapes(diamond.DiamondShape);
+                var diamondPrice = _diamondServices.GetDiamondPrice(diamond, prices).Result;
+                diamond.DiamondPrice = diamondPrice;
+            }
+            D_price = jewelry.Diamonds.Sum(d => d.TruePrice);
+            jewelry.D_Price = D_price;
+            return D_price;
+        }
+        private async Task<decimal> GetJewelrySideDiamondPrice(Jewelry jewelry)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Discount?> AssignJewelryDiscount(Jewelry jewelry, List<Discount> discounts)
+        {
+            Discount mostValuableDiscont = null;
+            foreach(var discount in discounts)
+            {
+                var requirements = discount.DiscountReq;
+                foreach(var req in requirements)
+                {
+                    if (req.TargetType != TargetType.Jewelry_Model)
+                        continue;
+                    if (req.ModelId != jewelry.ModelId)
+                        continue;
+                    if (mostValuableDiscont == null)
+                    {
+                        mostValuableDiscont = discount;
+                        break;
+                    }
+                    else
+                    {
+                        if(discount.DiscountPercent >= mostValuableDiscont.DiscountPercent)
+                        {
+                            mostValuableDiscont = discount;
+                            break;
+                        }
+                    }
+                }
+            }
+            return mostValuableDiscont;
+        }
     }
 }

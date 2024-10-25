@@ -178,7 +178,7 @@ namespace DiamondShop.Test.Integration.Data
 
         #region Jewelry
         public static async Task<Jewelry> DefaultJewelry(string modelId, SizeId sizeId, MetalId metalId, string id)
-            => Jewelry.Create(JewelryModelId.Parse(modelId), sizeId, metalId, 1f, "DEFAULT_JEWEL", givenId: JewelryId.Parse(id));
+            => Jewelry.Create(JewelryModelId.Parse(modelId), sizeId, metalId, 1f, "DEFAULT_JEWEL", givenId: JewelryId.Parse(id), status: Domain.Common.Enums.ProductStatus.Active);
         static async Task SeedingJewelry(DiamondShopDbContext _context, Jewelry jewelry, List<JewelrySideDiamond> sideDiamonds)
         {
             _context.Set<Jewelry>().Add(jewelry);
@@ -214,7 +214,7 @@ namespace DiamondShop.Test.Integration.Data
         public static async Task<Diamond> SeedDefaultDiamond(DiamondShopDbContext _context, JewelryId? jewelryId = null)
         {
             DiamondShape DefaultDiamondShape = DiamondShape.Create("Round", DiamondShapeId.Parse("1"));
-            Diamond_4C DefaultDiamond4C = new Diamond_4C(Cut.Ideal, Color.K, Clarity.FL, 1, false);
+            Diamond_4C DefaultDiamond4C = new Diamond_4C(Cut.Excelent, Color.K, Clarity.FL, 1, false);
             Diamond_Details DefaultDiamondDetail = new Diamond_Details(Polish.Good, Symmetry.Good, Girdle.Medium, Fluorescence.None, Culet.None);
             Diamond_Measurement DefaultDiamondMeasurement = new Diamond_Measurement(1f, 1f, 1f, "1x1");
             Diamond DefaultDiamond = Diamond.Create(DefaultDiamondShape, DefaultDiamond4C, DefaultDiamondDetail, DefaultDiamondMeasurement, 0m);
@@ -243,7 +243,7 @@ namespace DiamondShop.Test.Integration.Data
 
         #region DiamondCriteria
         public static DiamondCriteria DefaultDiamondCriteria(Cut? cut, Clarity clarity, Color color, bool isLab)
-        => DiamondCriteria.Create(cut.Value, clarity, color, 0f, 3f, isLab);
+        => DiamondCriteria.Create(cut.Value, clarity, color, 0f, 3f);
         static async Task SeedingCriteria(DiamondShopDbContext _context, DiamondCriteria criteria)
         {
             _context.Set<DiamondCriteria>().AddRange(criteria);

@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Models.Diamonds.Enums;
+using DiamondShop.Infrastructure.Services.Excels;
 using FluentEmail.Core;
 using HtmlAgilityPack;
 using Syncfusion.Compression.Zip;
@@ -66,10 +67,10 @@ namespace DiamondShop.Infrastructure.Services.Scrapers
             }
             var count = caohungPrices.Count;
             var excelWriter = new ExcelSyncfunctionService();
-            var getWorkSheet = excelWriter.GetExcelApplication().CreateWorkBook().Worksheets.First();
+            var getWorkSheet = ExcelSyncfunctionService.GetExcelApplication().CreateWorkBook().Worksheets.First();
             for (int i = 0; i < caohungPrices.Count; i++)
             {
-                getWorkSheet.WriteLine(caohungPrices[i],i);
+                getWorkSheet.WriteLine(caohungPrices[i],i,0);
             }
             string fileName = "diamondPrice.xlsx";
             string path = Directory.GetCurrentDirectory();

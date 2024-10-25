@@ -25,9 +25,25 @@ namespace DiamondShop.Domain.Models.Jewelries
         public bool IsPreset { get; set; }
         [NotMapped]
         public string Name { get; set; }
+        [NotMapped] // this is not sold price, this is just price from diamond and jewelry, no discount or promotion is applied
+        public decimal TotalPrice
+        {
+            get
+            {
+                var inalPrice = 0m;
+                if (ND_Price is not null  )
+                    inalPrice += ND_Price.Value;
+                if(D_Price is not null)
+                    inalPrice += D_Price.Value;
+                return inalPrice;
+            }
+        }
+
+
         [NotMapped]
-        public decimal Price { get; set; }
-        public List<Diamond>? Diamonds { get; set; } = new();
+        public bool IsAllDiamondPriceKnown { get => !(Diamonds.Any(d => d.IsPriceKnown) == false); }
+
+        public List<Diamond> Diamonds { get; set; } = new();
         public List<JewelrySideDiamond>? SideDiamonds { get; set; } = new();
         public JewelryReviewId? ReviewId { get; set; }
         public JewelryReview? Review { get; set; }
@@ -44,7 +60,7 @@ namespace DiamondShop.Domain.Models.Jewelries
         private Jewelry() { }
         public static Jewelry Create(
             JewelryModelId modelId, SizeId sizeId, MetalId metalId,
-            float weight, string serialCode,ProductStatus status, JewelryId givenId = null)
+            float weight, string serialCode, ProductStatus status, JewelryId givenId = null)
         {
             return new Jewelry()
             {
@@ -67,6 +83,10 @@ namespace DiamondShop.Domain.Models.Jewelries
             ND_Price = 0;
             D_Price = 0;
             SoldPrice = 0;
+        }
+        public void SetTotalDiamondPrice(decimal totalAllDiamondPrice)
+        {
+            D_Price = totalAllDiamondPrice;
         }
     }
 }

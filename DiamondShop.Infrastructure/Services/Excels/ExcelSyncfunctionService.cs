@@ -1,13 +1,24 @@
-﻿using Syncfusion.Drawing;
+﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Domain.Common.ValueObjects;
+using FluentResults;
+using Syncfusion.Drawing;
 using Syncfusion.XlsIO;
+using System.IO;
 using System.Reflection;
 
-namespace DiamondShop.Infrastructure.Services
+namespace DiamondShop.Infrastructure.Services.Excels
 {
-    public class ExcelSyncfunctionService
+    public class ExcelSyncfunctionService : IExcelService
     {
-        private string[] EXCEL_FILE_EXTENSION = { "xls", "csv", "xlsx" }; 
-        
+        private string[] EXCEL_FILE_EXTENSION = { "xls", "csv", "xlsx" };
+        protected IApplication ExcelApp = GetExcelApplication();
+        protected IWorkbook CurrentWorkbook;
+
+        public ExcelSyncfunctionService()
+        {
+
+        }
+
         public Stream SaveWorkbookToStream(IWorkbook workbook)
         {
             MemoryStream stream = new MemoryStream();
@@ -20,33 +31,51 @@ namespace DiamondShop.Infrastructure.Services
         /// REMEMBER to put it in using(ExcelEngine = ....)
         /// </summary>
         /// <returns></returns>
-        public IApplication GetExcelApplication()
+        public static IApplication GetExcelApplication()
         {
             ExcelEngine excelEngine = new ExcelEngine();
             IApplication excelApp = excelEngine.Excel;
             excelApp.DefaultVersion = ExcelVersion.Xlsx;
             return excelApp;
         }
-        /// <summary>
-        /// NOTE THIS THING Can only return the next of max 1 char, if reach Z then no more
-        /// </summary>
-        /// <param name="c"></param>
-        /// <returns></returns>
-        public char NextChar(char c)
-        {
 
-            if (c < 'A' || c > 'Z')
-                throw new Exception("invalid char");
-            if (c == 'Z')
-            {
-                return 'A';
-            }
-            char incremented = (char)(c + 1);
-            return incremented;
+        public string[] GetAllSheets()
+        {
+            return CurrentWorkbook.Worksheets.Select(x => x.Name).ToArray();
         }
-        
+
+        public T ReadLine<T>(string workSheetName, int rowIndex, int columnStart) where T : class, new()
+        {
+            ArgumentNullException.ThrowIfNull(CurrentWorkbook);
+            var getWorksheet = CurrentWorkbook.Worksheets[workSheetName];
+            if(getWorksheet is null)
+                throw new Exception("Worksheet not found");
+            return getWorksheet.ReadLine<T>(rowIndex, columnStart);
+        }
+
+        public T WriteLine<T>(string workSheetName, int rowIndex, int columnStart, T objectToWrite) where T : class, new()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Stream SaveToStream()
+        {
+            MemoryStream stream = new MemoryStream();
+            stream.Position = 0;
+            CurrentWorkbook.SaveAs(stream);
+            stream.Position = 0;
+            return stream;
+        }
+
+        public Result OpenFromStream(Stream inputStream, string fileName)
+        {
+            CurrentWorkbook = ExcelApp.OpenWorkBook(inputStream, fileName);
+            if (CurrentWorkbook == null)
+                throw new Exception("somehow the workbook still not open and dont throw exception, check logic");
+            return Result.Ok();
+        }
     }
-    public static class ExcelSyncFunctionExtension 
+    public static class ExcelSyncFunctionExtension
     {
         private static string[] EXCEL_FILE_EXTENSION = { "xls", "csv", "xlsx" };
 
@@ -67,13 +96,13 @@ namespace DiamondShop.Infrastructure.Services
                 throw new Exception("this file is not excel type");
             return excelApp.Workbooks.Open(fileStream);
         }
-        public static T ReadLine<T>(IWorksheet worksheet, int rowIndex, int columnStart) where T : class, new()
+        public static T ReadLine<T>(this IWorksheet worksheet, int rowIndex, int columnStart) where T : class, new()
         {
             PropertyInfo[] propertyInfo = typeof(T).GetProperties();
             var propertiesCount = propertyInfo.Length;
-                
+
             //var row0 = worksheet.Rows[0];
-            var row  = worksheet.Rows[rowIndex ];
+            var row = worksheet.Rows[rowIndex];
             T result = new T();
             for (int i = 0; i < propertiesCount; i++)
             {
@@ -118,7 +147,7 @@ namespace DiamondShop.Infrastructure.Services
             }
             return worksheet;
         }
-        public static IWorksheet WriteLine<T>(this IWorksheet worksheet,T objectToWrite, int row)
+        public static IWorksheet WriteLine<T>(this IWorksheet worksheet, T objectToWrite, int rowIndex, int columnStart)
         {
             //init red front
             IFont redTextBold = worksheet.Workbook.CreateFont();
@@ -126,32 +155,33 @@ namespace DiamondShop.Infrastructure.Services
             redTextBold.Bold = true;
 
             PropertyInfo[] propertyInfo = objectToWrite.GetType().GetProperties();
+            //for (int i = 0; i < propertyInfo.Length; i++)
+            //{
+            //    var range = worksheet.Range[1, i + 1];
+            //    range.Text = propertyInfo[i].Name;
+
+            //}
+            var row = worksheet.Rows[rowIndex];
             for (int i = 0; i < propertyInfo.Length; i++)
             {
-                var range = worksheet.Range[1, i + 1];
-                range.Text = propertyInfo[i].Name;
-                
-            }
-            for (int i = 0; i < propertyInfo.Length; i ++)
-            {
-              
+                var columns = row.Columns;
+                var position = i + columnStart;
                 PropertyInfo property = propertyInfo[i];
                 var value = property.GetValue(objectToWrite);
-                string thingsTobeWrittent = null;
-
+                string thingsTobeWrittent;
                 if (value is null)
                 {
                     thingsTobeWrittent = "NULL!";
-                    IRange range = worksheet.Range[row, i];
+                    IRange range = columns[position]; // worksheet.Range[row, i];
                     range.Text = thingsTobeWrittent;
                     IRichTextString richText = range.RichText;
-                    richText.SetFont(0,range.Text.Length,redTextBold);
+                    richText.SetFont(0, range.Text.Length, redTextBold);
 
                 }
                 else
                 {
                     thingsTobeWrittent = value.ToString();
-                    var range = worksheet.Range[row + 2 , i + 1];
+                    var range = columns[position];//worksheet.Range[row + 2, i + 1];
                     //worksheet.Range[columnIndex, i].Text = thingsTobeWrittent;
                     range.Text = thingsTobeWrittent;
                 }

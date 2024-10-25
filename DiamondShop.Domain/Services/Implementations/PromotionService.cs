@@ -44,7 +44,8 @@ namespace DiamondShop.Domain.Services.Implementations
             List<PromoReq> promoReqs = new();
             //List<Gift> promoGifts = new();
             bool IsRequirementMet = false;
-            if(promotion.Status != Status.Active)
+            //clear previous promotion data applied on cart or product
+            if (promotion.Status != Status.Active)
             {
                 return Result.Fail("Promotion is not active, skip to the next promotion");
             }
@@ -117,8 +118,11 @@ namespace DiamondShop.Domain.Services.Implementations
             if (IsRequirementMet is false)
             {
                 var metRequirementId = promoReqs.Select(r => r.Id).ToList();
-                var missingRequirement = promotionRequirement.FirstOrDefault(r => !metRequirementId.Contains(r.Id));
+                var missingRequirement = promotionRequirement.Where(r => !metRequirementId.Contains(r.Id)).ToList();
                 cartModel.Promotion.MissingRequirement = missingRequirement;
+                //importatnt to clean up , no clean up, next promotion applied WILL HAVE THE PREVIOUS PROMOTION DATA
+                // which will result in WRONG AMOUNT APPLIED
+                CleanupAfterAppliedFail(cartModel);
                 return Result.Fail("Not all requirement are met");
             }
             else
@@ -143,7 +147,6 @@ namespace DiamondShop.Domain.Services.Implementations
                     {
                         giftProducts.TryAdd(prod.Key, prod.Value);
                     }
-
                 }
             }
             cartModel.Promotion.GiftProductsIndex = giftProducts.Keys.ToList();
@@ -181,11 +184,6 @@ namespace DiamondShop.Domain.Services.Implementations
                 {
                     break;
                 }
-                //if (product.IsReqirement == true) // if the product you about to check is already a requirement previously, then skip || THIS IS THE KEY COMPARISON
-                //                            // if you want to change the requirement later to take on extra requirement, then you need to change the logic here
-                //{
-                //    continue;
-                //}
                 if (product.Jewelry is not null)
                     isApplied = CheckJewelryIsQualified(product.Jewelry, requirement);
 
@@ -208,6 +206,12 @@ namespace DiamondShop.Domain.Services.Implementations
                 }
             }
             return isAnyValid;
+        }
+        private void CleanupAfterAppliedFail(CartModel cartModel)
+        {
+            cartModel.Promotion.ClearPreviousPromotionData();
+            cartModel.Products.ForEach(p => p.ClearPreviousPromotion());
+            cartModel.OrderPrices.PromotionAmountSaved = 0;
         }
         private void HandleOrderGift(CartModel cartModel, Gift orderGift)
         {
@@ -269,7 +273,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 {
                     product.PromotionId = gift.PromotionId;
                     product.GiftAssignedId = gift.Id;
-                    SetProductPriceFromGift(product, gift);
+                    SetProductPriceFromGift(cartModel,product, gift);
                     scopedGiftProducts.Add(i, product);
                 }
                 else
@@ -294,7 +298,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 //do nothing
             }
         }
-        private void SetProductPriceFromGift(CartProduct product, Gift giftReq)
+        private void SetProductPriceFromGift(CartModel cartModel,CartProduct product, Gift giftReq)
         {
             decimal savedAmount = giftReq.UnitType switch
             {
@@ -305,6 +309,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 _ => throw new Exception("Major error, gift for product have not unit type ")
             };
             product.ReviewPrice.PromotionAmountSaved = savedAmount;
+            cartModel.OrderPrices.PromotionAmountSaved += savedAmount;  
         }
         public void SetOrderPrice(CartModel cartModel)
         {
@@ -313,8 +318,6 @@ namespace DiamondShop.Domain.Services.Implementations
             var productList = cartModel.Products;
             foreach (var item in productList)
             {
-                //cartModel.OrderPrices.DefaultPrice += item.ReviewPrice.DefaultPrice;
-                //cartModel.OrderPrices.DiscountAmountSaved += item.ReviewPrice.DiscountAmountSaved;
                 cartModel.OrderPrices.PromotionAmountSaved += item.ReviewPrice.PromotionAmountSaved;
             }
         }

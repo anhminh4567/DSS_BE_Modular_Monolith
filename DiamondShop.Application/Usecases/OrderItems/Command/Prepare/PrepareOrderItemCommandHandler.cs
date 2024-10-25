@@ -31,7 +31,7 @@ namespace DiamondShop.Application.Usecases.OrderItems.Command.Prepare
             await _unitOfWork.BeginTransactionAsync(token);
             var convertedIds = orderItemIds.Select(p => OrderItemId.Parse(p));
             var itemQuery = _orderItemRepository.GetQuery();
-            var items = _orderItemRepository.QueryFilter(itemQuery, p => convertedIds.Contains(p.Id) && p.Status == OrderItemStatus.Preparing).ToList();
+            var items = _orderItemRepository.QueryFilter(itemQuery, p => convertedIds.Contains(p.Id) && p.Status == OrderItemStatus.Active).ToList();
             if (items.Count == 0)
                 return Result.Fail("No item found!");
             //check item of the same order
@@ -40,7 +40,7 @@ namespace DiamondShop.Application.Usecases.OrderItems.Command.Prepare
             {
                 if (orderId != item.OrderId)
                     return Result.Fail("Items need to be from the same order");
-                item.Status = OrderItemStatus.Done;
+                item.Status = OrderItemStatus.Active;
             };
             _orderItemRepository.UpdateRange(items);
             await _unitOfWork.SaveChangesAsync(token);

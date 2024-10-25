@@ -16,7 +16,7 @@ using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories.DeliveryRepo;
 using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Options;
-using DiamondShop.Infrastructure.Services;
+using DiamondShop.Infrastructure.Services.Excels;
 using DiamondShop.Infrastructure.Services.Locations.Locally;
 using DiamondShop.Infrastructure.Services.Payments.Paypals;
 using DiamondShop.Infrastructure.Services.Payments.Paypals.Models;
@@ -105,7 +105,7 @@ namespace DiamondShopSystem.Controllers
         {
             var stream = formFile.OpenReadStream();
             var test = new ExcelSyncfunctionService();
-            var app = test.GetExcelApplication();
+            var app = ExcelSyncfunctionService.GetExcelApplication();
             var workbook = app.OpenWorkBook(stream, formFile.FileName);
             var worksheet = workbook.Worksheets.First();
             var rowCount = worksheet.Rows.Length;
@@ -126,7 +126,6 @@ namespace DiamondShopSystem.Controllers
                 Clarity = item.Clarity,
                 Color = item.Color,
                 Cut = item.Cut,
-                isLabGrown = true,
             }).ToList();
             var prices = listItem.Select(item => item.Price).ToList();
             // Dispose the listItem to free up memory
@@ -173,7 +172,7 @@ namespace DiamondShopSystem.Controllers
         [HttpGet("testemail")]
         public async Task<ActionResult> test()
         {
-            await _emailService.SendConfirmAccountEmail(Account.CreateBaseCustomer(FullName.Create("1232","123"),"testingwebandstuff@gmail.com","sdfasdf",new List<AccountRole>() { AccountRole.Customer }));
+            await _emailService.SendConfirmAccountEmail(Account.CreateBaseCustomer(FullName.Create("1232","123"),"testingwebandstuff@gmail.com","sdfasdf",new List<AccountRole>() { AccountRole.Customer }),"testtoken");
             return Ok();
         }
         [HttpGet("testzalopayservice")]

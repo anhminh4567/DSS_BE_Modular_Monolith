@@ -47,5 +47,9 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             //.FirstOrDefaultAsync(cancellationToken);
         }
 
+        public Task<List<Diamond>> GetDiamondsJewelry(JewelryId jewelryId, CancellationToken cancellationToken = default)
+        {
+            return _set.Where(d => d.JewelryId == jewelryId).ToListAsync(cancellationToken);
+        }
     }
 }

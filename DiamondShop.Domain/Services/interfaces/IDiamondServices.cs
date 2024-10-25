@@ -17,7 +17,6 @@ namespace DiamondShop.Domain.Services.interfaces
         Task<DiamondPrice> GetDiamondPrice(Diamond diamond, List<DiamondPrice> diamondPrices);
         bool ValidateDiamond4C(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo, Cut cutFrom, Cut cutTo);
         Task<Discount?> AssignDiamondDiscount(Diamond diamond, List<Discount> discounts);
-        Task<List<Promotion?>> CheckDiamondPromotion(Diamond diamond, List<Promotion> promotions);
 
     }
 }

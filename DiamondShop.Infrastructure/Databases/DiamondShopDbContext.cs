@@ -3,6 +3,7 @@ using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.Blogs;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.DiamondPrices.Entities;
+using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.Entities;
@@ -67,6 +68,8 @@ namespace DiamondShop.Infrastructure.Databases
         public DbSet<DiamondPrice> DiamondPrices { get; set; }
         public DbSet<DiamondCriteria> DiamondCriteria { get; set; }
         public DbSet<DiamondShape> DiamondShapes { get; set; }
+        public DbSet<Diamond> Diamonds { get; set; }
+
         public DbSet<Jewelry> Jewelrys { get; set; }
         public DbSet<JewelryReview> JewelryReviews { get; set; }
        

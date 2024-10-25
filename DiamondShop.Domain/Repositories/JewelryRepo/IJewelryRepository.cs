@@ -11,5 +11,6 @@ namespace DiamondShop.Domain.Repositories.JewelryRepo
     {
         public void UpdateRange(List<Jewelry> jewelries);
         public Task<bool> CheckDuplicatedSerial(string serialNumber);
+        public Task<bool> IsHavingDiamond(Jewelry jewelry, CancellationToken cancellationToken = default);
     }
 }
