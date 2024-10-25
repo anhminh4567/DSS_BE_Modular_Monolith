@@ -43,7 +43,7 @@ namespace DiamondShop.Domain.Models.Orders.Entities
             {
                 Id = givenId is null ? OrderItemId.Create() : givenId,
                 OrderId = orderId,
-                Status = OrderItemStatus.Preparing,
+                Status = OrderItemStatus.Pending,
                 JewelryId = jewelryId,
                 DiamondId = diamondId,
                 PurchasedPrice = purchasedPrice ?? 0,

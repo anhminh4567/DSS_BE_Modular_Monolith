@@ -22,8 +22,6 @@ namespace DiamondShop.Domain.Models.Jewelries
         public float Weight { get; set; }
         public string SerialCode { get; set; }
         [NotMapped]
-        public bool IsPreset { get; set; }
-        [NotMapped]
         public string Name { get; set; }
         [NotMapped]
         public decimal Price { get; set; }
