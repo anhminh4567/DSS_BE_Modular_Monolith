@@ -45,6 +45,7 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.RegisterDeliverer
             if(getDeliveryRoll == null)
                 return Result.Fail("Delivery role not found");
             staff.AddRole(getDeliveryRoll);
+            staff.RemoveRole(storeRoles.First(r => r.Id == AccountRole.Staff.Id));
             await _accountRepository.Create(staff);
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
