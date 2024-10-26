@@ -4,6 +4,7 @@ using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
+using DiamondShop.Domain.Models.Promotions.Enum;
 
 namespace DiamondShop.Application.Dtos.Responses.Orders
 {
@@ -16,13 +17,13 @@ namespace DiamondShop.Application.Dtos.Responses.Orders
         public JewelryDto? Jewelry { get; set; }
         public string? DiamondId { get; set; }
         public DiamondDto? Diamond { get; set; }
-        public string EngravedText { get; set; }
-        public string EngravedFont { get; set; }
+        public decimal FinalPrice { get; set; }
         public decimal PurchasedPrice { get; set; }
-        public string DiscountCode { get; set; }
+        public string? DiscountCode { get; set; }
         public int DiscountPercent { get; set; }
-        public string PromoCode { get; set; }
-        public int PromoPercent { get; set; }
+        public UnitType? PromoType { get; set; }
+        public decimal? PromoValue { get; set; }
+        public string? WarrantyId { get; set; }
         public List<OrderItemWarrantyDto>? Warranties { get; set; } = new();
 
     }

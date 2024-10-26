@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Application.Dtos.Responses.JewelryModels;
+using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Common.ValueObjects;
 
 namespace DiamondShop.Application.Dtos.Responses.Jewelries
@@ -15,8 +16,7 @@ namespace DiamondShop.Application.Dtos.Responses.Jewelries
         public MetalDto Metal { get; set; }
         public float Weight { get; set; }
         public string SerialCode { get; set; }
-        public bool IsAwaiting { get; set; }
-        public bool IsSold { get; set; }
+        public ProductStatus Status { get; set; }
         public DateTime ShippingDate { get; set; }
         public List<DiamondDto> Diamonds { get; set; } = new();
         public List<JewelrySideDiamondDto>? SideDiamonds { get; set; } = new();
