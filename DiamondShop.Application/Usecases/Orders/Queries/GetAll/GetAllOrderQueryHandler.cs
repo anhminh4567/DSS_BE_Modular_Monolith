@@ -49,15 +49,15 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetAll
             var totalPage = (int)Math.Ceiling((decimal)count / (decimal)pageSize);
             var orders = query.ToList();
             var response = new PagingResponseDto<Order>(
-                totalPage: totalPage,
-                currentPage: start + 1,
+                TotalPage: totalPage,
+                CurrentPage: start + 1,
                 Values: result
                 );
             return response;
         }
         private PagingResponseDto<Order> BlankPaging() => new PagingResponseDto<Order>(
-                   totalPage: 0,
-                   currentPage: 0,
+                   TotalPage: 0,
+                   CurrentPage: 0,
                    Values: []
                    );
     }
