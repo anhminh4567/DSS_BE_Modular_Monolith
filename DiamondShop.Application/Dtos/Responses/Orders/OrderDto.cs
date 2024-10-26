@@ -1,5 +1,7 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Accounts;
 using DiamondShop.Application.Dtos.Responses.Transactions;
+using DiamondShop.Domain.Models.AccountAggregate;
+using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Orders.Enum;
 
 namespace DiamondShop.Application.Dtos.Responses.Orders
@@ -9,6 +11,8 @@ namespace DiamondShop.Application.Dtos.Responses.Orders
         public string Id { get; set; }
         public string AccountId { get; set; }
         public AccountDto? Account { get; set; }
+        public string? DelivererId { get; set; }
+        public AccountDto? Deliverer { get; set; }
         public string? CustomizeRequestId { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime ExpectedDate { get; set; }
