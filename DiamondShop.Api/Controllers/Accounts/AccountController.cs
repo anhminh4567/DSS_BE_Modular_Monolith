@@ -121,7 +121,7 @@ namespace DiamondShop.Api.Controllers.Accounts
         [HttpPost("RegisterDeliverer")]
         [Consumes("application/json")]
         [ProducesResponseType(typeof(AuthenticationResultDto), 200)]
-        public async Task<ActionResult> RegisterAdmin([FromBody] RegisterDeliveryCommand registerDeliveryCommand, CancellationToken cancellationToken = default)
+        public async Task<ActionResult> RegisterDeliverer([FromBody] RegisterDeliveryCommand registerDeliveryCommand, CancellationToken cancellationToken = default)
         {
             var result = await _sender.Send(registerDeliveryCommand, cancellationToken);
             if (result.IsSuccess is false)
