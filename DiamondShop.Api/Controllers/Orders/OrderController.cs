@@ -5,9 +5,11 @@ using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Dtos.Responses.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Orders.Commands.Create;
+using DiamondShop.Application.Usecases.Orders.Commands.DeliverComplete;
 using DiamondShop.Application.Usecases.Orders.Commands.DeliverFail;
 using DiamondShop.Application.Usecases.Orders.Commands.Proceed;
 using DiamondShop.Application.Usecases.Orders.Commands.Redeliver;
+using DiamondShop.Application.Usecases.Orders.Commands.Refund;
 using DiamondShop.Application.Usecases.Orders.Commands.Reject;
 using DiamondShop.Application.Usecases.Orders.Queries.GetAll;
 using DiamondShop.Application.Usecases.Orders.Queries.GetOrderFilter;
@@ -183,9 +185,9 @@ namespace DiamondShop.Api.Controllers.Orders
 
         [HttpPut("Refund")]
         [Authorize(Roles = AccountRole.StaffId)]
-        public async Task<ActionResult> RefundOrder([FromQuery] AssignDelivererOrderCommand assignDelivererOrderCommand)
+        public async Task<ActionResult> RefundOrder([FromQuery] RefundOrderCommand refundOrderCommand)
         {
-            var result = await _sender.Send(assignDelivererOrderCommand);
+            var result = await _sender.Send(refundOrderCommand);
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<OrderDto>(result.Value);
@@ -194,18 +196,24 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return MatchError(result.Errors, ModelState);
         }
-        [HttpPut("DeliverFail")]
+        [HttpPut("DeliverRefuse")]
         [Authorize(Roles = AccountRole.DelivererId)]
-        public async Task<ActionResult> DeliverFail([FromQuery] OrderDeliverFailCommand orderDeliverFailCommand)
+        public async Task<ActionResult> DeliverRefuse([FromQuery] OrderItemRefuseCommand orderItemRefuseCommand)
         {
-            var result = await _sender.Send(orderDeliverFailCommand);
-            if (result.IsSuccess)
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
             {
-                var mappedResult = _mapper.Map<OrderDto>(result.Value);
-                return Ok(mappedResult);
+
+                var result = await _sender.Send(new OrderDeliverRefuseCommand(userId.Value, orderItemRefuseCommand));
+                if (result.IsSuccess)
+                {
+                    var mappedResult = _mapper.Map<OrderDto>(result.Value);
+                    return Ok(mappedResult);
+                }
+                else
+                    return MatchError(result.Errors, ModelState);
             }
-            else
-                return MatchError(result.Errors, ModelState);
+            return Unauthorized();
         }
     }
 }
