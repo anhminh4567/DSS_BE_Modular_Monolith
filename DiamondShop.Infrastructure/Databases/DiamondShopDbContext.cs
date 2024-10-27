@@ -3,11 +3,13 @@ using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.Blogs;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.DiamondPrices.Entities;
+using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.Locations;
 using DiamondShop.Domain.Models.News;
 using DiamondShop.Domain.Models.Notifications;
 using DiamondShop.Domain.Models.Orders;
@@ -57,7 +59,7 @@ namespace DiamondShop.Infrastructure.Databases
         //Roles Related//
         #region Dbset
         public DbSet<AccountRole> AccountRoles { get; set; }
-
+        public DbSet<AppProvince> AppProvinces { get; set; }
         //Roles Related//
 
         //Application//
@@ -67,6 +69,8 @@ namespace DiamondShop.Infrastructure.Databases
         public DbSet<DiamondPrice> DiamondPrices { get; set; }
         public DbSet<DiamondCriteria> DiamondCriteria { get; set; }
         public DbSet<DiamondShape> DiamondShapes { get; set; }
+        public DbSet<Diamond> Diamonds { get; set; }
+
         public DbSet<Jewelry> Jewelrys { get; set; }
         public DbSet<JewelryReview> JewelryReviews { get; set; }
        

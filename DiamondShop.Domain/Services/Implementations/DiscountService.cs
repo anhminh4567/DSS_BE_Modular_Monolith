@@ -31,7 +31,7 @@ namespace DiamondShop.Domain.Services.Implementations
         /// <returns></returns>
         public Result ApplyDiscountOnCartModel(CartModel cartModel, Discount discount)
         {
-            if(discount.Status != Status.Active)
+            if (discount.Status != Status.Active)
             {
                 return Result.Fail("Discount is not active, skip to the next discount");
             }
@@ -43,26 +43,17 @@ namespace DiamondShop.Domain.Services.Implementations
                 for (int j = 0; j < cartModel.Products.Count; j++)
                 {
                     var product = cartModel.Products[j];
+                    var checkIfProductInDiscount = ApplyDiscountOnCartProduct(product, discount);
+                    if (checkIfProductInDiscount.IsSuccess)
+                        isAnyProductHaveDiscount = true;
                     if (product.IsValid is false)
                         continue;
-                    if (product.IsHavingDiscount)
-                    {
-                        // this is when the product already have a discount and it is higher than the current discount
-                        if (discount.DiscountPercent < product.DiscountPercent)
-                        {
-                            continue;
-                        }
-                    }
-                    if (CheckIfProductMeetRequirement(product, requirement))
-                    {
-                        SetProductDiscountPrice(product, discount);
-                        isAnyProductHaveDiscount = true;
-                    }
                 }
             }
             if (isAnyProductHaveDiscount)
             {
-                cartModel.DiscountsApplied.Add(discount);
+                if(cartModel.DiscountsApplied.Contains(discount) is false)// add if not in list yet
+                    cartModel.DiscountsApplied.Add(discount);
                 //SetOrderPrice(cartModel);
                 return Result.Ok();
             }
@@ -83,9 +74,14 @@ namespace DiamondShop.Domain.Services.Implementations
             switch (requirement.TargetType)
             {
                 case TargetType.Jewelry_Model:
-                    if (product.Jewelry is not null)
+                    if (product.Diamond is not null)
+                        return false;
+                    else if (product.Jewelry is not null)
                         return CheckIfJewelryModelMeetRequirement(product.Jewelry.ModelId, requirement);
-                    return CheckIfJewelryModelMeetRequirement(product.JewelryModel.Id, requirement);
+                    else if (product.JewelryModel is not null)
+                        return CheckIfJewelryModelMeetRequirement(product.JewelryModel.Id, requirement);
+                    else
+                        return false;
                 case TargetType.Diamond:
                     if (product.Diamond is not null)
                     {
@@ -131,6 +127,41 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 cartModel.OrderPrices.DiscountAmountSaved += item.ReviewPrice.DiscountAmountSaved;
             }
+        }
+
+        public Result ApplyDiscountOnCartProduct(CartProduct cartProduct, Discount discount)
+        {
+            if (discount.Status != Status.Active)
+                return Result.Fail("Discount is not active, skip to the next discount");
+            
+            var requirements = discount.DiscountReq;
+            bool isAnyProductHaveDiscount = false;
+            for (int i = 0; i < requirements.Count; i++)
+            {
+                var requirement = requirements[i];
+                if (cartProduct.IsValid is false)
+                    continue;
+                if (cartProduct.IsHavingDiscount)
+                {
+                    // this is when the product already have a discount and it is higher than the current discount
+                    if (discount.DiscountPercent < cartProduct.DiscountPercent)
+                    {
+                        continue;
+                    }
+                }
+                if (CheckIfProductMeetRequirement(cartProduct, requirement))
+                {
+                    SetProductDiscountPrice(cartProduct, discount);
+                    isAnyProductHaveDiscount = true;
+                    break;
+                }
+            }
+            if (isAnyProductHaveDiscount)
+                return Result.Ok();
+            
+            else
+                return Result.Fail("No product meet the requirement, skip to the next discount");
+            
         }
     }
 }

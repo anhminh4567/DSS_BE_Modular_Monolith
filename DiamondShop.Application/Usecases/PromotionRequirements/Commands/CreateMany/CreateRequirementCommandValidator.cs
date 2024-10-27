@@ -34,7 +34,7 @@ namespace DiamondShop.Application.Usecases.PromotionRequirements.Commands.Create
             });
             When(x => x.TargetType == TargetType.Jewelry_Model, () =>
             {
-                RuleFor(x => x.JewelryModelID).NotNull().Must(x => x.Any());
+                RuleFor(x => x.JewelryModelID).NotEmpty();
             });
         }
     }

@@ -72,8 +72,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
 
             var totalPage = (int)Math.Ceiling((decimal)count / (decimal)pageSize);
             var response = new PagingResponseDto<Diamond>(
-                totalPage: totalPage,
-                currentPage: start,
+                TotalPage: totalPage,
+                CurrentPage: start,
                 Values: result
                 ) ;
             return response;

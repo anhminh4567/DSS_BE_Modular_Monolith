@@ -49,11 +49,15 @@ namespace DiamondShop.Domain.Models.Diamonds
         public List<Media>? Gallery { get; set; } = new();
         public ProductStatus Status { get; set; } = ProductStatus.Active;
         public decimal? SoldPrice { get; set; }
-
+        public decimal? DefaultPrice { get; set; }
+        [NotMapped]
+        public bool IsSetForJewelry { get => JewelryId != null; }
         [NotMapped]
         public DiamondPrice? DiamondPrice { get; set; }
         [NotMapped]
         public decimal TruePrice { get; set; }
+        [NotMapped]
+        public bool IsPriceKnown { get =>  TruePrice > 0 ; }
         [NotMapped]
         public Discount? Discount { get; set; }
         [NotMapped]
@@ -80,6 +84,8 @@ namespace DiamondShop.Domain.Models.Diamonds
                 Fluorescence = diamond_Details.Fluorescence,
                 Measurement = diamond_Measurement.Measurement,
                 PriceOffset = Math.Clamp(priceOffset,DiamondRules.MinPriceOffset,DiamondRules.MaxPriceOffset),
+                SoldPrice = null,
+                DefaultPrice = null,
             };
         }
         public void UpdatePriceOffset(decimal priceOffset)
@@ -101,14 +107,17 @@ namespace DiamondShop.Domain.Models.Diamonds
         {
             return GetTitle(diamond);
         }
-        public void SetSold()
+        public void SetSold(decimal defaultPrice ,decimal soldPrice)
         {
             Status = ProductStatus.Sold;
+            DefaultPrice = defaultPrice;
+            SoldPrice = soldPrice;
         }
         public void SetSell()
         {
             Status = ProductStatus.Active;
-            SoldPrice = 0;
+            SoldPrice = null;
+            DefaultPrice = null;
         }
         public void SetCorrectPrice(decimal truePrice)
         {

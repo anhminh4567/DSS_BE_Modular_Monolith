@@ -11,7 +11,7 @@ namespace DiamondShop.Application.Dtos.Responses.Carts
         public List<int> RequirementProductsIndex { get; set; }
         public List<int> GiftProductsIndex { get; set; }
         public List<MissingGiftDto> MissingGifts { get; set; }
-        public RequirementDto? MissingRequirement { get; set; }
+        public List<RequirementDto>? MissingRequirement { get; set; }
         public bool IsPromotionValidTobeUsed { get; set; }
 
         public class MissingGiftDto

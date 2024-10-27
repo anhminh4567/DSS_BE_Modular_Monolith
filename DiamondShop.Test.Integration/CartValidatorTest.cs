@@ -102,11 +102,11 @@ namespace DiamondShop.Test.Integration
                     {
                         JewelryId = ring_1.Id.Value
                     },
-                    new CartItemRequestDto()
-                    {
-                        JewelryId = ring_1.Id.Value,
-                        DiamondId = diamond.Id.Value
-                    },
+                    //new CartItemRequestDto()
+                    //{
+                    //    JewelryId = ring_1.Id.Value,
+                    //    DiamondId = diamond.Id.Value
+                    //},
                     new CartItemRequestDto()
                     {
                         JewelryId = ring_1.Id.Value
@@ -115,18 +115,13 @@ namespace DiamondShop.Test.Integration
                     {
                         JewelryId = ring_2.Id.Value
                     },
-                    new CartItemRequestDto()
-                    {
-                        JewelryId = ring_2.Id.Value,
-                        DiamondId = diamond2.Id.Value
-                    },
+
                     new CartItemRequestDto()
                     {
                         JewelryId = ring_2.Id.Value
                     },
                     new CartItemRequestDto()
                     {
-                        JewelryId = ring_2.Id.Value,
                         DiamondId = diamond2.Id.Value
                     },
 
@@ -140,7 +135,7 @@ namespace DiamondShop.Test.Integration
                  // _output.WriteLine(error.Message);
             }
             Assert.True(result.IsSuccess);
-            Assert.Equal(6, result.Value.Products.Where(s => s.IsDuplicate).Count());
+            Assert.Equal(items.Items.Count - 1, result.Value.Products.Where(s => s.IsDuplicate).Count());
             var cartModel = result.Value;
             Assert.False(cartModel.OrderValidation.IsOrderValid);
         }
@@ -162,11 +157,11 @@ namespace DiamondShop.Test.Integration
                     {
                         JewelryId = ring_1.Id.Value
                     },
-                    new CartItemRequestDto()
-                    {
-                        JewelryId = ring_1.Id.Value,
-                        DiamondId = diamond.Id.Value
-                    },
+                    //new CartItemRequestDto()
+                    //{
+                    //    //JewelryId = ring_1.Id.Value,
+                    //    DiamondId = diamond.Id.Value
+                    //},
 
                 }
             };

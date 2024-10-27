@@ -53,8 +53,8 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPaging
             //    .Count();
             var currentPage = request.start + 1;
             return new PagingResponseDto<DiamondPrice>(
-                 totalPage: 99999,
-                 currentPage: currentPage,
+                 TotalPage: 99999,
+                 CurrentPage: currentPage,
                  Values: result);
            
         }

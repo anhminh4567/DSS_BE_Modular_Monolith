@@ -47,8 +47,8 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
             throw new Exception();
         }
         private PagingResponseDto<JewelryModel> BlankPaging() => new PagingResponseDto<JewelryModel>(
-                  totalPage: 0,
-                  currentPage: 0,
+                  TotalPage: 0,
+                  CurrentPage: 0,
                   Values: []
                   );
     }

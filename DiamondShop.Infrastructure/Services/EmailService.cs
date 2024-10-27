@@ -38,7 +38,7 @@ namespace DiamondShop.Infrastructure.Services
             throw new NotImplementedException();
         }
 
-        public async  Task<Result> SendConfirmAccountEmail(Account user, CancellationToken cancellationToken = default)
+        public async  Task<Result> SendConfirmAccountEmail(Account user, string token, CancellationToken cancellationToken = default)
         {
             var callbackUrl = _urlOptions.Value.HttpsUrl + "/" + _mailOptions.Value.ConfirmCallbackEndpoint;
             var getconfirmationEmailTemplate = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot","EmailTemplate", ConfirmEmailFileName);
@@ -50,9 +50,9 @@ namespace DiamondShop.Infrastructure.Services
                 ToEmail = user.Email,
                 Subject = "confirmation email",
             };
-            var model = new EmailVerificationMailModel(user, DateTime.UtcNow,DateTime.UtcNow.AddDays(1),"testtoekn", callbackUrl);
+            var model = new EmailVerificationMailModel(user, DateTime.UtcNow,DateTime.UtcNow.AddDays(1), token, callbackUrl);
             return await SendEmailWithTemplate(metadata, getconfirmationEmailTemplate, model, cancellationToken);
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
         private async Task<Result> SendEmailWithTemplate<T>(EmailMetaData emailMetaData, string templatePath, T templateModel, CancellationToken cancellation = default)
         {

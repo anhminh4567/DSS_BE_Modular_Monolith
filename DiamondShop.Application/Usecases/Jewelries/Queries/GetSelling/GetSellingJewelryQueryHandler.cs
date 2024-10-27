@@ -97,15 +97,15 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetSelling
             if (!addFlag)
                 return Result.Fail(new ConflictError("Can't get jewelries' price"));
             var response = new PagingResponseDto<Jewelry>(
-                totalPage: totalPage,
-                currentPage: start + 1,
+                TotalPage: totalPage,
+                CurrentPage: start + 1,
                 Values: result.ToList()
                 );
             return response;
         }
         private PagingResponseDto<Jewelry> BlankPaging() => new PagingResponseDto<Jewelry>(
-                    totalPage: 0,
-                    currentPage: 0,
+                    TotalPage: 0,
+                    CurrentPage: 0,
                     Values: []
                     );
     }

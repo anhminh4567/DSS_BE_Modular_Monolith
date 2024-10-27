@@ -6,6 +6,7 @@ using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Repositories;
+using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using FluentResults;
 using FluentValidation;
@@ -28,19 +29,22 @@ namespace DiamondShop.Application.Usecases.PromotionRequirements.Commands.Create
         private readonly IRequirementRepository _requirementRepository;
         private readonly IDiamondShapeRepository _diamondShapeRepository;
         private readonly IPromotionRepository _promotionRepository;
+        private readonly IJewelryModelRepository _jewelryModelRepository;
 
-        public CreateRequirementsCommandHandler(IUnitOfWork unitOfWork, IRequirementRepository requirementRepository, IDiamondShapeRepository diamondShapeRepository, IPromotionRepository promotionRepository)
+        public CreateRequirementsCommandHandler(IUnitOfWork unitOfWork, IRequirementRepository requirementRepository, IDiamondShapeRepository diamondShapeRepository, IPromotionRepository promotionRepository, IJewelryModelRepository jewelryModelRepository)
         {
             _unitOfWork = unitOfWork;
             _requirementRepository = requirementRepository;
             _diamondShapeRepository = diamondShapeRepository;
             _promotionRepository = promotionRepository;
+            _jewelryModelRepository = jewelryModelRepository;
         }
 
         public async Task<Result<List<PromoReq>>> Handle(CreateRequirementCommand request, CancellationToken cancellationToken)
         {
             var shapes = await _diamondShapeRepository.GetAll();
             List<PromoReq> requirements = new();
+            
             for (int i = 0; i < request.Requirements.Count; i++)
             {
                 var req = request.Requirements[i];
@@ -83,6 +87,15 @@ namespace DiamondShop.Application.Usecases.PromotionRequirements.Commands.Create
             }
             if (requirements.Count == 0)
                 return Result.Fail(new NotFoundError("nothing to update"));
+            var getAnyModelId = requirements.Where(r => r.TargetType == TargetType.Jewelry_Model).Select(x => x.ModelId).ToList();
+            if(getAnyModelId.Count > 0)
+            {
+                var query =  _jewelryModelRepository.GetQuery();
+                query = _jewelryModelRepository.QueryFilter(query,x => getAnyModelId.Contains(x.Id));
+                var getModels = query.ToList();
+                if (getModels.Count != getAnyModelId.Count)
+                    return Result.Fail(new NotFoundError("some model id not found"));
+            }
             await _requirementRepository.CreateRange(requirements);
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(requirements);

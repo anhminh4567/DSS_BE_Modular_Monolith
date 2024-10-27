@@ -32,8 +32,10 @@ namespace DiamondShop.Domain.Services.Implementations
         private readonly ISizeMetalRepository _sizeMetalRepository;
         private readonly IMainDiamondService _mainDiamondService;
         private readonly IMainDiamondRepository _mainDiamondRepository;
+        private readonly IDiamondPriceRepository _diamondPriceRepository;
         private CartModel CurrentCart;
-        public CartModelService(IDiamondServices diamondServices, IJewelryService jewelryService, IPromotionServices promotionServices, IDiscountService discountService, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, ISizeMetalRepository sizeMetalRepository, IMainDiamondService mainDiamondService, IMainDiamondRepository mainDiamondRepository)
+
+        public CartModelService(IDiamondServices diamondServices, IJewelryService jewelryService, IPromotionServices promotionServices, IDiscountService discountService, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, ISizeMetalRepository sizeMetalRepository, IMainDiamondService mainDiamondService, IMainDiamondRepository mainDiamondRepository, IDiamondPriceRepository diamondPriceRepository)
         {
             _diamondServices = diamondServices;
             _jewelryService = jewelryService;
@@ -45,6 +47,7 @@ namespace DiamondShop.Domain.Services.Implementations
             _sizeMetalRepository = sizeMetalRepository;
             _mainDiamondService = mainDiamondService;
             _mainDiamondRepository = mainDiamondRepository;
+            _diamondPriceRepository = diamondPriceRepository;
         }
 
         public void AssignProductAndItemCounter(CartModel cartModel)
@@ -62,7 +65,7 @@ namespace DiamondShop.Domain.Services.Implementations
         }
 
 
-        public async Task<Result<CartModel>> Execute(List<CartProduct> products, List<Discount> givenDiscount, List<Promotion> givenPromotion, IDiamondPriceRepository _diamondPriceRepository, ISizeMetalRepository _sizeMetalRepository, IMetalRepository _metalRepository)
+        public async Task<Result<CartModel>> ExecuteNormalOrder(List<CartProduct> products, List<Discount> givenDiscount, List<Promotion> givenPromotion, IDiamondPriceRepository _diamondPriceRepository, ISizeMetalRepository _sizeMetalRepository, IMetalRepository _metalRepository)
         {
             ArgumentNullException.ThrowIfNull(products);
             var cartModel = new CartModel { Products = products };
@@ -70,7 +73,7 @@ namespace DiamondShop.Domain.Services.Implementations
             if (CurrentCart.Products.Count == 0)
                 return Result.Ok(CurrentCart);
             AssignProductAndItemCounter(CurrentCart);
-            CurrentCart.Products.ForEach(async prd => await AssignDefaultPriceToProduct(prd, _diamondPriceRepository, _sizeMetalRepository, _metalRepository));
+            CurrentCart.Products.ForEach(async prd => await AssignDefaultPriceToProduct(prd));
             ValidateCartItems(CurrentCart).Wait();
             SetCartModelValidation(CurrentCart);
             InitOrderPrice(CurrentCart);
@@ -133,12 +136,16 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             if (cartItem.JewelryId != null && cartItem.DiamondId != null && cartItem.JewelryModelId != null)
                 throw new Exception("some how this cartItem have all 3 id, diamond, jewelry and model id, from cartItem id: " + cartItem.Id.Value);
+
             CartProduct cartProduct = new();
 
             if (cartItem.JewelryId is not null)
             {
                 var jewelry = await _jewelryRepository.GetById(cartItem.JewelryId);
                 cartProduct.Jewelry = jewelry;
+                //return here, since the jewelry wont contain id for diamond or jewelry mode, 
+                // but jewelry model might have diamond attached to it, so diamond might have both jewelry and jewelry model id
+                return cartProduct;
             }
             if (cartItem.JewelryModelId is not null)
             {
@@ -153,39 +160,34 @@ namespace DiamondShop.Domain.Services.Implementations
             return cartProduct;
         }
 
-        public async Task AssignDefaultPriceToProduct(CartProduct cartProduct, IDiamondPriceRepository _diamondPriceRepository, ISizeMetalRepository _sizeMetalRepository, IMetalRepository _metalRepository)
+        public async Task AssignDefaultPriceToProduct(CartProduct cartProduct)
         {
             if (cartProduct.Jewelry != null && cartProduct.Diamond != null && cartProduct.JewelryModel != null)
                 throw new Exception("some how this product have all 3 id, diamond, jewelry and model , from product: " + cartProduct.CartProductId);
             var reviewPrice = new CheckoutPrice();
             // if false do nothing, and assing price 0,  
             // price 0 is default for new CheckoutPrice();
-            if (cartProduct.IsValid is false) { }
-            else
+            if (cartProduct.Diamond is not null)
             {
-                if (cartProduct.Diamond is not null)
+                var prices = _diamondPriceRepository.GetPriceByShapes(cartProduct.Diamond.DiamondShape).Result;
+                var diamondPrice = _diamondServices.GetDiamondPrice(cartProduct.Diamond, prices).Result;
+                reviewPrice.DefaultPrice = cartProduct.Diamond.TruePrice;
+            }
+            else if (cartProduct.Jewelry is not null)
+            {
+                _jewelryService.AddPrice(cartProduct.Jewelry, _sizeMetalRepository);
+                foreach (var diamond in cartProduct.Jewelry.Diamonds)
                 {
-                    var prices = _diamondPriceRepository.GetPriceByShapes(cartProduct.Diamond.DiamondShape).Result;
-                    var diamondPrice = _diamondServices.GetDiamondPrice(cartProduct.Diamond, prices).Result;
-                    if (diamondPrice == null)
-                        reviewPrice.DefaultPrice = 0;
-                    else
-                    {
-                        reviewPrice.DefaultPrice = diamondPrice.Price;
-                    }
-
-
+                    var prices = _diamondPriceRepository.GetPriceByShapes(diamond.DiamondShape).Result;
+                    var diamondPrice = _diamondServices.GetDiamondPrice(diamond, prices).Result;
+                    diamond.DiamondPrice = diamondPrice;
                 }
-                else if (cartProduct.Jewelry is not null)
-                {
-                    //TODO: assign default price to jewelry
-                    _jewelryService.AddPrice(cartProduct.Jewelry, _sizeMetalRepository);
-                    reviewPrice.DefaultPrice = cartProduct.Jewelry.Price;
-                }
-                else if (cartProduct.JewelryModel is not null)
-                {
-                    //TODO: assign default price to jewelry model
-                }
+                cartProduct.Jewelry.D_Price = cartProduct.Jewelry.Diamonds.Sum(d => d.TruePrice);
+                reviewPrice.DefaultPrice = cartProduct.Jewelry.TotalPrice;
+            }
+            else if (cartProduct.JewelryModel is not null)
+            {
+                //TODO: assign default price to jewelry model
             }
             cartProduct.ReviewPrice = reviewPrice;
         }
@@ -202,6 +204,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 {
                     product.IsAvailable = false;
                     product.IsValid = false;
+                    product.ErrorMessage = result.Errors.FirstOrDefault()?.Message;
                 }
             }
             int[] unavailableItemIndex = products.Where(p => p.IsAvailable is false).Select(p => products.IndexOf(p)).ToArray();
@@ -228,28 +231,36 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             if (product.Diamond is not null)
             {
-                if (product.Diamond.Status == ProductStatus.Active)
+                if (product.Diamond.Status == ProductStatus.Sold)
+                    return Result.Fail("already sold");
+                if (product.Diamond.Status != ProductStatus.Active)
                     return Result.Fail("not active");
                 if (product.Diamond.DiamondPrice!.ForUnknownPrice != null)
                     return Result.Fail("unknown price");
-                if (product.Diamond.Status == ProductStatus.Sold)
-                    return Result.Fail("already sold");
-                if(product.Jewelry != null || product.JewelryModel != null)
+                if (product.Diamond.IsSetForJewelry)
+                    return Result.Fail("Diamond is already set for a jewelry, cannot be bought");
+                if (product.Jewelry != null || product.JewelryModel != null)
                 {
                     var result = CheckIfDiamondJewelryIsValid(product);
                     if (result.IsSuccess)
                         return CheckDuplicate(CurrentCart, product);
                     return result;
                 }
-                return CheckDuplicate(CurrentCart,product);
+                return CheckDuplicate(CurrentCart, product);
             }
             if (product.Jewelry is not null)
-                return product.Jewelry.Status == ProductStatus.Sold ? Result.Fail("already sold") : CheckDuplicate(CurrentCart, product);
+            {
+                if (product.Jewelry.Status == ProductStatus.Sold)
+                    Result.Fail("already sold");
+                if (product.Jewelry.IsAllDiamondPriceKnown == false)
+                    Result.Fail("unknonw diamond price of this jewelry, contact us");
+                return CheckDuplicate(CurrentCart, product);
+            }
             if (product.JewelryModel is not null) { }
             return Result.Fail("unknonw product type");
             //return product.JewelryModel.
         }
-        private Result CheckDuplicate(CartModel cartModel , CartProduct cartProduct) 
+        private Result CheckDuplicate(CartModel cartModel, CartProduct cartProduct)
         {
             var products = cartModel.Products;
             List<CartProduct> matchedProduct = new();
@@ -257,20 +268,20 @@ namespace DiamondShop.Domain.Services.Implementations
             int productIndex = products.IndexOf(cartProduct);
             if (cartProduct.Diamond != null)
             {
-                matchedProduct = products.Where(p => p.Diamond != null 
-                && products.IndexOf(p) != productIndex 
-                && p.Diamond.Id == cartProduct.Diamond.Id).ToList(); 
+                matchedProduct = products.Where(p => p.Diamond != null
+                && products.IndexOf(p) != productIndex
+                && p.Diamond.Id == cartProduct.Diamond.Id).ToList();
             }
-            else if(cartProduct.Jewelry != null)
+            else if (cartProduct.Jewelry != null)
             {
                 matchedProduct = products.Where(p => p.Jewelry != null
-                && p.Diamond == null 
-                && products.IndexOf(p) != productIndex 
+                && p.Diamond == null
+                && products.IndexOf(p) != productIndex
                 && p.Jewelry.Id == cartProduct.Jewelry.Id).ToList();
             }
             //products.Add(cartProduct);
             matchedProduct.ForEach(p => p.IsDuplicate = true);
-            
+
 
             if (matchedProduct.Count > 0)
             {
@@ -295,7 +306,7 @@ namespace DiamondShop.Domain.Services.Implementations
                     else
                         return Result.Ok();
                 }
-                return _mainDiamondService.CheckMatchingDiamond(diamondJewelry.Jewelry.ModelId,new List<Diamond> { diamondJewelry.Diamond },_mainDiamondRepository).Result;
+                return _mainDiamondService.CheckMatchingDiamond(diamondJewelry.Jewelry.ModelId, new List<Diamond> { diamondJewelry.Diamond }, _mainDiamondRepository).Result;
             }
             else // else check with JewelryModels
             {
@@ -310,16 +321,38 @@ namespace DiamondShop.Domain.Services.Implementations
                 if (product.IsValid)
                 {
                     orderPrice.DiscountAmountSaved += product.ReviewPrice.DiscountAmountSaved;
-                    orderPrice.PromotionAmountSaved += product.ReviewPrice.PromotionAmountSaved;
+                    // promotion amount saved is set by the prmotion service, since only 1 promotion is applied at a time
+                    // and the promotion might include orderPromotion, which again, might affect the final price, 
+                    // so the promotion amount saved is set here will be WRONG
+                    //orderPrice.PromotionAmountSaved += product.ReviewPrice.PromotionAmountSaved;
                 }
             }
         }
 
         public void SetShippingPrice(CartModel cartModel, ShippingPrice shippingPrice)
         {
-            if(shippingPrice != null)
+            if (shippingPrice != null)
                 cartModel.ShippingPrice = shippingPrice;
         }
+
+        public async Task<List<CartProduct>> GetCartProduct(List<CartItem> items)
+        {
+            List<CartProduct> cartProducts = new();
+            foreach (var item in items)
+            {
+                var cartProduct = FromCartItem(item, _jewelryRepository, _jewelryModelRepository, _diamondRepository).Result;
+                if (cartProduct != null)
+                    cartProducts.Add(cartProduct);
+            }
+            return cartProducts;
+        }
+
+        public Task<Result<CartModel>> ExecuteCustomOrder(List<CartProduct> products, List<Discount> givenDiscount, List<Promotion> givenPromotion, IDiamondPriceRepository _diamondPriceRepository, ISizeMetalRepository _sizeMetalRepository, IMetalRepository _metalRepository)
+        {
+            throw new NotImplementedException();
+        }
+
+
     }
 
 }

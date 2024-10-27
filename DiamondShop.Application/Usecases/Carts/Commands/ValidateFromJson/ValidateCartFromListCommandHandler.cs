@@ -72,12 +72,12 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
                 promotionId = PromotionId.Parse(request.items.PromotionId);
             var getPromotion = GetPromotion(promotionId).Result;
             var getDiscounts = await _discountRepository.GetActiveDiscount();
-            List<CartProduct> getProducts = PrepareCartProduct(cartItem).Result;
+            List<CartProduct> getProducts = _cartModelService.GetCartProduct(cartItem).Result;//PrepareCartProduct(cartItem).Result;
             if (request.items.UserAddress != null)
             {
                  getShippingPrice = GetShippingPrice(request.items.UserAddress).Result;
             }
-            Result<CartModel> result = await _cartModelService.Execute(getProducts, getDiscounts, getPromotion, _diamondPriceRepository, _sizeMetalRepository, _metalRepository);
+            Result<CartModel> result = await _cartModelService.ExecuteNormalOrder(getProducts, getDiscounts, getPromotion, _diamondPriceRepository, _sizeMetalRepository, _metalRepository);
             if (result.IsSuccess)
                 return result.Value;
             return Result.Fail(result.Errors);
@@ -95,17 +95,6 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
             {
                 return  await _promotionRepository.GetActivePromotion();
             }
-        }
-        private async Task<List<CartProduct>> PrepareCartProduct(List<CartItem> cartItems)
-        {
-            List<CartProduct> getProducts = new();
-            foreach (var item in cartItems)
-            {
-                var product = await _cartModelService.FromCartItem(item, _jewelryRepository, _jewelryModelRepository, _diamondRepository);
-                if (product is not null)
-                    getProducts.Add(product);
-            }
-            return getProducts;
         }
         private async Task<ShippingPrice> GetShippingPrice(AddressRequestDto addressRequestDto)
         {

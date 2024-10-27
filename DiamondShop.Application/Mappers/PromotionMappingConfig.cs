@@ -56,6 +56,7 @@ namespace DiamondShop.Application.Mappers
                 .Map(dest => dest.DiamondRequirementSpec.caratTo, src => src.DiamondRequirementSpec.caratTo, src => src.DiamondRequirementSpec != null)
                 .Map(dest => dest.MoneyAmount, src=> 10000.0m)
                 .Map(dest => dest.Quantity, src=> 1)
+                .Map(dest => dest.JewelryModelID, src => src.JewelryModelID)
                 .Map(dest => dest.isPromotion, src => false);
 
         }

@@ -52,16 +52,10 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.Validate
         {
             var accId = AccountId.Parse(request.userId);
             var getUserCart = await _cartService.GetCartModel(accId);
-            List<CartProduct> getProducts = new();
-            foreach (var item in getUserCart)
-            {
-                var product = await _cartModelService.FromCartItem(item, _jewelryRepository, _jewelryModelRepository, _diamondRepository);
-                if (product is not null)
-                    getProducts.Add(product);
-            }
+            List<CartProduct> getProducts = await _cartModelService.GetCartProduct(getUserCart);
             var getActiveDiscount = await _discountRepository.GetActiveDiscount();
             var getActivePromotion = await _promotionRepository.GetActivePromotion();
-            Result<CartModel> result = await _cartModelService.Execute(getProducts,getActiveDiscount,getActivePromotion , _diamondPriceRepository, _sizeMetalRepository, _metalRepository);
+            Result<CartModel> result = await _cartModelService.ExecuteNormalOrder(getProducts,getActiveDiscount,getActivePromotion , _diamondPriceRepository, _sizeMetalRepository, _metalRepository);
             if (result.IsSuccess)
                 return result.Value;
             return Result.Fail(result.Errors);

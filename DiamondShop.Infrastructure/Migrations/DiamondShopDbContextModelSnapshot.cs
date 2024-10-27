@@ -319,16 +319,16 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<float>("CaratTo")
                         .HasColumnType("real");
 
-                    b.Property<int>("Clarity")
+                    b.Property<int?>("Clarity")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Color")
+                    b.Property<int?>("Color")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Cut")
+                    b.Property<int?>("Cut")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsLabGrown")
+                    b.Property<bool?>("IsLabGrown")
                         .HasColumnType("boolean");
 
                     b.HasKey("Id");
@@ -421,6 +421,9 @@ namespace DiamondShop.Infrastructure.Migrations
 
                     b.Property<int?>("Cut")
                         .HasColumnType("integer");
+
+                    b.Property<decimal?>("DefaultPrice")
+                        .HasColumnType("numeric");
 
                     b.Property<float>("Depth")
                         .HasColumnType("real");
@@ -530,6 +533,9 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.Property<int>("ColorMin")
                         .HasColumnType("integer");
 
+                    b.Property<string>("DiamondShapeId")
+                        .HasColumnType("text");
+
                     b.Property<string>("JewelryId")
                         .HasColumnType("text");
 
@@ -541,6 +547,8 @@ namespace DiamondShop.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DiamondShapeId");
 
                     b.HasIndex("JewelryId");
 
@@ -1069,6 +1077,472 @@ namespace DiamondShop.Infrastructure.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("JewelryModel", (string)null);
+                });
+
+            modelBuilder.Entity("DiamondShop.Domain.Models.Locations.AppProvince", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ApiId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name");
+
+                    b.ToTable("AppProvinces");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "89",
+                            ApiId = "89",
+                            IsActive = true,
+                            Name = "An Giang"
+                        },
+                        new
+                        {
+                            Id = "77",
+                            ApiId = "77",
+                            IsActive = true,
+                            Name = "Bà Rịa - Vũng Tàu"
+                        },
+                        new
+                        {
+                            Id = "24",
+                            ApiId = "24",
+                            IsActive = true,
+                            Name = "Bắc Giang"
+                        },
+                        new
+                        {
+                            Id = "6",
+                            ApiId = "6",
+                            IsActive = true,
+                            Name = "Bắc Kạn"
+                        },
+                        new
+                        {
+                            Id = "95",
+                            ApiId = "95",
+                            IsActive = true,
+                            Name = "Bạc Liêu"
+                        },
+                        new
+                        {
+                            Id = "27",
+                            ApiId = "27",
+                            IsActive = true,
+                            Name = "Bắc Ninh"
+                        },
+                        new
+                        {
+                            Id = "83",
+                            ApiId = "83",
+                            IsActive = true,
+                            Name = "Bến Tre"
+                        },
+                        new
+                        {
+                            Id = "52",
+                            ApiId = "52",
+                            IsActive = true,
+                            Name = "Bình Định"
+                        },
+                        new
+                        {
+                            Id = "74",
+                            ApiId = "74",
+                            IsActive = true,
+                            Name = "Bình Dương"
+                        },
+                        new
+                        {
+                            Id = "70",
+                            ApiId = "70",
+                            IsActive = true,
+                            Name = "Bình Phước"
+                        },
+                        new
+                        {
+                            Id = "60",
+                            ApiId = "60",
+                            IsActive = true,
+                            Name = "Bình Thuận"
+                        },
+                        new
+                        {
+                            Id = "96",
+                            ApiId = "96",
+                            IsActive = true,
+                            Name = "Cà Mau"
+                        },
+                        new
+                        {
+                            Id = "92",
+                            ApiId = "92",
+                            IsActive = true,
+                            Name = "Cần Thơ"
+                        },
+                        new
+                        {
+                            Id = "4",
+                            ApiId = "4",
+                            IsActive = true,
+                            Name = "Cao Bằng"
+                        },
+                        new
+                        {
+                            Id = "48",
+                            ApiId = "48",
+                            IsActive = true,
+                            Name = "Đà Nẵng"
+                        },
+                        new
+                        {
+                            Id = "66",
+                            ApiId = "66",
+                            IsActive = true,
+                            Name = "Đắk Lắk"
+                        },
+                        new
+                        {
+                            Id = "67",
+                            ApiId = "67",
+                            IsActive = true,
+                            Name = "Đắk Nông"
+                        },
+                        new
+                        {
+                            Id = "11",
+                            ApiId = "11",
+                            IsActive = true,
+                            Name = "Điện Biên"
+                        },
+                        new
+                        {
+                            Id = "75",
+                            ApiId = "75",
+                            IsActive = true,
+                            Name = "Đồng Nai"
+                        },
+                        new
+                        {
+                            Id = "87",
+                            ApiId = "87",
+                            IsActive = true,
+                            Name = "Đồng Tháp"
+                        },
+                        new
+                        {
+                            Id = "64",
+                            ApiId = "64",
+                            IsActive = true,
+                            Name = "Gia Lai"
+                        },
+                        new
+                        {
+                            Id = "2",
+                            ApiId = "2",
+                            IsActive = true,
+                            Name = "Hà Giang"
+                        },
+                        new
+                        {
+                            Id = "35",
+                            ApiId = "35",
+                            IsActive = true,
+                            Name = "Hà Nam"
+                        },
+                        new
+                        {
+                            Id = "1",
+                            ApiId = "1",
+                            IsActive = true,
+                            Name = "Hà Nội"
+                        },
+                        new
+                        {
+                            Id = "42",
+                            ApiId = "42",
+                            IsActive = true,
+                            Name = "Hà Tĩnh"
+                        },
+                        new
+                        {
+                            Id = "30",
+                            ApiId = "30",
+                            IsActive = true,
+                            Name = "Hải Dương"
+                        },
+                        new
+                        {
+                            Id = "31",
+                            ApiId = "31",
+                            IsActive = true,
+                            Name = "Hải Phòng"
+                        },
+                        new
+                        {
+                            Id = "93",
+                            ApiId = "93",
+                            IsActive = true,
+                            Name = "Hậu Giang"
+                        },
+                        new
+                        {
+                            Id = "79",
+                            ApiId = "79",
+                            IsActive = true,
+                            Name = "Hồ Chí Minh"
+                        },
+                        new
+                        {
+                            Id = "17",
+                            ApiId = "17",
+                            IsActive = true,
+                            Name = "Hoà Bình"
+                        },
+                        new
+                        {
+                            Id = "33",
+                            ApiId = "33",
+                            IsActive = true,
+                            Name = "Hưng Yên"
+                        },
+                        new
+                        {
+                            Id = "56",
+                            ApiId = "56",
+                            IsActive = true,
+                            Name = "Khánh Hòa"
+                        },
+                        new
+                        {
+                            Id = "91",
+                            ApiId = "91",
+                            IsActive = true,
+                            Name = "Kiên Giang"
+                        },
+                        new
+                        {
+                            Id = "62",
+                            ApiId = "62",
+                            IsActive = true,
+                            Name = "Kon Tum"
+                        },
+                        new
+                        {
+                            Id = "12",
+                            ApiId = "12",
+                            IsActive = true,
+                            Name = "Lai Châu"
+                        },
+                        new
+                        {
+                            Id = "68",
+                            ApiId = "68",
+                            IsActive = true,
+                            Name = "Lâm Đồng"
+                        },
+                        new
+                        {
+                            Id = "20",
+                            ApiId = "20",
+                            IsActive = true,
+                            Name = "Lạng Sơn"
+                        },
+                        new
+                        {
+                            Id = "10",
+                            ApiId = "10",
+                            IsActive = true,
+                            Name = "Lào Cai"
+                        },
+                        new
+                        {
+                            Id = "80",
+                            ApiId = "80",
+                            IsActive = true,
+                            Name = "Long An"
+                        },
+                        new
+                        {
+                            Id = "36",
+                            ApiId = "36",
+                            IsActive = true,
+                            Name = "Nam Định"
+                        },
+                        new
+                        {
+                            Id = "40",
+                            ApiId = "40",
+                            IsActive = true,
+                            Name = "Nghệ An"
+                        },
+                        new
+                        {
+                            Id = "37",
+                            ApiId = "37",
+                            IsActive = true,
+                            Name = "Ninh Bình"
+                        },
+                        new
+                        {
+                            Id = "58",
+                            ApiId = "58",
+                            IsActive = true,
+                            Name = "Ninh Thuận"
+                        },
+                        new
+                        {
+                            Id = "25",
+                            ApiId = "25",
+                            IsActive = true,
+                            Name = "Phú Thọ"
+                        },
+                        new
+                        {
+                            Id = "54",
+                            ApiId = "54",
+                            IsActive = true,
+                            Name = "Phú Yên"
+                        },
+                        new
+                        {
+                            Id = "44",
+                            ApiId = "44",
+                            IsActive = true,
+                            Name = "Quảng Bình"
+                        },
+                        new
+                        {
+                            Id = "49",
+                            ApiId = "49",
+                            IsActive = true,
+                            Name = "Quảng Nam"
+                        },
+                        new
+                        {
+                            Id = "51",
+                            ApiId = "51",
+                            IsActive = true,
+                            Name = "Quảng Ngãi"
+                        },
+                        new
+                        {
+                            Id = "22",
+                            ApiId = "22",
+                            IsActive = true,
+                            Name = "Quảng Ninh"
+                        },
+                        new
+                        {
+                            Id = "45",
+                            ApiId = "45",
+                            IsActive = true,
+                            Name = "Quảng Trị"
+                        },
+                        new
+                        {
+                            Id = "94",
+                            ApiId = "94",
+                            IsActive = true,
+                            Name = "Sóc Trăng"
+                        },
+                        new
+                        {
+                            Id = "14",
+                            ApiId = "14",
+                            IsActive = true,
+                            Name = "Sơn La"
+                        },
+                        new
+                        {
+                            Id = "72",
+                            ApiId = "72",
+                            IsActive = true,
+                            Name = "Tây Ninh"
+                        },
+                        new
+                        {
+                            Id = "34",
+                            ApiId = "34",
+                            IsActive = true,
+                            Name = "Thái Bình"
+                        },
+                        new
+                        {
+                            Id = "19",
+                            ApiId = "19",
+                            IsActive = true,
+                            Name = "Thái Nguyên"
+                        },
+                        new
+                        {
+                            Id = "38",
+                            ApiId = "38",
+                            IsActive = true,
+                            Name = "Thanh Hóa"
+                        },
+                        new
+                        {
+                            Id = "46",
+                            ApiId = "46",
+                            IsActive = true,
+                            Name = "Thừa Thiên Huế"
+                        },
+                        new
+                        {
+                            Id = "82",
+                            ApiId = "82",
+                            IsActive = true,
+                            Name = "Tiền Giang"
+                        },
+                        new
+                        {
+                            Id = "84",
+                            ApiId = "84",
+                            IsActive = true,
+                            Name = "Trà Vinh"
+                        },
+                        new
+                        {
+                            Id = "8",
+                            ApiId = "8",
+                            IsActive = true,
+                            Name = "Tuyên Quang"
+                        },
+                        new
+                        {
+                            Id = "86",
+                            ApiId = "86",
+                            IsActive = true,
+                            Name = "Vĩnh Long"
+                        },
+                        new
+                        {
+                            Id = "26",
+                            ApiId = "26",
+                            IsActive = true,
+                            Name = "Vĩnh Phúc"
+                        },
+                        new
+                        {
+                            Id = "15",
+                            ApiId = "15",
+                            IsActive = true,
+                            Name = "Yên Bái"
+                        });
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.News.News", b =>
@@ -1783,7 +2257,7 @@ namespace DiamondShop.Infrastructure.Migrations
                         {
                             Id = "1",
                             Code = "THREE_MONTHS",
-                            CreateDate = new DateTime(2024, 10, 23, 17, 0, 0, 0, DateTimeKind.Utc),
+                            CreateDate = new DateTime(2024, 10, 24, 17, 0, 0, 0, DateTimeKind.Utc),
                             MonthDuration = 3,
                             Name = "Default_Jewelry_Warranty",
                             Price = 0m,
@@ -1793,7 +2267,7 @@ namespace DiamondShop.Infrastructure.Migrations
                         {
                             Id = "2",
                             Code = "THREE_MONTHS",
-                            CreateDate = new DateTime(2024, 10, 23, 17, 0, 0, 0, DateTimeKind.Utc),
+                            CreateDate = new DateTime(2024, 10, 24, 17, 0, 0, 0, DateTimeKind.Utc),
                             MonthDuration = 3,
                             Name = "Default_Diamond_Warranty",
                             Price = 0m,
@@ -2344,9 +2818,15 @@ namespace DiamondShop.Infrastructure.Migrations
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Entities.JewelrySideDiamond", b =>
                 {
+                    b.HasOne("DiamondShop.Domain.Models.DiamondShapes.DiamondShape", "DiamondShape")
+                        .WithMany()
+                        .HasForeignKey("DiamondShapeId");
+
                     b.HasOne("DiamondShop.Domain.Models.Jewelries.Jewelry", null)
                         .WithMany("SideDiamonds")
                         .HasForeignKey("JewelryId");
+
+                    b.Navigation("DiamondShape");
                 });
 
             modelBuilder.Entity("DiamondShop.Domain.Models.Jewelries.Jewelry", b =>

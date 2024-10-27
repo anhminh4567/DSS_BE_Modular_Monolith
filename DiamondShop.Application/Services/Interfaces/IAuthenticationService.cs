@@ -25,10 +25,9 @@ namespace DiamondShop.Application.Services.Interfaces
         
         Task<Result> Logout(string identityID, CancellationToken cancellationToken = default);
         Task<Result> BanAccount(string identityID, CancellationToken cancellationToken = default);
-        Task<Result> ConfirmEmail();
-        Task<Result> SendConfirmEmail();
+        Task<Result<string>> ConfirmEmail(string identityId, string token);
+        Task<Result> SendConfirmEmail(string accountId, CancellationToken cancellationToken = default);
         Task<Result> ChangePassword(string identityId, string oldPassword, string newPassword, CancellationToken cancellationToken = default);
-        Task<Result<string>> GenerateResetPasswordToken();
 
         Task<Result<(string? refreshToken, DateTime? ExpiredDate)>> GetRefreshToken(string identityId, CancellationToken cancellationToken = default);
         Task<Result<ClaimsPrincipal>> GetClaimsPrincipalFromCurrentUserContext(CancellationToken cancellationToken = default);
