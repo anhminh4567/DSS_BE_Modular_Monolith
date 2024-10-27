@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Repositories.OrderRepo;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
         {
             await _set.AddRangeAsync(orderItems);
         }
+
         public void UpdateRange(List<OrderItem> orderItems) => _set.UpdateRange(orderItems);
 
     }

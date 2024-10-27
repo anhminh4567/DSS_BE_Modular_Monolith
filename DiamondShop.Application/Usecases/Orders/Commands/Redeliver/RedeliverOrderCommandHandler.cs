@@ -37,9 +37,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Redeliver
             if(order.ShipFailedCount > DeliveryRules.MaxRedelivery)
                 return Result.Fail("Maximum redelivery reached");
             order.ShipFailedDate = null;
-            order.ShipFailedCount++;
             order.Status = OrderStatus.Prepared;
-
             await _orderRepository.Update(order);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
