@@ -60,6 +60,8 @@ namespace DiamondShop.Domain.Models.JewelryModels
                 ClaspType = claspType,
                 ChainType = chainType,
             };
-        } 
+        }
+        public void ChangeThumbnail(Media? thumbnail) => Thumbnail = thumbnail;
+
     }
 }

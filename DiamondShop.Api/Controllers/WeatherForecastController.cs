@@ -10,6 +10,7 @@ using DiamondShop.Application.Usecases.DiamondShapes.Queries.GetAll;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.DeliveryFees;
+using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.RoleAggregate;
@@ -26,6 +27,7 @@ using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System;
 
 namespace DiamondShopSystem.Controllers
 {
@@ -151,7 +153,7 @@ namespace DiamondShopSystem.Controllers
             return Ok();
         }
         [HttpPost("/ThemTinhThanh")]
-        [ApiExplorerSettings(IgnoreApi = true   )]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult> Insert63CityLocation()
         {
             var getCities = _locationService.GetProvinces();
@@ -163,23 +165,23 @@ namespace DiamondShopSystem.Controllers
             foreach (var city in getCities)
             {
                 baseCost += 5000.0m;
-                var comando = new CreateDeliveryFeeCommand(DeliveryFeeType.LocationToCity,city.Name,baseCost,new ToLocationCity(shopCity.Name,city.Name),null);
+                var comando = new CreateDeliveryFeeCommand(DeliveryFeeType.LocationToCity, city.Name, baseCost, new ToLocationCity(shopCity.Name, city.Name), null);
                 commandData.Add(comando);
             }
-            var result = await _sender.Send(new CreateManyDeliveryFeeCommand(commandData)) ;
+            var result = await _sender.Send(new CreateManyDeliveryFeeCommand(commandData));
             return Ok(result.Value);
         }
         [HttpGet("testemail")]
         public async Task<ActionResult> test()
         {
-            await _emailService.SendConfirmAccountEmail(Account.CreateBaseCustomer(FullName.Create("1232","123"),"testingwebandstuff@gmail.com","sdfasdf",new List<AccountRole>() { AccountRole.Customer }),"testtoken");
+            await _emailService.SendConfirmAccountEmail(Account.CreateBaseCustomer(FullName.Create("1232", "123"), "testingwebandstuff@gmail.com", "sdfasdf", new List<AccountRole>() { AccountRole.Customer }), "testtoken");
             return Ok();
         }
         [HttpGet("testzalopayservice")]
         public async Task<ActionResult> testzalopayservice()
         {
-            Account falseAccount = Account.CreateBaseCustomer(FullName.Create("minh","tran"),"abc@gmail.com","asdf", new List<AccountRole> { AccountRole.Customer });
-            Order falseOrder = Order.Create(falseAccount.Id,PaymentType.Payall,100000m,10000m,"adfads");
+            Account falseAccount = Account.CreateBaseCustomer(FullName.Create("minh", "tran"), "abc@gmail.com", "asdf", new List<AccountRole> { AccountRole.Customer });
+            Order falseOrder = Order.Create(falseAccount.Id, PaymentType.Payall, 100000m, 10000m, "adfads");
             PaymentLinkRequest falseRequest = new PaymentLinkRequest()
             {
                 Account = falseAccount,
@@ -191,6 +193,36 @@ namespace DiamondShopSystem.Controllers
             };
             var reresult = await _paymentService.CreatePaymentLink(falseRequest);
             return Ok(reresult.Value);
+        }
+        [HttpPost("seedcriteria")]
+        public async Task<ActionResult> SeedCriteria()
+        {
+            var colorEnums = Enum.GetValues(typeof(Color));
+            var clarityEnums = Enum.GetValues(typeof(Clarity));
+            Cut defaultCut = Cut.Excelent;
+            decimal startPrice = 30_000;//vnd
+            List<(float caratFrom, float caratTo)> caratRange = new()
+            {
+                new (0.01f, 0.03f),
+                new (0.03f, 0.07f),
+                new (0.07f, 0.14f),
+                new (0.14f, 0.17f),
+                new (0.17f, 0.22f),
+                new (0.22f, 0.29f),
+            };
+            var rowIncrementPrice = 10_000;
+            var columnIncrementPrice = 5_000;
+            for (int i = 0; i < colorEnums.Length; i ++ )
+            {
+                var color = (Color)colorEnums.GetValue(i);
+                var rowPrice = startPrice + rowIncrementPrice * i;
+                for (int j = 0; j < clarityEnums.Length;j ++)
+                {
+                    var clarity = (Clarity) clarityEnums.GetValue(j);
+                    var columnPrice = rowPrice + columnIncrementPrice * j;
+                }
+            }
+            return Ok();
         }
     }
 }

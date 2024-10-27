@@ -3,6 +3,7 @@ using DiamondShop.Application.Commons.Models;
 using DiamondShop.Application.Dtos.Responses;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Diamonds;
+using DiamondShop.Application.Services.Interfaces.JewelryModels;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.DeliveryRepo;
@@ -184,6 +185,7 @@ namespace DiamondShop.Infrastructure
             services.AddSingleton<ILocationService, LocalLocationService>();
             services.AddScoped<IDiamondFileService, DiamondFileService>();
             services.AddScoped<IExcelService, ExcelSyncfunctionService>();
+            services.AddScoped<IJewelryModelFileService, JewelryModelFileService>();
 
             var serviceProviderInstrance = services.BuildServiceProvider();
             var mailOptions = serviceProviderInstrance.GetRequiredService<IOptions<MailOptions>>().Value;
@@ -249,7 +251,9 @@ namespace DiamondShop.Infrastructure
             config.NewConfig<Media, MediaDto>()
                .Map(dest => dest.MediaPath, src => $"{getOption.Azure.BaseUrl}/{getOption.Azure.ContainerName}/{src.MediaPath}");
             config.NewConfig<GalleryTemplate, GalleryTemplateDto>()
-               .Map(dest => dest.Gallery , src => src.Gallery.ToDictionary(kvp => kvp.Key, kvp => $"{getOption.Azure.BaseUrl}/{getOption.Azure.ContainerName}/{kvp.Value}"));
+               .Map(dest => dest.Gallery, src => src.Gallery.ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
+            //config.NewConfig<GalleryTemplate, GalleryTemplateDto>()
+            //   .Map(dest => dest.Gallery , src => src.Gallery.ToDictionary(kvp => kvp.Key, kvp => $"{getOption.Azure.BaseUrl}/{getOption.Azure.ContainerName}/{kvp.Value}"));
             services.AddSingleton(config);
             return services;
         }
