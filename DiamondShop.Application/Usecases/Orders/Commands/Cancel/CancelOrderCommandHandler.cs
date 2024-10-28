@@ -27,9 +27,10 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
         private readonly IDiamondRepository _diamondRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderService _orderService;
+        private readonly IOrderTransactionService _orderTransactionService;
         private readonly IPaymentService _paymentService;
 
-        public CancelOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository, ITransactionRepository transactionRepository)
+        public CancelOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository, ITransactionRepository transactionRepository, IOrderTransactionService orderTransactionService)
         {
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
@@ -37,14 +38,14 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
             _jewelryRepository = jewelryRepository;
             _diamondRepository = diamondRepository;
             _transactionRepository = transactionRepository;
+            _orderTransactionService = orderTransactionService;
         }
 
         public async Task<Result<Order>> Handle(CancelOrderCommand request, CancellationToken token)
         {
             request.Deconstruct(out string orderId, out string accountId, out string reason);
             await _unitOfWork.BeginTransactionAsync(token);
-            var orderQuery = _orderRepository.GetQuery();
-            var order = orderQuery.FirstOrDefault(p => p.Id == OrderId.Parse(orderId));
+            var order = await _orderRepository.GetById(OrderId.Parse(orderId));
             if (order == null)
                 return Result.Fail("No order found!");
             else if (!_orderService.IsCancellable(order.Status))
@@ -55,6 +56,7 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
             order.PaymentStatus = PaymentStatus.Refunding;
             order.CancelledDate = DateTime.UtcNow;
             order.CancelledReason = reason;
+            var transac = _orderTransactionService.AddRefundUserCancel(order);
             await _orderRepository.Update(order);
             //Return to selling
             await _orderService.CancelItems(order,_orderRepository,_orderItemRepository,_jewelryRepository,_diamondRepository);

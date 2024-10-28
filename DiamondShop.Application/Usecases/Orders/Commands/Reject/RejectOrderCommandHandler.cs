@@ -30,9 +30,10 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
         private readonly IDiamondRepository _diamondRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderService _orderService;
+        private readonly IOrderTransactionService _orderTransactionService;
         private readonly IPaymentService _paymentService;
 
-        public RejectOrderCommandHandler(IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository, IUnitOfWork unitOfWork, IOrderService orderService, IPaymentService paymentService)
+        public RejectOrderCommandHandler(IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository, IUnitOfWork unitOfWork, IOrderService orderService, IPaymentService paymentService, IOrderTransactionService orderTransactionService)
         {
             _orderRepository = orderRepository;
             _orderItemRepository = orderItemRepository;
@@ -42,14 +43,14 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
             _unitOfWork = unitOfWork;
             _orderService = orderService;
             _paymentService = paymentService;
+            _orderTransactionService = orderTransactionService;
         }
 
         public async Task<Result<Order>> Handle(RejectOrderCommand request, CancellationToken token)
         {
             request.Deconstruct(out string orderId, out string accountId, out string reason);
             await _unitOfWork.BeginTransactionAsync(token);
-            var orderQuery = _orderRepository.GetQuery();
-            var order = orderQuery.FirstOrDefault(p => p.Id == OrderId.Parse(orderId));
+            var order = await _orderRepository.GetById(OrderId.Parse(orderId));
             if (order == null)
                 return Result.Fail("No order found!");
             else if (!_orderService.IsCancellable(order.Status))
@@ -58,9 +59,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
             order.PaymentStatus = PaymentStatus.Refunding;
             order.CancelledDate = DateTime.UtcNow;
             order.CancelledReason = reason;
+            var transac = _orderTransactionService.AddRefundShopReject(order);
             await _orderRepository.Update(order);
             await _orderService.CancelItems(order, _orderRepository, _orderItemRepository, _jewelryRepository, _diamondRepository);
-
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
             return order;

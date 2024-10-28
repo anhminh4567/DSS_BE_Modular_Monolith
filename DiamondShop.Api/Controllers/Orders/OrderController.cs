@@ -8,6 +8,7 @@ using DiamondShop.Application.Usecases.Orders.Commands.Create;
 using DiamondShop.Application.Usecases.Orders.Commands.DeliverFail;
 using DiamondShop.Application.Usecases.Orders.Commands.Proceed;
 using DiamondShop.Application.Usecases.Orders.Commands.Redeliver;
+using DiamondShop.Application.Usecases.Orders.Commands.Refund;
 using DiamondShop.Application.Usecases.Orders.Commands.Reject;
 using DiamondShop.Application.Usecases.Orders.Queries.GetAll;
 using DiamondShop.Application.Usecases.Orders.Queries.GetOrderFilter;
@@ -94,7 +95,7 @@ namespace DiamondShop.Api.Controllers.Orders
 
         [HttpPut("Cancel")]
         [Authorize(Roles = AccountRole.CustomerId)]
-        public async Task<ActionResult> CustomerCancelOrder([FromRoute] string orderId, string reason)
+        public async Task<ActionResult> CustomerCancelOrder([FromQuery] string orderId, string reason)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
@@ -135,7 +136,7 @@ namespace DiamondShop.Api.Controllers.Orders
 
         [HttpPut("Proceed")]
         [Authorize(Roles = AccountRole.StaffId + "," + AccountRole.DelivererId)]
-        public async Task<ActionResult> AcceptOrder([FromQuery] string orderId)
+        public async Task<ActionResult> ProceedOrder([FromQuery] string orderId)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
@@ -166,7 +167,6 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return MatchError(result.Errors, ModelState);
         }
-
         [HttpPut("Redeliver")]
         [Authorize(Roles = AccountRole.StaffId)]
         public async Task<ActionResult> RedeliverOrder([FromQuery] RedeliverOrderCommand redeliverOrderCommand)
@@ -180,25 +180,46 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return MatchError(result.Errors, ModelState);
         }
-
-        [HttpPut("Refund")]
-        [Authorize(Roles = AccountRole.StaffId)]
-        public async Task<ActionResult> RefundOrder([FromQuery] AssignDelivererOrderCommand assignDelivererOrderCommand)
-        {
-            var result = await _sender.Send(assignDelivererOrderCommand);
-            if (result.IsSuccess)
-            {
-                var mappedResult = _mapper.Map<OrderDto>(result.Value);
-                return Ok(mappedResult);
-            }
-            else
-                return MatchError(result.Errors, ModelState);
-        }
         [HttpPut("DeliverFail")]
         [Authorize(Roles = AccountRole.DelivererId)]
-        public async Task<ActionResult> DeliverFail([FromQuery] OrderDeliverFailCommand orderDeliverFailCommand)
+        public async Task<ActionResult> DeliverFail([FromQuery] string orderId)
         {
-            var result = await _sender.Send(orderDeliverFailCommand);
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(new OrderDeliverFailCommand(orderId, userId.Value));
+                if (result.IsSuccess)
+                {
+                    var mappedResult = _mapper.Map<OrderDto>(result.Value);
+                    return Ok(mappedResult);
+                }
+                else
+                    return MatchError(result.Errors, ModelState);
+            }
+            else
+                return Unauthorized();
+        }
+        //On Hold
+        //De nguoi dung lay link nhan refund
+        //[HttpPut("GetRefund")]
+        //[Authorize(Roles = AccountRole.CustomerId)]
+        //public async Task<ActionResult> GetOrderRefund([FromQuery] GetRefundOrderCommand refundOrderCommand)
+        //{
+        //    var result = await _sender.Send(refundOrderCommand);
+        //    if (result.IsSuccess)
+        //    {
+        //        var mappedResult = _mapper.Map<OrderDto>(result.Value);
+        //        return Ok(mappedResult);
+        //    }
+        //    else
+        //        return MatchError(result.Errors, ModelState);
+        //}
+        
+        [HttpPut("CompleteRefund")]
+        [Authorize(Roles = AccountRole.StaffId)]
+        public async Task<ActionResult> SendOrderRefund([FromQuery] RefundOrderCommand refundOrderCommand)
+        {
+            var result = await _sender.Send(refundOrderCommand);
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<OrderDto>(result.Value);
@@ -207,5 +228,26 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return MatchError(result.Errors, ModelState);
         }
+
+        //Unfinished
+        //[HttpPut("DeliverRefuse")]
+        //[Authorize(Roles = AccountRole.DelivererId)]
+        //public async Task<ActionResult> DeliverRefuse([FromQuery] OrderItemRefuseCommand orderItemRefuseCommand)
+        //{
+        //    var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+        //    if (userId != null)
+        //    {
+
+        //        var result = await _sender.Send(new OrderDeliverRefuseCommand(userId.Value, orderItemRefuseCommand));
+        //        if (result.IsSuccess)
+        //        {
+        //            var mappedResult = _mapper.Map<OrderDto>(result.Value);
+        //            return Ok(mappedResult);
+        //        }
+        //        else
+        //            return MatchError(result.Errors, ModelState);
+        //    }
+        //    return Unauthorized();
+        //}
     }
 }

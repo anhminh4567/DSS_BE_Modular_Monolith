@@ -18,6 +18,12 @@ namespace DiamondShop.Domain.Services.Implementations
             OrderStatus.Prepared,
             OrderStatus.Delivery_Failed,
         };
+        List<OrderStatus> ongoingState = new() {
+            OrderStatus.Pending,
+            OrderStatus.Processing,
+            OrderStatus.Prepared,
+            OrderStatus.Delivering,
+        };
         public OrderService() { }
 
         public bool CheckForSameCity(List<Order> orders)
@@ -29,6 +35,10 @@ namespace DiamondShop.Domain.Services.Implementations
         public bool IsCancellable(OrderStatus status)
         {
             return cancellableState.Contains(status);
+        }
+        public bool IsProceedable(OrderStatus status)
+        {
+            return ongoingState.Contains(status);
         }
         public async Task CancelItems(Order order, IOrderRepository _orderRepo, IOrderItemRepository _itemRepo, IJewelryRepository _jewelRepo, IDiamondRepository _diamondRepo)
         {

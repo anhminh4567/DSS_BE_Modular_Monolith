@@ -18,11 +18,13 @@ namespace DiamondShop.Domain.Services.interfaces
         decimal GetCODValueForOrder(Order order);
         decimal GetCorrectAmountFromOrder(Order order);
         decimal GetRefundAmountFromOrder(Order order, decimal fineAmount);
-        decimal GetFinedAmountFromOrder(Order order);
 
         //refunding 
         decimal GetRefundUserCancelBeforeProcessing(Order order);
-        decimal GetRefundShopCancel(Order order);
+        Transaction AddRefundShopReject(Order order);
+        Transaction AddRefundUserCancel(Order order);
+        Transaction AddCODPayment(Order order);
+
         decimal GetRefundUserCancelDuringProcessingAndPrepared(Order order);
         /// <summary>
         /// tính phí phạt và không trả phần ship 

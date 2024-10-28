@@ -11,5 +11,6 @@ namespace DiamondShop.Domain.BusinessRules
         public static int DepositPercent { get; set; } = 50;
         public static int CODPercent { get; set; } = 10;
         public static int CODPercentCustom { get; set; } = 50;
+        public static int PayAllFine { get; set; } = 10;
     }
 }

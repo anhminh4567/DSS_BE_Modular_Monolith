@@ -3,11 +3,14 @@ using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Models;
 using DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson;
+using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
+using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Models.Warranties.Enum;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
@@ -20,7 +23,6 @@ using MediatR;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 {
-    public record BillingDetail(string FirstName, string LastName, string Phone, string Email, string Providence, string District, string Ward, string Address, string? Note);
     public record CreateOrderInfo(OrderRequestDto OrderRequestDto, List<OrderItemRequestDto> OrderItemRequestDtos);
     public record CreateOrderCommand(string AccountId, BillingDetail BillingDetail, CreateOrderInfo CreateOrderInfo) : IRequest<Result<PaymentLinkResponse>>;
     internal class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Result<PaymentLinkResponse>>
@@ -39,8 +41,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         private readonly ICartService _cartService;
         private readonly ICartModelService _cartModelService;
         private readonly ISender _sender;
-
-        public CreateOrderCommandHandler(IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IAccountRepository accountRepository, IUnitOfWork unitOfWork, IPaymentService paymentService, IJewelryRepository jewelryRepository, IMainDiamondRepository mainDiamondRepository, ISender sender, IDiamondRepository diamondRepository, IMainDiamondService mainDiamondService, IPaymentMethodRepository paymentMethodRepository, ICartService cartService)
+        private readonly IOrderTransactionService _orderTransactionService;
+        public CreateOrderCommandHandler(IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IAccountRepository accountRepository, IUnitOfWork unitOfWork, IPaymentService paymentService, IJewelryRepository jewelryRepository, IMainDiamondRepository mainDiamondRepository, ISender sender, IDiamondRepository diamondRepository, IMainDiamondService mainDiamondService, IPaymentMethodRepository paymentMethodRepository, ICartService cartService, IOrderTransactionService orderService)
         {
             _orderRepository = orderRepository;
             _orderItemRepository = orderItemRepository;
@@ -54,6 +56,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             _mainDiamondService = mainDiamondService;
             _paymentMethodRepository = paymentMethodRepository;
             _cartService = cartService;
+            _orderTransactionService = orderService;
         }
 
         public async Task<Result<PaymentLinkResponse>> Handle(CreateOrderCommand request, CancellationToken token)
@@ -61,7 +64,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             await _unitOfWork.BeginTransactionAsync(token);
             request.Deconstruct(out string accountId, out BillingDetail billingDetail, out CreateOrderInfo createOrderInfo);
             createOrderInfo.Deconstruct(out OrderRequestDto orderReq, out List<OrderItemRequestDto> orderItemReqs);
-
+            orderReq.Deconstruct(out PaymentType paymentType, out string paymentName, out string? promotionId, out bool isTransfer);
             var account = await _accountRepository.GetById(AccountId.Parse(accountId));
             if (account == null)
                 return Result.Fail("This account doesn't exist");
@@ -98,7 +101,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 errors = new List<IError>();
             CartRequestDto cartRequestDto = new CartRequestDto()
             {
-                PromotionId = orderReq.PromotionId,
+                PromotionId = promotionId,
                 Items = items
             };
             //Validate CartModel
@@ -128,7 +131,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 
             var orderPromo = cartModel.Promotion.Promotion;
 
-            var order = Order.Create(account.Id, orderReq.PaymentType, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice,
+            var order = Order.Create(account.Id, paymentType, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice,
                 String.Join(" ", [billingDetail.Providence, billingDetail.District, billingDetail.Ward, billingDetail.Address]), orderPromo?.Id);
             await _orderRepository.Create(order, token);
             List<OrderItem> orderItems = new();
@@ -148,7 +151,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 }
                 if (product.Diamond != null)
                 {
-                    product.Diamond.SetSold(product.ReviewPrice.DefaultPrice,product.ReviewPrice.FinalPrice);
+                    product.Diamond.SetSold(product.ReviewPrice.DefaultPrice, product.ReviewPrice.FinalPrice);
                     diamonds.Add(product.Diamond);
                 }
             }
@@ -159,23 +162,32 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             _diamondRepository.UpdateRange(diamonds);
 
             await _unitOfWork.SaveChangesAsync(token);
-
-            //Create Paymentlink if not transfer
-            PaymentLinkRequest paymentLinkRequest = new PaymentLinkRequest()
+            if (isTransfer)
             {
-                Account = account,
-                Order = order,
-                Email = account.Email,
-                Phone = billingDetail.Phone,
-                Address = order.ShippingAddress,
-                Title = "Payment",
-                Description = $"Payment for order #{order.Id}",
-                Amount = order.TotalPrice,
-            };
-            var paymentLink = await _paymentService.CreatePaymentLink(paymentLinkRequest, token);
-            await _unitOfWork.CommitAsync(token);
-            return paymentLink;
-
+                return new PaymentLinkResponse()
+                {
+                    PaymentUrl = ""
+                };
+            }
+            else
+            {
+                var amount = paymentType == PaymentType.Payall ? _orderTransactionService.GetFullPaymentValueForOrder(order) : _orderTransactionService.GetCODValueForOrder(order);
+                //Create Paymentlink if not transfer
+                PaymentLinkRequest paymentLinkRequest = new PaymentLinkRequest()
+                {
+                    Account = account,
+                    Order = order,
+                    Email = account.Email,
+                    Phone = billingDetail.Phone,
+                    Address = order.ShippingAddress,
+                    Title = $"Payment for Order#{order.Id}",
+                    Description = $"{paymentType.ToString()} payment",
+                    Amount = amount,
+                };
+                var paymentLink = await _paymentService.CreatePaymentLink(paymentLinkRequest, token);
+                await _unitOfWork.CommitAsync(token);
+                return paymentLink;
+            }
         }
 
     }
