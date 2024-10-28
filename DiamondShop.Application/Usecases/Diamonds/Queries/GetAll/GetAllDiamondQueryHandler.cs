@@ -41,7 +41,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetAll
             Dictionary<string, List<DiamondPrice>> shapeDictPrice = new();
             foreach (var shape in getAllShape)
             {
-                var prices = await _diamondPriceRepository.GetPriceByShapes(shape, cancellationToken);
+                var prices = await _diamondPriceRepository.GetPriceByShapes(shape,null, cancellationToken);
                 shapeDictPrice.Add(shape.Id.Value, prices);
             }
             var getAllActiveDiscount = await _discountRepository.GetActiveDiscount();

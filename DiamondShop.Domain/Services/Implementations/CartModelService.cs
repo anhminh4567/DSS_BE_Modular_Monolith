@@ -169,7 +169,7 @@ namespace DiamondShop.Domain.Services.Implementations
             // price 0 is default for new CheckoutPrice();
             if (cartProduct.Diamond is not null)
             {
-                var prices = _diamondPriceRepository.GetPriceByShapes(cartProduct.Diamond.DiamondShape).Result;
+                var prices = _diamondPriceRepository.GetPriceByShapes(cartProduct.Diamond.DiamondShape,cartProduct.Diamond.IsLabDiamond).Result;
                 var diamondPrice = _diamondServices.GetDiamondPrice(cartProduct.Diamond, prices).Result;
                 reviewPrice.DefaultPrice = cartProduct.Diamond.TruePrice;
             }
@@ -178,7 +178,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 _jewelryService.AddPrice(cartProduct.Jewelry, _sizeMetalRepository);
                 foreach (var diamond in cartProduct.Jewelry.Diamonds)
                 {
-                    var prices = _diamondPriceRepository.GetPriceByShapes(diamond.DiamondShape).Result;
+                    var prices = _diamondPriceRepository.GetPriceByShapes(diamond.DiamondShape,diamond.IsLabDiamond).Result;
                     var diamondPrice = _diamondServices.GetDiamondPrice(diamond, prices).Result;
                     diamond.DiamondPrice = diamondPrice;
                 }

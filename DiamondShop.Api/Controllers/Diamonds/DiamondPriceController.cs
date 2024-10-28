@@ -7,6 +7,7 @@ using DiamondShop.Application.Usecases.DiamondPrices.Commands.Delete;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany;
 using DiamondShop.Application.Usecases.DiamondPrices.Queries.GetAllByShape;
 using DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPaging;
+using DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -25,6 +26,15 @@ namespace DiamondShop.Api.Controllers.Diamonds
         {
             _sender = sender;
             _mapper = mapper;
+        }
+        [HttpGet("PriceBoard")]
+        [Produces(typeof(DiamondPriceDto))]
+        public async Task<ActionResult> GetByShapeAndOrigin([FromQuery] GetDiamondPriceBoardQuery command)
+        {
+            var result = await _sender.Send(command);
+            if(result.IsFailed)
+                return MatchError(result.Errors,ModelState);
+            return Ok(result.Value);
         }
         [HttpGet]
         [Produces(typeof(DiamondPriceDto))]

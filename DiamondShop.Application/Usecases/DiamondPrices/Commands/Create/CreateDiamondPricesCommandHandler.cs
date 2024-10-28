@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.Create
 {
-    public record CreateDiamondPricesCommand(DiamondCriteriaId DiamondCriteriaId, DiamondShapeId DiamondShapeId, decimal price) : IRequest<Result<DiamondPrice>>;
+    public record CreateDiamondPricesCommand(DiamondCriteriaId DiamondCriteriaId, DiamondShapeId DiamondShapeId, decimal price, bool IsLabDiamond) : IRequest<Result<DiamondPrice>>;
     internal class CreateDiamondPricesCommandHandler : IRequestHandler<CreateDiamondPricesCommand, Result<DiamondPrice>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
@@ -43,7 +43,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.Create
             if (getCriteria is null)
                 return Result.Fail(new NotFoundError());
 
-            var newPrice = DiamondPrice.Create(getShape.Id, getCriteria.Id,request.price);
+            var newPrice = DiamondPrice.Create(getShape.Id, getCriteria.Id,request.price,request.IsLabDiamond);
             await _diamondPriceRepository.Create(newPrice);
             await _unitOfWork.SaveChangesAsync();
             return newPrice;

@@ -35,7 +35,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
         internal const string CATEGORIZED_IMAGES_FOLDER = IMAGES_FOLDER + "/" + "Categories";
 
         internal const string DELIMITER = "/";
-        //https://....../blob/Jewelry_model/Jewelry_Model_Id/{metal}/{SD_1}/{SD_2} / {SD_x}/{MD_x}/{MDs_x}/name_timestamp.jpeg
+        //https://....../blob/Jewelry_model/Jewelry_Model_Id/{metal}/{SD_1}/{SD_2}/{SD_3} / {SD_x}/{MD_x}/{MDs_x}/name_timestamp.jpeg
 
         private readonly ILogger<JewelryModelFileService> _logger;
 
@@ -74,7 +74,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
                     galleries[key].Add(originalMedia);
                 }
             };
-            
+
             foreach (var path in paths)
             {
                 var tobeComparedPath = path.MediaPath.Replace(GetAzureFilePath(jewelryModel), string.Empty);
@@ -83,15 +83,15 @@ namespace DiamondShop.Infrastructure.Services.Blobs
                 {
                     AddToCategory(tobeComparedPath, path);
                 }
-                else if (tobeComparedPath.StartsWith("/"+ BASE_IMAGES_FOLDER))
+                else if (tobeComparedPath.StartsWith("/" + BASE_IMAGES_FOLDER))
                 {
                     if (tobeComparedPath.StartsWith("/" + BASE_METAL_IMAGES_FOLDER))
-                        AddToCategory(tobeComparedPath,path);
-                    
-                    else if (tobeComparedPath.StartsWith("/" + BASE_MAIN_DIAMOND_IMAGES_FOLDER)) 
                         AddToCategory(tobeComparedPath, path);
-                    
-                    else if(tobeComparedPath.StartsWith("/" + BASE_SIDE_DIAMOND_IMAGES_FOLDER))
+
+                    else if (tobeComparedPath.StartsWith("/" + BASE_MAIN_DIAMOND_IMAGES_FOLDER))
+                        AddToCategory(tobeComparedPath, path);
+
+                    else if (tobeComparedPath.StartsWith("/" + BASE_SIDE_DIAMOND_IMAGES_FOLDER))
                         AddToCategory(tobeComparedPath, path);
 
                     else
@@ -104,11 +104,6 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             }
             gallery.Gallery = galleries;
             return gallery;
-        }
-
-        public Task<Result<string[]>> UploadGallery(JewelryModel jewelryModel, FileData[] fileStreams, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<Result<string>> UploadThumbnail(JewelryModel jewelryModel, FileData thumb, CancellationToken cancellationToken = default)
@@ -196,9 +191,29 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             }
         }
 
-        public Task<Result<string[]>> UploadCategory(JewelryModel jewelryModel, CategoryFileData[] fileStreams, CancellationToken cancellationToken = default)
+        public async Task<Result<string[]>> UploadCategory(JewelryModel jewelryModel, CategoryFileData[] fileStreams, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            //get all base key for metals, side diamonds and main diamonds[BASE_... ]
+            List<(FileData fileData, string relativePath)> fileDataTobeUploaded = new();
+            //init keys
+            foreach (var file in fileStreams)
+            {
+                string FinalPath = GetCategoryIdentifierName(file.MetalId, file.SideDiamondOpts, file.MainDiamonds);
+                fileDataTobeUploaded.Add(new (new FileData(file.stream.FileName, file.stream.FileExtension, file.stream.contentType,file.stream.Stream),FinalPath));
+            }
+            string basePath = GetAzureFilePath(jewelryModel);
+            basePath = $"{basePath}/{CATEGORIZED_IMAGES_FOLDER}";
+            List<Task<Result<string[]>>> uploadTasks = new();
+            foreach (var file in fileDataTobeUploaded)
+            {
+                var finalPath = $"{basePath}/{file.relativePath}";
+                uploadTasks.Add(UploadFromBasePath(finalPath, new List<FileData> { file.fileData }.ToArray(), cancellationToken));
+            }
+            var results = await Task.WhenAll(uploadTasks);
+            var stringResult = results.Where(r => r.IsSuccess).SelectMany(r => r.Value).ToArray();
+            if (stringResult.Length == 0)
+                return Result.Fail("Failed to upload any files at all");
+            return Result.Ok(stringResult);
         }
 
         public async Task<Result<string[]>> UploadBaseMetal(JewelryModel jewelryModel, BaseMetalFileData[] fileStreams, CancellationToken cancellationToken = default)

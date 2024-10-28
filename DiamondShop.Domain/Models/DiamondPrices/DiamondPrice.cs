@@ -18,13 +18,14 @@ namespace DiamondShop.Domain.Models.DiamondPrices
         public DiamondShape Shape { get; set; }
         public DiamondCriteriaId CriteriaId { get; set; }
         public DiamondCriteria Criteria { get; set; }
-        public bool IsLabDiamond { get; set; } = true;
+        public bool IsLabDiamond { get; set; }
+        public bool IsSideDiamond { get; set; } = false;
         public decimal Price { get; set; }
         [NotMapped]
         public string? ForUnknownPrice { get; set; }
 
 
-        public static DiamondPrice Create(DiamondShapeId diamondShapeId, DiamondCriteriaId diamondCriteriaId, decimal price)
+        public static DiamondPrice Create(DiamondShapeId diamondShapeId, DiamondCriteriaId diamondCriteriaId, decimal price, bool isLabPrice)
         {
             if (price <= 0)
                 throw new Exception();
@@ -33,9 +34,11 @@ namespace DiamondShop.Domain.Models.DiamondPrices
                 ShapeId = diamondShapeId,
                 CriteriaId = diamondCriteriaId,
                 Price = price,
+                IsLabDiamond = isLabPrice,
+                IsSideDiamond = false
             };
         }
-        public static DiamondPrice CreateUnknownPrice(DiamondShapeId diamondShapeId, DiamondCriteriaId diamondCriteriaId)
+        public static DiamondPrice CreateUnknownPrice(DiamondShapeId diamondShapeId, DiamondCriteriaId diamondCriteriaId, bool isLab)
         {
             //this is not supposed to be in db, just for assigning
             return new DiamondPrice
@@ -43,7 +46,22 @@ namespace DiamondShop.Domain.Models.DiamondPrices
                 ShapeId = diamondShapeId,
                 CriteriaId = diamondCriteriaId,
                 Price = 0,
-                ForUnknownPrice = "Liên hệ chúng tôi để được tư vấn giá"
+                ForUnknownPrice = "Liên hệ chúng tôi để được tư vấn giá",
+                IsLabDiamond = isLab,
+                IsSideDiamond = false,
+            };
+        }
+        public static DiamondPrice CreateSideDiamondPrice(DiamondShapeId diamondShapeId, DiamondCriteriaId diamondCriteriaId, decimal price, bool isLabPrice)
+        {
+            if (price <= 0)
+                throw new Exception();
+            return new DiamondPrice
+            {
+                ShapeId = diamondShapeId,
+                CriteriaId = diamondCriteriaId,
+                Price = price,
+                IsLabDiamond = isLabPrice,
+                IsSideDiamond =true,
             };
         }
         public void ChangePrice(decimal price)
