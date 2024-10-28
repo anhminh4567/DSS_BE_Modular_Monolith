@@ -55,36 +55,11 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
             else if (!_orderService.IsCancellable(order.Status))
                 return Result.Fail("This order can't be rejected anymore!");
             order.Status = OrderStatus.Rejected;
+            order.PaymentStatus = PaymentStatus.Refunding;
             order.CancelledDate = DateTime.UtcNow;
             order.CancelledReason = reason;
             await _orderRepository.Update(order);
-
-
-            var orderItemQuery = _orderItemRepository.GetQuery();
-            orderItemQuery = _orderItemRepository.QueryInclude(orderItemQuery, p => p.Jewelry);
-            orderItemQuery = _orderItemRepository.QueryInclude(orderItemQuery, p => p.Diamond);
-            orderItemQuery = _orderItemRepository.QueryFilter(orderItemQuery, p => p.OrderId == order.Id);
-            var items = orderItemQuery.ToList();
-            HashSet<Jewelry> jewelrySet = new();
-            HashSet<Diamond> diamondSet = new();
-            items.ForEach(p =>
-            {
-                if (p.Status != OrderItemStatus.Removed)
-                {
-                    p.Status = OrderItemStatus.Removed;
-                    if (p.Jewelry != null) jewelrySet.Add(p.Jewelry);
-                    if (p.Diamond != null) diamondSet.Add(p.Diamond);
-                }
-            });
-            var jewelries = jewelrySet.ToList();
-            jewelries.ForEach(p => p.SetSell());
-
-            var diamonds = diamondSet.ToList();
-            diamonds.ForEach(p => p.SetSell());
-
-            _orderItemRepository.UpdateRange(items);
-            _jewelryRepository.UpdateRange(jewelries);
-            _diamondRepository.UpdateRange(diamonds);
+            await _orderService.CancelItems(order, _orderRepository, _orderItemRepository, _jewelryRepository, _diamondRepository);
 
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);

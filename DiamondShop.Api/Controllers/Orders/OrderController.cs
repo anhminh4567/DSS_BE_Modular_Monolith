@@ -5,6 +5,7 @@ using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Dtos.Responses.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Orders.Commands.Create;
+using DiamondShop.Application.Usecases.Orders.Commands.DeliverFail;
 using DiamondShop.Application.Usecases.Orders.Commands.Proceed;
 using DiamondShop.Application.Usecases.Orders.Commands.Redeliver;
 using DiamondShop.Application.Usecases.Orders.Commands.Reject;
@@ -185,6 +186,19 @@ namespace DiamondShop.Api.Controllers.Orders
         public async Task<ActionResult> RefundOrder([FromQuery] AssignDelivererOrderCommand assignDelivererOrderCommand)
         {
             var result = await _sender.Send(assignDelivererOrderCommand);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<OrderDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            else
+                return MatchError(result.Errors, ModelState);
+        }
+        [HttpPut("DeliverFail")]
+        [Authorize(Roles = AccountRole.DelivererId)]
+        public async Task<ActionResult> DeliverFail([FromQuery] OrderDeliverFailCommand orderDeliverFailCommand)
+        {
+            var result = await _sender.Send(orderDeliverFailCommand);
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<OrderDto>(result.Value);
