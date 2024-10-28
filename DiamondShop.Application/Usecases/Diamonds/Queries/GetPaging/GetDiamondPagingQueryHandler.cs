@@ -55,7 +55,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             Dictionary<string, List<DiamondPrice>> shapeDictPrice = new();
             foreach (var shape in getAllShape)
             {
-                var prices = await _diamondPriceRepository.GetPriceByShapes(shape, cancellationToken);
+                var prices = await _diamondPriceRepository.GetPriceByShapes(shape,null, cancellationToken);
                 shapeDictPrice.Add(shape.Id.Value,prices);
             }
             var getAllDiscount = await _discountRepository.GetActiveDiscount();

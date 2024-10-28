@@ -132,7 +132,7 @@ namespace DiamondShop.Infrastructure.Services.Locations.OApi
             var httpClient = new HttpClient();
             var httpRequest = new HttpRequestMessage();
 
-            httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}/districts?page=0&size=99&provinceId={int.Parse(provinceId)}");
+            httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}/districts/{int.Parse(provinceId)}?page=0&size=99");
             httpRequest.Content = new StringContent("", Encoding.UTF8, "application/json");
 
             var result = httpClient.SendAsync(httpRequest).Result;
@@ -176,7 +176,7 @@ namespace DiamondShop.Infrastructure.Services.Locations.OApi
             ArgumentNullException.ThrowIfNull(districtId);
             var httpClient = new HttpClient();
             var httpRequest = new HttpRequestMessage();
-            httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}/wards?page=0&size=99&districtId={int.Parse(districtId)}");
+            httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}/wards/{int.Parse(districtId)}?page=0&size=99");
             httpRequest.Content = new StringContent("", Encoding.UTF8, "application/json");
             var result = httpClient.SendAsync(httpRequest).Result;
             if (result.IsSuccessStatusCode)

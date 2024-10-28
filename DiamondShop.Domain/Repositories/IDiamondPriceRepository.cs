@@ -10,8 +10,8 @@ namespace DiamondShop.Domain.Repositories
 {
     public interface IDiamondPriceRepository : IBaseRepository<DiamondPrice>
     {
-        Task<List<DiamondPrice>> GetPriceByShapes(DiamondShape shape, CancellationToken token = default);
-        Task<List<DiamondPrice>> GetPriceByCriteria(DiamondCriteriaId diamondCriteriaId, CancellationToken token = default);
+        Task<List<DiamondPrice>> GetPriceByShapes(DiamondShape shape, bool? isLabDiamond = null, CancellationToken token = default);
+        Task<List<DiamondPrice>> GetPriceByCriteria(DiamondCriteriaId diamondCriteriaId, bool? isLabDiamond = null, CancellationToken token = default);
         Task<DiamondPrice?> GetById(DiamondShapeId shapeId, DiamondCriteriaId criteriaId, CancellationToken cancellationToken =default);
         Task CreateMany(List<DiamondPrice> prices);
     }

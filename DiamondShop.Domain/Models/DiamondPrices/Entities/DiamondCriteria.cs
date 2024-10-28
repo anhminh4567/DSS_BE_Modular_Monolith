@@ -18,6 +18,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices.Entities
         public float CaratFrom { get; set; }
         public float CaratTo { get; set; }
         public bool? IsLabGrown { get; set; }
+        public bool? IsSideDiamond { get; set; } = false;
         [NotMapped]
         public bool IsSideDiamondPrice { get => Cut == null && Clarity == null && Color == null; }
         public static DiamondCriteria Create(Cut cut, Clarity clarity, Color color, float fromCarat ,float toCarat)
@@ -35,6 +36,25 @@ namespace DiamondShop.Domain.Models.DiamondPrices.Entities
                 CaratFrom = fromCarat,
                 CaratTo = toCarat,
                 IsLabGrown = null,
+                IsSideDiamond = false,
+            };
+        }
+        public static DiamondCriteria CreateSideDiamondCriteria(Cut cut, Clarity clarity, Color color, float fromCarat, float toCarat)
+        {
+            if (fromCarat > toCarat)
+            {
+                throw new ArgumentException("from carat is greater than to carat");
+            }
+            return new DiamondCriteria
+            {
+                Id = DiamondCriteriaId.Create(),
+                Cut = cut,
+                Clarity = clarity,
+                Color = color,
+                CaratFrom = fromCarat,
+                CaratTo = toCarat,
+                IsLabGrown = null,
+                IsSideDiamond = true,
             };
         }
         private DiamondCriteria() { }

@@ -20,11 +20,9 @@ namespace DiamondShop.Domain.Services.Implementations
 {
     public class DiamondServices : IDiamondServices
     {
-        //private readonly ILogger<DiamondServices> _logger;
 
         public DiamondServices()
         {
-            //_logger = logger;
         }
         public static Discount? AssignDiamondDiscountGlobal(Diamond diamond, List<Discount> discounts)
         {
@@ -74,7 +72,7 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             return await GetDiamondPriceGlobal(diamond,diamondPrices);
         }
-        public async Task<DiamondPrice> GetDiamondPriceGlobal(Diamond diamond, List<DiamondPrice> diamondPrices)
+        public static async Task<DiamondPrice> GetDiamondPriceGlobal(Diamond diamond, List<DiamondPrice> diamondPrices)
         {
             foreach (var price in diamondPrices)
             {
@@ -89,7 +87,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 continue;
             }
             //throw new Exception("somehow none of the price match the diamond");
-            var emptyPrice = DiamondPrice.CreateUnknownPrice(diamond.DiamondShapeId, null);
+            var emptyPrice = DiamondPrice.CreateUnknownPrice(diamond.DiamondShapeId, null,diamond.IsLabDiamond);
             diamond.DiamondPrice = emptyPrice;
             diamond.SetCorrectPrice(diamond.DiamondPrice.Price);
             //emptyPrice.ForUnknownPrice = "unknown , please contact us for more information";
@@ -131,6 +129,24 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             return false;
         }
+        public static bool ValidateDiamond3CGlobal(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo)
+        {
+            if (caratFrom <= diamond.Carat && caratTo >= diamond.Carat)
+            {
+                if (colorFrom <= diamond.Color && colorTo >= diamond.Color)
+                {
+                    if (clarityFrom <= diamond.Clarity && clarityTo >= diamond.Clarity)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        public bool ValidateDiamond3C(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo)
+        {
+            return ValidateDiamond3CGlobal(diamond,caratFrom,caratTo,colorFrom,colorTo,clarityFrom,clarityTo);
+        }
         public static async Task<DiamondPrice> GetSideDiamondPrice(JewelrySideDiamond sideDiamond, List<DiamondPrice> diamondPrices)
         {
             foreach (var price in diamondPrices)
@@ -159,8 +175,9 @@ namespace DiamondShop.Domain.Services.Implementations
                 return false;
             }
             var criteria = price.Criteria;
-            if (diamond.Cut == criteria.Cut
-                && diamond.Color == criteria.Color
+            if (
+                 //diamond.Cut == criteria.Cut &&
+                 diamond.Color == criteria.Color
                 && diamond.Clarity == criteria.Clarity
                 && diamond.Carat < criteria.CaratTo
                 && diamond.Carat >= criteria.CaratFrom
@@ -189,5 +206,7 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             return false;
         }
+
+
     }
 }

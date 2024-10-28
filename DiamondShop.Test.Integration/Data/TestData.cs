@@ -258,7 +258,7 @@ namespace DiamondShop.Test.Integration.Data
         #endregion
         #region DiamondPrice
         public static DiamondPrice DefaultDiamondPrice(DiamondShapeId shapeId, DiamondCriteriaId criteriaId) =>
-            DiamondPrice.Create(shapeId, criteriaId, 100M);
+            DiamondPrice.Create(shapeId, criteriaId, 100M,true);
         static async Task SeedingPrice(DiamondShopDbContext _context, DiamondPrice price)
         {
             _context.Set<DiamondPrice>().AddRange(price);

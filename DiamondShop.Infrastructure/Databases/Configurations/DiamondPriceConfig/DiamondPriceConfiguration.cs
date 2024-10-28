@@ -26,7 +26,11 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondPriceConfig
                 dbValue => DiamondCriteriaId.Parse(dbValue));
             builder.HasOne(o => o.Shape).WithMany().HasForeignKey(o => o.ShapeId).IsRequired();
             builder.HasOne(o => o.Criteria).WithMany().HasForeignKey(o => o.CriteriaId).IsRequired();
-            builder.HasKey(o => new { o.ShapeId, o.CriteriaId });
+            builder.HasKey(o => new { o.ShapeId, o.CriteriaId,o.IsLabDiamond, o.IsSideDiamond });
+            builder.HasIndex(o => new { o.ShapeId, o.IsLabDiamond, o.IsSideDiamond  });
+            builder.HasIndex(o => new { o.CriteriaId, o.IsLabDiamond , o.IsSideDiamond });
+            builder.HasIndex(o => new { o.CriteriaId, o.ShapeId, o.IsLabDiamond, o.IsSideDiamond });
+
         }
     }
 }

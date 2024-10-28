@@ -45,7 +45,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail
             {
                 return Result.Fail(new NotFoundError());
             }
-            var prices = await _diamondPriceRepository.GetPriceByShapes(getResult.DiamondShape,cancellationToken);
+            var prices = await _diamondPriceRepository.GetPriceByShapes(getResult.DiamondShape,getResult.IsLabDiamond,cancellationToken);
             var diamondPrice = await _diamondServices.GetDiamondPrice(getResult, prices);
             //getResult.DiamondPrice = diamondPrice;
             //var testingOnly = await _diamondRepository.GetByIdIncludeDiscountAndPromotion(parsedId);

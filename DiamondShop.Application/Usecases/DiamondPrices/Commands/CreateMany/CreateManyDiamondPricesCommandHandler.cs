@@ -43,7 +43,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
                 var tryGetCriteria = getCriteria.FirstOrDefault(c => c.Id == price.DiamondCriteriaId);
                 if (getCriteria is null)
                     return Result.Fail(new NotFoundError());
-                var newPrice = DiamondPrice.Create(tryGetShape.Id, tryGetCriteria.Id, price.price);
+                var newPrice = DiamondPrice.Create(tryGetShape.Id, tryGetCriteria.Id, price.price,price.IsLabDiamond);
 
                 await _diamondPriceRepository.Create(newPrice);
                 //var tryGet = await _diamondPriceRepository.GetById(price.DiamondShapeId, price.DiamondCriteriaId);

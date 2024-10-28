@@ -22,9 +22,15 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo
             if(isDateComparisonRequired) 
             {
                 var now = DateTime.UtcNow;
-                return _set.Include(p => p.PromoReqs).Include(p => p.Gifts).Where(p => p.Status == Domain.Models.Promotions.Enum.Status.Active && p.StartDate < now && p.EndDate > now).ToListAsync();
+                return _set.Include(p => p.PromoReqs).Include(p => p.Gifts)
+                    .Where(p => p.Status == Domain.Models.Promotions.Enum.Status.Active && p.StartDate < now && p.EndDate > now)
+                    .OrderBy(p => p.Priority)
+                    .ToListAsync();
             }
-            return _set.Include(p => p.PromoReqs).Include(p => p.Gifts).Where(p => p.Status == Domain.Models.Promotions.Enum.Status.Active).ToListAsync();
+            return _set.Include(p => p.PromoReqs).Include(p => p.Gifts)
+                .Where(p => p.Status == Domain.Models.Promotions.Enum.Status.Active)
+                .OrderBy(p => p.Priority)
+                .ToListAsync();
         }
 
         public Task<List<Order>> GetUserOrderThatUsedThisPromotion(Promotion promotion, Account userAccount, CancellationToken cancellationToken = default)
