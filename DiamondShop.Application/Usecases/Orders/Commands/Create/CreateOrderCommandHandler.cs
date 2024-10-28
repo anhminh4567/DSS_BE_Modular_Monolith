@@ -162,6 +162,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             _diamondRepository.UpdateRange(diamonds);
 
             await _unitOfWork.SaveChangesAsync(token);
+            await _unitOfWork.CommitAsync(token);
             if (isTransfer)
             {
                 return new PaymentLinkResponse()
@@ -185,7 +186,6 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                     Amount = amount,
                 };
                 var paymentLink = await _paymentService.CreatePaymentLink(paymentLinkRequest, token);
-                await _unitOfWork.CommitAsync(token);
                 return paymentLink;
             }
         }
