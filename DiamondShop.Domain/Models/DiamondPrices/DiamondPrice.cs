@@ -51,19 +51,33 @@ namespace DiamondShop.Domain.Models.DiamondPrices
                 IsSideDiamond = false,
             };
         }
+        public static DiamondPrice CreateUnknownSideDiamondPrice()
+        {
+            //this is not supposed to be in db, just for assigning
+            return new DiamondPrice
+            {
+                ShapeId = DiamondShape.AnyShape.Id,
+                CriteriaId = DiamondCriteriaId.Parse("-1"),
+                Price = 0,
+                ForUnknownPrice = "giá kim cương tấm chưa được set rõ",
+                IsLabDiamond = true,// assume all side diamond is lab
+                IsSideDiamond = true,
+            };
+        }
         public static DiamondPrice CreateSideDiamondPrice(DiamondShapeId diamondShapeId, DiamondCriteriaId diamondCriteriaId, decimal price, bool isLabPrice)
         {
             if (price <= 0)
                 throw new Exception();
             return new DiamondPrice
             {
-                ShapeId = diamondShapeId,
+                ShapeId = DiamondShapeId.Parse(DEFAULT_SIDEDIAMOND_SHAPE_ID), // shape is not matter
                 CriteriaId = diamondCriteriaId,
                 Price = price,
                 IsLabDiamond = isLabPrice,
                 IsSideDiamond =true,
             };
         }
+        public const string DEFAULT_SIDEDIAMOND_SHAPE_ID = "1";
         public void ChangePrice(decimal price)
         {
             if(price <= 1000)

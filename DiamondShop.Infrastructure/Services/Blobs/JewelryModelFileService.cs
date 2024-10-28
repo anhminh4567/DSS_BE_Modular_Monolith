@@ -9,6 +9,7 @@ using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Infrastructure.Options;
+using FluentEmail.Core;
 using FluentResults;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -240,7 +241,13 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             List<Task<Result<string[]>>> uploadTasks = new();
             foreach (var file in fileStreams)
             {
-                var finalPath = $"{basePath}/{file.MainDiamond.MainDiamondReqId.Value}_{file.MainDiamond.ShapeId.Value}";
+                //var path = GetAzureMainDiamondPathIdentifier("", file.MainDiamonds);
+                //var finalPath = $"{basePath}/{file.MainDiamond.MainDiamondReqId.Value}_{file.MainDiamond.ShapeId.Value}";
+                var pathOrderd = file.MainDiamondRequirements.Select(x => x.Id).OrderBy(x => x).ToArray();
+                string path = "";
+                pathOrderd.ForEach(x => path += $"/{x}");
+                path.Remove(0, 1);// remove the / from the first position
+                var finalPath = $"{basePath}/{path}";
                 uploadTasks.Add(UploadFromBasePath(finalPath, new List<FileData> { file.stream }.ToArray(), cancellationToken));
             }
             var results = await Task.WhenAll(uploadTasks);
@@ -257,7 +264,9 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             List<Task<Result<string[]>>> uploadTasks = new();
             foreach (var file in fileStreams)
             {
-                var finalPath = $"{basePath}/{file.SideDiamondOpt.SideDiamondReqId.Value}_{file.SideDiamondOpt.Id.Value}";
+                var getSideDiamondsPath = GetAzureSideDiamondPathIdentifier("", file.SideDiamondOpts);
+                //var finalPath = $"{basePath}/{file.SideDiamondOpt.SideDiamondReqId.Value}_{file.SideDiamondOpt.Id.Value}";
+                var finalPath = $"{basePath}/{getSideDiamondsPath}";
                 uploadTasks.Add(UploadFromBasePath(finalPath, new List<FileData> { file.stream }.ToArray(), cancellationToken));
             }
             var results = await Task.WhenAll(uploadTasks);

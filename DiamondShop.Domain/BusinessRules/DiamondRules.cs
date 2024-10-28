@@ -10,5 +10,6 @@ namespace DiamondShop.Domain.BusinessRules
     {
         public static decimal MinPriceOffset { get; set; } = 0.1M;
         public static decimal MaxPriceOffset{ get; set; } = 10M;
+        public static decimal BiggestSideDiamondCarat { get; set; } = 0.2M;
     }
 }

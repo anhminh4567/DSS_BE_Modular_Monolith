@@ -25,6 +25,17 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         public async Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableCriteria(CancellationToken cancellationToken = default)
         {
             var result = await  _set
+                .Where(x => x.IsSideDiamond == false)
+                .GroupBy(x => new { x.CaratFrom, x.CaratTo })
+                .Select(x => x.Key)
+                .ToListAsync();
+            return result.Select(result => (result.CaratFrom, result.CaratTo)).ToList();
+        }
+
+        public async Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableSideDiamondCriteria(CancellationToken cancellationToken = default)
+        {
+            var result = await _set
+                .Where(x => x.IsSideDiamond == true)
                 .GroupBy(x => new { x.CaratFrom, x.CaratTo })
                 .Select(x => x.Key)
                 .ToListAsync();

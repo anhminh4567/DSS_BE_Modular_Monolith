@@ -11,5 +11,7 @@ namespace DiamondShop.Domain.Repositories
     {
         Task CreateMany(List<DiamondCriteria> diamondCriterias);
         Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableCriteria(CancellationToken cancellationToken = default);
+        Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableSideDiamondCriteria(CancellationToken cancellationToken = default);
+
     }
 }

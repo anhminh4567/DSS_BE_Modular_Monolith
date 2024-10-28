@@ -16,11 +16,11 @@ namespace DiamondShop.Domain.Models.DiamondShapes
         public List<PromoReqShape> PromoReqShapes { get; set; } = new();
 
         public DiamondShape() { }
-        //given id is for shape, because we might not change this often, the id is predictable
-        //and should be as short as possible 
-        //ex: id should be aa,bb,cc or number int 1, 2,3 
-        //for insert randomness of id, can use DateTime.utcNow.ticks.toString() to get a number string 
-        //with timeStamp, for query purpose
+        public static DiamondShape AnyShape = new DiamondShape
+        {
+            Id = DiamondShapeId.Parse("-1"),
+            Shape = "Any"
+        };
         public static DiamondShape Create(string shape, DiamondShapeId? givenId = null)
         {
             return new DiamondShape() 
@@ -33,5 +33,6 @@ namespace DiamondShop.Domain.Models.DiamondShapes
         {
             Shape = shape;
         }
+
     }
 }

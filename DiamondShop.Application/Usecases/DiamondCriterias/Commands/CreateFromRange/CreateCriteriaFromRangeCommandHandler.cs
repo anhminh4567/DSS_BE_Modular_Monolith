@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromRange
 {
-    public record CreateCriteriaFromRangeCommand(float caratFrom ,float caratTo, Cut? Cut = Cut.Excelent) : IRequest<Result<List<DiamondCriteria>>>;
+    public record CreateCriteriaFromRangeCommand(float caratFrom ,float caratTo, Cut? Cut = Cut.Excelent, bool IsSideDiamond = false) : IRequest<Result<List<DiamondCriteria>>>;
     internal class CreateCriteriaFromRangeCommandHandler : IRequestHandler<CreateCriteriaFromRangeCommand, Result<List<DiamondCriteria>>>
     {
         private readonly IDiamondCriteriaRepository _diamondCriteriaRepository;
@@ -31,8 +31,12 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
 
         public async Task<Result<List<DiamondCriteria>>> Handle(CreateCriteriaFromRangeCommand request, CancellationToken cancellationToken)
         {
-            var getAllAvailbleCaratRange = await _diamondCriteriaRepository.GroupAllAvailableCriteria(cancellationToken);
-            var orderedRange = getAllAvailbleCaratRange.OrderBy(x => x.CaratFrom).ToList();
+            List<(float CaratFrom, float CaratTo)> allAvailableCaratRange = new();
+            if(request.IsSideDiamond == false)
+                allAvailableCaratRange = await _diamondCriteriaRepository.GroupAllAvailableCriteria(cancellationToken);
+            else
+                allAvailableCaratRange = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCriteria(cancellationToken);
+            var orderedRange = allAvailableCaratRange.OrderBy(x => x.CaratFrom).ToList();
             foreach(var range in orderedRange)
             {
                 if(request.caratFrom >= range.CaratFrom  
@@ -57,7 +61,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
                     });
                 }
             }
-            var command = new CreateManyDiamondCriteriasCommand(requests);
+            var command = new CreateManyDiamondCriteriasCommand(requests, request.IsSideDiamond);
             var result = await _sender.Send(command, cancellationToken);
             return result;
         }

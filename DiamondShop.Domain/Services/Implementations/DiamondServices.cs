@@ -147,26 +147,27 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             return ValidateDiamond3CGlobal(diamond,caratFrom,caratTo,colorFrom,colorTo,clarityFrom,clarityTo);
         }
-        public static async Task<DiamondPrice> GetSideDiamondPrice(JewelrySideDiamond sideDiamond, List<DiamondPrice> diamondPrices)
+        public static async Task<List<DiamondPrice>> GetSideDiamondPrice(JewelrySideDiamond sideDiamond, List<DiamondPrice> diamondPrices)
         {
+            List<DiamondPrice> matchPrices = new();
             foreach (var price in diamondPrices)
             {
-                var isCorrectPrice = IsCorrectSideDiamondPrice(sideDiamond, price);
-                if (isCorrectPrice)
+                var isMatchPrice = IsMatchSideDiamondPrice(sideDiamond, price);
+                if (isMatchPrice)
                 {
-                    decimal correctOffsetPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(price.Price);
-                    sideDiamond.DiamondPrice = price;
-                    sideDiamond.Price = correctOffsetPrice;
-                    return price;
+                    //decimal correctOffsetPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(price.Price);
+                    sideDiamond.DiamondPrice.Add(price);
                 }
                 continue;
             }
-            throw new Exception("somehow none of the price match the diamond");
-            //var emptyPrice = DiamondPrice.CreateUnknownPrice(, null);
-            //.DiamondPrice = emptyPrice;
-            //diamond.SetCorrectPrice(diamond.DiamondPrice.Price);
-            ////emptyPrice.ForUnknownPrice = "unknown , please contact us for more information";
-            //return emptyPrice;
+            if(matchPrices.Count == 0)
+            {
+                matchPrices.Add(DiamondPrice.CreateUnknownSideDiamondPrice());
+            }
+            sideDiamond.DiamondPrice = matchPrices;
+            sideDiamond.AveragePrice = matchPrices.Average(p => p.Price);
+            //emptyPrice.ForUnknownPrice = "unknown , please contact us for more information";
+            return sideDiamond.DiamondPrice;
         }
         private static bool IsCorrectPrice(Diamond diamond, DiamondPrice price)
         {
@@ -187,26 +188,13 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             return false;
         }
-        private static bool IsCorrectSideDiamondPrice(JewelrySideDiamond sideDiamond, DiamondPrice price)
+        private static bool IsMatchSideDiamondPrice(JewelrySideDiamond sideDiamond, DiamondPrice price)
         {
-            //TODO: change to db the thing
-            //if (sideDiamond.Id != price.ShapeId)
-            //{
-            //    return false;
-            //}
-            //BUSINESS RULES: all side diamonds are LabDiamonds
-            var criteria = price.Criteria;
-            if (sideDiamond.AverageColor == criteria.Color
-                && sideDiamond.AverageClarity == criteria.Clarity
-                && sideDiamond.AverageCarat < criteria.CaratTo
-                && sideDiamond.AverageCarat>= criteria.CaratFrom
-                && price.IsLabDiamond)
-            {
-                return true;
-            }
-            return false;
+            bool isColorInRange = price.Criteria.Color >= sideDiamond.ColorMin && price.Criteria.Color <= sideDiamond.ColorMax;
+            bool isClarityInRange = price.Criteria.Clarity >= sideDiamond.ClarityMin && price.Criteria.Clarity <= sideDiamond.ClarityMax;
+            bool isCaratInRange = price.Criteria.CaratTo > sideDiamond.AverageCarat && price.Criteria.CaratFrom <= sideDiamond.AverageCarat;
+            // all side diamond should be lab diamond
+            return isColorInRange && isClarityInRange && isCaratInRange && price.IsLabDiamond && price.IsSideDiamond;
         }
-
-
     }
 }

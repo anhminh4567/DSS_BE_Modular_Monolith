@@ -1,6 +1,8 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Commons;
+using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds.Enums;
+using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
@@ -17,7 +19,7 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
 {
     // cut is not required, might leave it as it be
-    public record GetDiamondPriceBoardQuery(string shapeId, bool isLabDiamond, Cut? Cut = Cut.Excelent) : IRequest<Result<DiamondPriceBoardDto>>;
+    public record GetDiamondPriceBoardQuery(string shapeId, bool isLabDiamond, Cut? Cut = Cut.Excelent, bool IsSideDiamond = false) : IRequest<Result<DiamondPriceBoardDto>>;
     internal class GetDiamondPriceBoardQueryHandler : IRequestHandler<GetDiamondPriceBoardQuery, Result<DiamondPriceBoardDto>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
@@ -39,14 +41,26 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             var getShape = await _diamondShapeRepository.GetById(shapeId);
             if (getShape is null)
                 return Result.Fail(new NotFoundError("Shape not found"));
-
-            var getPrices = await _diamondPriceRepository.GetPriceByShapes(getShape, request.isLabDiamond, cancellationToken);
+            List<DiamondPrice> prices = new();
             DiamondPriceBoardDto priceBoard = DiamondPriceBoardDto.Create();
             priceBoard.MainCut = request.Cut.Value;
             priceBoard.Shape = _mapper.Map<DiamondShapeDto>(getShape);
             priceBoard.IsLabDiamondBoardPrices = request.isLabDiamond;
+            if (request.IsSideDiamond == false)
+            {
+                prices = await _diamondPriceRepository.GetPriceByShapes(getShape, request.isLabDiamond, cancellationToken);
+                priceBoard.IsSideDiamondBoardPrices = false;
+            }
+            else
+            {
+                prices = await _diamondPriceRepository.GetSideDiamondPrice(request.isLabDiamond, cancellationToken);
+                priceBoard.Shape = _mapper.Map<DiamondShapeDto>(DiamondShape.AnyShape); 
+                priceBoard.IsSideDiamondBoardPrices = true;
+            }
+               
+            
             Stopwatch stopwatch = Stopwatch.StartNew();
-            var diamondCaratRangeGrouped = getPrices
+            var diamondCaratRangeGrouped = prices
                 .GroupBy(dp => new { dp.Criteria.CaratFrom, dp.Criteria.CaratTo })
                 .OrderBy(dp => dp.Key.CaratTo)
                 .ToList();
@@ -54,7 +68,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
                 .Select(dcr => new
                 {
                     TableRange = dcr.Key,
-                    TableItem = getPrices.Where(x =>
+                    TableItem = prices.Where(x =>
                         x.Criteria.CaratFrom == dcr.Key.CaratFrom &&
                         x.Criteria.CaratTo == dcr.Key.CaratTo)
                 })

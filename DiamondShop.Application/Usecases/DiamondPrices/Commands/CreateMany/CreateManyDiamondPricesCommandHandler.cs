@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
 {
-    public record CreateManyDiamondPricesCommand(List<DiamondPriceRequestDto> listPrices) : IRequest<Result>;
+    public record CreateManyDiamondPricesCommand(List<DiamondPriceRequestDto> listPrices, bool IsSideDiamondPrices = false) : IRequest<Result>;
     public class CreateManyDiamondPricesCommandHandler : IRequestHandler<CreateManyDiamondPricesCommand, Result>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
@@ -40,15 +40,22 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
                 var tryGetShape = getShapes.FirstOrDefault(s => s.Id == price.DiamondShapeId);
                 if(tryGetShape is null)
                     return Result.Fail(new NotFoundError());
-                var tryGetCriteria = getCriteria.FirstOrDefault(c => c.Id == price.DiamondCriteriaId);
-                if (getCriteria is null)
-                    return Result.Fail(new NotFoundError());
-                var newPrice = DiamondPrice.Create(tryGetShape.Id, tryGetCriteria.Id, price.price,price.IsLabDiamond);
-
-                await _diamondPriceRepository.Create(newPrice);
-                //var tryGet = await _diamondPriceRepository.GetById(price.DiamondShapeId, price.DiamondCriteriaId);
-                //if (tryGet != null)
-                //    return Result.Fail(new ConflictError("another item with such price (id) exist in db"));
+                if(request.IsSideDiamondPrices == false)
+                {
+                    var tryGetCriteria = getCriteria.FirstOrDefault(c => c.Id == price.DiamondCriteriaId && c.IsSideDiamond == false);
+                    if (getCriteria is null)
+                        return Result.Fail(new NotFoundError());
+                    var newPrice = DiamondPrice.Create(tryGetShape.Id, tryGetCriteria.Id, price.price, price.IsLabDiamond);
+                    await _diamondPriceRepository.Create(newPrice);
+                }
+                else
+                {
+                    var tryGetCriteria = getCriteria.FirstOrDefault(c => c.Id == price.DiamondCriteriaId && c.IsSideDiamond == true);
+                    if (getCriteria is null)
+                        return Result.Fail(new NotFoundError());
+                    var newPrice = DiamondPrice.CreateSideDiamondPrice(tryGetShape.Id, tryGetCriteria.Id, price.price, price.IsLabDiamond);
+                    await _diamondPriceRepository.Create(newPrice);
+                }
             }
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
