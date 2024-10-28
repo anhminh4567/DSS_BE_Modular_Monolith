@@ -33,9 +33,8 @@
     <Folder Include="Usecases\JewelryModelCategories\Commands\Update\" />
     <Folder Include="Usecases\JewelryModels\Commands\Delete\" />
     <Folder Include="Usecases\JewelryModels\Commands\Update\" />
-    <Folder Include="Usecases\JewelryModels\Files\Commands\AddMany\" />
-    <Folder Include="Usecases\JewelryModels\Files\Commands\RemoveMany\" />
-    <Folder Include="Usecases\JewelryModels\Files\Queries\" />
+    <Folder Include="Usecases\JewelryModels\Files\Commands\AddMainDiamondImages\" />
+    <Folder Include="Usecases\JewelryModels\Files\Commands\AddSideDiamondImages\" />
     <Folder Include="Usecases\Sizes\Commands\" />
     <Folder Include="Usecases\Transactions\Commands\CreateRefunds\" />
   </ItemGroup>

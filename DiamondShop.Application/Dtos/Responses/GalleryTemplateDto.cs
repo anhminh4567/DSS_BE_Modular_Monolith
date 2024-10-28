@@ -15,6 +15,6 @@ namespace DiamondShop.Application.Dtos.Responses
         public List<MediaDto> BaseImages { get; set; } // a set of images shared by many category, like different metal
                                                             // or different color but still display this same image
         public List<MediaDto> Certificates { get; set; } // certificate of the product, GIA, IGI, etc
-        public Dictionary<string, MediaDto> Gallery { get; set; } // categorize images by category, like metal/color/size, etc
+        public Dictionary<string, List<MediaDto>> Gallery { get; set; } // categorize images by category, like metal/color/size, etc
     }
 }

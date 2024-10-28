@@ -136,6 +136,26 @@ namespace DiamondShop.Domain.Services.Implementations
             return leftAmount;
         }
 
+        public decimal GetRefundShopCancel(Order order)
+        {
+            throw new NotImplementedException();
+        }
+
+        public decimal GetRefundUserCancelAfterDelivery(Order order)
+        {
+            throw new NotImplementedException();
+        }
+
+        public decimal GetRefundUserCancelBeforeProcessing(Order order)
+        {
+            throw new NotImplementedException();
+        }
+
+        public decimal GetRefundUserCancelDuringProcessingAndPrepared(Order order)
+        {
+            throw new NotImplementedException();
+        }
+
         public decimal GetRemaingValueForOrder(Order order)
         {
             var transactions = order.Transactions;

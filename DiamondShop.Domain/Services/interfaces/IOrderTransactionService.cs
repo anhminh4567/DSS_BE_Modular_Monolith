@@ -19,5 +19,16 @@ namespace DiamondShop.Domain.Services.interfaces
         decimal GetCorrectAmountFromOrder(Order order);
         decimal GetRefundAmountFromOrder(Order order, decimal fineAmount);
         decimal GetFinedAmountFromOrder(Order order);
+
+        //refunding 
+        decimal GetRefundUserCancelBeforeProcessing(Order order);
+        decimal GetRefundShopCancel(Order order);
+        decimal GetRefundUserCancelDuringProcessingAndPrepared(Order order);
+        /// <summary>
+        /// tính phí phạt và không trả phần ship 
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        decimal GetRefundUserCancelAfterDelivery(Order order);
     }
 }

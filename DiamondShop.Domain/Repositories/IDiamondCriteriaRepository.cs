@@ -10,5 +10,6 @@ namespace DiamondShop.Domain.Repositories
     public interface IDiamondCriteriaRepository : IBaseRepository<DiamondCriteria>
     {
         Task CreateMany(List<DiamondCriteria> diamondCriterias);
+        Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableCriteria(CancellationToken cancellationToken = default);
     }
 }

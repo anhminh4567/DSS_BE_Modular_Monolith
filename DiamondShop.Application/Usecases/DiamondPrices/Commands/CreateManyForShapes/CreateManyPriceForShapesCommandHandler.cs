@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateManyForShapes
 {
     public record PriceForShape(string shapeId, decimal price);
-    public record CreateManyPriceForShapesCommand(string criteriaId, List<PriceForShape> pricesForShape)  : IRequest<Result<List<DiamondPrice>>>;
+    public record CreateManyPriceForShapesCommand(string criteriaId,bool IsLabDiamond, List<PriceForShape> pricesForShape)  : IRequest<Result<List<DiamondPrice>>>;
     internal class CreateManyPriceForShapesCommandHandler : IRequestHandler<CreateManyPriceForShapesCommand, Result<List<DiamondPrice>>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
@@ -46,7 +46,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateManyForS
             {
                 var parsedShapeId = DiamondShapeId.Parse(price.shapeId);
                 var selectedShape = shapesSelected.First(p => p.Id == parsedShapeId);
-                var newPrice = DiamondPrice.Create(parsedShapeId, parsedCriteriaId, price.price);
+                var newPrice = DiamondPrice.Create(parsedShapeId, parsedCriteriaId, price.price,request.IsLabDiamond);
                 tobeAdded.Add(newPrice);
             }
             await _unitOfWork.BeginTransactionAsync();
