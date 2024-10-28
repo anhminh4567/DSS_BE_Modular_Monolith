@@ -7,11 +7,6 @@ using DiamondShop.Domain.Repositories.TransactionRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Services.Implementations
 {
@@ -92,24 +87,6 @@ namespace DiamondShop.Domain.Services.Implementations
             return roundedValue;
         }
 
-        public decimal GetFinedAmountFromOrder(Order order)
-        {
-            var orderCurrentStatusBeforeCancel = order.Status;
-            decimal fine = 0;
-            switch (orderCurrentStatusBeforeCancel)
-            {
-                case OrderStatus.Pending:
-                    break;
-                case OrderStatus.Processing:
-                    break;
-                case OrderStatus.Delivery_Failed:
-                    break;
-                default:
-                    break;
-            }
-            return fine;
-        }
-
         public decimal GetFullPaymentValueForOrder(Order order)
         {
             return order.TotalPrice;
@@ -128,7 +105,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 .Where(t => t.TransactionType == TransactionType.Refund || t.TransactionType == TransactionType.Partial_Refund)
                 .Sum(x => x.TotalAmount);
             var leftAmount = sumTransactions - refundTrans;
-            
+
             if (leftAmount <= 0)
                 throw new Exception("the order is already refunded");
             if (leftAmount - fineAmount <= 0)
@@ -136,9 +113,64 @@ namespace DiamondShop.Domain.Services.Implementations
             return leftAmount;
         }
 
-        public decimal GetRefundShopCancel(Order order)
+        public Transaction AddRefundShopReject(Order order)
         {
-            throw new NotImplementedException();
+            //TODO: Calculate in case of second order 
+            var transactions = order.Transactions
+                .Where(p => p.TransactionType == TransactionType.Pay);
+            var transaction = transactions.FirstOrDefault();
+            if (transaction == null)
+                throw new Exception("No transaction found");
+            var refundAmount = transactions
+                .Sum(p => p.TotalAmount);
+            if (transaction.IsManual)
+            {
+                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id}", refundAmount);
+                order.AddRefund(transac);
+            }
+            //Get Gateway refund
+            else
+            {
+            }
+            return null;
+        }
+        public Transaction AddRefundUserCancel(Order order)
+        {
+            var transactions = order.Transactions
+                .Where(p => p.TransactionType == TransactionType.Pay);
+            var transaction = transactions.FirstOrDefault();
+            if (transaction == null)
+                throw new Exception("No transaction found");
+            var refundAmount = transactions
+                .Sum(p => p.TotalAmount) * OrderPaymentRules.PayAllFine;
+            var fineAmount = order.TotalPrice - refundAmount;
+            if (transaction.IsManual)
+            {
+                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id}", refundAmount, fineAmount);
+                order.AddRefund(transac);
+            }
+            //Get Gateway refund
+            else
+            {
+            }
+            return null;
+        }
+        public Transaction AddCODPayment(Order order)
+        {
+            var transaction = order.Transactions.FirstOrDefault(p => p.TransactionType == TransactionType.Pay);
+            if (transaction == null)
+                throw new Exception("No transaction found");
+            var remainAmount = order.TotalPrice - transaction.TotalAmount;
+            if (transaction.IsManual)
+            {
+                var transac = Transaction.CreateManualPayment(order.Id, $"Manual remaining COD payment for order#{order.Id}", remainAmount, TransactionType.Pay);
+                order.AddTransaction(transac);
+            }
+            else
+            {
+
+            }
+            return null;
         }
 
         public decimal GetRefundUserCancelAfterDelivery(Order order)

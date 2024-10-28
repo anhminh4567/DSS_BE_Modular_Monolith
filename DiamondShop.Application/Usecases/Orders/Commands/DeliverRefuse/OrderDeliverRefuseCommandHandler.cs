@@ -44,10 +44,10 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverComplete
             List<IError> errors = new List<IError>();
             foreach (var item in items)
             {
-                var orderItem = order.Items.FirstOrDefault(p => p.Id == OrderItemId.Parse(item.OrderItemId));
+                var orderItem = order.Items.FirstOrDefault(p => p.Id == OrderItemId.Parse(item.ItemId));
                 if (orderItem == null)
                 {
-                    errors.Add(new Error($"Item #{item.OrderItemId} doesn't exist"));
+                    errors.Add(new Error($"Item #{item.ItemId} doesn't exist"));
                     continue;
                 }
                 if (item.Action == CompleteAction.Refund)
@@ -55,14 +55,17 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverComplete
                     order.PaymentStatus = PaymentStatus.Refunding;
                     orderItem.Status = OrderItemStatus.Removed;
                 }
-                else if (item.Action == CompleteAction.ReplaceByShop)
-                {
-                    orderItem.Status = OrderItemStatus.Replaced;
-                }
-                //ReplaceByCustomer
                 else
                 {
                     orderItem.Status = OrderItemStatus.Replaced;
+                    if (item.Action == CompleteAction.ReplaceByShop)
+                    {
+
+                    }
+                    //ReplaceByCustomer
+                    else
+                    {
+                    }
                 }
             }
             _orderItemRepository.UpdateRange(order.Items);

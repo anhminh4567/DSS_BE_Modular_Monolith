@@ -4,5 +4,5 @@
     {
         Refund, ReplaceByShop, ReplaceByCustomer
     }
-    public record OrderItemActionRequestDto(string OrderItemId, CompleteAction Action);
+    public record OrderItemActionRequestDto(string ItemId, CompleteAction Action, OrderItemRequestDto? ReplacingItem);
 }
