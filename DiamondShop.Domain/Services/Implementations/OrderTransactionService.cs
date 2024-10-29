@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Transactions;
 using DiamondShop.Domain.Models.Transactions.Enum;
@@ -143,7 +144,7 @@ namespace DiamondShop.Domain.Services.Implementations
         }
         public void AddRefundUserCancel(Order order)
         {
-            if(order.Status == OrderStatus.Pending)
+            if (order.Status == OrderStatus.Pending)
             {
                 var paymentInTransac = Transaction.CreateManualPayment(order.Id, $"Manual payment for order#{order.Id.Value}", order.TotalPrice, TransactionType.Pay);
                 order.AddTransaction(paymentInTransac);
@@ -161,7 +162,7 @@ namespace DiamondShop.Domain.Services.Implementations
             var fineAmount = order.TotalPrice - refundAmount;
             if (transaction.IsManual)
             {
-                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id.Value}", refundAmount, fineAmount);
+                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id.Value}", refundAmount - fineAmount);
                 order.AddRefund(transac);
             }
             //Get Gateway refund
@@ -169,6 +170,7 @@ namespace DiamondShop.Domain.Services.Implementations
             {
             }
         }
+
         public void AddCODPayment(Order order)
         {
             var transaction = order.Transactions.FirstOrDefault(p => p.TransactionType == TransactionType.Pay);
@@ -185,7 +187,6 @@ namespace DiamondShop.Domain.Services.Implementations
 
             }
         }
-
         public decimal GetRefundUserCancelAfterDelivery(Order order)
         {
             throw new NotImplementedException();
@@ -218,5 +219,6 @@ namespace DiamondShop.Domain.Services.Implementations
                 return Result.Fail($"the remaining money is: {remaining} , which is not in our rules is minimum = {TransactionRules.MinimumPerTransaction}");
             return Result.Ok((wantedAmount, remaining));
         }
+
     }
 }

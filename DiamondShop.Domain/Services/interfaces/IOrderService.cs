@@ -11,6 +11,7 @@ namespace DiamondShop.Domain.Services.interfaces
     public interface IOrderService
     {
         Result CheckWarranty(string? jewelryId, string? diamondId, WarrantyType warrantyType);
+        Task<Result<Order>> AssignDeliverer(Order order, string delivererId, IAccountRepository accountRepository, IOrderRepository orderRepository);
         public bool IsCancellable(OrderStatus order);
         public bool IsProceedable(OrderStatus order);
         public bool CheckForSameCity(List<Order> orders);
