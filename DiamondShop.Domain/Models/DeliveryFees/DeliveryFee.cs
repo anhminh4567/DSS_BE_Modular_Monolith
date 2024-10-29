@@ -11,6 +11,7 @@ namespace DiamondShop.Domain.Models.DeliveryFees
 {
     public class DeliveryFee : Entity<DeliveryFeeId>
     {
+        public const string UNKNONW_DELIVERY_ID = "-1";
         public string DeliveryMethod { get; set; } = "Xe Ô tô, do của hàng tự vận chuyển";
         public string Name { get; set; }
         public decimal Cost { get; set; }
@@ -40,6 +41,17 @@ namespace DiamondShop.Domain.Models.DeliveryFees
                 Name = name,
                 FromLocation = fromCity,
                 ToLocation = toCity,
+            };
+        }
+        public static DeliveryFee CreateUnknownDelivery()
+        {
+            return new DeliveryFee
+            {
+                Id = DeliveryFeeId.Parse(UNKNONW_DELIVERY_ID),
+                Cost = 0,
+                Name = "Vui lòng nhập đúng địa chỉ",
+                FromLocation = null,
+                ToLocation = null,
             };
         }
         public void ChangeName( string name) => Name = name;

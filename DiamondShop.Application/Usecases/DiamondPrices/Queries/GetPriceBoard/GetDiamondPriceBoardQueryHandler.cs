@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.DiamondPrices;
+using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
@@ -9,6 +10,7 @@ using FluentResults;
 using MapsterMapper;
 using MediatR;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -42,6 +44,9 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             if (getShape is null)
                 return Result.Fail(new NotFoundError("Shape not found"));
             List<DiamondPrice> prices = new();
+            List<(float CaratFrom, float CaratTo)> criteriasCarat = new();
+            Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>> criteriasByGrouping = new();
+
             DiamondPriceBoardDto priceBoard = DiamondPriceBoardDto.Create();
             priceBoard.MainCut = request.Cut.Value;
             priceBoard.Shape = _mapper.Map<DiamondShapeDto>(getShape);
@@ -50,14 +55,19 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             {
                 prices = await _diamondPriceRepository.GetPriceByShapes(getShape, request.isLabDiamond, cancellationToken);
                 priceBoard.IsSideDiamondBoardPrices = false;
+                criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableCaratRange( cancellationToken);
             }
             else
             {
                 prices = await _diamondPriceRepository.GetSideDiamondPrice(request.isLabDiamond, cancellationToken);
-                priceBoard.Shape = _mapper.Map<DiamondShapeDto>(DiamondShape.AnyShape); 
+                priceBoard.Shape = _mapper.Map<DiamondShapeDto>(DiamondShape.AnyShape);
                 priceBoard.IsSideDiamondBoardPrices = true;
+                criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCaratRange(cancellationToken);
+
             }
-               
+            criteriasCarat = criteriasCarat.OrderBy(x => x.CaratTo).ToList();
+
+            
             
             Stopwatch stopwatch = Stopwatch.StartNew();
             var diamondCaratRangeGrouped = prices
@@ -70,39 +80,92 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
                     TableRange = dcr.Key,
                     TableItem = prices.Where(x =>
                         x.Criteria.CaratFrom == dcr.Key.CaratFrom &&
-                        x.Criteria.CaratTo == dcr.Key.CaratTo)
+                        x.Criteria.CaratTo == dcr.Key.CaratTo).ToList()
                 })
             .ToList();
-
-            Dictionary<int, string> colorRange = groupByCaratRangeFromPrices
+            Dictionary<Color, int> colorRange = groupByCaratRangeFromPrices
                 .SelectMany(x => x.TableItem)
                 .Select(x => x.Criteria.Color)
                 .Distinct()
-                .OrderBy(x => x.Value).ToDictionary(x => (int)x.Value, x => x.Value.ToString());
-            Dictionary<int, string> clarityRange = groupByCaratRangeFromPrices
+                .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => ((int)x.Value));
+            Dictionary<Clarity, int> clarityRange = groupByCaratRangeFromPrices
                 .SelectMany(x => x.TableItem)
                 .Select(x => x.Criteria.Clarity)
                 .Distinct()
-                .OrderBy(x => x.Value).ToDictionary(x => (int)x.Value, x => x.Value.ToString());
-            var createTable = groupByCaratRangeFromPrices
+                .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => ((int) x.Value));
+
+            criteriasByGrouping = await _diamondCriteriaRepository.GroupAllAvailableCriteria(cancellationToken);
+
+            DiamondPriceCellDataDto[,] cells = new DiamondPriceCellDataDto[colorRange.Count,clarityRange.Count];
+
+            var createTable = criteriasByGrouping
                 .AsParallel()
                 .AsOrdered()
                 .Select(dp => new DiamondPriceTableDto()
                 {
-                    CaratFrom = dp.TableRange.CaratFrom,
-                    CaratTo = dp.TableRange.CaratTo,
+                    CaratFrom = dp.Key.CaratFrom,
+                    CaratTo = dp.Key.CaratTo,
                     ColorRange = colorRange,
                     ClarityRange = clarityRange,
-                    PriceCells = dp.TableItem
-                        .Select(x => new DiamondPriceCellDataDto()
-                        {
-                            CriteriaId = x.Criteria.Id.Value,
-                            Color = x.Criteria.Color.Value,
-                            Clarity = x.Criteria.Clarity.Value,
-                            Price = x.Price
-                        }).ToList()
+                    GroupedCriteria = dp.Value
                 }).ToList();
+            createTable.ForEach(x => 
+            { 
+                x.CellMatrix = new DiamondPriceCellDataDto[colorRange.Count, clarityRange.Count];
+                x.FillAllCellsWithUnknonwPrice(); 
+            } );
+
+            createTable.ForEach(x =>
+            {
+                var getCorrectGroupPrice = groupByCaratRangeFromPrices.FirstOrDefault(gp => gp.TableRange.CaratFrom == x.CaratFrom&& gp.TableRange.CaratTo == x.CaratTo);
+                if (getCorrectGroupPrice == null) { }
+                else 
+                {
+                    var prices = getCorrectGroupPrice.TableItem;
+                    x.MapPriceToCells(prices);
+                }
+            });
+            
             priceBoard.PriceTables = createTable;
+            //var createTable = groupByCaratRangeFromPrices
+            //    .AsParallel()
+            //    //.AsOrdered()
+            //    .Select(dp => new DiamondPriceTableDto()
+            //    {
+            //        CaratFrom = dp.TableRange.CaratFrom,
+            //        CaratTo = dp.TableRange.CaratTo,
+            //        ColorRange = colorRange,
+            //        ClarityRange = clarityRange,
+            //        PriceCells = dp.TableItem
+            //            .Select(x => new DiamondPriceCellDataDto()
+            //            {
+            //                CriteriaId = x.Criteria.Id.Value,
+            //                Color = x.Criteria.Color.Value,
+            //                Clarity = x.Criteria.Clarity.Value,
+            //                Price = x.Price
+            //            }).ToList()
+            //    }).ToList();
+            //priceBoard.PriceTables = createTable;
+            //var anyMissingCaratRangeNotCovered = createTable
+            //    .GroupBy(x => new { x.CaratFrom, x.CaratTo })
+            //    .Select(x => (x.Key.CaratFrom, x.Key.CaratTo))
+            //    .ToList();
+            //var caratNotInCriteria = criteriasCarat.Except(anyMissingCaratRangeNotCovered).ToList();
+            //priceBoard.UncoveredTableCaratRange.AddRange(caratNotInCriteria);
+            //priceBoard.UncoveredTableCaratRange.ForEach(x =>
+            //{
+            //    priceBoard.PriceTables.Add(new DiamondPriceTableDto()
+            //    {
+            //        CaratFrom = x.CaratFrom,
+            //        CaratTo = x.CaratTo,
+            //        ClarityRange = clarityRange,
+            //        ColorRange = colorRange,
+            //        PriceCells = new List<DiamondPriceCellDataDto>()
+            //    }) ;
+            //});
+            //var tables = priceBoard.PriceTables;
+            //Parallel.ForEach(priceBoard.PriceTables, table => table.FillMissingCells());
+
             stopwatch.Stop();
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("execution time measured in miliseconds: " + stopwatch.ElapsedMilliseconds);

@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Application.Dtos.Responses.Jewelries;
 using DiamondShop.Application.Dtos.Responses.JewelryModels;
+using DiamondShop.Domain.Models.Warranties;
 
 namespace DiamondShop.Application.Dtos.Responses.Carts
 {
@@ -11,6 +12,8 @@ namespace DiamondShop.Application.Dtos.Responses.Carts
         public DiamondDto? Diamond { get; set; }
         public JewelryModelDto? JewelryModel { get; set; }
         public CheckoutPriceDto ReviewPrice { get; set; } = new();
+        public WarrantyDto CurrentWarrantyApplied { get; set; }
+        public decimal CurrentWarrantyPrice { get; set; }
         public string? EngravedText { get; set; }
         public string? EngravedFont { get; set; }
         //public decimal? PurchasedPrice { get; set; }

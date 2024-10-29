@@ -72,6 +72,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 cartItemRequest.EngravedFont = item.EngravedFont;
                 cartItemRequest.EngravedText = item.EngravedText;
                 cartItemRequest.DiamondId = item.DiamondId;
+                //??
+                cartItemRequest.WarrantyCode = item.WarrantyCode;
+                cartItemRequest.WarrantyType = item.WarrantyType;
                 return cartItemRequest;
             }).ToList();
             if (errors.Count > 0)

@@ -1,11 +1,15 @@
-﻿using DiamondShop.Domain.Common.Carts;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.DeliveryFees;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Warranties;
+using DiamondShop.Domain.Models.Warranties.Enum;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
@@ -33,9 +37,9 @@ namespace DiamondShop.Domain.Services.Implementations
         private readonly IMainDiamondService _mainDiamondService;
         private readonly IMainDiamondRepository _mainDiamondRepository;
         private readonly IDiamondPriceRepository _diamondPriceRepository;
+        private readonly IWarrantyRepository _warrantyRepository;
         private CartModel CurrentCart;
-
-        public CartModelService(IDiamondServices diamondServices, IJewelryService jewelryService, IPromotionServices promotionServices, IDiscountService discountService, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, ISizeMetalRepository sizeMetalRepository, IMainDiamondService mainDiamondService, IMainDiamondRepository mainDiamondRepository, IDiamondPriceRepository diamondPriceRepository)
+        public CartModelService(IDiamondServices diamondServices, IJewelryService jewelryService, IPromotionServices promotionServices, IDiscountService discountService, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, ISizeMetalRepository sizeMetalRepository, IMainDiamondService mainDiamondService, IMainDiamondRepository mainDiamondRepository, IDiamondPriceRepository diamondPriceRepository, IWarrantyRepository warrantyRepository)
         {
             _diamondServices = diamondServices;
             _jewelryService = jewelryService;
@@ -48,6 +52,7 @@ namespace DiamondShop.Domain.Services.Implementations
             _mainDiamondService = mainDiamondService;
             _mainDiamondRepository = mainDiamondRepository;
             _diamondPriceRepository = diamondPriceRepository;
+            _warrantyRepository = warrantyRepository;
         }
 
         public void AssignProductAndItemCounter(CartModel cartModel)
@@ -65,7 +70,7 @@ namespace DiamondShop.Domain.Services.Implementations
         }
 
 
-        public async Task<Result<CartModel>> ExecuteNormalOrder(List<CartProduct> products, List<Discount> givenDiscount, List<Promotion> givenPromotion, IDiamondPriceRepository _diamondPriceRepository, ISizeMetalRepository _sizeMetalRepository, IMetalRepository _metalRepository)
+        public async Task<Result<CartModel>> ExecuteNormalOrder(List<CartProduct> products, List<Discount> givenDiscount, List<Promotion> givenPromotion, ShippingPrice shipPrice)
         {
             ArgumentNullException.ThrowIfNull(products);
             var cartModel = new CartModel { Products = products };
@@ -93,7 +98,10 @@ namespace DiamondShop.Domain.Services.Implementations
                     break;// only one promotion is applied at a time
                 }
             }
-            SetOrderPrice(CurrentCart);
+            CurrentCart.SetErrorMessages();
+            CurrentCart.SetOrderShippingPrice(shipPrice);
+            CurrentCart.SetOrderPrice();
+            
             return Result.Ok(CurrentCart);
         }
 
@@ -313,46 +321,38 @@ namespace DiamondShop.Domain.Services.Implementations
                 return _mainDiamondService.CheckMatchingDiamond(diamondJewelry.JewelryModel.Id, new List<Diamond> { diamondJewelry.Diamond }, _mainDiamondRepository).Result;
             }
         }
-        public void SetOrderPrice(CartModel cartModel)
-        {
-            var orderPrice = cartModel.OrderPrices;
-            foreach (var product in cartModel.Products)
-            {
-                if (product.IsValid)
-                {
-                    orderPrice.DiscountAmountSaved += product.ReviewPrice.DiscountAmountSaved;
-                    // promotion amount saved is set by the prmotion service, since only 1 promotion is applied at a time
-                    // and the promotion might include orderPromotion, which again, might affect the final price, 
-                    // so the promotion amount saved is set here will be WRONG
-                    //orderPrice.PromotionAmountSaved += product.ReviewPrice.PromotionAmountSaved;
-                }
-            }
-        }
-
-        public void SetShippingPrice(CartModel cartModel, ShippingPrice shippingPrice)
-        {
-            if (shippingPrice != null)
-                cartModel.ShippingPrice = shippingPrice;
-        }
-
+        //TODO: add warranty to default price ==> it follows discount and promotion flow
         public async Task<List<CartProduct>> GetCartProduct(List<CartItem> items)
         {
             List<CartProduct> cartProducts = new();
+            List<Warranty> GetAllWarranties = await _warrantyRepository.GetAll();
             foreach (var item in items)
             {
                 var cartProduct = FromCartItem(item, _jewelryRepository, _jewelryModelRepository, _diamondRepository).Result;
                 if (cartProduct != null)
+                {
                     cartProducts.Add(cartProduct);
+                    Warranty usedWarranty;
+                    usedWarranty = GetAllWarranties.FirstOrDefault(w => w.Type == item.WarrantyType && w.Code == item.WarrantyCode);
+                    if(usedWarranty == null)
+                    {
+                        //if not found by code, get the warrany default price = 0
+                        var type =( item.JewelryId != null || item.JewelryModelId != null ) && item.DiamondId == null
+                            ? WarrantyType.Jewelry 
+                            : WarrantyType.Diamond;
+                        usedWarranty = GetAllWarranties.FirstOrDefault(w => w.Type == type && w.Price == 0);
+                    }
+                    cartProduct.CurrentWarrantyApplied = usedWarranty;
+                    cartProduct.CurrentWarrantyPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal( usedWarranty.Price);
+                }
             }
             return cartProducts;
         }
 
-        public Task<Result<CartModel>> ExecuteCustomOrder(List<CartProduct> products, List<Discount> givenDiscount, List<Promotion> givenPromotion, IDiamondPriceRepository _diamondPriceRepository, ISizeMetalRepository _sizeMetalRepository, IMetalRepository _metalRepository)
+        public Task<Result<CartModel>> ExecuteCustomOrder(List<CartProduct> products, List<Discount> givenDiscount, List<Promotion> givenPromotion, ShippingPrice shipPrice)
         {
             throw new NotImplementedException();
         }
-
-
     }
 
 }

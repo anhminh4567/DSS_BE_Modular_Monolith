@@ -10,8 +10,9 @@ namespace DiamondShop.Domain.Repositories
     public interface IDiamondCriteriaRepository : IBaseRepository<DiamondCriteria>
     {
         Task CreateMany(List<DiamondCriteria> diamondCriterias);
-        Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableCriteria(CancellationToken cancellationToken = default);
-        Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableSideDiamondCriteria(CancellationToken cancellationToken = default);
+        Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableCaratRange(CancellationToken cancellationToken = default);
+        Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableSideDiamondCaratRange(CancellationToken cancellationToken = default);
+        Task<Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>>> GroupAllAvailableCriteria(CancellationToken cancellationToken = default);
 
     }
 }

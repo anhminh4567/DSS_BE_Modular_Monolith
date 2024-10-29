@@ -12,6 +12,7 @@ using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Models.Transactions.ValueObjects;
+using DiamondShop.Domain.Models.Warranties.ValueObjects;
 using Mapster;
 using Microsoft.Extensions.Options;
 
@@ -80,6 +81,8 @@ namespace DiamondShop.Application.Mappers
                 .MapWith(src => src.Value).Compile();
 
             config.NewConfig<DeliveryFeeId, string>()
+                .MapWith(src => src.Value).Compile();
+            config.NewConfig<WarrantyId,string>()
                 .MapWith(src => src.Value).Compile();
 
         }

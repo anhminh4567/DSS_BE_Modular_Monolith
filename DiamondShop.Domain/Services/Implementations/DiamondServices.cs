@@ -115,20 +115,7 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             return ValidateDiamond4CGlobal(diamond, caratFrom, caratTo, colorFrom, colorTo, clarityFrom, clarityTo, cutFrom, cutTo);
         }
-        public static bool ValidateSideDiamond3C(JewelrySideDiamond sideDiamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo)
-        {
-            if (caratFrom <= sideDiamond.AverageCarat && caratTo >= sideDiamond.AverageCarat)
-            {
-                if (colorFrom <= sideDiamond.AverageColor && colorTo >= sideDiamond.AverageColor)
-                {
-                    if (clarityFrom <= sideDiamond.AverageClarity && clarityTo >= sideDiamond.AverageClarity)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
+        
         public static bool ValidateDiamond3CGlobal(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo)
         {
             if (caratFrom <= diamond.Carat && caratTo >= diamond.Carat)

@@ -1,8 +1,11 @@
-﻿using DiamondShop.Domain.Models.Diamonds;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
+using DiamondShop.Domain.Models.Warranties;
+using Microsoft.Extensions.FileSystemGlobbing.Internal.PathSegments;
 
 namespace DiamondShop.Domain.Common.Carts
 {
@@ -13,7 +16,8 @@ namespace DiamondShop.Domain.Common.Carts
         public Diamond? Diamond { get; set; }
         public JewelryModel? JewelryModel { get; set; }
         public CheckoutPrice ReviewPrice { get; set; } = new();
-        //public List<Diamond> JewelryDiamonds { get; set; } = new();
+        public Warranty CurrentWarrantyApplied { get; set; }
+        public decimal CurrentWarrantyPrice { get; set; } 
         public string? EngravedText { get; set; }
         public string? EngravedFont { get; set; }
         public bool IsValid { get; set; } = true;//(Jewelry != null || Diamond != null || JewelryModel != null); set =>  }

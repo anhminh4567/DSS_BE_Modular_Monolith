@@ -11,7 +11,13 @@ namespace DiamondShop.Domain.Common.Carts
         public Address? To { get; set; }
         public Address? From { get; set; }
         public DeliveryFee? DeliveryFeeFounded { get; set; }
-        public bool IsValid { get => To != null && From != null && DeliveryFeeFounded !=null; }
+        public bool IsValid { get => To != null && From != null && ( DeliveryFeeFounded !=null && DeliveryFeeFounded.Id.Value == DeliveryFee.UNKNONW_DELIVERY_ID); }
+        public ShippingPrice()
+        {
+            Address? To = null;
+            Address? From = null;
+            DeliveryFeeFounded = DeliveryFee.CreateUnknownDelivery();
+        }
     }
 
 }

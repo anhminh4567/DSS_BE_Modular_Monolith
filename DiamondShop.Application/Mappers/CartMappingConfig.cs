@@ -8,6 +8,7 @@ using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using Mapster;
+using Microsoft.AspNetCore.Routing.Constraints;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,11 +50,14 @@ namespace DiamondShop.Application.Mappers
                 .Map(dest => dest.IsOrderValid, src => src.IsOrderValid)
                 .Map(dest => dest.InvalidItemIndex, src => src.InvalidItemIndex);
 
-            config.NewConfig<CheckoutPriceDto, CheckoutPriceDto>()
-               .Map(dest => dest, src => src);
+            config.NewConfig<CheckoutPrice, CheckoutPriceDto>()
+               .Map(dest => dest, src => src).Compile();
 
-            config.NewConfig<ShippingPriceDto, ShippingPriceDto>()
-                .Map(dest => dest, src => src);
+            config.NewConfig<ShippingPrice, ShippingPriceDto>()
+                .Map(dest => dest.DeliveryFeeFounded, src => src.DeliveryFeeFounded)
+                .Map(dest => dest.To, src => src.To)
+                .Map(dest => dest.From, src => src.From)
+                .Compile();
             config.NewConfig<CartModelCounter, CartModelCounterDto>()
                 .Map(dest => dest, src => src);
 
@@ -65,7 +69,8 @@ namespace DiamondShop.Application.Mappers
                 .Map(dest => dest.DiscountId, src => src.DiscountId.Adapt<string>())
                 .Map(dest => dest.PromotionId, src => src.PromotionId.Adapt<string>())
                 .Map(dest => dest.RequirementQualifedId, src => src.RequirementQualifedId.Adapt<string>())
-                .Map(dest => dest.GiftAssignedId, src => src.GiftAssignedId.Adapt<string>());
+                .Map(dest => dest.GiftAssignedId, src => src.GiftAssignedId.Adapt<string>())
+                .Map(dest => dest.CurrentWarrantyApplied , src => src.CurrentWarrantyApplied );
 
             config.NewConfig<CartItemRequestDto, CartItem>()
                 .Map(dest => dest.JewelryId, src => (src.JewelryId != null) ? JewelryId.Parse(src.JewelryId) : null)
