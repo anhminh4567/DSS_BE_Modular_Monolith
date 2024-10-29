@@ -133,7 +133,6 @@ namespace DiamondShop.Api.Controllers.Orders
                 return Unauthorized();
         }
 
-
         [HttpPut("Proceed")]
         [Authorize(Roles = AccountRole.StaffId + "," + AccountRole.DelivererId)]
         public async Task<ActionResult> ProceedOrder([FromQuery] string orderId)
@@ -217,7 +216,7 @@ namespace DiamondShop.Api.Controllers.Orders
         
         [HttpPut("CompleteRefund")]
         [Authorize(Roles = AccountRole.StaffId)]
-        public async Task<ActionResult> SendOrderRefund([FromQuery] RefundOrderCommand refundOrderCommand)
+        public async Task<ActionResult> CompleteOrderRefund([FromQuery] RefundOrderCommand refundOrderCommand)
         {
             var result = await _sender.Send(refundOrderCommand);
             if (result.IsSuccess)

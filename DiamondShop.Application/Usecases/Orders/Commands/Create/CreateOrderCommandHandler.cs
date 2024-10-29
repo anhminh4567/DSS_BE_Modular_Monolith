@@ -25,36 +25,26 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
     internal class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Result<Order>>
     {
         private readonly IAccountRepository _accountRepository;
-        private readonly IPaymentMethodRepository _paymentMethodRepository;
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderItemRepository _orderItemRepository;
         private readonly IDiamondRepository _diamondRepository;
         private readonly IJewelryRepository _jewelryRepository;
-        private readonly IJewelryModelRepository _jewelryModelRepository;
-        private readonly IMainDiamondRepository _mainDiamondRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMainDiamondService _mainDiamondService;
-        private readonly IPaymentService _paymentService;
-        private readonly ICartService _cartService;
-        private readonly ICartModelService _cartModelService;
         private readonly ISender _sender;
         private readonly IOrderService _orderService;
         private readonly IOrderTransactionService _orderTransactionService;
-        public CreateOrderCommandHandler(IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IAccountRepository accountRepository, IUnitOfWork unitOfWork, IPaymentService paymentService, IJewelryRepository jewelryRepository, IMainDiamondRepository mainDiamondRepository, ISender sender, IDiamondRepository diamondRepository, IMainDiamondService mainDiamondService, IPaymentMethodRepository paymentMethodRepository, ICartService cartService, IOrderTransactionService orderService)
+
+        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IOrderTransactionService orderTransactionService)
         {
+            _accountRepository = accountRepository;
             _orderRepository = orderRepository;
             _orderItemRepository = orderItemRepository;
-            _accountRepository = accountRepository;
-            _unitOfWork = unitOfWork;
-            _paymentService = paymentService;
-            _jewelryRepository = jewelryRepository;
-            _mainDiamondRepository = mainDiamondRepository;
-            _sender = sender;
             _diamondRepository = diamondRepository;
-            _mainDiamondService = mainDiamondService;
-            _paymentMethodRepository = paymentMethodRepository;
-            _cartService = cartService;
-            _orderTransactionService = orderService;
+            _jewelryRepository = jewelryRepository;
+            _unitOfWork = unitOfWork;
+            _sender = sender;
+            _orderService = orderService;
+            _orderTransactionService = orderTransactionService;
         }
 
         public async Task<Result<Order>> Handle(CreateOrderCommand request, CancellationToken token)
@@ -73,6 +63,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 var result = _orderService.CheckWarranty(item.JewelryId, item.DiamondId, item.WarrantyType);
                 if (result.IsFailed)
                     errors.AddRange(result.Errors);
+                cartItemRequest.Id = DateTime.UtcNow.Ticks.ToString();
                 cartItemRequest.JewelryId = item.JewelryId;
                 cartItemRequest.EngravedFont = item.EngravedFont;
                 cartItemRequest.EngravedText = item.EngravedText;
