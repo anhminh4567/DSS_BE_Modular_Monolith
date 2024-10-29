@@ -82,6 +82,13 @@ namespace DiamondShop.Domain.Models.Jewelries
             D_Price = 0;
             SoldPrice = 0;
         }
+        public void SetDeactivate()
+        {
+            Status = ProductStatus.Locked;
+            ND_Price = 0;
+            D_Price = 0;
+            SoldPrice = 0;
+        }
         public void SetTotalDiamondPrice(decimal totalAllDiamondPrice)
         {
             D_Price = totalAllDiamondPrice;

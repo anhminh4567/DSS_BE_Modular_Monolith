@@ -119,6 +119,12 @@ namespace DiamondShop.Domain.Models.Diamonds
             SoldPrice = null;
             DefaultPrice = null;
         }
+        public void SetDeactivate()
+        {
+            Status = ProductStatus.Locked;
+            SoldPrice = null;
+            DefaultPrice = null;
+        }
         public void SetCorrectPrice(decimal truePrice)
         {
             if (TruePrice < 0)

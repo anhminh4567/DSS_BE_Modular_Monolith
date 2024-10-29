@@ -113,8 +113,16 @@ namespace DiamondShop.Domain.Services.Implementations
             return leftAmount;
         }
 
-        public Transaction AddRefundShopReject(Order order)
+        public void AddRefundShopReject(Order order)
         {
+            if (order.Status == OrderStatus.Pending)
+            {
+                var paymentInTransac = Transaction.CreateManualPayment(order.Id, $"Manual payment for order#{order.Id}", order.TotalPrice, TransactionType.Pay);
+                order.AddTransaction(paymentInTransac);
+                var refundOutTransac = Transaction.CreateManualRefund(order.Id, $"Maunual refund for order#{order.Id}", paymentInTransac.TotalAmount);
+                order.AddRefund(refundOutTransac);
+                return;
+            }
             //TODO: Calculate in case of second order 
             var transactions = order.Transactions
                 .Where(p => p.TransactionType == TransactionType.Pay);
@@ -132,10 +140,17 @@ namespace DiamondShop.Domain.Services.Implementations
             else
             {
             }
-            return null;
         }
-        public Transaction AddRefundUserCancel(Order order)
+        public void AddRefundUserCancel(Order order)
         {
+            if(order.Status == OrderStatus.Pending)
+            {
+                var paymentInTransac = Transaction.CreateManualPayment(order.Id, $"Manual payment for order#{order.Id}", order.TotalPrice, TransactionType.Pay);
+                order.AddTransaction(paymentInTransac);
+                var refundOutTransac = Transaction.CreateManualRefund(order.Id, $"Maunual refund for order#{order.Id}", paymentInTransac.TotalAmount);
+                order.AddRefund(refundOutTransac);
+                return;
+            }
             var transactions = order.Transactions
                 .Where(p => p.TransactionType == TransactionType.Pay);
             var transaction = transactions.FirstOrDefault();
@@ -153,9 +168,8 @@ namespace DiamondShop.Domain.Services.Implementations
             else
             {
             }
-            return null;
         }
-        public Transaction AddCODPayment(Order order)
+        public void AddCODPayment(Order order)
         {
             var transaction = order.Transactions.FirstOrDefault(p => p.TransactionType == TransactionType.Pay);
             if (transaction == null)
@@ -170,7 +184,6 @@ namespace DiamondShop.Domain.Services.Implementations
             {
 
             }
-            return null;
         }
 
         public decimal GetRefundUserCancelAfterDelivery(Order order)

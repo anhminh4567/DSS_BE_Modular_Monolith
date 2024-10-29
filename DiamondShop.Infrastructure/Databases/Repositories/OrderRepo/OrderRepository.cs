@@ -28,6 +28,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
                 .Include(p => p.Account)
                 .Include(p => p.Items)
                     .ThenInclude(c => c.Jewelry)
+                    .ThenInclude(c => c.Diamonds)
                 .Include(p => p.Items)
                     .ThenInclude(c => c.Diamond)
                 .AsSplitQuery();
