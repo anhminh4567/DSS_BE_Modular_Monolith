@@ -52,14 +52,14 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
                 return Result.Fail("This order can't be cancelled anymore!");
             if (order.AccountId != AccountId.Parse(accountId))
                 return Result.Fail("You're not allowed to cancel this order");
+            _orderTransactionService.AddRefundUserCancel(order);
             order.Status = OrderStatus.Cancelled;
             order.PaymentStatus = PaymentStatus.Refunding;
             order.CancelledDate = DateTime.UtcNow;
             order.CancelledReason = reason;
-            var transac = _orderTransactionService.AddRefundUserCancel(order);
             await _orderRepository.Update(order);
             //Return to selling
-            await _orderService.CancelItems(order,_orderRepository,_orderItemRepository,_jewelryRepository,_diamondRepository);
+            await _orderService.CancelItems(order, _orderRepository, _orderItemRepository, _jewelryRepository, _diamondRepository);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
             return Result.Ok(order);

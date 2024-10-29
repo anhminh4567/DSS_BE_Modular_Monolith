@@ -1,17 +1,14 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Carts;
 using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Application.Services.Models;
 using DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson;
-using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
-using DiamondShop.Domain.Models.Promotions.ValueObjects;
-using DiamondShop.Domain.Models.Warranties.Enum;
+using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
@@ -23,72 +20,54 @@ using MediatR;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 {
-    public record CreateOrderInfo(OrderRequestDto OrderRequestDto, List<OrderItemRequestDto> OrderItemRequestDtos);
-    public record CreateOrderCommand(string AccountId, BillingDetail BillingDetail, CreateOrderInfo CreateOrderInfo) : IRequest<Result<PaymentLinkResponse>>;
-    internal class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Result<PaymentLinkResponse>>
+    public record CreateOrderInfo(PaymentType PaymentType, string PaymentName, string? PromotionId, string Address, List<OrderItemRequestDto> OrderItemRequestDtos);
+    public record CreateOrderCommand(string AccountId, CreateOrderInfo CreateOrderInfo, string? ParentOrderId = null) : IRequest<Result<Order>>;
+    internal class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Result<Order>>
     {
         private readonly IAccountRepository _accountRepository;
-        private readonly IPaymentMethodRepository _paymentMethodRepository;
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderItemRepository _orderItemRepository;
         private readonly IDiamondRepository _diamondRepository;
+        private readonly ISizeMetalRepository _sizeMetalRepository;
         private readonly IJewelryRepository _jewelryRepository;
-        private readonly IJewelryModelRepository _jewelryModelRepository;
-        private readonly IMainDiamondRepository _mainDiamondRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMainDiamondService _mainDiamondService;
-        private readonly IPaymentService _paymentService;
-        private readonly ICartService _cartService;
-        private readonly ICartModelService _cartModelService;
         private readonly ISender _sender;
+        private readonly IOrderService _orderService;
+        private readonly IJewelryService _jewelryService;
         private readonly IOrderTransactionService _orderTransactionService;
-        public CreateOrderCommandHandler(IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IAccountRepository accountRepository, IUnitOfWork unitOfWork, IPaymentService paymentService, IJewelryRepository jewelryRepository, IMainDiamondRepository mainDiamondRepository, ISender sender, IDiamondRepository diamondRepository, IMainDiamondService mainDiamondService, IPaymentMethodRepository paymentMethodRepository, ICartService cartService, IOrderTransactionService orderService)
+
+        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IOrderTransactionService orderTransactionService, IJewelryService jewelryService, ISizeMetalRepository sizeMetalRepository)
         {
+            _accountRepository = accountRepository;
             _orderRepository = orderRepository;
             _orderItemRepository = orderItemRepository;
-            _accountRepository = accountRepository;
-            _unitOfWork = unitOfWork;
-            _paymentService = paymentService;
-            _jewelryRepository = jewelryRepository;
-            _mainDiamondRepository = mainDiamondRepository;
-            _sender = sender;
             _diamondRepository = diamondRepository;
-            _mainDiamondService = mainDiamondService;
-            _paymentMethodRepository = paymentMethodRepository;
-            _cartService = cartService;
-            _orderTransactionService = orderService;
+            _jewelryRepository = jewelryRepository;
+            _unitOfWork = unitOfWork;
+            _sender = sender;
+            _orderService = orderService;
+            _orderTransactionService = orderTransactionService;
+            _jewelryService = jewelryService;
+            _sizeMetalRepository = sizeMetalRepository;
         }
 
-        public async Task<Result<PaymentLinkResponse>> Handle(CreateOrderCommand request, CancellationToken token)
+        public async Task<Result<Order>> Handle(CreateOrderCommand request, CancellationToken token)
         {
             await _unitOfWork.BeginTransactionAsync(token);
-            request.Deconstruct(out string accountId, out BillingDetail billingDetail, out CreateOrderInfo createOrderInfo);
-            createOrderInfo.Deconstruct(out OrderRequestDto orderReq, out List<OrderItemRequestDto> orderItemReqs);
-            orderReq.Deconstruct(out PaymentType paymentType, out string paymentName, out string? promotionId, out bool isTransfer);
+            request.Deconstruct(out string accountId, out CreateOrderInfo createOrderInfo, out string? parentOrderId);
+            createOrderInfo.Deconstruct(out PaymentType paymentType, out string paymentName, out string? promotionId, out string address, out List<OrderItemRequestDto> orderItemReqs);
             var account = await _accountRepository.GetById(AccountId.Parse(accountId));
             if (account == null)
                 return Result.Fail("This account doesn't exist");
             //TODO: Validate account status
-
             List<IError> errors = new List<IError>();
-
             var items = orderItemReqs.Select((item) =>
             {
                 CartItemRequestDto cartItemRequest = new();
-                if (item.JewelryId != null && item.DiamondId == null)
-                {
-                    if (item.WarrantyType != WarrantyType.Jewelry)
-                    {
-                        errors.Add(new Error($"Wrong Type of warranty for jewelry #{item.JewelryId}"));
-                    }
-                }
-                else if (item.DiamondId != null)
-                {
-                    if (item.WarrantyType != WarrantyType.Diamond)
-                    {
-                        errors.Add(new Error($"Wrong Type of warranty for diamond #{item.DiamondId}"));
-                    }
-                }
+                var result = _orderService.CheckWarranty(item.JewelryId, item.DiamondId, item.WarrantyType);
+                if (result.IsFailed)
+                    errors.AddRange(result.Errors);
+                cartItemRequest.Id = DateTime.UtcNow.Ticks.ToString();
                 cartItemRequest.JewelryId = item.JewelryId;
                 cartItemRequest.EngravedFont = item.EngravedFont;
                 cartItemRequest.EngravedText = item.EngravedText;
@@ -130,9 +109,11 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             //    }
 
             var orderPromo = cartModel.Promotion.Promotion;
-
             var order = Order.Create(account.Id, paymentType, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice,
-                String.Join(" ", [billingDetail.Providence, billingDetail.District, billingDetail.Ward, billingDetail.Address]), orderPromo?.Id);
+                address, orderPromo?.Id);
+            //if replacement order
+            if (parentOrderId != null)
+                order.ParentOrderId = OrderId.Parse(parentOrderId);
             await _orderRepository.Create(order, token);
             List<OrderItem> orderItems = new();
             List<Jewelry> jewelries = new();
@@ -141,12 +122,16 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             {
                 string giftedId = product.Diamond?.Id?.Value ?? product.Jewelry?.Id?.Value;
                 var gift = giftedId is null ? null : orderPromo?.Gifts.FirstOrDefault(k => k.ItemId == giftedId);
-                orderItems.Add(OrderItem.Create(order.Id, product.Jewelry?.Id, product.Diamond?.Id, product.ReviewPrice.FinalPrice,
+                //If shop replacement, then bought price should be 0
+                //TODO: Add final price
+                orderItems.Add(OrderItem.Create(order.Id, product.Jewelry?.Id, product.Diamond?.Id,
+                    0, product.ReviewPrice.FinalPrice,
                 product.DiscountId, product.DiscountPercent,
                 gift?.UnitType, gift?.UnitValue));
                 if (product.Jewelry != null)
                 {
-                    product.Jewelry.SetSold();
+                    _jewelryService.AddPrice(product.Jewelry, _sizeMetalRepository);
+                    product.Jewelry.SetSold(product.Jewelry.ND_Price.Value,product.ReviewPrice.DefaultPrice);
                     jewelries.Add(product.Jewelry);
                 }
                 if (product.Diamond != null)
@@ -156,38 +141,12 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 }
             }
             await _orderItemRepository.CreateRange(orderItems);
-
             _jewelryRepository.UpdateRange(jewelries);
-
             _diamondRepository.UpdateRange(diamonds);
-
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
-            if (isTransfer)
-            {
-                return new PaymentLinkResponse()
-                {
-                    PaymentUrl = ""
-                };
-            }
-            else
-            {
-                var amount = paymentType == PaymentType.Payall ? _orderTransactionService.GetFullPaymentValueForOrder(order) : _orderTransactionService.GetCODValueForOrder(order);
-                //Create Paymentlink if not transfer
-                PaymentLinkRequest paymentLinkRequest = new PaymentLinkRequest()
-                {
-                    Account = account,
-                    Order = order,
-                    Email = account.Email,
-                    Phone = billingDetail.Phone,
-                    Address = order.ShippingAddress,
-                    Title = $"Payment for Order#{order.Id}",
-                    Description = $"{paymentType.ToString()} payment",
-                    Amount = amount,
-                };
-                var paymentLink = await _paymentService.CreatePaymentLink(paymentLinkRequest, token);
-                return paymentLink;
-            }
+            order.Account = account;
+            return order;
         }
 
     }

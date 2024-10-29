@@ -62,7 +62,7 @@ namespace DiamondShop.Application.Usecases.PromotionRequirements.Commands.Create
                         if (jewelryModelId == null)
                             return Result.Fail(new ConflictError("no jewelry id found for type jewerlry in the requirement position at : " + (++i)));
                         var jewerlyModelId = JewelryModelId.Parse(jewelryModelId);
-                        var jelReq = PromoReq.CreateJewelryRequirement(req.Name, req.Operator, isMoneyAmount, req.MoneyAmount.Value, req.Quantity.Value, jewerlyModelId);
+                        var jelReq = PromoReq.CreateJewelryRequirement(req.Name, req.Operator, isMoneyAmount, req.MoneyAmount, req.Quantity, jewerlyModelId);
                         requirements.Add(jelReq);
                         break;
                     case TargetType.Diamond:

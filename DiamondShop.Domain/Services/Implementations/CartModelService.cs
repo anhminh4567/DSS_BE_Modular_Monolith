@@ -251,9 +251,9 @@ namespace DiamondShop.Domain.Services.Implementations
             if (product.Jewelry is not null)
             {
                 if (product.Jewelry.Status == ProductStatus.Sold)
-                    Result.Fail("already sold");
+                    return Result.Fail("already sold");
                 if (product.Jewelry.IsAllDiamondPriceKnown == false)
-                    Result.Fail("unknonw diamond price of this jewelry, contact us");
+                    return Result.Fail("unknonw diamond price of this jewelry, contact us");
                 return CheckDuplicate(CurrentCart, product);
             }
             if (product.JewelryModel is not null) { }

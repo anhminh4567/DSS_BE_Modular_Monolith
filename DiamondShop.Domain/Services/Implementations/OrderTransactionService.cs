@@ -113,8 +113,16 @@ namespace DiamondShop.Domain.Services.Implementations
             return leftAmount;
         }
 
-        public Transaction AddRefundShopReject(Order order)
+        public void AddRefundShopReject(Order order)
         {
+            if (order.Status == OrderStatus.Pending)
+            {
+                var paymentInTransac = Transaction.CreateManualPayment(order.Id, $"Manual payment for order#{order.Id.Value}", order.TotalPrice, TransactionType.Pay);
+                order.AddTransaction(paymentInTransac);
+                var refundOutTransac = Transaction.CreateManualRefund(order.Id, $"Maunual refund for order#{order.Id.Value}", paymentInTransac.TotalAmount);
+                order.AddRefund(refundOutTransac);
+                return;
+            }
             //TODO: Calculate in case of second order 
             var transactions = order.Transactions
                 .Where(p => p.TransactionType == TransactionType.Pay);
@@ -125,17 +133,24 @@ namespace DiamondShop.Domain.Services.Implementations
                 .Sum(p => p.TotalAmount);
             if (transaction.IsManual)
             {
-                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id}", refundAmount);
+                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id.Value}", refundAmount);
                 order.AddRefund(transac);
             }
             //Get Gateway refund
             else
             {
             }
-            return null;
         }
-        public Transaction AddRefundUserCancel(Order order)
+        public void AddRefundUserCancel(Order order)
         {
+            if(order.Status == OrderStatus.Pending)
+            {
+                var paymentInTransac = Transaction.CreateManualPayment(order.Id, $"Manual payment for order#{order.Id.Value}", order.TotalPrice, TransactionType.Pay);
+                order.AddTransaction(paymentInTransac);
+                var refundOutTransac = Transaction.CreateManualRefund(order.Id, $"Maunual refund for order#{order.Id.Value}", paymentInTransac.TotalAmount);
+                order.AddRefund(refundOutTransac);
+                return;
+            }
             var transactions = order.Transactions
                 .Where(p => p.TransactionType == TransactionType.Pay);
             var transaction = transactions.FirstOrDefault();
@@ -146,16 +161,15 @@ namespace DiamondShop.Domain.Services.Implementations
             var fineAmount = order.TotalPrice - refundAmount;
             if (transaction.IsManual)
             {
-                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id}", refundAmount, fineAmount);
+                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id.Value}", refundAmount, fineAmount);
                 order.AddRefund(transac);
             }
             //Get Gateway refund
             else
             {
             }
-            return null;
         }
-        public Transaction AddCODPayment(Order order)
+        public void AddCODPayment(Order order)
         {
             var transaction = order.Transactions.FirstOrDefault(p => p.TransactionType == TransactionType.Pay);
             if (transaction == null)
@@ -163,14 +177,13 @@ namespace DiamondShop.Domain.Services.Implementations
             var remainAmount = order.TotalPrice - transaction.TotalAmount;
             if (transaction.IsManual)
             {
-                var transac = Transaction.CreateManualPayment(order.Id, $"Manual remaining COD payment for order#{order.Id}", remainAmount, TransactionType.Pay);
+                var transac = Transaction.CreateManualPayment(order.Id, $"Manual remaining COD payment for order#{order.Id.Value}", remainAmount, TransactionType.Pay);
                 order.AddTransaction(transac);
             }
             else
             {
 
             }
-            return null;
         }
 
         public decimal GetRefundUserCancelAfterDelivery(Order order)

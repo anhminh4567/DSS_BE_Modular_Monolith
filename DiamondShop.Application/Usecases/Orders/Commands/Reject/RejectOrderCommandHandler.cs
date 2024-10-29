@@ -55,11 +55,11 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
                 return Result.Fail("No order found!");
             else if (!_orderService.IsCancellable(order.Status))
                 return Result.Fail("This order can't be rejected anymore!");
+            _orderTransactionService.AddRefundShopReject(order);
             order.Status = OrderStatus.Rejected;
             order.PaymentStatus = PaymentStatus.Refunding;
             order.CancelledDate = DateTime.UtcNow;
             order.CancelledReason = reason;
-            var transac = _orderTransactionService.AddRefundShopReject(order);
             await _orderRepository.Update(order);
             await _orderService.CancelItems(order, _orderRepository, _orderItemRepository, _jewelryRepository, _diamondRepository);
             await _unitOfWork.SaveChangesAsync(token);

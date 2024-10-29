@@ -38,7 +38,7 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public Color? ColorFrom { get; set; }
         public Color? ColorTo { get; set; }
         public List<PromoReqShape> PromoReqShapes { get; set; } = new();
-        public static PromoReq CreateJewelryRequirement(string Name, Operator @operator , bool isForAmount, decimal amount , int quantity, JewelryModelId jewelryModelId)
+        public static PromoReq CreateJewelryRequirement(string Name, Operator @operator , bool isForAmount, decimal? amount , int? quantity, JewelryModelId jewelryModelId)
         {
             return new PromoReq()
             {

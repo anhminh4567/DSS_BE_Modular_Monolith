@@ -2,6 +2,7 @@
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Domain.Models.Warranties.Enum;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.OrderRepo;
@@ -88,6 +89,25 @@ namespace DiamondShop.Domain.Services.Implementations
             _itemRepo.UpdateRange(items);
             _jewelRepo.UpdateRange(jewelries);
             _diamondRepo.UpdateRange(diamonds);
+        }
+
+        public Result CheckWarranty(string? jewelryId, string? diamondId, WarrantyType warrantyType)
+        {
+            if (jewelryId != null && diamondId == null)
+            {
+                if (warrantyType != WarrantyType.Jewelry)
+                {
+                    return Result.Fail($"Wrong Type of warranty for jewelry #{jewelryId}");
+                }
+            }
+            else if (diamondId != null)
+            {
+                if (warrantyType != WarrantyType.Diamond)
+                {
+                    return Result.Fail($"Wrong Type of warranty for diamond #{diamondId}");
+                }
+            }
+            return Result.Ok();
         }
     }
 }

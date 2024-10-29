@@ -71,13 +71,24 @@ namespace DiamondShop.Domain.Models.Jewelries
                 Status = status,
             };
         }
-        public void SetSold()
+        public void SetSold(decimal noDiamondPrice, decimal soldPrice)
         {
+            
             Status = ProductStatus.Sold;
+            ND_Price = noDiamondPrice;
+            D_Price = soldPrice - noDiamondPrice;
+            SoldPrice = soldPrice;
         }
         public void SetSell()
         {
             Status = ProductStatus.Active;
+            ND_Price = 0;
+            D_Price = 0;
+            SoldPrice = 0;
+        }
+        public void SetDeactivate()
+        {
+            Status = ProductStatus.Locked;
             ND_Price = 0;
             D_Price = 0;
             SoldPrice = 0;
