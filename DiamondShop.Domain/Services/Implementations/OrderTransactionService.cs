@@ -117,9 +117,9 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             if (order.Status == OrderStatus.Pending)
             {
-                var paymentInTransac = Transaction.CreateManualPayment(order.Id, $"Manual payment for order#{order.Id}", order.TotalPrice, TransactionType.Pay);
+                var paymentInTransac = Transaction.CreateManualPayment(order.Id, $"Manual payment for order#{order.Id.Value}", order.TotalPrice, TransactionType.Pay);
                 order.AddTransaction(paymentInTransac);
-                var refundOutTransac = Transaction.CreateManualRefund(order.Id, $"Maunual refund for order#{order.Id}", paymentInTransac.TotalAmount);
+                var refundOutTransac = Transaction.CreateManualRefund(order.Id, $"Maunual refund for order#{order.Id.Value}", paymentInTransac.TotalAmount);
                 order.AddRefund(refundOutTransac);
                 return;
             }
@@ -133,7 +133,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 .Sum(p => p.TotalAmount);
             if (transaction.IsManual)
             {
-                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id}", refundAmount);
+                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id.Value}", refundAmount);
                 order.AddRefund(transac);
             }
             //Get Gateway refund
@@ -145,9 +145,9 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             if(order.Status == OrderStatus.Pending)
             {
-                var paymentInTransac = Transaction.CreateManualPayment(order.Id, $"Manual payment for order#{order.Id}", order.TotalPrice, TransactionType.Pay);
+                var paymentInTransac = Transaction.CreateManualPayment(order.Id, $"Manual payment for order#{order.Id.Value}", order.TotalPrice, TransactionType.Pay);
                 order.AddTransaction(paymentInTransac);
-                var refundOutTransac = Transaction.CreateManualRefund(order.Id, $"Maunual refund for order#{order.Id}", paymentInTransac.TotalAmount);
+                var refundOutTransac = Transaction.CreateManualRefund(order.Id, $"Maunual refund for order#{order.Id.Value}", paymentInTransac.TotalAmount);
                 order.AddRefund(refundOutTransac);
                 return;
             }
@@ -161,7 +161,7 @@ namespace DiamondShop.Domain.Services.Implementations
             var fineAmount = order.TotalPrice - refundAmount;
             if (transaction.IsManual)
             {
-                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id}", refundAmount, fineAmount);
+                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id.Value}", refundAmount, fineAmount);
                 order.AddRefund(transac);
             }
             //Get Gateway refund
@@ -177,7 +177,7 @@ namespace DiamondShop.Domain.Services.Implementations
             var remainAmount = order.TotalPrice - transaction.TotalAmount;
             if (transaction.IsManual)
             {
-                var transac = Transaction.CreateManualPayment(order.Id, $"Manual remaining COD payment for order#{order.Id}", remainAmount, TransactionType.Pay);
+                var transac = Transaction.CreateManualPayment(order.Id, $"Manual remaining COD payment for order#{order.Id.Value}", remainAmount, TransactionType.Pay);
                 order.AddTransaction(transac);
             }
             else

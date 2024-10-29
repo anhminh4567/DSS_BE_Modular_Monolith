@@ -71,6 +71,8 @@ namespace DiamondShop.Domain.Models.Transactions
             {
                 Id = TransactionId.Create(),
                 PayMethodId = null,
+                AppTransactionCode = new Guid().ToString(),
+                PaygateTransactionCode = new Guid().ToString(),
                 TransactionType = type,
                 Description = description,
                 TransactionAmount = amount,
@@ -94,6 +96,8 @@ namespace DiamondShop.Domain.Models.Transactions
             {
                 Id = TransactionId.Create(),
                 PayMethodId = null,
+                AppTransactionCode = new Guid().ToString(),
+                PaygateTransactionCode = new Guid().ToString(),
                 TransactionType = type,
                 Description = description,
                 TransactionAmount = amount,

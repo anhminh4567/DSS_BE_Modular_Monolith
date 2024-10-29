@@ -28,13 +28,15 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderItemRepository _orderItemRepository;
         private readonly IDiamondRepository _diamondRepository;
+        private readonly ISizeMetalRepository _sizeMetalRepository;
         private readonly IJewelryRepository _jewelryRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISender _sender;
         private readonly IOrderService _orderService;
+        private readonly IJewelryService _jewelryService;
         private readonly IOrderTransactionService _orderTransactionService;
 
-        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IOrderTransactionService orderTransactionService)
+        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IOrderTransactionService orderTransactionService, IJewelryService jewelryService, ISizeMetalRepository sizeMetalRepository)
         {
             _accountRepository = accountRepository;
             _orderRepository = orderRepository;
@@ -45,6 +47,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             _sender = sender;
             _orderService = orderService;
             _orderTransactionService = orderTransactionService;
+            _jewelryService = jewelryService;
+            _sizeMetalRepository = sizeMetalRepository;
         }
 
         public async Task<Result<Order>> Handle(CreateOrderCommand request, CancellationToken token)
@@ -126,7 +130,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 gift?.UnitType, gift?.UnitValue));
                 if (product.Jewelry != null)
                 {
-                    product.Jewelry.SetSold();
+                    _jewelryService.AddPrice(product.Jewelry, _sizeMetalRepository);
+                    product.Jewelry.SetSold(product.Jewelry.ND_Price.Value,product.ReviewPrice.DefaultPrice);
                     jewelries.Add(product.Jewelry);
                 }
                 if (product.Diamond != null)
