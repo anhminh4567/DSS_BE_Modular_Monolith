@@ -39,7 +39,16 @@ namespace DiamondShop.Domain.Models.Jewelries
 
 
         [NotMapped]
-        public bool IsAllDiamondPriceKnown { get => !(Diamonds.Any(d => d.IsPriceKnown) == false); }
+        public bool IsAllDiamondPriceKnown { 
+            get 
+            {
+                if (Diamonds.Count == 0)
+                    return true;
+                if(!(Diamonds.Any(d => d.IsPriceKnown) == false))
+                    return true;
+                return false;
+            } 
+        }
 
         public List<Diamond> Diamonds { get; set; } = new();
         public List<JewelrySideDiamond>? SideDiamonds { get; set; } = new();
