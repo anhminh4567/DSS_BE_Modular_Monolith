@@ -56,7 +56,7 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
             order.PaymentStatus = PaymentStatus.Refunding;
             order.CancelledDate = DateTime.UtcNow;
             order.CancelledReason = reason;
-            var transac = _orderTransactionService.AddRefundUserCancel(order);
+            _orderTransactionService.AddRefundUserCancel(order);
             await _orderRepository.Update(order);
             //Return to selling
             await _orderService.CancelItems(order,_orderRepository,_orderItemRepository,_jewelryRepository,_diamondRepository);

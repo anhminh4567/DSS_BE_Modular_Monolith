@@ -21,9 +21,9 @@ namespace DiamondShop.Domain.Services.interfaces
 
         //refunding 
         decimal GetRefundUserCancelBeforeProcessing(Order order);
-        Transaction AddRefundShopReject(Order order);
-        Transaction AddRefundUserCancel(Order order);
-        Transaction AddCODPayment(Order order);
+        void AddRefundShopReject(Order order);
+        void AddRefundUserCancel(Order order);
+        void AddCODPayment(Order order);
 
         decimal GetRefundUserCancelDuringProcessingAndPrepared(Order order);
         /// <summary>

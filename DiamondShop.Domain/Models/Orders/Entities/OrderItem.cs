@@ -26,7 +26,7 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public Jewelry? Jewelry { get; set; }
         public DiamondId? DiamondId { get; set; }
         public Diamond? Diamond { get; set; }
-        public decimal FinalPrice { get; set; }
+        //public decimal FinalPrice { get; set; }
         public decimal PurchasedPrice { get; set; }
         public DiscountId? DiscountId { get; set; }
         public Discount? Discount { get; set; }
@@ -46,7 +46,7 @@ namespace DiamondShop.Domain.Models.Orders.Entities
                 Status = OrderItemStatus.Pending,
                 JewelryId = jewelryId,
                 DiamondId = diamondId,
-                FinalPrice = finalPrice ?? 0,
+                //FinalPrice = finalPrice ?? 0,
                 PurchasedPrice = purchasedPrice ?? 0,
                 DiscountId = discountId,
                 DiscountPercent = discountPercent ?? 0,
