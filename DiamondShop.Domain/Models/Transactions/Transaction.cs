@@ -83,26 +83,19 @@ namespace DiamondShop.Domain.Models.Transactions
                 IsManual = true,
             };
         }
-        public static Transaction CreateManualRefund(OrderId orderId, string description, decimal amount, decimal fineAmount = 0)
+        public static Transaction CreateManualRefund(OrderId orderId, string description, decimal amount)
         {
             var dateTimeNow = DateTime.UtcNow;
-            TransactionType type = fineAmount switch
-            {
-                0 => TransactionType.Refund,
-                > 0 => TransactionType.Partial_Refund,
-                _ => throw new Exception("fine amount is invalid")
-            };
             return new Transaction
             {
                 Id = TransactionId.Create(),
                 PayMethodId = null,
                 AppTransactionCode = new Guid().ToString(),
                 PaygateTransactionCode = new Guid().ToString(),
-                TransactionType = type,
+                TransactionType = TransactionType.Refund,
                 Description = description,
                 TransactionAmount = amount,
                 OrderId = orderId,
-                FineAmount = fineAmount,
                 PayDate = dateTimeNow,
                 TimeStampe = dateTimeNow.ToString(TransactionRules.TransactionTimeStamp),
                 IsManual = true,

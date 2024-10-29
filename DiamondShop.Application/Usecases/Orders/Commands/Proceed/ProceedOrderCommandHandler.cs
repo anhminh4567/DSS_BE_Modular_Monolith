@@ -53,7 +53,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             var orderItems = orderItemQuery.ToList();
             if (order.Status == OrderStatus.Pending)
             {
-                Transaction trans = Transaction.CreateManualPayment(order.Id, $"Transfer from {order.Account?.FullName} for order #{order.Id}", order.TotalPrice, TransactionType.Pay);
+                Transaction trans = Transaction.CreateManualPayment(order.Id, $"Transfer from {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} for order #{order.Id.Value}", _orderTransactionService.GetFullPaymentValueForOrder(order), TransactionType.Pay);
                 trans.AppTransactionCode = "";
                 trans.PaygateTransactionCode = "";
                 await _transactionRepository.Create(trans);

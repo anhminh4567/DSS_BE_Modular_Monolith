@@ -26,6 +26,7 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetAll
             request.Deconstruct(out string role, out string accountId, out OrderPaging? orderPaging);
             orderPaging.Deconstruct(out int pageSize, out int start, out OrderStatus? status, out DateTime? createdDate, out DateTime? expectedDate, out string? email);
             var query = _orderRepository.GetQuery();
+            query = _orderRepository.QueryInclude(query, p => p.Account);
             //customer
             if (role == AccountRole.CustomerId)
             {

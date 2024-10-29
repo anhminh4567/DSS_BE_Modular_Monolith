@@ -2,7 +2,7 @@
 {
     public enum CompleteAction
     {
-        Complete, Refund, ReplaceByShop, ReplaceByCustomer
+        Complete, RefundByShop, RefundByCustomer, ReplaceByShop, ReplaceByCustomer
     }
     public record OrderItemActionRequestDto(string ItemId, CompleteAction Action, OrderItemRequestDto? ReplacingItem);
 }

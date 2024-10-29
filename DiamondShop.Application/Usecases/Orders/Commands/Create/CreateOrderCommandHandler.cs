@@ -17,11 +17,12 @@ using DiamondShop.Domain.Repositories.TransactionRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
+using System.Collections.Generic;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 {
     public record CreateOrderInfo(PaymentType PaymentType, string PaymentName, string? PromotionId, string Address, List<OrderItemRequestDto> OrderItemRequestDtos);
-    public record CreateOrderCommand(string AccountId, CreateOrderInfo CreateOrderInfo, string? ParentOrderId = null) : IRequest<Result<Order>>;
+    public record CreateOrderCommand(string AccountId, CreateOrderInfo CreateOrderInfo, Order? ParentOrder = null, List<OrderItem> ParentItems = null) : IRequest<Result<Order>>;
     internal class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Result<Order>>
     {
         private readonly IAccountRepository _accountRepository;
@@ -54,7 +55,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         public async Task<Result<Order>> Handle(CreateOrderCommand request, CancellationToken token)
         {
             await _unitOfWork.BeginTransactionAsync(token);
-            request.Deconstruct(out string accountId, out CreateOrderInfo createOrderInfo, out string? parentOrderId);
+            request.Deconstruct(out string accountId, out CreateOrderInfo createOrderInfo, out Order? parentOrder, out List<OrderItem> parentItems);
             createOrderInfo.Deconstruct(out PaymentType paymentType, out string paymentName, out string? promotionId, out string address, out List<OrderItemRequestDto> orderItemReqs);
             var account = await _accountRepository.GetById(AccountId.Parse(accountId));
             if (account == null)
@@ -112,8 +113,12 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             var order = Order.Create(account.Id, paymentType, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice,
                 address, orderPromo?.Id);
             //if replacement order
-            if (parentOrderId != null)
-                order.ParentOrderId = OrderId.Parse(parentOrderId);
+            if (parentOrder != null)
+            {
+                order.ParentOrderId = parentOrder.Id;
+                order.TotalPrice += parentItems.Sum(p => p.PurchasedPrice);
+                order.Status = OrderStatus.Processing;
+            }
             await _orderRepository.Create(order, token);
             List<OrderItem> orderItems = new();
             List<Jewelry> jewelries = new();
@@ -131,13 +136,21 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 if (product.Jewelry != null)
                 {
                     _jewelryService.AddPrice(product.Jewelry, _sizeMetalRepository);
-                    product.Jewelry.SetSold(product.Jewelry.ND_Price.Value,product.ReviewPrice.DefaultPrice);
+                    product.Jewelry.SetSold(product.Jewelry.ND_Price.Value, product.ReviewPrice.DefaultPrice);
                     jewelries.Add(product.Jewelry);
                 }
                 if (product.Diamond != null)
                 {
                     product.Diamond.SetSold(product.ReviewPrice.DefaultPrice, product.ReviewPrice.FinalPrice);
                     diamonds.Add(product.Diamond);
+                }
+            }
+            if (parentItems != null)
+            {
+                foreach (var item in parentItems)
+                {
+                    orderItems.Add(OrderItem.Create(order.Id, item.JewelryId, item.DiamondId, 0, item.PurchasedPrice,
+                        item.DiscountId, item.DiscountPercent, item.PromoType, item.PromoValue));
                 }
             }
             await _orderItemRepository.CreateRange(orderItems);
