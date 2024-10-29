@@ -8,7 +8,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.AssignDeliverer
         public ProceedOrderCommandValidator()
         {
             RuleFor(p => p.orderId).NotEmpty();
-            RuleFor(p => p.delivererId).NotEmpty();
+            RuleFor(p => p.accountId).NotEmpty();
         }
     }
 }

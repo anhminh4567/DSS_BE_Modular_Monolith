@@ -257,16 +257,16 @@ namespace DiamondShop.Test.Integration.Data
         }
         #endregion
         #region DiamondPrice
-        public static DiamondPrice DefaultDiamondPrice(DiamondShapeId shapeId, DiamondCriteriaId criteriaId) =>
-            DiamondPrice.Create(shapeId, criteriaId, 100M,true);
+        public static DiamondPrice DefaultDiamondPrice(DiamondShapeId shapeId, DiamondCriteriaId criteriaId, bool isLab) =>
+            DiamondPrice.Create(shapeId, criteriaId, 100_000_000M, isLab);
         static async Task SeedingPrice(DiamondShopDbContext _context, DiamondPrice price)
         {
             _context.Set<DiamondPrice>().AddRange(price);
             await _context.SaveChangesAsync();
         }
-        public static async Task<DiamondPrice> SeedDefaultDiamondPrice(DiamondShopDbContext _context, DiamondShapeId shapeId, DiamondCriteriaId criteriaId)
+        public static async Task<DiamondPrice> SeedDefaultDiamondPrice(DiamondShopDbContext _context, DiamondShapeId shapeId, DiamondCriteriaId criteriaId, bool isLab)
         {
-            var price = DefaultDiamondPrice(shapeId, criteriaId);
+            var price = DefaultDiamondPrice(shapeId, criteriaId, isLab);
             await SeedingPrice(_context, price);
             return price;
         }
@@ -274,6 +274,8 @@ namespace DiamondShop.Test.Integration.Data
         #region Account
         public static Account DefaultCustomer(FullName fullname, string email, string identityId, List<AccountRole> roles) =>
             Account.CreateBaseCustomer(fullname, email, identityId, roles);
+        public static Account DefaultStaff(FullName fullname, string email, string identityId, List<AccountRole> roles) =>
+           Account.CreateBaseStaff(fullname, email, identityId, roles);
 
         static async Task SeedingAccount(DiamondShopDbContext _context, Account account)
         {
@@ -290,6 +292,17 @@ namespace DiamondShop.Test.Integration.Data
             await SeedingAccount(_context, user);
             return user;
         }
+        public static async Task<Account> SeedDefaultStaff(DiamondShopDbContext _context, IAuthenticationService _authentication)
+        {
+            var roles = await _context.Set<AccountRole>().ToListAsync();
+            string email = "abc@staff.com";
+            FullName username = FullName.parse("", "Staff_A");
+            var register = await _authentication.Register(email, "123", username, true);
+            var user = DefaultStaff(username, email, register.Value, roles);
+            await SeedingAccount(_context, user);
+            return user;
+        }
+
         #endregion
     }
 }

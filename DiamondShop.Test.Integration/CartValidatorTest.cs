@@ -55,7 +55,7 @@ namespace DiamondShop.Test.Integration
             var ring_2 = await TestData.SeedDefaultJewelry(_context, "1", "2");
             var diamond = await TestData.SeedDefaultDiamond(_context, ring_1.Id);
             var criteria = await TestData.SeedDefaultDiamondCriteria(_context, diamond.Cut, diamond.Clarity, diamond.Color, diamond.IsLabDiamond);
-            await TestData.SeedDefaultDiamondPrice(_context, diamond.DiamondShapeId, criteria.Id);
+            await TestData.SeedDefaultDiamondPrice(_context, diamond.DiamondShapeId, criteria.Id, diamond.IsLabDiamond);
 
             var items = new CartRequestDto()
             {
@@ -92,7 +92,7 @@ namespace DiamondShop.Test.Integration
             var diamond = await TestData.SeedDefaultDiamond(_context, ring_1.Id);
             var diamond2 = await TestData.SeedDefaultDiamond(_context, ring_2.Id);
             var criteria = await TestData.SeedDefaultDiamondCriteria(_context, diamond.Cut, diamond.Clarity, diamond.Color, diamond.IsLabDiamond);
-            await TestData.SeedDefaultDiamondPrice(_context, diamond.DiamondShapeId, criteria.Id);
+            await TestData.SeedDefaultDiamondPrice(_context, diamond.DiamondShapeId, criteria.Id, diamond.IsLabDiamond);
 
             var items = new CartRequestDto()
             {
@@ -147,7 +147,7 @@ namespace DiamondShop.Test.Integration
             var ring_2 = await TestData.SeedDefaultJewelry(_context, "1", "2");
             var diamond = await TestData.SeedDefaultDiamond(_context, ring_1.Id);
             var criteria = await TestData.SeedDefaultDiamondCriteria(_context, diamond.Cut, diamond.Clarity, diamond.Color, diamond.IsLabDiamond);
-            await TestData.SeedDefaultDiamondPrice(_context, diamond.DiamondShapeId, criteria.Id);
+            await TestData.SeedDefaultDiamondPrice(_context, diamond.DiamondShapeId, criteria.Id, diamond.IsLabDiamond);
 
             var items = new CartRequestDto()
             {
