@@ -28,17 +28,16 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
         public Clarity ClarityMax { get; set; }
         public SettingType SettingType { get; set; }
         [NotMapped]
-        public DiamondPrice? DiamondPrice{ get; set; }
+        public List<DiamondPrice> DiamondPrice { get; set; } = new();
         [NotMapped]
-        public decimal Price { get; set; } = 0;
+        public int TotalPriceMatched{ get; set; } = 0;
+        [NotMapped]
+        public decimal AveragePrice { get; set; } = 0;
         // price is not just from diamondPrice, must * the amount of diamond to get real price
         // price from diamondPrice is average price per diamond not total price
         [NotMapped]
-        public float AverageCarat { get => (float)Carat / Quantity; }
-        [NotMapped]
-        public Color AverageColor { get => ColorMax; }
-        [NotMapped]
-        public Clarity AverageClarity { get => ClarityMax; }
+        public float AverageCarat { get => (float)Carat / (float)Quantity; }
+
         private JewelrySideDiamond() { }
         public static JewelrySideDiamond Create(JewelryId jewelryId, SideDiamondOpt sideDiamondOpt)
         {

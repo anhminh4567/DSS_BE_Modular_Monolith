@@ -48,5 +48,6 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public DiscountDto? Discount { get; set; }
         public decimal TruePrice { get; set; }
         public decimal? DiscountPrice { get; set; }
+        public string Title { get; set; }
     }
 }

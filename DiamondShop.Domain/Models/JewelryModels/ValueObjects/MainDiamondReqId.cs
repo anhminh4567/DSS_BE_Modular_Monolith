@@ -14,7 +14,7 @@ namespace DiamondShop.Domain.Models.JewelryModels.ValueObjects
         }
         public static MainDiamondReqId Create()
         {
-            return new MainDiamondReqId(Guid.NewGuid().ToString());
+            return new MainDiamondReqId(Ulid.NewUlid().ToString());
         }
     }
 }

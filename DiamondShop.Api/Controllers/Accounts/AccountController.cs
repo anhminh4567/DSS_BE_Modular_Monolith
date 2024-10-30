@@ -246,16 +246,16 @@ namespace DiamondShop.Api.Controllers.Accounts
         [HttpGet("Email/Confirm")]
         public async Task<ActionResult> ConfirmEmail([FromQuery] string token, [FromQuery] string userId)
         {
-            var result = await _authenticationService.ConfirmEmail(token, userId);
+            var result = await _authenticationService.ConfirmEmail(userId, token);
             if (result.IsFailed)
             {
                 var url = _options.Value.ConfirmEmailFailedUrl + "?errorMessage=" + result.Errors.First().Message;
                 return Redirect(url);
             }
-            return Ok(_options.Value.ConfirmEmailSuccessUrl + "?userId=" + userId + "&token=" + token);
+            return Redirect(_options.Value.ConfirmEmailSuccessUrl + "?userId=" + userId + "&token=" + token);
         }
         [HttpGet("{accountId}/Email/SendConfirm")]
-        public async Task<ActionResult> SendConfirmEmail([FromQuery] string accountId)
+        public async Task<ActionResult> SendConfirmEmail([FromRoute] string accountId)
         {
             var result = await _authenticationService.SendConfirmEmail(accountId);
             if(result.IsSuccess)

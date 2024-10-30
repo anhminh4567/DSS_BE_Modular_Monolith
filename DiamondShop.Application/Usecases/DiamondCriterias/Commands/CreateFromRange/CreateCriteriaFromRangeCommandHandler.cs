@@ -17,12 +17,12 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromRange
 {
-    public record CreateCriteriaFromRangeCommand(float caratFrom ,float caratTo, Cut? Cut = Cut.Excelent) : IRequest<Result<List<DiamondCriteria>>>;
+    public record CreateCriteriaFromRangeCommand(float caratFrom ,float caratTo, Cut? Cut = Cut.Excelent, bool IsSideDiamond = false) : IRequest<Result<List<DiamondCriteria>>>;
     internal class CreateCriteriaFromRangeCommandHandler : IRequestHandler<CreateCriteriaFromRangeCommand, Result<List<DiamondCriteria>>>
     {
         private readonly IDiamondCriteriaRepository _diamondCriteriaRepository;
         private readonly ISender _sender;
-
+        private const Cut DEFAULT_CUT = Cut.Excelent;
         public CreateCriteriaFromRangeCommandHandler(IDiamondCriteriaRepository diamondCriteriaRepository, ISender sender)
         {
             _diamondCriteriaRepository = diamondCriteriaRepository;
@@ -31,14 +31,17 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
 
         public async Task<Result<List<DiamondCriteria>>> Handle(CreateCriteriaFromRangeCommand request, CancellationToken cancellationToken)
         {
-            var getAllAvailbleCaratRange = await _diamondCriteriaRepository.GroupAllAvailableCriteria(cancellationToken);
-            var orderedRange = getAllAvailbleCaratRange.OrderBy(x => x.CaratFrom).ToList();
+            List<(float CaratFrom, float CaratTo)> allAvailableCaratRange = new();
+            if(request.IsSideDiamond == false)
+                allAvailableCaratRange = await _diamondCriteriaRepository.GroupAllAvailableCaratRange(cancellationToken);
+            else
+                allAvailableCaratRange = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCaratRange(cancellationToken);
+            var orderedRange = allAvailableCaratRange.OrderBy(x => x.CaratFrom).ToList();
             foreach(var range in orderedRange)
             {
-                if(request.caratFrom >= range.CaratFrom  
-                    || request.caratTo <= range.CaratTo)
+                if (request.caratFrom < range.CaratTo && request.caratTo > range.CaratFrom)
                 {
-                    return Result.Fail("The given range is already exist in the database");
+                    return Result.Fail("The given range already exists or overlaps with an existing range in the database");
                 }
             }
             //when all is valid
@@ -53,11 +56,11 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
                         CaratTo = request.caratTo,
                         Clarity = (Clarity)clarity,
                         Color = (Color)color,
-                        Cut = request.Cut.Value,
+                        Cut = DEFAULT_CUT//request.Cut.Value,
                     });
                 }
             }
-            var command = new CreateManyDiamondCriteriasCommand(requests);
+            var command = new CreateManyDiamondCriteriasCommand(requests, request.IsSideDiamond);
             var result = await _sender.Send(command, cancellationToken);
             return result;
         }

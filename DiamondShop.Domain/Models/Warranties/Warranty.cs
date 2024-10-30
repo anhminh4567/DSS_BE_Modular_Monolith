@@ -26,7 +26,8 @@ namespace DiamondShop.Domain.Models.Warranties
                 Name = name,
                 Code = code,
                 MonthDuration = duration,
-                Price = price
+                Price = price,
+                Type = type,
             };
         }
     }

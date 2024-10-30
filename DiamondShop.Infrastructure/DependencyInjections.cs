@@ -112,6 +112,7 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<ISizeMetalRepository, SizeMetalRepository>();
 
             services.AddScoped<IDeliveryFeeRepository, DeliveryFeeRepository>();
+            services.AddScoped<IWarrantyRepository, WarrantyRepository>();
 
             services.AddScoped<IPaymentService, ZalopayPaymentService>();
 

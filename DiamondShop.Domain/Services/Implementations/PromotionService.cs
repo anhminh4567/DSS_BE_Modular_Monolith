@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Common.Carts;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
@@ -220,12 +221,12 @@ namespace DiamondShop.Domain.Services.Implementations
             var orderPriceNow = cartModel.OrderPrices.FinalPrice;//cartModel.OrderPrices.DefaultPrice - cartModel.OrderPrices.DiscountAmountSaved;
             decimal promotionPriceSavedAmount = orderGift.UnitType switch
             {
-                UnitType.Percent => Math.Ceiling((orderPriceNow * orderGift.UnitValue) / 100),
+                UnitType.Percent => Math.Ceiling((orderPriceNow * orderGift.UnitValue) / (decimal)100),
                 UnitType.Fix_Price => orderGift.UnitValue,
                 UnitType.Free_Gift => throw new Exception("Major error, gift for order have a type of freeGift ??? major error, check back flow "),
                 _ => throw new Exception("Major error, gift for order have not unit type ")
             };
-            cartModel.OrderPrices.PromotionAmountSaved += promotionPriceSavedAmount;
+            cartModel.OrderPrices.PromotionAmountSaved += MoneyVndRoundUpRules.RoundAmountFromDecimal(promotionPriceSavedAmount);
         }
         /// <summary>
         /// the function handle the interation over product, to check which is gift, which is not
@@ -308,8 +309,8 @@ namespace DiamondShop.Domain.Services.Implementations
                 UnitType.Free_Gift => product.ReviewPrice.DiscountPrice,
                 _ => throw new Exception("Major error, gift for product have not unit type ")
             };
-            product.ReviewPrice.PromotionAmountSaved = savedAmount;
-            cartModel.OrderPrices.PromotionAmountSaved += savedAmount;  
+            product.ReviewPrice.PromotionAmountSaved = MoneyVndRoundUpRules.RoundAmountFromDecimal(savedAmount);
+            cartModel.OrderPrices.PromotionAmountSaved += product.ReviewPrice.PromotionAmountSaved;  
         }
         public void SetOrderPrice(CartModel cartModel)
         {
