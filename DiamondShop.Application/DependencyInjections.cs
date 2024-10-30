@@ -32,7 +32,7 @@ namespace DiamondShop.Application
         {
             services.AddSingleton<IDiamondServices, DiamondServices>();
             services.AddSingleton<IPromotionServices, PromotionService>();
-            services.AddSingleton<IDiscountService, DiscountService>();
+            services.AddScoped<IDiscountService, DiscountService>();
             services.AddSingleton<IDeliveryService, DeliveryService>();
             services.AddSingleton<IJewelryService, JewelryService>();
             services.AddSingleton<IJewelryModelService, JewelryModelService>();
