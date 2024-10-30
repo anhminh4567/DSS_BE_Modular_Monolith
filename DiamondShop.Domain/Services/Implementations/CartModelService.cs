@@ -98,8 +98,9 @@ namespace DiamondShop.Domain.Services.Implementations
                     break;// only one promotion is applied at a time
                 }
             }
-            CurrentCart.SetErrorMessages();
             CurrentCart.SetOrderShippingPrice(shipPrice);
+            CurrentCart.SetErrorMessages();
+            
             //CurrentCart.SetOrderPrice();
             
             return Result.Ok(CurrentCart);

@@ -48,7 +48,7 @@ namespace DiamondShop.Application
             var config = TypeAdapterConfig.GlobalSettings;
             config.Scan(CurrentAssembly);
             config.Default.IgnoreNullValues(true);
-            config.Default.MaxDepth(4);
+            config.Default.MaxDepth(6);
             services.AddSingleton(config);
             services.AddScoped<IMapper, ServiceMapper>();
             return services;
