@@ -8,10 +8,5 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
         public JewelrySideDiamondRepository(DiamondShopDbContext dbContext) : base(dbContext)
         {
         }
-
-        public async Task CreateRange(List<JewelrySideDiamond> jewelrySideDiamonds)
-        {
-            await _set.AddRangeAsync(jewelrySideDiamonds);
-        }
     }
 }

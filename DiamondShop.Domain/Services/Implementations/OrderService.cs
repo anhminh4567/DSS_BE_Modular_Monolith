@@ -79,7 +79,7 @@ namespace DiamondShop.Domain.Services.Implementations
                     {
                         var diamond = await _diamondRepo.GetById(item.DiamondId);
                         if (diamond == null)
-                            errors.Append(new Error($"Can't find diamond #{item.JewelryId}"));
+                            errors.Append(new Error($"Can't find diamond #{item.DiamondId}"));
                         else
                         {
                             diamond.SetSell();

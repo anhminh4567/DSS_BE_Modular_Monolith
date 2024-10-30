@@ -10,19 +10,17 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
 {
-    internal class SideDiamondRepository : BaseRepository<SideDiamondReq>, ISideDiamondRepository
+    internal class SideDiamondRepository : BaseRepository<SideDiamondOpt>, ISideDiamondRepository
     {
-        DbSet<SideDiamondOpt> setOpt;
-        public SideDiamondRepository(DiamondShopDbContext dbContext) : base(dbContext) { setOpt = _dbContext.Set<SideDiamondOpt>(); }
-        public async Task CreateRange(List<SideDiamondOpt> sideDiamondOpts, CancellationToken token = default)
+        public SideDiamondRepository(DiamondShopDbContext dbContext) : base(dbContext) { }
+        public override async Task<SideDiamondOpt?> GetById(params object[] ids)
         {
-            await setOpt.AddRangeAsync(sideDiamondOpts, token);
+            var id = (SideDiamondOptId)ids[0];
+            return await _set.FirstOrDefaultAsync(p => p.Id == id);
         }
-
         public async Task<List<SideDiamondOpt>?> GetSideDiamondOption(List<SideDiamondOptId> sideDiamondOptId)
         {
-            
-            return setOpt.Include(p => p.SideDiamondReq).Where(p => sideDiamondOptId.Contains(p.Id)).ToList();
+            return _set.Where(p => sideDiamondOptId.Contains(p.Id)).ToList();
         }
     }
 }

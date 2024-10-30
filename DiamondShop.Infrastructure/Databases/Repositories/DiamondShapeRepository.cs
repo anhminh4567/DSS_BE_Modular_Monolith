@@ -25,7 +25,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         {
             var anyPrice = _dbContext.DiamondPrices.AnyAsync(p => p.ShapeId.Equals(diamondShapeId), cancellationToken);
             var anyDiamond = _dbContext.MainDiamondShapes.AnyAsync(p => p.ShapeId.Equals(diamondShapeId), cancellationToken);
-            var anySideDiamond = _dbContext.SideDiamondReqs.AnyAsync(p => p.ShapeId.Equals(diamondShapeId), cancellationToken);
+            var anySideDiamond = _dbContext.SideDiamondOpts.AnyAsync(p => p.ShapeId.Equals(diamondShapeId), cancellationToken);
             var anyPromoShape = _dbContext.PromoReqShapes.AnyAsync(p => p.ShapeId.Equals(diamondShapeId), cancellationToken);
             var results =await Task.WhenAll(anyPrice, anyDiamond, anySideDiamond, anyPromoShape);
             foreach(var isOk in results) 

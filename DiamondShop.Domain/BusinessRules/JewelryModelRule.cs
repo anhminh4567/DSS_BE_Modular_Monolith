@@ -9,7 +9,8 @@ namespace DiamondShop.Domain.BusinessRules
     public static class JewelryModelRule
     {
         public static int MaximumSideDiamondOption = 5;
-        public static int MaximumSideDiamond = 3;
         public static int MaximumMainDiamond = 4;
+        public static int ModelPerQuery = 3;
+        public static int MinimumModelPerPaging = 20;
     }
 }

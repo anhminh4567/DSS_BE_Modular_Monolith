@@ -15,7 +15,7 @@ namespace DiamondShop.Test.Integration
         {
             _output = output;
         }
- 
+
         [Trait("ReturnTrue", "DefaultRing")]
         [Fact]
         public async Task Create_OneMain_OneSide_RingModel_Should_AddToDb()
@@ -35,10 +35,7 @@ namespace DiamondShop.Test.Integration
 
             var sideDiamondSpec = new List<SideDiamondRequestDto>()
             {
-                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, new()
-                {
-                    new SideDiamondOptRequestDto(0.05f, 5),
-                })
+                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.05f, 5)
             };
 
             var metalSizeSpec = new List<ModelMetalSizeRequestDto>()
@@ -89,10 +86,7 @@ namespace DiamondShop.Test.Integration
 
             var sideDiamondSpec = new List<SideDiamondRequestDto>()
             {
-                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, new()
-                {
-                    new SideDiamondOptRequestDto(0.05f, 5),
-                })
+                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.05f, 5)
             };
 
             var metalSizeSpec = new List<ModelMetalSizeRequestDto>()
@@ -132,16 +126,9 @@ namespace DiamondShop.Test.Integration
 
             var sideDiamondSpec = new List<SideDiamondRequestDto>()
             {
-                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, new()
-                {
-                    new SideDiamondOptRequestDto(0.05f, 5),
-                }),
-                 new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, new()
-                {
-                    new SideDiamondOptRequestDto(0.05f, 20),
-                    new SideDiamondOptRequestDto(0.25f, 15),
-                    new SideDiamondOptRequestDto(1f, 5),
-                }),
+                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.05f, 20),
+                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.25f, 15),
+                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 1f, 5),
             };
 
             var metalSizeSpec = new List<ModelMetalSizeRequestDto>()
@@ -164,11 +151,8 @@ namespace DiamondShop.Test.Integration
             var modelSpec = new JewelryModelRequestDto("Test_Model", TestData.DefaultCategoryId.Value, 1f, null, false, false, null, null, null);
             var sideDiamondSpec = new List<SideDiamondRequestDto>()
             {
-                 new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, new()
-                {
-                    new SideDiamondOptRequestDto(0.05f, 20),
-                    new SideDiamondOptRequestDto(0.05f, 15),
-                }),
+                      new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.05f, 20),
+                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.25f, 15),
             };
 
             var metalSizeSpec = new List<ModelMetalSizeRequestDto>()

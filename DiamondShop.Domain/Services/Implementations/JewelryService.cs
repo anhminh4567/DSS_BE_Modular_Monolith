@@ -34,21 +34,11 @@ namespace DiamondShop.Domain.Services.Implementations
             _diamondPriceRepository = diamondPriceRepository;
             _discountRepository = discountRepository;
         }
-
         public bool SetupUnmapped(List<Jewelry> jewelries, List<SizeMetal> sizeMetals)
         {
             foreach (var jewelry in jewelries)
             {
                 if (jewelry.Metal == null) return false;
-                StringBuilder sb = new StringBuilder();
-                sb.Append($"{jewelry.Metal.Name[0]}-{jewelry.Model.Name}");
-                if (jewelry.SideDiamonds != null)
-                {
-                    string[] arr = new string[jewelry.SideDiamonds.Count];
-                    jewelry.SideDiamonds.ForEach(d => arr.Append($"Avg.{d.Carat}"));
-                    sb.Append(String.Join("|", arr));
-                }
-                jewelry.Name = sb.ToString();
                 var sizeMetal = sizeMetals.FirstOrDefault(k => jewelry.ModelId == k.ModelId && jewelry.SizeId == k.SizeId && jewelry.MetalId == k.MetalId);
                 if (sizeMetal?.Metal == null)
                     return false;
@@ -96,16 +86,12 @@ namespace DiamondShop.Domain.Services.Implementations
         }
         private async Task<decimal> GetJewelrySideDiamondPrice(Jewelry jewelry)
         {
-            var sideDiamonds = jewelry.SideDiamonds;
+            var sideDiamond = jewelry.SideDiamond;
             decimal totalDiamondPrice = 0;
-            foreach (var sideDiamond in sideDiamonds)
-            {
-                var thisSidePrice = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamond.AverageCarat);
-                var price = await _diamondServices.GetSideDiamondPrice(sideDiamond);
-                totalDiamondPrice += sideDiamond.AveragePrice;
-            }
+            var thisSidePrice = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamond.AverageCarat);
+            var price = await _diamondServices.GetSideDiamondPrice(sideDiamond);
             jewelry.IsAllSideDiamondPriceKnown = true;
-            return totalDiamondPrice;
+            return sideDiamond.AveragePrice;
         }
 
         public async Task<Discount?> AssignJewelryDiscount(Jewelry jewelry, List<Discount> discounts)

@@ -30,7 +30,11 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
                 query = query
                 .Include(p => p.Items)
                     .ThenInclude(c => c.Jewelry)
-                    .ThenInclude(c => c.Diamonds);
+                    .ThenInclude(c => c.Model);
+                query = query
+                    .Include(p => p.Items)
+                        .ThenInclude(c => c.Jewelry)
+                        .ThenInclude(c => c.Diamonds);
             if (isIncludeDiamond)
                 query = query
                 .Include(p => p.Items)

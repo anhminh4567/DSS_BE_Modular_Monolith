@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Dtos.Requests.JewelryModels;
+using DiamondShop.Application.Usecases.ModelSideDiamonds.Commands;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.SideDiamonds.Commands
 {
-    public class CreateSideDiamondCommandValidator : AbstractValidator<CreateSideDiamondCommand>
+    public class CreateModelSideDiamondCommandValidator : AbstractValidator<CreateModelSideDiamondCommand>
     {
-        public CreateSideDiamondCommandValidator()
+        public CreateModelSideDiamondCommandValidator()
         {
             RuleFor(c => c.ModelId)
                 .NotEmpty();
@@ -39,27 +40,15 @@ namespace DiamondShop.Application.Usecases.SideDiamonds.Commands
                     p.RuleFor(p => p.ShapeId)
                         .NotEmpty();
 
-                    p.RuleForEach(p => p.OptSpecs)
-                        .ChildRules(k =>
-                        {
-                            k.RuleFor(k => k.CaratWeight)
+                    p.RuleFor(p => p.CaratWeight)
                                 .NotNull()
                                 .GreaterThan(0);
 
-                            k.RuleFor(k => k.Quantity)
-                                .NotNull()
-                                .GreaterThan(0);
-
-                        });
-
-                    p.RuleFor(p => p.OptSpecs)
-                        .Must(CheckUnique).WithMessage("carat weight option per side diamond must be unique");
+                    p.RuleFor(p => p.Quantity)
+                        .NotNull()
+                        .GreaterThan(0);
 
                 });
-        }
-        private bool CheckUnique(List<SideDiamondOptRequestDto> opts)
-        {
-            return opts.Count() == opts.GroupBy(p => p.CaratWeight).Count();
         }
     }
 }

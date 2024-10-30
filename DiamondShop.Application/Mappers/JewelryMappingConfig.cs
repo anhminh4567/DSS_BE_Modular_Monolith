@@ -9,7 +9,8 @@ namespace DiamondShop.Application.Mappers
     {
         public void Register(TypeAdapterConfig config)
         {
-            config.NewConfig<Jewelry, JewelryDto>();
+            config.NewConfig<Jewelry, JewelryDto>()
+                .Map(dest => dest.Name, src => src.Model != null ? src.Model.Name : null);
 
             config.NewConfig<JewelryReview, JewelryReviewDto>();
 

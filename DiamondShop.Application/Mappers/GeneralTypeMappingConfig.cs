@@ -27,8 +27,6 @@ namespace DiamondShop.Application.Mappers
             config.NewConfig<AccountRoleId, string>()
                 .MapWith(src => src.Value);
 
-            config.NewConfig<Dictionary<SideDiamondReqId, SideDiamondOptId>, Dictionary<string, string>>()
-                .MapWith( src => src.ToDictionary(kvp => kvp.Key.Value.ToString(), kvp => kvp.Value.Value.ToString()));
             config.NewConfig<DiamondId, string>()
                .MapWith(src => src.Value);
             config.NewConfig<DiamondCriteriaId, string>()
@@ -55,8 +53,6 @@ namespace DiamondShop.Application.Mappers
             config.NewConfig<JewelryModelCategoryId, string>()
                 .MapWith(src => src.Value).Compile();
             config.NewConfig<MainDiamondReqId, string>()
-                .MapWith(src => src.Value).Compile();
-            config.NewConfig<SideDiamondReqId, string>()
                 .MapWith(src => src.Value).Compile();
             config.NewConfig<SideDiamondOptId, string>()
                 .MapWith(src => src.Value).Compile();

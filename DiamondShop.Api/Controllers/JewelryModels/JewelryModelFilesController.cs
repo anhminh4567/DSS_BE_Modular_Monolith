@@ -1,10 +1,4 @@
 ﻿using DiamondShop.Application.Dtos.Responses;
-using DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddCertficate;
-using DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddMany;
-using DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddThumbnail;
-using DiamondShop.Application.Usecases.Diamonds.Files.Commands.RemoveMany;
-using DiamondShop.Application.Usecases.Diamonds.Files.Commands.RemoveThumbnail;
-using DiamondShop.Application.Usecases.Diamonds.Files.Queries;
 using DiamondShop.Application.Usecases.JewelryModels.Files.Commands.AddBaseImages;
 using DiamondShop.Application.Usecases.JewelryModels.Files.Commands.AddMainDiamondImages;
 using DiamondShop.Application.Usecases.JewelryModels.Files.Commands.AddMetalImages;
@@ -15,7 +9,6 @@ using DiamondShop.Application.Usecases.JewelryModels.Files.Commands.RemoveThumbn
 using DiamondShop.Application.Usecases.JewelryModels.Files.Queries;
 using MapsterMapper;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiamondShop.Api.Controllers.JewelryModels

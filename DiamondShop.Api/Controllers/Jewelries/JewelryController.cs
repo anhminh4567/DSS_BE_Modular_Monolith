@@ -1,13 +1,9 @@
 ﻿using DiamondShop.Application.Commons.Responses;
 using DiamondShop.Application.Dtos.Responses.Jewelries;
-using DiamondShop.Application.Dtos.Responses.JewelryModels;
 using DiamondShop.Application.Usecases.Jewelries.Commands;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetAll;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetDetail;
-using DiamondShop.Application.Usecases.Jewelries.Queries.GetPaging;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetSelling;
-using DiamondShop.Application.Usecases.JewelryModels.Commands.Create;
-using DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

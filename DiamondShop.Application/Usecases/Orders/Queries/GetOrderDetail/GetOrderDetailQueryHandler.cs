@@ -2,7 +2,10 @@
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
+using DiamondShop.Domain.Repositories.JewelryModelRepo;
+using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.OrderRepo;
+using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
 using System;
@@ -17,10 +20,12 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail
     internal class GetOrderDetailQueryHandler : IRequestHandler<GetOrderDetailQuery, Result<Order>>
     {
         private readonly IOrderRepository _orderRepository;
+        private readonly IOrderService _orderService;
 
-        public GetOrderDetailQueryHandler(IOrderRepository orderRepository)
+        public GetOrderDetailQueryHandler(IOrderRepository orderRepository, IOrderService orderService)
         {
             _orderRepository = orderRepository;
+            _orderService = orderService;
         }
 
         public async Task<Result<Order>> Handle(GetOrderDetailQuery request, CancellationToken cancellationToken)

@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.JewelryModels.Entities;
+﻿using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
+using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -19,10 +20,16 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
                .HasConversion(
                    Id => Id.Value,
                    dbValue => SideDiamondOptId.Parse(dbValue));
-            builder.Property(o => o.SideDiamondReqId)
+            builder.Property(o => o.ModelId)
+           .HasConversion(
+               Id => Id.Value,
+               dbValue => JewelryModelId.Parse(dbValue));
+            builder.Property(o => o.ShapeId)
             .HasConversion(
                 Id => Id.Value,
-                dbValue => SideDiamondReqId.Parse(dbValue));
+                dbValue => DiamondShapeId.Parse(dbValue));
+            builder.HasOne(o => o.Shape).WithMany().HasForeignKey(p => p.ShapeId).IsRequired();
+            builder.Property(o => o.SettingType).HasConversion<string>().IsRequired();
             builder.HasKey(o => o.Id);
         }
     }

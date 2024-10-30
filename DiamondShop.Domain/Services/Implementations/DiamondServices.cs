@@ -76,7 +76,7 @@ namespace DiamondShop.Domain.Services.Implementations
         }
         public async Task<DiamondPrice> GetDiamondPrice(Diamond diamond, List<DiamondPrice> diamondPrices)
         {
-            return await GetDiamondPriceGlobal(diamond,diamondPrices);
+            return await GetDiamondPriceGlobal(diamond, diamondPrices);
         }
         public static async Task<DiamondPrice> GetDiamondPriceGlobal(Diamond diamond, List<DiamondPrice> diamondPrices)
         {
@@ -93,7 +93,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 continue;
             }
             //throw new Exception("somehow none of the price match the diamond");
-            var emptyPrice = DiamondPrice.CreateUnknownPrice(diamond.DiamondShapeId, null,diamond.IsLabDiamond);
+            var emptyPrice = DiamondPrice.CreateUnknownPrice(diamond.DiamondShapeId, null, diamond.IsLabDiamond);
             diamond.DiamondPrice = emptyPrice;
             diamond.SetCorrectPrice(diamond.DiamondPrice.Price);
             //emptyPrice.ForUnknownPrice = "unknown , please contact us for more information";
@@ -121,7 +121,7 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             return ValidateDiamond4CGlobal(diamond, caratFrom, caratTo, colorFrom, colorTo, clarityFrom, clarityTo, cutFrom, cutTo);
         }
-        
+
         public static bool ValidateDiamond3CGlobal(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo)
         {
             if (caratFrom <= diamond.Carat && caratTo >= diamond.Carat)
@@ -138,12 +138,12 @@ namespace DiamondShop.Domain.Services.Implementations
         }
         public bool ValidateDiamond3C(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo)
         {
-            return ValidateDiamond3CGlobal(diamond,caratFrom,caratTo,colorFrom,colorTo,clarityFrom,clarityTo);
+            return ValidateDiamond3CGlobal(diamond, caratFrom, caratTo, colorFrom, colorTo, clarityFrom, clarityTo);
         }
         public async Task<List<DiamondPrice>> GetSideDiamondPrice(JewelrySideDiamond sideDiamond)
         {
             List<DiamondPrice> diamondPrices = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamond.AverageCarat);
-            return await GetSideDiamondPriceGlobal(sideDiamond,diamondPrices);
+            return await GetSideDiamondPriceGlobal(sideDiamond, diamondPrices);
         }
         public static async Task<List<DiamondPrice>> GetSideDiamondPriceGlobal(JewelrySideDiamond sideDiamond, List<DiamondPrice> diamondPrices)
         {
@@ -158,7 +158,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 }
                 continue;
             }
-            if(matchPrices.Count == 0)
+            if (matchPrices.Count == 0)
             {
                 matchPrices.Add(DiamondPrice.CreateUnknownSideDiamondPrice());
             }
@@ -193,14 +193,14 @@ namespace DiamondShop.Domain.Services.Implementations
             bool isCaratInRange = price.Criteria.CaratTo > sideDiamond.AverageCarat && price.Criteria.CaratFrom <= sideDiamond.AverageCarat;
             // all side diamond should be lab diamond
             //&& price.IsLabDiamond
-            return isColorInRange && isClarityInRange && isCaratInRange  && price.IsSideDiamond;
+            return isColorInRange && isClarityInRange && isCaratInRange && price.IsSideDiamond;
         }
 
-        public async Task<List<DiamondPrice>> GetSideDiamondPrice(SideDiamondReq sideDiamondReq, SideDiamondOpt sideDiamondOptions)
+        public async Task<List<DiamondPrice>> GetSideDiamondPrice(SideDiamondOpt sideDiamondOption)
         {
-            List<DiamondPrice> diamondPrices = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamondOptions.AverageCarat);
-            JewelrySideDiamond fakeDiamond = JewelrySideDiamond.Create(JewelryId.Create(),sideDiamondOptions.CaratWeight,sideDiamondOptions.Quantity,sideDiamondReq.ColorMin,sideDiamondReq.ColorMax,sideDiamondReq.ClarityMin,sideDiamondReq.ClarityMax,sideDiamondReq.SettingType);
-            var price = await GetSideDiamondPriceGlobal(fakeDiamond,diamondPrices);
+            List<DiamondPrice> diamondPrices = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamondOption.AverageCarat);
+            JewelrySideDiamond fakeDiamond = JewelrySideDiamond.Create(JewelryId.Create(), sideDiamondOption.CaratWeight, sideDiamondOption.Quantity, sideDiamondOption.ColorMin, sideDiamondOption.ColorMax, sideDiamondOption.ClarityMin, sideDiamondOption.ClarityMax, sideDiamondOption.SettingType);
+            var price = await GetSideDiamondPriceGlobal(fakeDiamond, diamondPrices);
             return price;
         }
     }

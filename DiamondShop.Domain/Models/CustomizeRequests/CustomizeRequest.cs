@@ -3,6 +3,7 @@ using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests.Entities;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ namespace DiamondShop.Domain.Models.CustomizeRequests
         public string? Note { get; set; }   
         public CustomizeDiamondRequestStatus Status { get; set; } 
         public List<DiamondRequest> DiamondRequests { get; set; } = new();
-        public List<SideDiamondRequest> SideDiamondRequests { get; set; } = new();
+        public SideDiamondOptId? SideDiamondId { get; set; }
+        public SideDiamondOpt? SideDiamond { get; set; }
     }
 }

@@ -29,7 +29,7 @@ namespace DiamondShop.Application.Services.Interfaces.JewelryModels
     public record CategoryFileData(MetalId MetalId, List<SideDiamondOpt>? SideDiamondOpts, List<MainDiamondShape>? MainDiamonds, FileData stream  );
     public record BaseMetalFileData(MetalId MetalId, FileData stream);
     public record BaseMainDiamondFileData(List<MainDiamondReq> MainDiamondRequirements, FileData stream);
-    public record BaseSideDiamondFileData(List<SideDiamondOpt> SideDiamondOpts, FileData stream);
+    public record BaseSideDiamondFileData(SideDiamondOpt SideDiamondOpt, FileData stream);
 
 
 

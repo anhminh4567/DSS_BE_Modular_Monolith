@@ -4,7 +4,6 @@ using DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling;
 using MapsterMapper;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiamondShop.Api.Controllers.JewelryModels
@@ -27,6 +26,13 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             var result = await _sender.Send(new GetAllJewelryModelQuery());
             var mappedResult = _mapper.Map<List<JewelryModelDto>>(result);
             return Ok(mappedResult);
+        }
+        [HttpGet("Selling")]
+        [Produces(type: typeof(List<JewelryModelDto>))]
+        public async Task<ActionResult> GetSelling([FromQuery] GetSellingModelQuery getSellingModelQuery)
+        {
+            var result = await _sender.Send(getSellingModelQuery);
+            return Ok(result.Value);
         }
         [HttpPost("Create")]
         public async Task<ActionResult> Create([FromBody] CreateJewelryModelCommand command)

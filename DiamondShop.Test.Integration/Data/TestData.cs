@@ -51,14 +51,11 @@ namespace DiamondShop.Test.Integration.Data
             MainDiamondShape.Create(mainDiamondId,DiamondShapeId.Parse("2"),0.3f,2.5f),
             MainDiamondShape.Create(mainDiamondId,DiamondShapeId.Parse("3"),0.3f,2.5f),
         };
-        public static List<SideDiamondReq> DefaultRingSideDiamondReqs(JewelryModelId modelId) => new()
+        public static List<SideDiamondOpt> DefaultRingSideDiamondOpts(JewelryModelId modelId) => new()
         {
-            SideDiamondReq.Create(modelId,DiamondShapeId.Parse("1"),Color.K, Color.D, Clarity.VS2, Clarity.IF, SettingType.Prong,SideDiamondReqId.Parse($"{modelId}_1")),
-        };
-        public static List<SideDiamondOpt> DefaultRingSideDiamondOpts(SideDiamondReqId sideDiamondId) => new()
-        {
-            SideDiamondOpt.Create(sideDiamondId,0.05f, 25, SideDiamondOptId.Parse($"{sideDiamondId}_1")),
-            SideDiamondOpt.Create(sideDiamondId,0.25f, 10, SideDiamondOptId.Parse($"{sideDiamondId}_2")),
+            SideDiamondOpt.Create(modelId,DiamondShapeId.Parse("1"),Color.K, Color.D, Clarity.VS2, Clarity.IF, SettingType.Prong,0.15f,15,SideDiamondOptId.Parse($"{modelId}_1")),
+            SideDiamondOpt.Create(modelId,DiamondShapeId.Parse("1"),Color.F, Color.D, Clarity.VVS1, Clarity.IF, SettingType.Prong,0.25f,2,SideDiamondOptId.Parse($"{modelId}_2")),
+            SideDiamondOpt.Create(modelId,DiamondShapeId.Parse("1"),Color.D, Color.D, Clarity.IF, Clarity.IF, SettingType.Prong,0.35f,5,SideDiamondOptId.Parse($"{modelId}_3")),
         };
         public static List<SizeMetal> DefaultRingSizeMetal(JewelryModelId modelId) => new()
         {
@@ -68,13 +65,12 @@ namespace DiamondShop.Test.Integration.Data
         };
         private static async Task SeedingModel(
             DiamondShopDbContext _context,
-            JewelryModel model, List<MainDiamondReq>? mainDiamondReqs, List<MainDiamondShape>? mainDiamondShapes, List<SideDiamondReq>? sideDiamondReqs,
-            List<SideDiamondOpt>? sideDiamondOpts, List<SizeMetal> sizeMetals)
+            JewelryModel model, List<MainDiamondReq>? mainDiamondReqs, List<MainDiamondShape>? mainDiamondShapes, List<SideDiamondOpt>? sideDiamondOpts,
+            List<SizeMetal> sizeMetals)
         {
             _context.Set<JewelryModel>().Add(model);
             if (mainDiamondReqs != null) _context.Set<MainDiamondReq>().AddRange(mainDiamondReqs);
             if (mainDiamondShapes != null) _context.Set<MainDiamondShape>().AddRange(mainDiamondShapes);
-            if (sideDiamondReqs != null) _context.Set<SideDiamondReq>().AddRange(sideDiamondReqs);
             if (sideDiamondOpts != null) _context.Set<SideDiamondOpt>().AddRange(sideDiamondOpts);
             _context.Set<SizeMetal>().AddRange(sizeMetals);
             await _context.SaveChangesAsync();
@@ -92,18 +88,11 @@ namespace DiamondShop.Test.Integration.Data
                 mainDiamondShapes.AddRange(shapes);
                 p.Shapes = shapes;
             });
-            var sideDiamonds = DefaultRingSideDiamondReqs(model.Id);
-            var sideDiamondOpts = new List<SideDiamondOpt>();
-            sideDiamonds.ForEach(p =>
-            {
-                var opts = DefaultRingSideDiamondOpts(p.Id);
-                sideDiamondOpts.AddRange(opts);
-                p.SideDiamondOpts = opts;
-            });
+            var sideDiamondOpts = DefaultRingSideDiamondOpts(model.Id);
             var sizeMetals = DefaultRingSizeMetal(model.Id);
-            await SeedingModel(_context, model, mainDiamonds, mainDiamondShapes, sideDiamonds, sideDiamondOpts, sizeMetals);
+            await SeedingModel(_context, model, mainDiamonds, mainDiamondShapes, sideDiamondOpts, sizeMetals);
             model.MainDiamonds = mainDiamonds;
-            model.SideDiamonds = sideDiamonds;
+            model.SideDiamonds = sideDiamondOpts;
             model.SizeMetals = sizeMetals;
             return model;
         }
@@ -121,18 +110,11 @@ namespace DiamondShop.Test.Integration.Data
                 mainDiamondShapes.AddRange(shapes);
                 p.Shapes = shapes;
             });
-            var sideDiamonds = DefaultRingSideDiamondReqs(model.Id);
-            var sideDiamondOpts = new List<SideDiamondOpt>();
-            sideDiamonds.ForEach(p =>
-            {
-                var opts = DefaultRingSideDiamondOpts(p.Id);
-                sideDiamondOpts.AddRange(opts);
-                p.SideDiamondOpts = opts;
-            });
+            var sideDiamondOpts = DefaultRingSideDiamondOpts(model.Id);
             var sizeMetals = DefaultRingSizeMetal(model.Id);
-            await SeedingModel(_context, model, mainDiamonds, mainDiamondShapes, sideDiamonds, sideDiamondOpts, sizeMetals);
+            await SeedingModel(_context, model, mainDiamonds, mainDiamondShapes, sideDiamondOpts, sizeMetals);
             model.MainDiamonds = mainDiamonds;
-            model.SideDiamonds = sideDiamonds;
+            model.SideDiamonds = sideDiamondOpts;
             model.SizeMetals = sizeMetals;
             return model;
         }
@@ -141,7 +123,7 @@ namespace DiamondShop.Test.Integration.Data
             var model = DefaultRingModel("Test_NoDiamond_Model", DefaultCategoryId, 1f, null, true, true, null, null, null, "1");
             _context.Set<JewelryModel>().Add(model);
             var sizeMetals = DefaultRingSizeMetal(model.Id);
-            await SeedingModel(_context, model, null, null, null, null, sizeMetals);
+            await SeedingModel(_context, model, null, null, null, sizeMetals);
             model.SizeMetals = sizeMetals;
             return model;
         }
@@ -158,18 +140,11 @@ namespace DiamondShop.Test.Integration.Data
                 mainDiamondShapes.AddRange(shapes);
                 p.Shapes = shapes;
             });
-            var sideDiamonds = DefaultRingSideDiamondReqs(model.Id);
-            var sideDiamondOpts = new List<SideDiamondOpt>();
-            sideDiamonds.ForEach(p =>
-            {
-                var opts = DefaultRingSideDiamondOpts(p.Id);
-                sideDiamondOpts.AddRange(opts);
-                p.SideDiamondOpts = opts;
-            });
+            var sideDiamondOpts = DefaultRingSideDiamondOpts(model.Id);
             var sizeMetals = DefaultRingSizeMetal(model.Id);
-            await SeedingModel(_context, model, mainDiamonds, mainDiamondShapes, sideDiamonds, sideDiamondOpts, sizeMetals);
+            await SeedingModel(_context, model, mainDiamonds, mainDiamondShapes, sideDiamondOpts, sizeMetals);
             model.MainDiamonds = mainDiamonds;
-            model.SideDiamonds = sideDiamonds;
+            model.SideDiamonds = sideDiamondOpts;
             model.SizeMetals = sizeMetals;
             return model;
         }
@@ -179,10 +154,10 @@ namespace DiamondShop.Test.Integration.Data
         #region Jewelry
         public static async Task<Jewelry> DefaultJewelry(string modelId, SizeId sizeId, MetalId metalId, string id)
             => Jewelry.Create(JewelryModelId.Parse(modelId), sizeId, metalId, 1f, "DEFAULT_JEWEL", givenId: JewelryId.Parse(id), status: Domain.Common.Enums.ProductStatus.Active);
-        static async Task SeedingJewelry(DiamondShopDbContext _context, Jewelry jewelry, List<JewelrySideDiamond> sideDiamonds)
+        static async Task SeedingJewelry(DiamondShopDbContext _context, Jewelry jewelry, JewelrySideDiamond sideDiamond)
         {
             _context.Set<Jewelry>().Add(jewelry);
-            if (sideDiamonds != null) _context.Set<JewelrySideDiamond>().AddRange(sideDiamonds);
+            if (sideDiamond != null) _context.Set<JewelrySideDiamond>().Add(sideDiamond);
             await _context.SaveChangesAsync();
         }
         public static async Task<Jewelry> SeedDefaultJewelry(DiamondShopDbContext _context, string modelId = "1", string jewelryId = "1")
@@ -193,8 +168,9 @@ namespace DiamondShop.Test.Integration.Data
 
             var diamond = await SeedDefaultDiamond(_context);
             var jewelry = await DefaultJewelry(model.Id.Value, SizeIds[0], MetalIds[0], jewelryId);
-            var sideDiamonds = model.SideDiamonds.Select(x => x.SideDiamondOpts.First()).Select(p => JewelrySideDiamond.Create(jewelry.Id, p)).ToList();
-            await SeedingJewelry(_context, jewelry, sideDiamonds);
+            var modelSideDiamond = model.SideDiamonds.FirstOrDefault();
+            var sideDiamond = modelSideDiamond == null? null : JewelrySideDiamond.Create(modelSideDiamond);
+            await SeedingJewelry(_context, jewelry, sideDiamond);
 
             return jewelry;
         }
@@ -276,7 +252,10 @@ namespace DiamondShop.Test.Integration.Data
             Account.CreateBaseCustomer(fullname, email, identityId, roles);
         public static Account DefaultStaff(FullName fullname, string email, string identityId, List<AccountRole> roles) =>
            Account.CreateBaseStaff(fullname, email, identityId, roles);
-
+        public static Account DefaultManager(FullName fullname, string email, string identityId, List<AccountRole> roles) =>
+           Account.CreateBaseManager(fullname, email, identityId, roles);
+        public static Account DefaultDeliverer(FullName fullname, string email, string identityId, List<AccountRole> roles) =>
+           Account.CreateBaseDeliverer(fullname, email, identityId, roles);
         static async Task SeedingAccount(DiamondShopDbContext _context, Account account)
         {
             _context.Set<Account>().Add(account);
@@ -302,7 +281,16 @@ namespace DiamondShop.Test.Integration.Data
             await SeedingAccount(_context, user);
             return user;
         }
-
+        public static async Task<Account> SeedDefaultDeliverer(DiamondShopDbContext _context, IAuthenticationService _authentication)
+        {
+            var roles = await _context.Set<AccountRole>().ToListAsync();
+            string email = "abc@staff.com";
+            FullName username = FullName.parse("", "Deliverer_A");
+            var register = await _authentication.Register(email, "123", username, true);
+            var user = DefaultDeliverer(username, email, register.Value, roles);
+            await SeedingAccount(_context, user);
+            return user;
+        }
         #endregion
     }
 }

@@ -1,16 +1,12 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
-using DiamondShop.Domain.Models.Diamonds;
-using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
-using DiamondShop.Domain.Models.Transactions;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Repositories.TransactionRepo;
-using DiamondShop.Domain.Services.Implementations;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
