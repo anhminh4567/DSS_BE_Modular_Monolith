@@ -1,6 +1,8 @@
 ﻿using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
+using DiamondShop.Domain.Models.Jewelries.Entities;
+using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using System;
@@ -15,6 +17,8 @@ namespace DiamondShop.Domain.Services.interfaces
     {
         //return expected price
         Task<DiamondPrice> GetDiamondPrice(Diamond diamond, List<DiamondPrice> diamondPrices);
+        Task<List<DiamondPrice>> GetSideDiamondPrice(JewelrySideDiamond sideDiamond);
+        Task<List<DiamondPrice>> GetSideDiamondPrice(SideDiamondReq sideDiamondReq, SideDiamondOpt sideDiamondOptions);
         bool ValidateDiamond4C(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo, Cut cutFrom, Cut cutTo);
         bool ValidateDiamond3C(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo);
 

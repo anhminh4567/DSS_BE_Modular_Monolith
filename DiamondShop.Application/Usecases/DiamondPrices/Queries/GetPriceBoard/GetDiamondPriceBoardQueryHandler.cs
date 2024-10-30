@@ -44,7 +44,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             if (getShape is null)
                 return Result.Fail(new NotFoundError("Shape not found"));
             List<DiamondPrice> prices = new();
-            List<(float CaratFrom, float CaratTo)> criteriasCarat = new();
+            //List<(float CaratFrom, float CaratTo)> criteriasCarat = new();
             Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>> criteriasByGrouping = new();
 
             DiamondPriceBoardDto priceBoard = DiamondPriceBoardDto.Create();
@@ -55,20 +55,22 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             {
                 prices = await _diamondPriceRepository.GetPriceByShapes(getShape, request.isLabDiamond, cancellationToken);
                 priceBoard.IsSideDiamondBoardPrices = false;
-                criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableCaratRange( cancellationToken);
+                //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableCaratRange( cancellationToken);
+                criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableCriteria(cancellationToken));
+
             }
             else
             {
                 prices = await _diamondPriceRepository.GetSideDiamondPrice(request.isLabDiamond, cancellationToken);
                 priceBoard.Shape = _mapper.Map<DiamondShapeDto>(DiamondShape.AnyShape);
                 priceBoard.IsSideDiamondBoardPrices = true;
-                criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCaratRange(cancellationToken);
-
+                //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCaratRange(cancellationToken);
+                criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCriteria(cancellationToken));
             }
-            criteriasCarat = criteriasCarat.OrderBy(x => x.CaratTo).ToList();
+            //criteriasCarat = criteriasCarat.OrderBy(x => x.CaratTo).ToList();
 
-            
-            
+
+
             Stopwatch stopwatch = Stopwatch.StartNew();
             var diamondCaratRangeGrouped = prices
                 .GroupBy(dp => new { dp.Criteria.CaratFrom, dp.Criteria.CaratTo })
@@ -94,9 +96,6 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
                 .Distinct()
                 .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => ((int) x.Value));
 
-            criteriasByGrouping = await _diamondCriteriaRepository.GroupAllAvailableCriteria(cancellationToken);
-
-            DiamondPriceCellDataDto[,] cells = new DiamondPriceCellDataDto[colorRange.Count,clarityRange.Count];
 
             var createTable = criteriasByGrouping
                 .AsParallel()
@@ -127,6 +126,11 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             });
             
             priceBoard.PriceTables = createTable;
+            stopwatch.Stop();
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("execution time measured in miliseconds: " + stopwatch.ElapsedMilliseconds);
+            Console.ResetColor();
+            return priceBoard;
             //var createTable = groupByCaratRangeFromPrices
             //    .AsParallel()
             //    //.AsOrdered()
@@ -166,11 +170,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             //var tables = priceBoard.PriceTables;
             //Parallel.ForEach(priceBoard.PriceTables, table => table.FillMissingCells());
 
-            stopwatch.Stop();
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("execution time measured in miliseconds: " + stopwatch.ElapsedMilliseconds);
-            Console.ResetColor();
-            return priceBoard;
+
         }
     }
 }

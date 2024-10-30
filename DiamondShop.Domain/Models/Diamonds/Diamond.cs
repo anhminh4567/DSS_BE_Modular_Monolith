@@ -62,6 +62,8 @@ namespace DiamondShop.Domain.Models.Diamonds
         public Discount? Discount { get; set; }
         [NotMapped]
         public decimal? DiscountPrice { get; set; }
+        [NotMapped]
+        public string Title { get => GetTitle(this); }
         public static Diamond Create(DiamondShape shape, Diamond_4C diamond_4C, Diamond_Details diamond_Details,
            Diamond_Measurement diamond_Measurement,decimal priceOffset) 
         {

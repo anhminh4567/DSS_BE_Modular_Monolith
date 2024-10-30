@@ -13,6 +13,7 @@ namespace DiamondShop.Domain.Repositories
         Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableCaratRange(CancellationToken cancellationToken = default);
         Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableSideDiamondCaratRange(CancellationToken cancellationToken = default);
         Task<Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>>> GroupAllAvailableCriteria(CancellationToken cancellationToken = default);
+        Task<Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>>> GroupAllAvailableSideDiamondCriteria(CancellationToken cancellationToken = default);
 
     }
 }

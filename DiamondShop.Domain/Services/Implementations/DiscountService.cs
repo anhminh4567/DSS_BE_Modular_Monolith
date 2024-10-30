@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Common.Carts;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Models.Promotions.Entities;
@@ -54,7 +55,7 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 if(cartModel.DiscountsApplied.Contains(discount) is false)// add if not in list yet
                     cartModel.DiscountsApplied.Add(discount);
-                //SetOrderPrice(cartModel);
+                SetOrderPrice(cartModel);
                 return Result.Ok();
             }
             else
@@ -66,7 +67,8 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             product.DiscountPercent = discount.DiscountPercent;
             product.DiscountId = discount.Id;
-            product.ReviewPrice.DiscountAmountSaved = Math.Ceiling((product.ReviewPrice.DefaultPrice * discount.DiscountPercent) / 100);
+            var savedAmount = Math.Ceiling((product.ReviewPrice.DefaultPrice * discount.DiscountPercent) / 100);
+            product.ReviewPrice.DiscountAmountSaved = MoneyVndRoundUpRules.RoundAmountFromDecimal(savedAmount);
 
         }
         private bool CheckIfProductMeetRequirement(CartProduct product, PromoReq requirement)
@@ -125,7 +127,15 @@ namespace DiamondShop.Domain.Services.Implementations
             var productList = cartModel.Products;
             foreach (var item in productList)
             {
-                cartModel.OrderPrices.DiscountAmountSaved += item.ReviewPrice.DiscountAmountSaved;
+                if (item.IsValid)
+                {
+                    cartModel.OrderPrices.DiscountAmountSaved += item.ReviewPrice.DiscountAmountSaved;
+                    // promotion amount saved is set by the prmotion service, since only 1 promotion is applied at a time
+                    // and the promotion might include orderPromotion, which again, might affect the final price, 
+                    // so the promotion amount saved is set here will be WRONG
+                    //orderPrice.PromotionAmountSaved += product.ReviewPrice.PromotionAmountSaved;
+                }
+                //cartModel.OrderPrices.DiscountAmountSaved += item.ReviewPrice.DiscountAmountSaved;
             }
         }
 

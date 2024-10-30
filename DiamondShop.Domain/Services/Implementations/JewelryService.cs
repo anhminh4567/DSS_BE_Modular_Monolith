@@ -66,6 +66,7 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 jewelry.ND_Price = GetPrice(sizeMetal.Weight, sizeMetal.Metal.Price);
             }
+            jewelry.D_Price = GetJewelryDiamondPrice(jewelry).Result;
             return jewelry;
         }
 
@@ -73,15 +74,16 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             if (sizeMetal.Metal == null) return null;
             jewelry.ND_Price = GetPrice(sizeMetal.Weight, sizeMetal.Metal.Price);
+            jewelry.D_Price = GetJewelryDiamondPrice(jewelry).Result;
             return jewelry;
         }
-        private decimal GetPrice(float Weight, decimal Price) => (decimal)Weight * Price;
+        private decimal GetPrice(float Weight, decimal Price) => MoneyVndRoundUpRules.RoundAmountFromDecimal((decimal)Weight * Price);
 
-        private async Task<decimal> GetJewelryDiamondPrice(Jewelry jewelry) 
+        private async Task<decimal> GetJewelryDiamondPrice(Jewelry jewelry)
         {
             var getJewelryDiamonds = await _diamondRepository.GetDiamondsJewelry(jewelry.Id);
             jewelry.Diamonds = getJewelryDiamonds;
-            decimal D_price= 0;
+            decimal D_price = 0;
             foreach (var diamond in getJewelryDiamonds)
             {
                 var prices = await _diamondPriceRepository.GetPriceByShapes(diamond.DiamondShape, diamond.IsLabDiamond);
@@ -94,16 +96,25 @@ namespace DiamondShop.Domain.Services.Implementations
         }
         private async Task<decimal> GetJewelrySideDiamondPrice(Jewelry jewelry)
         {
-            throw new NotImplementedException();
+            var sideDiamonds = jewelry.SideDiamonds;
+            decimal totalDiamondPrice = 0;
+            foreach (var sideDiamond in sideDiamonds)
+            {
+                var thisSidePrice = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamond.AverageCarat);
+                var price = await _diamondServices.GetSideDiamondPrice(sideDiamond);
+                totalDiamondPrice += sideDiamond.AveragePrice;
+            }
+            jewelry.IsAllSideDiamondPriceKnown = true;
+            return totalDiamondPrice;
         }
 
         public async Task<Discount?> AssignJewelryDiscount(Jewelry jewelry, List<Discount> discounts)
         {
             Discount mostValuableDiscont = null;
-            foreach(var discount in discounts)
+            foreach (var discount in discounts)
             {
                 var requirements = discount.DiscountReq;
-                foreach(var req in requirements)
+                foreach (var req in requirements)
                 {
                     if (req.TargetType != TargetType.Jewelry_Model)
                         continue;
@@ -116,7 +127,7 @@ namespace DiamondShop.Domain.Services.Implementations
                     }
                     else
                     {
-                        if(discount.DiscountPercent >= mostValuableDiscont.DiscountPercent)
+                        if (discount.DiscountPercent >= mostValuableDiscont.DiscountPercent)
                         {
                             mostValuableDiscont = discount;
                             break;

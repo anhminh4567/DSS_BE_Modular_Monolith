@@ -100,6 +100,10 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
             var getDeliveryLocationFees = await _deliveryFeeRepository.GetLocationType();
             var deliveryFee = _deliveryService.GetDeliveryFeeForLocation(shipPrice.To,shipPrice.From,getDeliveryLocationFees);      
             shipPrice.DeliveryFeeFounded = deliveryFee;
+            if (shipPrice.IsValid)
+                shipPrice.DefaultPrice = deliveryFee.Cost;
+            else
+                shipPrice.DefaultPrice = 0;
             return shipPrice;
         }
     }

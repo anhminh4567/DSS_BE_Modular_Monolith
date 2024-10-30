@@ -100,7 +100,7 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             CurrentCart.SetErrorMessages();
             CurrentCart.SetOrderShippingPrice(shipPrice);
-            CurrentCart.SetOrderPrice();
+            //CurrentCart.SetOrderPrice();
             
             return Result.Ok(CurrentCart);
         }
@@ -184,13 +184,13 @@ namespace DiamondShop.Domain.Services.Implementations
             else if (cartProduct.Jewelry is not null)
             {
                 _jewelryService.AddPrice(cartProduct.Jewelry, _sizeMetalRepository);
-                foreach (var diamond in cartProduct.Jewelry.Diamonds)
-                {
-                    var prices = _diamondPriceRepository.GetPriceByShapes(diamond.DiamondShape,diamond.IsLabDiamond).Result;
-                    var diamondPrice = _diamondServices.GetDiamondPrice(diamond, prices).Result;
-                    diamond.DiamondPrice = diamondPrice;
-                }
-                cartProduct.Jewelry.D_Price = cartProduct.Jewelry.Diamonds.Sum(d => d.TruePrice);
+                //foreach (var diamond in cartProduct.Jewelry.Diamonds)
+                //{
+                //    var prices = _diamondPriceRepository.GetPriceByShapes(diamond.DiamondShape,diamond.IsLabDiamond).Result;
+                //    var diamondPrice = _diamondServices.GetDiamondPrice(diamond, prices).Result;
+                //    diamond.DiamondPrice = diamondPrice;
+                //}
+                //cartProduct.Jewelry.D_Price = cartProduct.Jewelry.Diamonds.Sum(d => d.TruePrice);
                 reviewPrice.DefaultPrice = cartProduct.Jewelry.TotalPrice;
             }
             else if (cartProduct.JewelryModel is not null)
@@ -344,6 +344,7 @@ namespace DiamondShop.Domain.Services.Implementations
                     }
                     cartProduct.CurrentWarrantyApplied = usedWarranty;
                     cartProduct.CurrentWarrantyPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal( usedWarranty.Price);
+                    cartProduct.ReviewPrice.WarrantyPrice = cartProduct.CurrentWarrantyPrice;
                 }
             }
             return cartProducts;
