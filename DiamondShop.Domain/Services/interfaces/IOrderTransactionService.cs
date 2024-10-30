@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Transactions;
 using FluentResults;
 using System;

@@ -1,19 +1,18 @@
-﻿using DiamondShop.Application.Dtos.Requests.Carts;
-using DiamondShop.Application.Dtos.Requests.Orders;
+﻿using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson;
 using DiamondShop.Application.Usecases.Orders.Commands.Create;
+using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
-using DiamondShop.Domain.Models.Warranties.Enum;
+using DiamondShop.Domain.Models.Transactions;
 using DiamondShop.Domain.Repositories.OrderRepo;
+using DiamondShop.Domain.Repositories.TransactionRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
-using Newtonsoft.Json.Linq;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverComplete
 {
@@ -23,17 +22,20 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverComplete
     {
         private readonly IOrderItemRepository _orderItemRepository;
         private readonly IOrderRepository _orderRepository;
+        private readonly ITransactionRepository _transactionRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderService _orderService;
+        private readonly IOrderTransactionService _orderTransactionService;
         private readonly ISender _sender;
 
-        public OrderDeliverRefuseCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderItemRepository orderItemRepository, IOrderService orderService, ISender sender)
+        public OrderDeliverRefuseCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderItemRepository orderItemRepository, IOrderService orderService, ISender sender, ITransactionRepository transactionRepository)
         {
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
             _orderItemRepository = orderItemRepository;
             _orderService = orderService;
             _sender = sender;
+            _transactionRepository = transactionRepository;
         }
 
         public async Task<Result<Order>> Handle(OrderDeliverRefuseCommand request, CancellationToken token)
@@ -52,7 +54,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverComplete
             //TODO: Complete refuse actions
             List<IError> errors = new List<IError>();
             List<OrderItemRequestDto> newItemList = new();
-            decimal totalRefund = 0m, oldPrice = 0m, newPrice = 0m;
+            List<OrderItem> oldItemList = new();
+            decimal totalRefund = 0m, totalFine = 0m;
             foreach (var item in items)
             {
                 var orderItem = order.Items.FirstOrDefault(p => p.Id == OrderItemId.Parse(item.ItemId));
@@ -62,12 +65,41 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverComplete
                     errors.Add(new Error($"Item #{item.ItemId} doesn't exist"));
                     continue;
                 }
-                //Refund
-                if (item.Action == CompleteAction.Refund)
+                //RefundByShop
+                if (item.Action == CompleteAction.RefundByShop)
                 {
-                    order.PaymentStatus = PaymentStatus.Refunding;
                     orderItem.Status = OrderItemStatus.Removed;
                     totalRefund += orderItem.PurchasedPrice;
+                    oldItemList.Add(orderItem);
+                    //if PaidAll then refund 100%
+                    decimal refund = 0m;
+                    if (order.PaymentType == PaymentType.Payall)
+                        refund = orderItem.PurchasedPrice;
+                    //if COD then only refund the 10% since the order is not paid yet
+                    else
+                        refund += orderItem.PurchasedPrice * OrderPaymentRules.CODPercent;
+                    totalRefund += refund;
+                    totalFine += orderItem.PurchasedPrice - refund;
+                }
+                //RefundByCustomer
+                if (item.Action == CompleteAction.RefundByCustomer)
+                {
+                    orderItem.Status = OrderItemStatus.Removed;
+                    totalRefund += orderItem.PurchasedPrice;
+                    oldItemList.Add(orderItem);
+                    decimal refund = 0m;
+                    //Customer's fault. Only paid 90% back
+                    if (order.PaymentType == PaymentType.Payall)
+                        refund = orderItem.PurchasedPrice * (1 - OrderPaymentRules.PayAllFine);
+                    //if COD then no refund since we already take COD deposit
+                    totalRefund += refund;
+                    totalFine += orderItem.PurchasedPrice - refund;
+                }
+                //Complete
+                else if (item.Action == CompleteAction.Complete)
+                {
+                    orderItem.Status = OrderItemStatus.Done;
+                    oldItemList.Add(orderItem);
                 }
                 //ReplaceByShop
                 else if (item.Action == CompleteAction.ReplaceByShop)
@@ -76,7 +108,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverComplete
                     //Deactivate item jewelry or diamond immediately
                     SetActive(orderItem, false);
                     //Free of charge
-                    newItemList.Add(item.ReplacingItem);       
+                    newItemList.Add(item.ReplacingItem);
                 }
                 //ReplaceByCustomer
                 else if (item.Action == CompleteAction.ReplaceByCustomer)
@@ -85,26 +117,30 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverComplete
                     SetActive(orderItem, true);
                     newItemList.Add(item.ReplacingItem);
                 }
-                //Complete
-                else
-                {
-
-                }
             }
             if (errors.Count > 0)
                 return Result.Fail(errors);
             else
                 errors = new List<IError>();
-
-            _orderItemRepository.UpdateRange(order.Items);
-            
             //Create replacement order
-            var newOrderInfo = new CreateOrderInfo(order.PaymentType, "zalopay", order.PromotionId.Value, order.ShippingAddress,newItemList);
-            var orderResult = await _sender.Send(new CreateOrderCommand(order.AccountId.Value, newOrderInfo, order.Id.Value));
+            var newOrderInfo = new CreateOrderInfo(order.PaymentType, "zalopay", order.PromotionId?.Value, order.ShippingAddress, newItemList);
+            var orderResult = await _sender.Send(new CreateOrderCommand(order.AccountId.Value, newOrderInfo, order, oldItemList));
             if (orderResult.IsFailed)
                 return Result.Fail(orderResult.Errors);
+            var newOrder = orderResult.Value;
+            // if refund > 0 then allow refund
+            if (totalRefund > 0)
+            {
+                order.PaymentStatus = PaymentStatus.Refunding;
+            }
+            var transferedAmount = order.Transactions.Where(p => p.TransactionType == Domain.Models.Transactions.Enum.TransactionType.Pay).Sum(p => p.TotalAmount);
+            var refundTransac = Transaction.CreateManualRefund(order.Id, $"Replaced item refund for Order#{order.Id.Value}", transferedAmount - totalFine);
+            await _transactionRepository.Create(refundTransac);
             await _orderRepository.Update(order);
-            //TODO: Add payment 
+
+            var newTransac = Transaction.CreateManualPayment(newOrder.Id, $"Replacement order#{newOrder.Id.Value} for order#{order.Id.Value}", _orderTransactionService.GetFullPaymentValueForOrder(order), Domain.Models.Transactions.Enum.TransactionType.Pay);
+            await _transactionRepository.Create(newTransac);
+
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
             return order;

@@ -9,6 +9,6 @@ namespace DiamondShop.Domain.Repositories.OrderRepo
 {
     public interface IOrderRepository : IBaseRepository<Order>
     {
-        IQueryable<Order> GetDetailQuery(IQueryable<Order> query);
+        IQueryable<Order> GetDetailQuery(IQueryable<Order> query, bool isIncludeJewelry = true, bool isIncludeDiamond = true);
     }
 }

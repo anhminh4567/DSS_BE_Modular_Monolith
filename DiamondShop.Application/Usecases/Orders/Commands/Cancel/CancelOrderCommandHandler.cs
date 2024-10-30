@@ -30,15 +30,17 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
         private readonly IOrderTransactionService _orderTransactionService;
         private readonly IPaymentService _paymentService;
 
-        public CancelOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository, ITransactionRepository transactionRepository, IOrderTransactionService orderTransactionService)
+        public CancelOrderCommandHandler(IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IPaymentService paymentService)
         {
             _orderRepository = orderRepository;
-            _unitOfWork = unitOfWork;
-            _orderService = orderService;
+            _orderItemRepository = orderItemRepository;
+            _transactionRepository = transactionRepository;
             _jewelryRepository = jewelryRepository;
             _diamondRepository = diamondRepository;
-            _transactionRepository = transactionRepository;
+            _unitOfWork = unitOfWork;
+            _orderService = orderService;
             _orderTransactionService = orderTransactionService;
+            _paymentService = paymentService;
         }
 
         public async Task<Result<Order>> Handle(CancelOrderCommand request, CancellationToken token)
