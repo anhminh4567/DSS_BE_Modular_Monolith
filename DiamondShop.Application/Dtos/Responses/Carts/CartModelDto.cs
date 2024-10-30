@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Promotions;
+using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
@@ -16,7 +17,7 @@ namespace DiamondShop.Application.Dtos.Responses.Carts
     {
         public CartModelPromotionDto Promotion { get; set; }
         public List<DiscountDto> DiscountsApplied { get; set; }
-        public CheckoutPriceDto OrderPrices { get; set; }
+        public CartModelPriceDto OrderPrices { get; set; }
         public ShippingPriceDto ShippingPrice { get; set; }
         public CartModelCounterDto OrderCounter { get; set; }
         public CartModelValidationDto OrderValidation { get; set; }

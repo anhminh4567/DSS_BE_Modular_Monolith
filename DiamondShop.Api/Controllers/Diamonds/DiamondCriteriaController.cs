@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.Create;
+using DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromRange;
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.Delete;
 using DiamondShop.Application.Usecases.DiamondCriterias.Queries.GetAll;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Create;
@@ -37,6 +38,30 @@ namespace DiamondShop.Api.Controllers.Diamonds
         public async Task<ActionResult> Create([FromBody] CreateDiamondCriteriaCommand command)
         {
             var result = await _sender.Send(command);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<DiamondCriteriaDto>(result);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPost("/Range/MainDiamond")]
+        [Produces(typeof(DiamondCriteriaDto))]
+        public async Task<ActionResult> CreateFromRange([FromBody] CreateCriteriaFromRangeCommand command)
+        {
+            var result = await _sender.Send(command with { IsSideDiamond = false });
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<DiamondCriteriaDto>(result);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPost("/Range/SideDiamond")]
+        [Produces(typeof(DiamondCriteriaDto))]
+        public async Task<ActionResult> CreateFromRangeSideDimamond([FromBody] CreateCriteriaFromRangeCommand command)
+        {
+            var result = await _sender.Send(command with { IsSideDiamond = true});
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<DiamondCriteriaDto>(result);

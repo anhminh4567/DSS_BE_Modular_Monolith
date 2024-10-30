@@ -29,25 +29,27 @@ namespace DiamondShop.Domain.Models.Jewelries
             get
             {
                 var inalPrice = 0m;
-                if (ND_Price is not null  )
+                if (ND_Price is not null)
                     inalPrice += ND_Price.Value;
-                if(D_Price is not null)
+                if (D_Price is not null)
                     inalPrice += D_Price.Value;
                 return inalPrice;
             }
         }
-
+        [NotMapped]
+        public bool IsAllSideDiamondPriceKnown { get; set; }
 
         [NotMapped]
-        public bool IsAllDiamondPriceKnown { 
-            get 
+        public bool IsAllDiamondPriceKnown
+        {
+            get
             {
                 if (Diamonds.Count == 0)
                     return true;
-                if(!(Diamonds.Any(d => d.IsPriceKnown) == false))
+                if (!(Diamonds.Any(d => d.IsPriceKnown) == false))
                     return true;
                 return false;
-            } 
+            }
         }
 
         public List<Diamond> Diamonds { get; set; } = new();
@@ -82,7 +84,7 @@ namespace DiamondShop.Domain.Models.Jewelries
         }
         public void SetSold(decimal noDiamondPrice, decimal soldPrice)
         {
-            
+
             Status = ProductStatus.Sold;
             ND_Price = noDiamondPrice;
             D_Price = soldPrice - noDiamondPrice;

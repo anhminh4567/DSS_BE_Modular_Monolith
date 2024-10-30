@@ -12,8 +12,9 @@ namespace DiamondShop.Domain.Common.Carts
         public decimal DiscountAmountSaved { get; set; } = 0;
         public decimal DiscountPrice { get => DefaultPrice - DiscountAmountSaved ; }
         public decimal PromotionAmountSaved { get; set; } = 0;
-        //public decimal PromotionPrice { get; set; } = 0;
-        public decimal FinalPrice { get => MoneyVndRoundUpRules.RoundAmountFromDecimal(DefaultPrice - DiscountAmountSaved - PromotionAmountSaved) ; }
+        //warranty is not part of any discount
+        public decimal WarrantyPrice { get; set; } = 0;
+        public decimal FinalPrice { get => MoneyVndRoundUpRules.RoundAmountFromDecimal(DefaultPrice - DiscountAmountSaved - PromotionAmountSaved + WarrantyPrice) ; }
     }
 
 }

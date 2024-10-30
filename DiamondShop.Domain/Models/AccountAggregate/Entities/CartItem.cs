@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+using DiamondShop.Domain.Models.Warranties.Enum;
 
 namespace DiamondShop.Domain.Models.AccountAggregate.Entities
 {
@@ -25,6 +26,8 @@ namespace DiamondShop.Domain.Models.AccountAggregate.Entities
         public List<SideDiamondOptId> SideDiamondChoices { get; set; } = new();
         public string? EngravedText { get; set; }
         public string? EngravedFont { get; set; }
+        public string? WarrantyCode { get; set; }
+        public WarrantyType? WarrantyType { get; set; }
         public static CartItem CreateJewelry(JewelryId jewelryId, string? engravedText, string? engravedFont)
         {
             return new CartItem { Id = CartItemId.Create(), JewelryId = jewelryId, EngravedText = engravedText, EngravedFont = engravedFont };

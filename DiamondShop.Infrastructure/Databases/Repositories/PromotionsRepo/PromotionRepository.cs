@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Promotions;
+using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -16,7 +17,12 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo
         public PromotionRepository(DiamondShopDbContext dbContext) : base(dbContext)
         {
         }
-
+        public override Task<Promotion?> GetById(params object[] ids)
+        {
+            //var parsedId = PromotionId.Parse((string)ids[0]);
+            return _set.Include(p => p.PromoReqs).Include(p => p.Gifts)
+                .FirstOrDefaultAsync(p => p.Id == ids[0]);
+        }
         public Task<List<Promotion>> GetActivePromotion(bool isDateComparisonRequired = false, CancellationToken cancellationToken = default)
         {
             if(isDateComparisonRequired) 

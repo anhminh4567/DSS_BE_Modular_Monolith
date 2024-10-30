@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.DiamondPrices;
+using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
@@ -41,26 +42,17 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         public override async Task Create(DiamondPrice entity, CancellationToken token = default)
         {
             await base.Create(entity, token);
-            string diamondKey = GetPriceKey(entity.ShapeId.Value, true);
-            string diamondKeyNatural = GetPriceKey(entity.ShapeId.Value, false);
-            _cache.Remove(diamondKey);
-            _cache.Remove(diamondKeyNatural);
+            RemoveAllKey(entity.ShapeId);
         }
         public override async Task Update(DiamondPrice entity, CancellationToken token = default)
         {
             await base.Update(entity, token);
-            string diamondKey = GetPriceKey(entity.ShapeId.Value, true);
-            string diamondKeyNatural = GetPriceKey(entity.ShapeId.Value, false);
-            _cache.Remove(diamondKey);
-            _cache.Remove(diamondKeyNatural);
+            RemoveAllKey(entity.ShapeId);
         }
         public override async Task Delete(DiamondPrice entity, CancellationToken token = default)
         {
             await base.Delete(entity, token);
-            string diamondKey = GetPriceKey(entity.ShapeId.Value, true);
-            string diamondKeyNatural = GetPriceKey(entity.ShapeId.Value, false);
-            _cache.Remove(diamondKey);
-            _cache.Remove(diamondKeyNatural);
+            RemoveAllKey(entity.ShapeId);
         }
 
         public async Task<List<DiamondPrice>> GetPriceByShapes(DiamondShape shape, bool? isLabDiamond = null, CancellationToken token = default)
@@ -72,7 +64,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                 if (tryGet == null)
                 {
                     var get = await _set.Include(p => p.Criteria)
-                        .Where(p => p.ShapeId == shape.Id && p.IsLabDiamond == isLabDiamond)
+                        .Where(p => p.ShapeId == shape.Id && p.IsLabDiamond == isLabDiamond && p.IsSideDiamond == false)
                         .OrderBy(s => s.Criteria.CaratTo).ToListAsync();
                     _cache.Set(diamondKey, get);
                     return get;
@@ -89,7 +81,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                 if (tryGet is null || tryGet.Count == 0)
                 {
                     var getFromDb = await _set.Include(p => p.Criteria)
-                      .Where(p => p.ShapeId == shape.Id && p.IsLabDiamond == true)
+                      .Where(p => p.ShapeId == shape.Id && p.IsLabDiamond == true && p.IsSideDiamond == false)
                       .OrderBy(s => s.Criteria.CaratTo).ToListAsync();
                     _cache.Set(diamondKey, getFromDb);
                     results.AddRange(getFromDb);
@@ -99,7 +91,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                 if (tryGetNatural is null || tryGetNatural.Count == 0)
                 {
                     var getFromDb = await _set.Include(p => p.Criteria)
-                      .Where(p => p.ShapeId == shape.Id && p.IsLabDiamond == false)
+                      .Where(p => p.ShapeId == shape.Id && p.IsLabDiamond == false && p.IsSideDiamond == false)
                       .OrderBy(s => s.Criteria.CaratTo).ToListAsync();
                     _cache.Set(diamondKeyNatural, getFromDb);
                     results.AddRange(getFromDb);
@@ -122,10 +114,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         public Task<List<DiamondPrice>> GetPriceByCriteria(DiamondCriteriaId diamondCriteriaId, bool? isLabDiamond = null, CancellationToken token = default)
         {
             if (isLabDiamond != null)
-                return _set.Where(d => d.CriteriaId == diamondCriteriaId && d.IsLabDiamond == isLabDiamond).ToListAsync();
-            
+                return _set.Where(d => d.CriteriaId == diamondCriteriaId && d.IsLabDiamond == isLabDiamond && d.IsSideDiamond == false).Include(p => p.Criteria).ToListAsync();
+
             else
-                return _set.Where(d => d.CriteriaId == diamondCriteriaId).ToListAsync();
+                return _set.Where(d => d.CriteriaId == diamondCriteriaId && d.IsSideDiamond == false).Include(p => p.Criteria).ToListAsync();
         }
         private string GetPriceKey(string shapeId, bool IsLabDiamond)
         {
@@ -135,6 +127,68 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             else
                 key += "_Natural";
             return key;
+        }
+        private string GetSidePriceKey(string shapeId, bool IsLabDiamond)
+        {
+            var key = $"DP_Side_{shapeId}";
+            if (IsLabDiamond)
+                key += "_Lab";
+            else
+                key += "_Natural";
+            return key;
+        }
+        private void RemoveAllKey(DiamondShapeId diamondShapeId)
+        {
+            string diamondKey = GetPriceKey(diamondShapeId.Value, true);
+            string diamondKeyNatural = GetPriceKey(diamondShapeId.Value, false);
+            string sidediamondKey = GetSidePriceKey(diamondShapeId.Value, true);
+            string sidediamondKeyNatural = GetSidePriceKey(diamondShapeId.Value, false);
+            _cache.Remove(diamondKey);
+            _cache.Remove(diamondKeyNatural);
+            _cache.Remove(sidediamondKey);
+            _cache.Remove(sidediamondKeyNatural);
+        }
+        public async Task<List<DiamondPrice>> GetSideDiamondPriceByShape(DiamondShape shape, bool? islabDiamond = null, CancellationToken cancellationToken = default)
+        {
+            // now dont have to cache, because the side diamond is not that much
+            if (islabDiamond != null)
+            {
+                var get = await _set.Include(p => p.Criteria)
+                    .Where(p => p.ShapeId == shape.Id && p.IsLabDiamond == islabDiamond && p.IsSideDiamond == true)
+                    .OrderBy(s => s.Criteria.CaratTo).ToListAsync();
+                return get;
+            }
+            else
+            {
+                var getFromDb = await _set.Include(p => p.Criteria)
+                  .Where(p => p.ShapeId == shape.Id && p.IsSideDiamond == true)
+                  .OrderBy(s => s.Criteria.CaratTo).ToListAsync();
+                return getFromDb;
+            }
+        }
+
+        
+
+        public Task<List<DiamondPrice>> GetSideDiamondPrice(bool? isLabDiamond = null, CancellationToken token = default)
+        {
+            if (isLabDiamond != null)
+                return _set.Where(d => d.ShapeId == DiamondShapeId.Parse(DiamondPrice.DEFAULT_SIDEDIAMOND_SHAPE_ID) &&  d.IsLabDiamond == isLabDiamond && d.IsSideDiamond == true).Include(p => p.Criteria).ToListAsync();
+            else
+                return _set.Where(d => d.ShapeId == DiamondShapeId.Parse(DiamondPrice.DEFAULT_SIDEDIAMOND_SHAPE_ID)  && d.IsSideDiamond == true).Include(p => p.Criteria).ToListAsync();
+        }
+
+        public Task<List<DiamondPrice>> GetSideDiamondPriceByAverageCarat(float avgCarat, bool? isLabDiamond = null, CancellationToken token = default)
+        {
+            if (isLabDiamond != null)
+                return _set.Where(d => d.ShapeId == DiamondShapeId.Parse(DiamondPrice.DEFAULT_SIDEDIAMOND_SHAPE_ID) && d.IsLabDiamond == isLabDiamond && d.IsSideDiamond == true)
+                    .Include(p => p.Criteria)
+                    .Where(p => p.Criteria.CaratFrom <= avgCarat && p.Criteria.CaratTo >= avgCarat)
+                    .ToListAsync();
+            else
+                return _set.Where(d => d.ShapeId == DiamondShapeId.Parse(DiamondPrice.DEFAULT_SIDEDIAMOND_SHAPE_ID) && d.IsSideDiamond == true)
+                    .Include(p => p.Criteria)
+                    .Where(p => p.Criteria.CaratFrom <= avgCarat && p.Criteria.CaratTo >= avgCarat)
+                    .ToListAsync();
         }
     }
 }

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
 {
-    public record CreateManyDiamondCriteriasCommand(List<DiamondCriteriaRequestDto> listCriteria) : IRequest<Result<List<DiamondCriteria>>>;
+    public record CreateManyDiamondCriteriasCommand(List<DiamondCriteriaRequestDto> listCriteria, bool IsSideDiamondCriteria = false) : IRequest<Result<List<DiamondCriteria>>>;
     internal class CreateManyDiamondCriteriasCommandhandler : IRequestHandler<CreateManyDiamondCriteriasCommand, Result<List<DiamondCriteria>>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -26,7 +26,11 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
 
         public async Task<Result<List<DiamondCriteria>>> Handle(CreateManyDiamondCriteriasCommand request, CancellationToken cancellationToken)
         {
-            var mappedItems = request.listCriteria.Select(c => DiamondCriteria.Create(c.Cut, c.Clarity, c.Color, c.CaratFrom, c.CaratTo)).ToList();
+            List<DiamondCriteria> mappedItems = new();
+            if (request.IsSideDiamondCriteria)
+                mappedItems = request.listCriteria.Select(c => DiamondCriteria.CreateSideDiamondCriteria(c.Cut, c.Clarity, c.Color, c.CaratFrom, c.CaratTo)).ToList();
+            else
+                mappedItems = request.listCriteria.Select(c => DiamondCriteria.Create(c.Cut, c.Clarity, c.Color, c.CaratFrom, c.CaratTo)).ToList();
             await _unitOfWork.BeginTransactionAsync();
             await _diamondCriteriaRepository.CreateMany(mappedItems);
             await _unitOfWork.SaveChangesAsync();
@@ -34,5 +38,5 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
             return mappedItems;
         }
     }
-   
+
 }

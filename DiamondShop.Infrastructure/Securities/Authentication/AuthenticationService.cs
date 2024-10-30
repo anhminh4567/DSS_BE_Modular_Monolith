@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -62,7 +63,14 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             _cache = cache;
             _emailService = emailService;
         }
-
+        private bool CheckIfUserIsValidToLogin(CustomIdentityUser user)
+        {
+            if(user is null)
+                return false;
+            if (!user.LockoutEnabled)
+                return false;
+            return true;
+        }
         public async Task<Result<AuthenticationResultDto>> ExternalLogin(CancellationToken cancellationToken = default)
         {
             var info = await _signinManager.GetExternalLoginInfoAsync();
@@ -71,10 +79,14 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             if ((info.Principal.Claims.FirstOrDefault(c => c.Type == "FAILURE") is not null))
                 return Result.Fail("Cannot call request to user infor in google , try again later");
             var getUserByEmail = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
-            if ( await _userManager.IsLockedOutAsync(getUserByEmail) is true)
+            if (await _userManager.IsLockedOutAsync(getUserByEmail) is true)
                 return Result.Fail("cannot login, you are locked out");
             if (getUserByEmail == null)
                 return Result.Fail(new NotFoundError());
+            if (CheckIfUserIsValidToLogin(getUserByEmail))
+            {
+                return Result.Fail("user is lock out,contact admin to unlock");
+            }
             var getCustomer = await _accountRepository.GetByIdentityId(getUserByEmail.Id, cancellationToken);
             if (getCustomer is null)
                 return Result.Fail(new NotFoundError());
@@ -160,8 +172,12 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 return Result.Fail(loginValidateResult.Errors);
             }
             var userIdentity = loginValidateResult.Value;
+            if (CheckIfUserIsValidToLogin(userIdentity))
+            {
+                return Result.Fail("user is lock out,contact admin to unlock");
+            }
             var getCustomer = await _accountRepository.GetByIdentityId(userIdentity.Id, cancellationToken);
-           // getCustomer.Roles.First(r => r.Id == AccountRole.Customer.Id);
+            // getCustomer.Roles.First(r => r.Id == AccountRole.Customer.Id);
             List<AccountRole> toAccountRole = getCustomer.Roles.Select(r => (AccountRole)r).ToList();
             var authTokenDto = await GenerateTokenForUser(toAccountRole, getCustomer.Email, getCustomer.IdentityId, getCustomer.Id.Value, getCustomer.FullName.Value, cancellationToken);
             return Result.Ok(authTokenDto);
@@ -224,6 +240,10 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 return Result.Fail(loginValidateResult.Errors);
             }
             var userIdentity = loginValidateResult.Value;
+            if (CheckIfUserIsValidToLogin(userIdentity))
+            {
+                return Result.Fail("user is lock out,contact admin to unlock");
+            }
             var getStaff = await _accountRepository.GetByIdentityId(userIdentity.Id, cancellationToken);
             if (getStaff is null)
                 return Result.Fail(new NotFoundError("staff not found"));
@@ -247,6 +267,13 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
         }
         public async Task<Result<(string? refreshToken, DateTime? ExpiredDate)>> GetRefreshToken(string identityId, CancellationToken cancellationToken = default)
         {
+            var userIdentity = await _userManager.FindByIdAsync(identityId);
+            if (userIdentity is null)
+                return Result.Fail(new NotFoundError());
+            if (CheckIfUserIsValidToLogin(userIdentity))
+            {
+                return Result.Fail("user is lock out,contact admin to unlock");
+            }
             var getIdentity = await _userManager.GetRefreshTokenAsync(identityId, cancellationToken);
             if (getIdentity.refreshToken is null)
                 return Result.Fail("no token found");
@@ -306,12 +333,17 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             await _userManager.UpdateAsync(tryGetAccount);
             return Result.Ok();
         }
-        public async Task<Result<string>> ConfirmEmail(string identityId, string token)
+        public async Task<Result<string>> ConfirmEmail(string accountId, string token)
         {
-            var getUser = await _userManager.FindByIdAsync(identityId);
+            var getAccount = await _accountRepository.GetById(AccountId.Parse(accountId));
+            if (getAccount is null)
+                return Result.Fail(new NotFoundError("user with this email not found to confirm"));
+            var getUser = await _userManager.FindByIdAsync(getAccount.IdentityId);
             if (getUser is null)
                 return Result.Fail(new NotFoundError("user with this email not found to confirm"));
-            var checkResult = await _userManager.ConfirmEmailAsync(getUser, token);
+            var codeDecodedBytes = WebEncoders.Base64UrlDecode(token);
+            var codeDecoded = Encoding.UTF8.GetString(codeDecodedBytes);
+            var checkResult = await _userManager.ConfirmEmailAsync(getUser, codeDecoded);
             if (checkResult.Succeeded is false)
                 return Result.Fail(new ConflictError("unknown token might expired or invalid token"));
             return Result.Ok("Success");
@@ -343,7 +375,8 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             if (getUserIdentity is null)
                 return Result.Fail(new NotFoundError());
             var generateToken = await _userManager.GenerateEmailConfirmationTokenAsync(getUserIdentity);
-            return await _emailService.SendConfirmAccountEmail(getUserAccount,generateToken,cancellationToken);
+            generateToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(generateToken));
+            return await _emailService.SendConfirmAccountEmail(getUserAccount, generateToken, cancellationToken);
         }
     }
 }

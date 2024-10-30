@@ -8,6 +8,7 @@
         public decimal DiscountPrice { get; set; }
         public decimal PromotionAmountSaved { get; set; }
         //public decimal PromotionPrice { get; set; } = 0;
+        public decimal WarrantyPrice { get; set; }
         public decimal FinalPrice { get; set; }
     }
 }

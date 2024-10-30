@@ -30,7 +30,7 @@ namespace DiamondShop.Application
         }
         private static IServiceCollection AddDomain(this IServiceCollection services, IConfiguration configuration) 
         {
-            services.AddSingleton<IDiamondServices, DiamondServices>();
+            services.AddScoped<IDiamondServices, DiamondServices>();
             services.AddSingleton<IPromotionServices, PromotionService>();
             services.AddSingleton<IDiscountService, DiscountService>();
             services.AddSingleton<IDeliveryService, DeliveryService>();
@@ -48,7 +48,7 @@ namespace DiamondShop.Application
             var config = TypeAdapterConfig.GlobalSettings;
             config.Scan(CurrentAssembly);
             config.Default.IgnoreNullValues(true);
-            config.Default.MaxDepth(4);
+            config.Default.MaxDepth(6);
             services.AddSingleton(config);
             services.AddScoped<IMapper, ServiceMapper>();
             return services;

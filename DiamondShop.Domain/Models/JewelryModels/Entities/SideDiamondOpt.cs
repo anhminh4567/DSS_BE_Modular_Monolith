@@ -2,6 +2,7 @@
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,8 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
         public int Quantity { get; set; }
         public SideDiamondReqId SideDiamondReqId { get; set; }
         public SideDiamondReq SideDiamondReq { get; set; }
+        [NotMapped]
+        public float AverageCarat { get => (float)CaratWeight / (float)Quantity; }
         public SideDiamondOpt() { }
         public static SideDiamondOpt Create(SideDiamondReqId sideDiamondReqId, float caratWeight, int quantity, SideDiamondOptId givenId = null)
         {

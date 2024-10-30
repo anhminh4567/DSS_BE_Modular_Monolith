@@ -10,6 +10,7 @@ using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using FluentResults;
 using FluentValidation;
+using Mapster;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -59,6 +60,7 @@ namespace DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany
                         break;
                     case TargetType.Order:
                         var orderGift = Gift.CreateOrder(gift.Name,gift.UnitType,gift.UnitValue);
+                        gifts.Add(orderGift);
                         break;
                     default:
                         return Result.Fail(new ConflictError("unspecified type found in the gift position at : " + (++i)));
