@@ -38,10 +38,9 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
             return await _set.FirstOrDefaultAsync(s => s.Id == id);
         }
 
-        public IQueryable<JewelryModel> GetSellingModelQuery()
+        public IQueryable<JewelryModel> GetSellingModel()
         {
             var query = _set.AsQueryable();
-            query = query.Include(p => p.Category);
             query = query.Include(p => p.SizeMetals).ThenInclude(p => p.Metal);
             query = query.Include(p => p.SizeMetals).ThenInclude(p => p.Size);
             query = query.Include(p => p.SideDiamonds);
