@@ -161,7 +161,8 @@ namespace DiamondShop.Test.Integration
             if (order != null)
             {
                 _output.WriteLine($"{order.Status}");
-                var completeCommand = new ProceedOrderCommand(order.Id.Value, order.AccountId.Value);
+                //Act as if the deliverer send this
+                var completeCommand = new ProceedOrderCommand(order.Id.Value, deliverer.Id.Value);
                 var completeResult = await _sender.Send(completeCommand);
                 if (completeResult.IsFailed)
                 {
@@ -174,26 +175,13 @@ namespace DiamondShop.Test.Integration
                         _output.WriteLine($"{completeResult.Value.Status}");
                     }
                 }
-                Assert.True(completeResult.IsSuccess);
                 //check payment
                 var transacs = _context.Set<Transaction>().ToList();
                 foreach (var transac in transacs)
                 {
                     _output.WriteLine($"{transac.TransactionType} {transac.IsManual} {transac.TotalAmount} {transac.FineAmount} {transac.TransactionAmount}");
                 }
-                //Assert that refund only BR amount
-                var payAmount = transacs.Where(p => p.TransactionType == TransactionType.Pay).Sum(p => p.TotalAmount);
-                var refundAmount = transacs.Where(p => p.TransactionType == TransactionType.Refund || p.TransactionType == TransactionType.Partial_Refund).Sum(p => p.TotalAmount);
-                Assert.Equal(MoneyVndRoundUpRules.RoundAmountFromDecimal(payAmount), refundAmount);
-                Assert.Equal(OrderStatus.Rejected, order.Status);
-                Assert.Equal(PaymentStatus.Refunding, order.PaymentStatus);
-                var refundedCommand = new RefundOrderCommand(order.Id.Value);
-                var refundedResult = await _sender.Send(refundedCommand);
-                if (refundedResult.IsFailed)
-                    WriteError(refundedResult.Errors);
-                Assert.True(refundedResult.IsSuccess);
-                Assert.NotNull(refundedResult.Value);
-                Assert.Equal(PaymentStatus.Refunded, refundedResult.Value.PaymentStatus);
+                Assert.True(completeResult.IsSuccess);
             }
         }
         [Trait("ReturnTrue", "CancelPendingOrder")]

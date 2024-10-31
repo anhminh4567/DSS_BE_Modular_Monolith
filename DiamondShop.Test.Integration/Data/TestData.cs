@@ -154,10 +154,9 @@ namespace DiamondShop.Test.Integration.Data
         #region Jewelry
         public static async Task<Jewelry> DefaultJewelry(string modelId, SizeId sizeId, MetalId metalId, string id)
             => Jewelry.Create(JewelryModelId.Parse(modelId), sizeId, metalId, 1f, "DEFAULT_JEWEL", givenId: JewelryId.Parse(id), status: Domain.Common.Enums.ProductStatus.Active);
-        static async Task SeedingJewelry(DiamondShopDbContext _context, Jewelry jewelry, JewelrySideDiamond sideDiamond)
+        static async Task SeedingJewelry(DiamondShopDbContext _context, Jewelry jewelry)
         {
             _context.Set<Jewelry>().Add(jewelry);
-            if (sideDiamond != null) _context.Set<JewelrySideDiamond>().Add(sideDiamond);
             await _context.SaveChangesAsync();
         }
         public static async Task<Jewelry> SeedDefaultJewelry(DiamondShopDbContext _context, string modelId = "1", string jewelryId = "1")
@@ -169,8 +168,8 @@ namespace DiamondShop.Test.Integration.Data
             var diamond = await SeedDefaultDiamond(_context);
             var jewelry = await DefaultJewelry(model.Id.Value, SizeIds[0], MetalIds[0], jewelryId);
             var modelSideDiamond = model.SideDiamonds.FirstOrDefault();
-            var sideDiamond = modelSideDiamond == null? null : JewelrySideDiamond.Create(modelSideDiamond);
-            await SeedingJewelry(_context, jewelry, sideDiamond);
+            if (modelSideDiamond != null) jewelry.SideDiamond = JewelrySideDiamond.Create(modelSideDiamond);
+            await SeedingJewelry(_context, jewelry);
 
             return jewelry;
         }
@@ -284,7 +283,7 @@ namespace DiamondShop.Test.Integration.Data
         public static async Task<Account> SeedDefaultDeliverer(DiamondShopDbContext _context, IAuthenticationService _authentication)
         {
             var roles = await _context.Set<AccountRole>().ToListAsync();
-            string email = "abc@staff.com";
+            string email = "abc@deliverer.com";
             FullName username = FullName.parse("", "Deliverer_A");
             var register = await _authentication.Register(email, "123", username, true);
             var user = DefaultDeliverer(username, email, register.Value, roles);

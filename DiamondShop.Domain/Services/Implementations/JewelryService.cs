@@ -1,34 +1,24 @@
 ﻿using DiamondShop.Domain.BusinessRules;
-using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Models.Jewelries;
-using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
-using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Services.Implementations
 {
     public class JewelryService : IJewelryService
     {
-        private readonly IJewelrySideDiamondRepository _jewelrySideDiamondRepository;
         private readonly IDiamondRepository _diamondRepository;
         private readonly IDiamondServices _diamondServices;
         private readonly IDiamondPriceRepository _diamondPriceRepository;
         private readonly IDiscountRepository _discountRepository;
 
-        public JewelryService(IJewelrySideDiamondRepository jewelrySideDiamondRepository, IDiamondRepository diamondRepository, IDiamondServices diamondServices, IDiamondPriceRepository diamondPriceRepository, IDiscountRepository discountRepository)
+        public JewelryService(IDiamondRepository diamondRepository, IDiamondServices diamondServices, IDiamondPriceRepository diamondPriceRepository, IDiscountRepository discountRepository)
         {
-            _jewelrySideDiamondRepository = jewelrySideDiamondRepository;
             _diamondRepository = diamondRepository;
             _diamondServices = diamondServices;
             _diamondPriceRepository = diamondPriceRepository;
