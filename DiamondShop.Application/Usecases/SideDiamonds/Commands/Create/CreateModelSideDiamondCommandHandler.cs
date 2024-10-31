@@ -9,9 +9,9 @@ using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using FluentResults;
 using MediatR;
 
-namespace DiamondShop.Application.Usecases.ModelSideDiamonds.Commands
+namespace DiamondShop.Application.Usecases.SideDiamonds.Commands.Create
 {
-    public record CreateModelSideDiamondCommand(JewelryModelId ModelId, SideDiamondRequestDto SideDiamondSpecs) : IRequest<Result<SideDiamondOpt>>;
+    public record CreateModelSideDiamondCommand(string ModelId, SideDiamondRequestDto SideDiamondSpec) : IRequest<Result<SideDiamondOpt>>;
     internal class CreateModelSideDiamondCommandHandler : IRequestHandler<CreateModelSideDiamondCommand, Result<SideDiamondOpt>>
     {
         private readonly ISideDiamondRepository _sideDiamondRepository;
@@ -27,9 +27,8 @@ namespace DiamondShop.Application.Usecases.ModelSideDiamonds.Commands
         public async Task<Result<SideDiamondOpt>> Handle(CreateModelSideDiamondCommand request, CancellationToken token)
         {
             await _unitOfWork.BeginTransactionAsync(token);
-            request.Deconstruct(out JewelryModelId modelId, out SideDiamondRequestDto sideDiamondSpec);
-            sideDiamondSpec.Deconstruct(out string ShapeId, out Color colorMin, out Color colorMax, out Clarity clarityMin, out Clarity clarityMax, out SettingType settingType, out float caratWeight, out int quantity);
-            var sideDiamond = SideDiamondOpt.Create(modelId, DiamondShapeId.Parse(ShapeId), colorMin, colorMax, clarityMin, clarityMax, settingType, caratWeight, quantity);
+            request.Deconstruct(out string modelId, out SideDiamondRequestDto sideDiamondSpecs);
+            var sideDiamond = SideDiamondOpt.Create(JewelryModelId.Parse(modelId), DiamondShapeId.Parse(sideDiamondSpecs.ShapeId), sideDiamondSpecs.ColorMin, sideDiamondSpecs.ColorMax, sideDiamondSpecs.ClarityMin, sideDiamondSpecs.ClarityMax, sideDiamondSpecs.SettingType, sideDiamondSpecs.CaratWeight, sideDiamondSpecs.Quantity);
             await _sideDiamondRepository.Create(sideDiamond, token);
             await _unitOfWork.SaveChangesAsync(token);
             return sideDiamond;

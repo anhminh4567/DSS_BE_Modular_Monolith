@@ -16,6 +16,8 @@ namespace DiamondShop.Domain.Repositories.JewelryRepo
         public IQueryable<SizeId> GetSizesInStock(JewelryModelId modelId, MetalId metalId,
             SideDiamondOpt sideDiamondOpt);
         public IQueryable<SizeId> GetSizesInStock(JewelryModelId modelId, MetalId metalId);
+        public Task<bool> Existing(JewelryModelId modelId, MetalId metalId, SizeId sizeId);
+        public Task<bool> Existing(JewelryModelId modelId, SideDiamondOpt sideDiamondOpt);
         public Task<bool> CheckDuplicatedSerial(string serialNumber);
         public Task<bool> IsHavingDiamond(Jewelry jewelry, CancellationToken cancellationToken = default);
     }

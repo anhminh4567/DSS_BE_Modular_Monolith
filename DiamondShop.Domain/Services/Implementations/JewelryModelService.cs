@@ -23,16 +23,5 @@ namespace DiamondShop.Domain.Services.Implementations
                 sizeMetal.Price = sizeMetal.Metal.Price * (decimal)sizeMetal.Weight;
             }
         }
-
-        public void GetPrice(JewelryModel model, List<SideDiamondOpt> sideDiamondOpts, SizeMetal sizeMetal, IDiamondServices diamondServices)
-        {
-            decimal sidePrice = 0;
-            foreach (var diamond in sideDiamondOpts)
-            {
-            }
-            model.SettingPrice += sidePrice;
-            model.SettingPrice += sizeMetal.Price;
-            model.SettingPrice += model.CraftmanFee;
-        }
     }
 }

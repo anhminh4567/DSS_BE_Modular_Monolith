@@ -48,7 +48,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
             p.Status == ProductStatus.Active && p.ModelId == modelId && p.MetalId == metalId &&
             p.SideDiamond.ColorMin == sideDiamondOpt.ColorMin && p.SideDiamond.ColorMax == sideDiamondOpt.ColorMax &&
             p.SideDiamond.ClarityMin == sideDiamondOpt.ClarityMin && p.SideDiamond.ClarityMax == sideDiamondOpt.ClarityMax &&
-            p.SideDiamond.SettingType == sideDiamondOpt.SettingType && p.SideDiamond.Carat == sideDiamondOpt.CaratWeight && p.SideDiamond.Quantity == sideDiamondOpt.Quantity
+            p.SideDiamond.SettingType == sideDiamondOpt.SettingType && p.SideDiamond.Carat == sideDiamondOpt.CaratWeight && p.SideDiamond.Quantity == sideDiamondOpt.Quantity && p.SideDiamond.DiamondShapeId == sideDiamondOpt.ShapeId
             ).Select(p => p.SizeId).Distinct();
         }
         public IQueryable<SizeId> GetSizesInStock(JewelryModelId modelId, MetalId metalId)
@@ -56,6 +56,19 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
             return _set.Where(p =>
                 p.Status == ProductStatus.Active && p.ModelId == modelId && p.MetalId == metalId
             ).Select(p => p.SizeId).Distinct();
+        }
+        public async Task<bool> Existing(JewelryModelId modelId, MetalId metalId, SizeId sizeId)
+        {
+            return await _set.Where(p => p.Status == ProductStatus.Active && p.ModelId == modelId && p.MetalId == metalId && p.SizeId == sizeId).AnyAsync();
+        }
+        public async Task<bool> Existing(JewelryModelId modelId, SideDiamondOpt sideDiamondOpt)
+        {
+            return await _set.Where(p => p.Status == ProductStatus.Active && p.ModelId == modelId &&
+            p.SideDiamond.Carat == sideDiamondOpt.CaratWeight && p.SideDiamond.SettingType == sideDiamondOpt.SettingType &&
+            p.SideDiamond.Quantity == sideDiamondOpt.Quantity && p.SideDiamond.DiamondShapeId == sideDiamondOpt.ShapeId &&
+            p.SideDiamond.ColorMin == sideDiamondOpt.ColorMin && p.SideDiamond.ColorMax == sideDiamondOpt.ColorMax &&
+            p.SideDiamond.ClarityMax == sideDiamondOpt.ClarityMax && p.SideDiamond.ClarityMax == sideDiamondOpt.ClarityMax
+            ).AnyAsync();
         }
     }
 }

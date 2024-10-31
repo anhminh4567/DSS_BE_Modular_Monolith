@@ -8,7 +8,7 @@ using MediatR;
 
 namespace DiamondShop.Application.Usecases.SizeMetals.Commands.Create
 {
-    public record CreateSizeMetalCommand(JewelryModelId ModelId, List<ModelMetalSizeRequestDto> MetalSizeSpecs) : IRequest<Result>;
+    public record CreateSizeMetalCommand(string ModelId, ModelMetalSizeRequestDto MetalSizeSpec) : IRequest<Result>;
     internal class CreateSizeMetalCommandHandler : IRequestHandler<CreateSizeMetalCommand, Result>
     {
         private readonly ISizeMetalRepository _sizeMetalRepository;
@@ -21,9 +21,12 @@ namespace DiamondShop.Application.Usecases.SizeMetals.Commands.Create
         public async Task<Result> Handle(CreateSizeMetalCommand request, CancellationToken token)
         {
             await _unitOfWork.BeginTransactionAsync(token);
-            request.Deconstruct(out JewelryModelId modelId, out List<ModelMetalSizeRequestDto> metalSizeSpecs);
-            List<SizeMetal> sizeMetals = metalSizeSpecs.Select(p => SizeMetal.Create(modelId, MetalId.Parse(p.MetalId), SizeId.Parse(p.SizeId), p.Weight)).ToList();
-            await _sizeMetalRepository.CreateRange(sizeMetals, token);
+            request.Deconstruct(out string modelId, out ModelMetalSizeRequestDto metalSizeSpec);
+            var sizeMetal = SizeMetal.Create(JewelryModelId.Parse(modelId), MetalId.Parse(metalSizeSpec.MetalId), SizeId.Parse(metalSizeSpec.SizeId), metalSizeSpec.Weight);
+            var existFlag = await _sizeMetalRepository.Existing(sizeMetal.ModelId, sizeMetal.MetalId, sizeMetal.SizeId);
+            if (existFlag)
+                return Result.Fail("This metal option for this model has already existed");
+            await _sizeMetalRepository.Create(sizeMetal, token);
             await _unitOfWork.SaveChangesAsync(token);
             return Result.Ok();
         }

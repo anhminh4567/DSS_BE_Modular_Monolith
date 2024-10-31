@@ -4,6 +4,10 @@ using DiamondShop.Application.Usecases.JewelryModels.Commands.Create;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetail;
+using DiamondShop.Application.Usecases.SideDiamonds.Commands.Create;
+using DiamondShop.Application.Usecases.SizeMetals.Commands.Create;
+using DiamondShop.Application.Usecases.SizeMetals.Commands.Delete;
+using DiamondShop.Application.Usecases.SizeMetals.Commands.Update;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -53,6 +57,7 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             }
             return MatchError(result.Errors, ModelState);
         }
+        #region Create Component
         [HttpPost("Create")]
         public async Task<ActionResult> Create([FromBody] CreateJewelryModelCommand command)
         {
@@ -64,5 +69,61 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             }
             return MatchError(result.Errors, ModelState);
         }
+        [HttpPost("Create/SizeMetal")]
+        public async Task<ActionResult> CreateSizeMetal([FromBody] CreateSizeMetalCommand command)
+        {
+            var result = await _sender.Send(command);
+            if (result.IsSuccess)
+            {
+                return Ok("Create metal options success");
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPost("Create/SideDiamondOption")]
+        public async Task<ActionResult> CreateSideDiamondOption([FromBody] CreateModelSideDiamondCommand command)
+        {
+            var result = await _sender.Send(command);
+            if (result.IsSuccess)
+            {
+                return Ok("Create side diamond(s) success");
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        #endregion
+        #region Update Component
+        [HttpPut("Update/SizeMetal")]
+        public async Task<ActionResult> UpdateSizeMetal([FromForm] UpdateModelSizeMetalCommand updateModelSizeMetalCommand)
+        {
+            var result = await _sender.Send(updateModelSizeMetalCommand);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<List<SizeMetalDto>>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        #endregion
+        #region Remove Component
+        [HttpDelete("Delete/SizeMetal")]
+        public async Task<ActionResult> DeleteSizeMetal([FromQuery] DeleteModelSizeMetalCommand deleteModelSizeMetalCommand)
+        {
+            var result = await _sender.Send(deleteModelSizeMetalCommand);
+            if (result.IsSuccess)
+            {
+                return Ok("Delete metal options success");
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpDelete("Delete/SideDiamondOption")]
+        public async Task<ActionResult> DeleteSideDiamondOption([FromQuery] DeleteModelSizeMetalCommand deleteModelSizeMetalCommand)
+        {
+            var result = await _sender.Send(deleteModelSizeMetalCommand);
+            if (result.IsSuccess)
+            {
+                return Ok("Delete metal options success");
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        #endregion
     }
 }

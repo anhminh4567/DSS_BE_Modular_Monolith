@@ -8,6 +8,5 @@ namespace DiamondShop.Domain.Services.interfaces
     {
         void GetSizeMetalPrice(List<SizeMetal> sizeMetals);
         void GetSizeMetalPrice(SizeMetal sizeMetal);
-        void GetPrice(JewelryModel model, List<SideDiamondOpt> sideDiamondOpts, SizeMetal sizeMetal, IDiamondServices diamondServices);
     }
 }
