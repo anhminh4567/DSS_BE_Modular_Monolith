@@ -1,7 +1,4 @@
-﻿using DiamondShop.Application.Dtos.Responses.Jewelries;
-using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
-
-namespace DiamondShop.Application.Dtos.Responses.JewelryModels
+﻿namespace DiamondShop.Application.Dtos.Responses.JewelryModels
 {
     public class JewelryModelSellingDto
     {
@@ -11,8 +8,8 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         public int ReviewCount { get; set; }
         public decimal MinPrice { get; set; }
         public decimal MaxPrice { get; set; }
-        public JewelryModelId JewelryModelId { get; set; }
-        public MetalId MetalId { get; set; }
-        public SideDiamondOptId SideDiamondOptId { get; set; }
+        public string JewelryModelId { get; set; }
+        public string MetalId { get; set; }
+        public string SideDiamondOptId { get; set; }
     }
 }
