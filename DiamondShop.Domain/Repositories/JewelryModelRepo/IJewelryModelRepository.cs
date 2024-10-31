@@ -11,6 +11,6 @@ namespace DiamondShop.Domain.Repositories.JewelryModelRepo
     public interface IJewelryModelRepository : IBaseRepository<JewelryModel>
     {
         Task<JewelryModel?> GetByIdMinimal(JewelryModelId id);
-        IQueryable<JewelryModel> GetSellingModel();
+        IQueryable<JewelryModel> GetSellingModelQuery();
     }
 }

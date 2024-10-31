@@ -1,4 +1,7 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Jewelries;
+using DiamondShop.Application.Dtos.Responses.JewelryModels;
+using DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling;
+using DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetail;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.Entities;
 using Mapster;
@@ -15,6 +18,10 @@ namespace DiamondShop.Application.Mappers
             config.NewConfig<JewelryReview, JewelryReviewDto>();
 
             config.NewConfig<JewelrySideDiamond, JewelrySideDiamondDto>();
+
+            config.NewConfig<JewelryModelSelling, JewelryModelSellingDto>();
+
+            config.NewConfig<JewelryModelSellingDetail, JewelryModelSellingDetailDto>();
         }
     }
 }

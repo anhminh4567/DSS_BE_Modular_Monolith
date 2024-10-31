@@ -52,47 +52,87 @@
   },
   {
     "modelSpec": {
-      "name": "string",
-      "categoryId": "string",
-      "width": 0,
-      "length": 0,
+      "name": "Side Diamond Test Ring",
+      "categoryId": "1",
+      "width": 12,
       "isEngravable": true,
-      "isRhodiumFinish": true,
-      "backType": 0,
-      "claspType": 0,
-      "chainType": 0
+      "isRhodiumFinish": true
     },
-    "mainDiamondSpecs": [
-      {
-        "settingType": 0,
-        "quantity": 0,
-        "shapeSpecs": [
-          {
-            "shapeId": "string",
-            "caratFrom": 0,
-            "caratTo": 0
-          }
-        ]
-      }
-    ],
     "sideDiamondSpecs": [
       {
-        "shapeId": "string",
+        "shapeId": "1",
         "colorMin": 1,
-        "colorMax": 1,
-        "clarityMin": 1,
-        "clarityMax": 1,
-        "settingType": 0,
-        "caratWeight": 0,
-        "quantity": 0
+        "colorMax": 3,
+        "clarityMin": 2,
+        "clarityMax": 7,
+        "settingType": 1,
+        "caratWeight": 0.75,
+        "quantity": 15
+      },
+      {
+        "shapeId": "1",
+        "colorMin": 3,
+        "colorMax": 8,
+        "clarityMin": 2,
+        "clarityMax": 7,
+        "settingType": 1,
+        "caratWeight": 1,
+        "quantity": 10
+      },
+      {
+        "shapeId": "1",
+        "colorMin": 6,
+        "colorMax": 8,
+        "clarityMin": 2,
+        "clarityMax": 7,
+        "settingType": 1,
+        "caratWeight": 1.5,
+        "quantity": 5
       }
     ],
     "metalSizeSpecs": [
       {
-        "metalId": "string",
-        "sizeId": "string",
-        "weight": 0
+        "metalId": "1",
+        "sizeId": "3",
+        "weight": 10
+      },
+      {
+        "metalId": "2",
+        "sizeId": "3",
+        "weight": 10
+      },
+      {
+        "metalId": "3",
+        "sizeId": "3",
+        "weight": 10
+      },
+      {
+        "metalId": "4",
+        "sizeId": "3",
+        "weight": 10
+      },
+      {
+        "metalId": "1",
+        "sizeId": "4",
+        "weight": 13
+      },
+      {
+        "metalId": "2",
+        "sizeId": "4",
+        "weight": 13
+      },
+      {
+        "metalId": "3",
+        "sizeId": "4",
+        "weight": 13
+      },
+      {
+        "metalId": "4",
+        "sizeId": "4",
+        "weight": 13
       }
     ]
   }
+
+
 ]

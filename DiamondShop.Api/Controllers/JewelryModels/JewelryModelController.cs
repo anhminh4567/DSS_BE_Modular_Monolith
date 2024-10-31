@@ -1,7 +1,9 @@
-﻿using DiamondShop.Application.Dtos.Responses.JewelryModels;
+﻿using DiamondShop.Application.Commons.Responses;
+using DiamondShop.Application.Dtos.Responses.JewelryModels;
 using DiamondShop.Application.Usecases.JewelryModels.Commands.Create;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling;
+using DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetail;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -28,11 +30,28 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             return Ok(mappedResult);
         }
         [HttpGet("Selling")]
-        [Produces(type: typeof(List<JewelryModelDto>))]
+        [Produces(type: typeof(PagingResponseDto<JewelryModelSellingDto>))]
         public async Task<ActionResult> GetSelling([FromQuery] GetSellingModelQuery getSellingModelQuery)
         {
             var result = await _sender.Send(getSellingModelQuery);
-            return Ok(result.Value);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<PagingResponseDto<JewelryModelSellingDto>>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpGet("Selling/Detail")]
+        [Produces(type: typeof(JewelryModelSellingDetailDto))]
+        public async Task<ActionResult> GetSellingDetail([FromQuery] GetSellingModelDetailQuery getSellingModelDetailQuery)
+        {
+            var result = await _sender.Send(getSellingModelDetailQuery);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<JewelryModelSellingDetailDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
         }
         [HttpPost("Create")]
         public async Task<ActionResult> Create([FromBody] CreateJewelryModelCommand command)
