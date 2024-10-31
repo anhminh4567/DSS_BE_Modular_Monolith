@@ -46,7 +46,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
         public Metal Metal { get; set; }
         public SideDiamondOptId? SideDiamondId { get; set; }
         public List<string>? Images { get; set; } = new();
-        List<SellingDetailSize> SizeGroups { get; set; } = new();
+        public List<SellingDetailSize> SizeGroups { get; set; } = new();
         public static SellingDetailMetal CreateWithSide(string modelName, Metal metal, SideDiamondOpt sideDiamondOpt,
             List<string> images, List<SellingDetailSize> sizeGroup)
         {
@@ -75,10 +75,14 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
     {
         public float Size { get; set; }
         public decimal Price { get; set; }
-
-        public static SellingDetailSize Create(float sizeValue, decimal Price)
+        public bool IsInStock { get; set; }
+        public static SellingDetailSize Create(float sizeValue, decimal Price, bool isInStock)
         {
-            return new SellingDetailSize { Size = sizeValue, Price = Price };
+            return new SellingDetailSize { 
+                Size = sizeValue, 
+                Price = Price,
+                IsInStock = isInStock
+            };
         }
     }
 }

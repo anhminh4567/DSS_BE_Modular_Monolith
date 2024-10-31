@@ -18,10 +18,6 @@ namespace DiamondShop.Application.Mappers
             config.NewConfig<JewelryReview, JewelryReviewDto>();
 
             config.NewConfig<JewelrySideDiamond, JewelrySideDiamondDto>();
-
-            config.NewConfig<JewelryModelSelling, JewelryModelSellingDto>();
-
-            config.NewConfig<JewelryModelSellingDetail, JewelryModelSellingDetailDto>();
         }
     }
 }

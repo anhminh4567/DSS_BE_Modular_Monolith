@@ -24,11 +24,12 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         public MetalDto Metal { get; set; }
         public string? SideDiamondId { get; set; }
         public List<string>? Images { get; set; } = new();
-        List<SellingDetailSizeDto> SizeGroups { get; set; } = new();
+        public List<SellingDetailSizeDto> SizeGroups { get; set; } = new();
     }
     public class SellingDetailSizeDto
     {
         public float Size { get; set; }
         public decimal Price { get; set; }
+        public bool IsInStock { get; set; }
     }
 }
