@@ -36,7 +36,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetSelling
             var sizeMetalQuery = _sizeMetalRepository.GetQuery();
             sizeMetalQuery = _sizeMetalRepository.QueryInclude(sizeMetalQuery, p => p.Metal);
 
-            var query = _modelRepository.GetSellingModel();
+            var query = _modelRepository.GetSellingModelQuery();
             if (!String.IsNullOrEmpty(Category))
             {
                 var category = await _categoryRepository.ContainsName(Category);
