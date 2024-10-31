@@ -1,9 +1,12 @@
 ﻿using DiamondShop.Application.Dtos.Responses.JewelryModels;
-using DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling;
-using DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetail;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using Mapster;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Mappers
 {
@@ -22,10 +25,6 @@ namespace DiamondShop.Application.Mappers
             config.NewConfig<SideDiamondOpt, SideDiamondOptDto>();
 
             config.NewConfig<JewelryModelCategory, JewelryModelCategoryDto>();
-
-            config.NewConfig<JewelryModelSelling, JewelryModelSellingDto>();
-
-            config.NewConfig<JewelryModelSellingDetail, JewelryModelSellingDetailDto>();
 
         }
     }
