@@ -10,6 +10,7 @@ using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
+using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
@@ -270,12 +271,15 @@ namespace DiamondShop.Test.Integration
             Assert.Equal(PaymentType.Payall, order.PaymentType);
             Assert.Equal(OrderStatus.Processing, order.Status);
             _output.WriteLine("Before cancel");
+            var diamonds = _context.Set<Diamond>().ToList();
             var jewelries = _context.Set<Jewelry>().ToList();
             foreach (Jewelry jewelry in jewelries)
-                _output.WriteLine($"{jewelry.Id} - {jewelry.Status}");
-            var diamonds = _context.Set<Diamond>().ToList();
+            {
+                diamonds.AddRange(jewelry.Diamonds);
+                _output.WriteLine($"{jewelry.Id} - {jewelry.Status} - {jewelry.TotalPrice} - {jewelry.SoldPrice} - {jewelry.D_Price} - {jewelry.ND_Price}");
+            }
             foreach (Diamond diamond in diamonds)
-                _output.WriteLine($"{diamond.Id} - {diamond.Status}");
+                _output.WriteLine($"{diamond.Id} - {diamond.Status} - {diamond.JewelryId} - {diamond.TruePrice} - {diamond.SoldPrice}");
 
             if (order != null)
             {

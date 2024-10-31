@@ -104,6 +104,11 @@ namespace DiamondShop.Domain.Models.Jewelries
             ND_Price = noDiamondPrice;
             D_Price = soldPrice - noDiamondPrice;
             SoldPrice = soldPrice;
+            Diamonds.ForEach(p =>
+            {
+                if (p.TruePrice != null)
+                    p.SetSold(p.TruePrice, p.TruePrice);
+            });
         }
         public void SetSell()
         {

@@ -164,8 +164,6 @@ namespace DiamondShop.Test.Integration.Data
             var model = _context.Set<JewelryModel>().FirstOrDefault();
             if (model == null)
                 model = await SeedDefaultRingModel(_context, modelId);
-
-            var diamond = await SeedDefaultDiamond(_context);
             var jewelry = await DefaultJewelry(model.Id.Value, SizeIds[0], MetalIds[0], jewelryId);
             var modelSideDiamond = model.SideDiamonds.FirstOrDefault();
             if (modelSideDiamond != null) jewelry.SideDiamond = JewelrySideDiamond.Create(modelSideDiamond);
