@@ -17,6 +17,7 @@ namespace DiamondShop.Domain.Models.AccountAggregate.Entities
         public string District { get; set; }
         public string Ward { get; set; }
         public string Street { get; set; }
+        public bool IsDefault { get; set; } = false;    
 
         public Address(string province, string district, string ward, string street, AccountId accountId) : base(AddressId.Create())
         {

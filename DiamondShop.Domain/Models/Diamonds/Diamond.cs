@@ -1,7 +1,9 @@
 ﻿using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.Enums;
+using DiamondShop.Domain.Common.Products;
 using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
@@ -48,6 +50,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         public Media? Thumbnail { get; set; }
         public List<Media>? Gallery { get; set; } = new();
         public ProductStatus Status { get; set; } = ProductStatus.Active;
+        public ProductLock? ProductLock { get; set; }
         public decimal? SoldPrice { get; set; }
         public decimal? DefaultPrice { get; set; }
         [NotMapped]
@@ -114,18 +117,21 @@ namespace DiamondShop.Domain.Models.Diamonds
             Status = ProductStatus.Sold;
             DefaultPrice = defaultPrice;
             SoldPrice = soldPrice;
+            ProductLock = null;
         }
         public void SetSell()
         {
             Status = ProductStatus.Active;
             SoldPrice = null;
             DefaultPrice = null;
+            ProductLock = null;
         }
         public void SetDeactivate()
         {
             Status = ProductStatus.Locked;
             SoldPrice = null;
             DefaultPrice = null;
+            ProductLock = null;
         }
         public void SetCorrectPrice(decimal truePrice)
         {
@@ -133,6 +139,11 @@ namespace DiamondShop.Domain.Models.Diamonds
                 throw new Exception();
             else
                 TruePrice = truePrice;
+        }
+        public void SetLockForUser(Account userAccount , int lockHour)
+        {
+            Status = ProductStatus.Locked;
+            ProductLock = ProductLock.CreateLockForUser(userAccount.Id, TimeSpan.FromHours(lockHour));
         }
         public void ChangeThumbnail(Media? thumbnail) => Thumbnail = thumbnail;
         private Diamond() { }

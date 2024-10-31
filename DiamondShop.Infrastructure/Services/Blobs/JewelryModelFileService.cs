@@ -129,11 +129,11 @@ namespace DiamondShop.Infrastructure.Services.Blobs
         }
         private string GetAzureMainDiamondPathIdentifier(string fromBaseString, List<MainDiamondShape>? combinedShapes)
         {
-            throw new NotImplementedException();
-            //if (combinedShapes != null)
-            //    foreach (var mainDiamond in combinedShapes)
-            //        fromBaseString += $"/{mainDiamond.MainDiamondReqId.Value}_{mainDiamond.ShapeId.Value}";
-            //return fromBaseString;
+            //throw new NotImplementedException();
+            if (combinedShapes != null)
+                foreach (var mainDiamond in combinedShapes)
+                    fromBaseString += $"/{mainDiamond.MainDiamondReqId.Value}_{mainDiamond.ShapeId.Value}";
+            return fromBaseString;
         }
         private string GetAzureSideDiamondPathIdentifier(string fromBaseString, List<SideDiamondOpt>? combinedOptions)
         {
@@ -287,36 +287,36 @@ namespace DiamondShop.Infrastructure.Services.Blobs
 
         public Task<Result<string[]>> UploadBase(JewelryModel jewelryModel, FileData[] fileStreams, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
-            //string basePath = GetAzureFilePath(jewelryModel);
-            //basePath = $"{basePath}/{BASE_IMAGES_FOLDER}";
-            //return UploadFromBasePath(basePath, fileStreams, cancellationToken);
+            //throw new NotImplementedException();
+            string basePath = GetAzureFilePath(jewelryModel);
+            basePath = $"{basePath}/{BASE_IMAGES_FOLDER}";
+            return UploadFromBasePath(basePath, fileStreams, cancellationToken);
         }
         private async Task<Result<string[]>> UploadFromBasePath(string basePath, FileData[] fileStreams, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
-            //List<Task<Result<string>>> uploadTasks = new();
-            //foreach (var file in fileStreams)
-            //{
-            //    uploadTasks.Add(Task<Result<string>>.Run(async () =>
-            //    {
-            //        var stream = file.Stream;
-            //        var finalPath = $"{basePath}/{file.FileName}_{GetTimeStamp()}";
-            //        if (file.FileExtension != null)
-            //            finalPath = $"{finalPath}.{file.FileExtension}";
-            //        var result = await base.UploadFileAsync(finalPath, stream, file.contentType, cancellationToken);
-            //        if (result.IsFailed)
-            //            _logger.LogError("Failed to upload file with name: {0}", file.FileName);
-            //        else
-            //            _logger.LogInformation("uploaded file with name: {0}", file.FileName);
-            //        return result;
-            //    }));
-            //}
-            //var results = await Task.WhenAll(uploadTasks);
-            //var stringResult = results.Where(r => r.IsSuccess).Select(r => r.Value).ToArray();
-            //if (stringResult.Length == 0)
-            //    return Result.Fail("Failed to upload any files at all");
-            //return Result.Ok(stringResult);
+            //throw new NotImplementedException();
+            List<Task<Result<string>>> uploadTasks = new();
+            foreach (var file in fileStreams)
+            {
+                uploadTasks.Add(Task<Result<string>>.Run(async () =>
+                {
+                    var stream = file.Stream;
+                    var finalPath = $"{basePath}/{file.FileName}_{GetTimeStamp()}";
+                    if (file.FileExtension != null)
+                        finalPath = $"{finalPath}.{file.FileExtension}";
+                    var result = await base.UploadFileAsync(finalPath, stream, file.contentType, cancellationToken);
+                    if (result.IsFailed)
+                        _logger.LogError("Failed to upload file with name: {0}", file.FileName);
+                    else
+                        _logger.LogInformation("uploaded file with name: {0}", file.FileName);
+                    return result;
+                }));
+            }
+            var results = await Task.WhenAll(uploadTasks);
+            var stringResult = results.Where(r => r.IsSuccess).Select(r => r.Value).ToArray();
+            if (stringResult.Length == 0)
+                return Result.Fail("Failed to upload any files at all");
+            return Result.Ok(stringResult);
         }
         //        foreach (var metal in jewelryModel.SizeMetals)
         //            {

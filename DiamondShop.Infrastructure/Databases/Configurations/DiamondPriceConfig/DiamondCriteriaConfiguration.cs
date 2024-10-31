@@ -22,6 +22,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondPriceConfig
             //builder.Property(o => o.Cut).HasConversion<string>();
             //builder.Property(o => o.Clarity).HasConversion<string>();
             //builder.Property(o => o.Color).HasConversion<string>();
+            builder.HasIndex(x => new { x.CaratFrom,x.CaratTo,x.IsSideDiamond,x.IsLabGrown });
             builder.HasKey(o => o.Id);
         }
     }

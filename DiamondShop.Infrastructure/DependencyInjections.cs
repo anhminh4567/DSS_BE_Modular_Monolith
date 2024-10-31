@@ -64,6 +64,8 @@ namespace DiamondShop.Infrastructure
             services.AddPayments(configuration);
             services.AddServices(configuration);
             services.AddMappingExtension(configuration);
+            //startup
+            services.AddHostedService<StartupServices>();
             return services;
         }
         public static IServiceCollection AddPersistance(this IServiceCollection services, IConfiguration configuration)
