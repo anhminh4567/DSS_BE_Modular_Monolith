@@ -37,13 +37,25 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryConfig
             .HasConversion(
                 Id => Id.Value,
                 dbValue => JewelryReviewId.Parse(dbValue));
+            builder.OwnsOne(o => o.SideDiamond,
+              sideDiamond =>
+              {
+                  sideDiamond.WithOwner();
+                  sideDiamond.Property(n => n.Carat).HasColumnName("Carat");
+                  sideDiamond.Property(n => n.Quantity).HasColumnName("Quantity");
+                  sideDiamond.Property(n => n.SettingType).HasColumnName("SettingType").HasConversion<string>();
+                  sideDiamond.Property(n => n.DiamondShapeId).HasColumnName("DiamondShapeId");
+                  sideDiamond.HasOne(n => n.DiamondShape).WithOne().HasForeignKey<JewelrySideDiamond>(p => p.DiamondShapeId);
+                  sideDiamond.Property(n => n.ColorMin).HasColumnName("ColorMin").HasConversion<string>();
+                  sideDiamond.Property(n => n.ColorMax).HasColumnName("ColorMax").HasConversion<string>();
+                  sideDiamond.Property(n => n.ClarityMin).HasColumnName("ClarityMin").HasConversion<string>();
+                  sideDiamond.Property(n => n.ClarityMax).HasColumnName("ClarityMax").HasConversion<string>();
+              });
             builder.HasMany(o => o.Diamonds).WithOne().HasForeignKey(p => p.JewelryId).IsRequired(false);
             builder.HasOne(o => o.Model).WithMany().HasForeignKey(o => o.ModelId);
             builder.HasOne(o => o.Size).WithMany().HasForeignKey(o => o.SizeId);
             builder.HasOne(o => o.Metal).WithMany().HasForeignKey(o => o.MetalId);
             builder.HasOne(o => o.Review).WithOne().HasForeignKey<JewelryReview>(o => o.Id).IsRequired(false);
-            //builder.HasOne(o => o.Warranty).WithOne().HasForeignKey<JewelryWarranty>(o => o.Id).IsRequired(false);
-            builder.HasMany(o => o.SideDiamonds).WithOne().HasForeignKey(o => o.JewelryId).IsRequired(false);
             builder.OwnsOne(o => o.Thumbnail, childBuilder =>
             {
                 childBuilder.ToJson();

@@ -12,33 +12,33 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.JewelryModels.Entities
 {
-    public class SideDiamondReq : Entity<SideDiamondReqId>
-    {
-        public JewelryModelId ModelId { get; set; }
-        public JewelryModel Model { get; set; }
-        public DiamondShapeId ShapeId { get; set; }
-        public DiamondShape Shape { get; set; }
-        public Color ColorMin { get; set; }
-        public Color ColorMax { get; set; }
-        public Clarity ClarityMin { get; set; }
-        public Clarity ClarityMax { get; set; }
-        public SettingType SettingType { get; set; }
-        public List<SideDiamondOpt> SideDiamondOpts { get; set; } = new();
+    //public class SideDiamondReq : Entity<SideDiamondReqId>
+    //{
+    //    public JewelryModelId ModelId { get; set; }
+    //    public JewelryModel Model { get; set; }
+    //    public DiamondShapeId ShapeId { get; set; }
+    //    public DiamondShape Shape { get; set; }
+    //    public Color ColorMin { get; set; }
+    //    public Color ColorMax { get; set; }
+    //    public Clarity ClarityMin { get; set; }
+    //    public Clarity ClarityMax { get; set; }
+    //    public SettingType SettingType { get; set; }
+    //    public List<SideDiamondOpt> SideDiamondOpts { get; set; } = new();
 
-        public SideDiamondReq() { }
-        public static SideDiamondReq Create(JewelryModelId modelId, DiamondShapeId shapeId, Color colorMin, Color colorMax, Clarity clarityMin, Clarity clarityMax, SettingType settingType, SideDiamondReqId givenId = null)
-        {
-            return new SideDiamondReq()
-            {
-                Id = givenId is null? SideDiamondReqId.Create() : givenId,
-                ModelId = modelId,
-                ShapeId = shapeId,
-                ColorMin = colorMin,
-                ColorMax = colorMax,
-                ClarityMin = clarityMin,
-                ClarityMax = clarityMax,
-                SettingType = settingType,
-            };
-        }
-    }
+    //    public SideDiamondReq() { }
+    //    public static SideDiamondReq Create(JewelryModelId modelId, DiamondShapeId shapeId, Color colorMin, Color colorMax, Clarity clarityMin, Clarity clarityMax, SettingType settingType, SideDiamondReqId givenId = null)
+    //    {
+    //        return new SideDiamondReq()
+    //        {
+    //            Id = givenId is null? SideDiamondReqId.Create() : givenId,
+    //            ModelId = modelId,
+    //            ShapeId = shapeId,
+    //            ColorMin = colorMin,
+    //            ColorMax = colorMax,
+    //            ClarityMin = clarityMin,
+    //            ClarityMax = clarityMax,
+    //            SettingType = settingType,
+    //        };
+    //    }
+    //}
 }

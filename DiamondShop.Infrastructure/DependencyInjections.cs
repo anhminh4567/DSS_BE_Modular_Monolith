@@ -101,7 +101,6 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
 
             services.AddScoped<IJewelryRepository, JewelryRepository>();
-            services.AddScoped<IJewelrySideDiamondRepository, JewelrySideDiamondRepository>();
 
             services.AddScoped<IJewelryModelRepository, JewelryModelRepository>();
             services.AddScoped<IJewelryModelCategoryRepository, JewelryModelCategoryRepository>();

@@ -26,7 +26,7 @@ namespace DiamondShop.Test.Domain
         private List<DiamondShape> _diamondShapes;
         public DiscountServiceTest()
         {
-            _diamondServices = new DiamondServices();
+            //_diamondServices = new DiamondServices();
             _discountService = new DiscountService(_diamondServices) ;
             _diamondShapes = new List<DiamondShape> {
                 DiamondShape.Create("Round",DiamondShapeId.Parse(1.ToString())),

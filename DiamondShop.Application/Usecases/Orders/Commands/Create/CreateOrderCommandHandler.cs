@@ -99,10 +99,6 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 {
                     errors.Add(new Error(cartModel.Products[index].ErrorMessage));
                 }
-                foreach (var index in cartModel.OrderValidation.UnavailableItemIndex)
-                {
-                    errors.Add(new Error(cartModel.Products[index].ErrorMessage));
-                }
             }
             if (errors.Count > 0) return Result.Fail(errors);
             //TODO: ADD seperate error validation

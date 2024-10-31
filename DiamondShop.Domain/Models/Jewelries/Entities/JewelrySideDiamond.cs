@@ -15,9 +15,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.Jewelries.Entities
 {
-    public class JewelrySideDiamond : Entity<JewelrySideDiamondId>
+    public class JewelrySideDiamond
     {
-        public JewelryId JewelryId { get; set; }
         public DiamondShapeId? DiamondShapeId { get; set; }   
         public DiamondShape? DiamondShape { get; set; }
         public float Carat { get; set; }
@@ -39,27 +38,24 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
         public float AverageCarat { get => (float)Carat / (float)Quantity; }
 
         private JewelrySideDiamond() { }
-        public static JewelrySideDiamond Create(JewelryId jewelryId, SideDiamondOpt sideDiamondOpt)
+        public static JewelrySideDiamond Create(SideDiamondOpt sideDiamondOpt)
         {
             return new JewelrySideDiamond()
             {
-                Id = JewelrySideDiamondId.Create(),
-                JewelryId = jewelryId,
                 Carat = sideDiamondOpt.CaratWeight,
                 Quantity = sideDiamondOpt.Quantity,
-                ColorMin = sideDiamondOpt.SideDiamondReq.ColorMin,
-                ColorMax = sideDiamondOpt.SideDiamondReq.ColorMax,
-                ClarityMin = sideDiamondOpt.SideDiamondReq.ClarityMin,
-                ClarityMax = sideDiamondOpt.SideDiamondReq.ClarityMax,
-                SettingType = sideDiamondOpt.SideDiamondReq.SettingType,
-                DiamondShapeId = sideDiamondOpt.SideDiamondReq.ShapeId,
+                ColorMin = sideDiamondOpt.ColorMin,
+                ColorMax = sideDiamondOpt.ColorMax,
+                ClarityMin = sideDiamondOpt.ClarityMin,
+                ClarityMax = sideDiamondOpt.ClarityMax,
+                SettingType = sideDiamondOpt.SettingType,
+                DiamondShapeId = sideDiamondOpt.ShapeId,
             };
         }
-        public static JewelrySideDiamond Create(JewelryId jewelryId, float carat, int quantity, Color colorMin, Color colorMax, Clarity clarityMin, Clarity clarityMax, SettingType settingType, JewelrySideDiamondId givenId = null)
+        public static JewelrySideDiamond Create(JewelryId jewelryId, float carat, int quantity, Color colorMin, Color colorMax, Clarity clarityMin, Clarity clarityMax, SettingType settingType)
         {
             return new JewelrySideDiamond()
             {
-                Id = givenId is null ? JewelrySideDiamondId.Create() : givenId,
                 Carat = carat,
                 Quantity = quantity,
                 ColorMin = colorMin,

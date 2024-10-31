@@ -73,12 +73,9 @@ namespace DiamondShop.Infrastructure.Databases
 
         public DbSet<Jewelry> Jewelrys { get; set; }
         public DbSet<JewelryReview> JewelryReviews { get; set; }
-       
-        public DbSet<JewelrySideDiamond> JewelrySideDiamonds { get; set; }
         public DbSet<MainDiamondReq> MainDiamonds { get; set; }
         public DbSet<MainDiamondShape> MainDiamondShapes { get; set; }
         public DbSet<SideDiamondOpt> SideDiamondOpts { get; set; }
-        public DbSet<SideDiamondReq> SideDiamondReqs { get; set; }
         public DbSet<JewelryModelCategory> JewelryModelCategories { get; set; }
         public DbSet<JewelryModel> JewelryModels { get; set; }
         public DbSet<Metal> Metals { get; set; }

@@ -158,11 +158,11 @@ namespace DiamondShop.Domain.Services.Implementations
             if (transaction == null)
                 throw new Exception("No transaction found");
             var refundAmount = transactions
-                .Sum(p => p.TotalAmount) * OrderPaymentRules.PayAllFine;
-            var fineAmount = order.TotalPrice - refundAmount;
+                .Sum(p => p.TotalAmount) * (1m - 0.01m * OrderPaymentRules.PayAllFine);
+            refundAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(refundAmount);
             if (transaction.IsManual)
             {
-                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id.Value}", refundAmount - fineAmount);
+                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id.Value}", refundAmount);
                 order.AddRefund(transac);
             }
             //Get Gateway refund

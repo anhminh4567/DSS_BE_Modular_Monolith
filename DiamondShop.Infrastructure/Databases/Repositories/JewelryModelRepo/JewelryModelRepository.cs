@@ -38,17 +38,13 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
             return await _set.FirstOrDefaultAsync(s => s.Id == id);
         }
 
-        public async Task<List<JewelryModel>> GetSellingModel(int skip = 0, int take = 20)
+        public IQueryable<JewelryModel> GetSellingModel()
         {
-            var _jewelSet = _dbContext.Set<JewelryModel>();
-            var query =
-                from m in _set
-                join j in _jewelSet on m.Id equals j.Id into jewelry
-                from j in _jewelSet.DefaultIfEmpty()
-                select j;
-            var grouping = query.ToLookup(p => p.Id);
-            var jewelries = await _jewelSet.ToListAsync();
-            return jewelries;
+            var query = _set.AsQueryable();
+            query = query.Include(p => p.SizeMetals).ThenInclude(p => p.Metal);
+            query = query.Include(p => p.SizeMetals).ThenInclude(p => p.Size);
+            query = query.Include(p => p.SideDiamonds);
+            return query.AsSplitQuery();
         }
 
     }

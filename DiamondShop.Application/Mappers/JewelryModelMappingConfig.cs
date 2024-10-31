@@ -24,8 +24,6 @@ namespace DiamondShop.Application.Mappers
 
             config.NewConfig<SideDiamondOpt, SideDiamondOptDto>();
 
-            config.NewConfig<SideDiamondReq, SideDiamondReqDto>();
-
             config.NewConfig<JewelryModelCategory, JewelryModelCategoryDto>();
 
         }

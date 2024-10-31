@@ -15,7 +15,7 @@ using MediatR;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
 {
-    public record ProceedOrderCommand(string orderId, string? delivererId) : IRequest<Result<Order>>;
+    public record ProceedOrderCommand(string orderId, string accountId) : IRequest<Result<Order>>;
     internal class ProceedOrderCommandHandler : IRequestHandler<ProceedOrderCommand, Result<Order>>
     {
         private readonly IAccountRepository _accountRepository;
@@ -41,7 +41,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
 
         public async Task<Result<Order>> Handle(ProceedOrderCommand request, CancellationToken token)
         {
-            request.Deconstruct(out string orderId, out string? delivererId);
+            request.Deconstruct(out string orderId, out string? accountId);
             await _unitOfWork.BeginTransactionAsync(token);
             var order = await _orderRepository.GetById(OrderId.Parse(orderId));
             if (order == null)
@@ -75,9 +75,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             }
             else if (order.Status == OrderStatus.Delivering)
             {
-                if (delivererId == null)
+                if (accountId == null)
                     return Result.Fail("No deliverer to assign.");
-                if (order.DelivererId?.Value != delivererId)
+                if (order.DelivererId?.Value != accountId)
                     return Result.Fail("Only the deliverer of this order can complete it.");
                 if (order.PaymentType == PaymentType.COD)
                     //TODO: Add payment here

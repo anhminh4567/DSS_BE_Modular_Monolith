@@ -31,12 +31,14 @@ namespace DiamondShop.Application
         private static IServiceCollection AddDomain(this IServiceCollection services, IConfiguration configuration) 
         {
             services.AddScoped<IDiamondServices, DiamondServices>();
-            services.AddSingleton<IPromotionServices, PromotionService>();
             services.AddScoped<IDiscountService, DiscountService>();
-            services.AddSingleton<IDeliveryService, DeliveryService>();
+            services.AddScoped<IDeliveryService, DeliveryService>();
             services.AddScoped<IJewelryService, JewelryService>();
+            services.AddScoped<IJewelryModelService, JewelryModelService>();
+            
             services.AddSingleton<IMainDiamondService, MainDiamondService>();
             services.AddSingleton<IOrderService, OrderService>();
+            services.AddSingleton<IPromotionServices, PromotionService>();
 
             services.AddScoped<IOrderTransactionService, OrderTransactionService>();
             services.AddScoped<ICartModelService, CartModelService>();

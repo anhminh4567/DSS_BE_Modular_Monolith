@@ -21,8 +21,6 @@ namespace DiamondShop.Domain.Models.Jewelries
         public Metal Metal { get; set; }
         public float Weight { get; set; }
         public string SerialCode { get; set; }
-        [NotMapped]
-        public string Name { get; set; }
         [NotMapped] // this is not sold price, this is just price from diamond and jewelry, no discount or promotion is applied
         public decimal TotalPrice
         {
@@ -53,13 +51,14 @@ namespace DiamondShop.Domain.Models.Jewelries
         }
 
         public List<Diamond> Diamonds { get; set; } = new();
-        public List<JewelrySideDiamond>? SideDiamonds { get; set; } = new();
+        public JewelrySideDiamond? SideDiamond { get; set; }
         public JewelryReviewId? ReviewId { get; set; }
         public JewelryReview? Review { get; set; }
 
         public Media? Thumbnail { get; set; }
 
         public decimal? ND_Price { get; set; }
+        public decimal? SD_Price { get; set; }
         public decimal? D_Price { get; set; }
         public decimal? SoldPrice { get; set; }
         public string? EngravedText { get; set; }
@@ -68,8 +67,8 @@ namespace DiamondShop.Domain.Models.Jewelries
 
         private Jewelry() { }
         public static Jewelry Create(
-            JewelryModelId modelId, SizeId sizeId, MetalId metalId,
-            float weight, string serialCode, ProductStatus status, JewelryId givenId = null)
+           JewelryModelId modelId, SizeId sizeId, MetalId metalId,
+           float weight, string serialCode, ProductStatus status, JewelryId givenId = null)
         {
             return new Jewelry()
             {
@@ -82,6 +81,22 @@ namespace DiamondShop.Domain.Models.Jewelries
                 Status = status,
             };
         }
+        public static Jewelry Create(
+            JewelryModelId modelId, SizeId sizeId, MetalId metalId,
+            float weight, string serialCode, ProductStatus status, JewelrySideDiamond? sideDiamond, JewelryId givenId = null)
+        {
+            return new Jewelry()
+            {
+                Id = givenId is null ? JewelryId.Create() : givenId,
+                ModelId = modelId,
+                SizeId = sizeId,
+                MetalId = metalId,
+                Weight = weight,
+                SerialCode = serialCode,
+                SideDiamond = sideDiamond,
+                Status = status,
+            };
+        }
         public void SetSold(decimal noDiamondPrice, decimal soldPrice)
         {
 
@@ -89,6 +104,11 @@ namespace DiamondShop.Domain.Models.Jewelries
             ND_Price = noDiamondPrice;
             D_Price = soldPrice - noDiamondPrice;
             SoldPrice = soldPrice;
+            Diamonds.ForEach(p =>
+            {
+                if (p.TruePrice != null)
+                    p.SetSold(p.TruePrice, p.TruePrice);
+            });
         }
         public void SetSell()
         {

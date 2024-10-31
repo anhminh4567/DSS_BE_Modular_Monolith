@@ -29,9 +29,8 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
                         .MaximumLength(SerialCodeRule.MaxLength);
                 });
 
-            RuleForEach(p => p.SideDiamondOptIds)
-                .NotEmpty()
-                .When(p => p.SideDiamondOptIds != null);
+            RuleForEach(p => p.SideDiamondOptId)
+                .NotEmpty();
         }
     }
 }

@@ -59,6 +59,24 @@ namespace DiamondShop.Domain.Models.AccountAggregate
             user.AddRole(roleToAdd);
             return user;
         }
+        public static Account CreateBaseManager(FullName fullName, string email, string identityId, List<AccountRole> allRoles)
+        {
+            var user = Create(fullName, email);
+            user.SetIdentity(identityId);
+            AccountRole roleToAdd = allRoles.First(r => r.Id == AccountRole.Staff.Id);
+            user.AddRole(roleToAdd);
+            roleToAdd = allRoles.First(r => r.Id == AccountRole.Manager.Id);
+            user.AddRole(roleToAdd);
+            return user;
+        }
+        public static Account CreateBaseDeliverer(FullName fullName, string email, string identityId, List<AccountRole> allRoles)
+        {
+            var user = Create(fullName, email);
+            user.SetIdentity(identityId);
+            AccountRole roleToAdd = allRoles.First(r => r.Id == AccountRole.Deliverer.Id);
+            user.AddRole(roleToAdd);
+            return user;
+        }
         public static Account CreateAdmin(FullName fullName, string email, string identityId, List<AccountRole> allRoles)
         {
             var user = Create(fullName, email);

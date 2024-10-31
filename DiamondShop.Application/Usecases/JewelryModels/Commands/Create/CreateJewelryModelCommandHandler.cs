@@ -1,11 +1,10 @@
 ﻿using DiamondShop.Application.Dtos.Requests.JewelryModels;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.MainDiamonds.Commands.Create;
-using DiamondShop.Application.Usecases.SideDiamonds.Commands;
+using DiamondShop.Application.Usecases.ModelSideDiamonds.Commands;
 using DiamondShop.Application.Usecases.SizeMetals.Commands.Create;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.JewelryModels;
-using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using FluentResults;
@@ -63,7 +62,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
                 foreach (var sideDiamondSpec in sideDiamondSpecs)
                 {
 
-                    var flagSideDiamond = await _sender.Send(new CreateSideDiamondCommand(newModel.Id, sideDiamondSpec));
+                    var flagSideDiamond = await _sender.Send(new CreateModelSideDiamondCommand(newModel.Id, sideDiamondSpec));
                     if (flagSideDiamond.IsFailed) return Result.Fail(flagSideDiamond.Errors);
                     newModel.SideDiamonds.Add(flagSideDiamond.Value);
                 }

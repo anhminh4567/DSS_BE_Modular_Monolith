@@ -1,58 +1,9 @@
-[
-  {
-    "jewelryRequest": {
-      "modelId": "e6ec27b4-24e6-479c-8b68-889e01561557",
-      "sizeId": "3",
-      "metalId": "1",
-      "serialCode": "MODEL_TEST"
-    },
-    "sideDiamondOptIds": [
-      "bd4685ac-658c-4b87-8dad-19b9a2b29588"
-    ],
-    "attachedDiamondIds": [
-      "5321d523-0cc3-4862-a9b7-76c304e6d7db"
-    ],
-    "expectedResult": true
-  },
-  {
-    "jewelryRequest": {
-      "modelId": "1a28f791-56d4-4d09-a216-d2ce17e85e1d",
-      "sizeId": "3",
-      "metalId": "1",
-      "serialCode": "MODEL_TEST_NO_DIAMOND"
-    },
-    "sideDiamondOptIds": [
-      "bd4685ac-658c-4b87-8dad-19b9a2b29588"
-    ],
-    "expectedResult": true
-  },
-  {
-    "jewelryRequest": {
-      "modelId": "3e1e0817-84a9-44a4-a955-3f2406dddfe2",
-      "sizeId": "5",
-      "metalId": "3",
-      "serialCode": "RING_1",
-      "attachDiamond": true,
-      "isActive": true
-    },
-    "sideDiamondOptIds": [
-      "d4906d1c-7d52-4108-b72c-8b74448cb64b"
-    ],
-    "attachedDiamondIds": [
-      "f00c1a91-868c-4447-961d-7c7c25167626"
-    ]
-  },
-  {
-    "jewelryRequest": {
-      "modelId": "869c887a-5730-490c-a8d5-75e90f51ad20",
-      "sizeId": "3",
-      "metalId": "4",
-      "serialCode": "NECKLACE_1",
-      "attachDiamond": true,
-      "isActive": true
-    },
-    "attachedDiamondIds": [
-      "988865cf-a17e-456b-a4e4-85e9d407f9d3"
-    ]
+{
+  "jewelryRequest": {
+    "modelId": "8460bf2a-2a23-4859-984b-2e7171946f4b",
+    "sizeId": "3",
+    "metalId": "1",
+    "serialCode": "VNR202",
+    "status": 1
   }
-]
+}
