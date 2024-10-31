@@ -11,5 +11,6 @@ namespace DiamondShop.Domain.Repositories
     public interface IDiamondShapeRepository : IBaseRepository<DiamondShape>
     {
         Task<bool> IsAnyItemHaveThisShape(DiamondShapeId diamondShapeId, CancellationToken cancellationToken = default);
+        Task<List<DiamondShape>> GetAllIncludeSpecialShape(CancellationToken cancellationToken = default);
     }
 }

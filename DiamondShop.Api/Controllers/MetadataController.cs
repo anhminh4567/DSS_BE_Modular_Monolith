@@ -1,4 +1,5 @@
-﻿using FluentResults;
+﻿using DiamondShop.Application.Services.Interfaces;
+using FluentResults;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -14,11 +15,13 @@ namespace DiamondShop.Api.Controllers
     {
         private readonly IMapper _mapper;
         private readonly ISender _sender;
+        private readonly IApplicationSettingService _applicationSettingService;
 
-        public MetadataController(IMapper mapper, ISender sender)
+        public MetadataController(IMapper mapper, ISender sender, IApplicationSettingService applicationSettingService)
         {
             _mapper = mapper;
             _sender = sender;
+            _applicationSettingService = applicationSettingService;
         }
 
         [HttpGet]
@@ -66,6 +69,11 @@ namespace DiamondShop.Api.Controllers
             // List of assemblies to scan
 
             return Ok(response);
+        }
+        [HttpGet("Settings")]
+        public async Task<ActionResult> PrintAllSettings()
+        {
+            return Ok();
         }
     }
 }

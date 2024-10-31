@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.Diamonds;
+﻿using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
@@ -37,6 +38,13 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondConfig
             {
                 childBuilder.ToJson();
             });
+            builder.OwnsOne(o => o.ProductLock, childBuilder =>
+            {
+                childBuilder.Property(o => o.AccountId)
+                .HasConversion( 
+                    Id => Id.Value,
+                    dbValue => AccountId.Parse(dbValue));
+            });
             builder.OwnsMany(o => o.Gallery, childBuilder =>
             {
                 childBuilder.ToJson();
@@ -52,6 +60,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondConfig
             //builder.Property(o => o.Culet).HasConversion<string>();
             //builder.Property(o => o.Fluorescence).HasConversion<string>();
             builder.HasKey(o => o.Id);
+            builder.HasIndex(o => new { o.Carat, o.Color, o.Clarity, o.Cut, o.IsLabDiamond, o.JewelryId });
             builder.HasQueryFilter(x => x.Status == Domain.Common.Enums.ProductStatus.Active);
             //builder.HasIndex(o => o.Id);
         }

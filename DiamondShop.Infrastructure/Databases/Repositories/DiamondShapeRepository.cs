@@ -16,6 +16,12 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         public DiamondShapeRepository(DiamondShopDbContext dbContext) : base(dbContext)
         {
         }
+
+        public Task<List<DiamondShape>> GetAllIncludeSpecialShape(CancellationToken cancellationToken = default)
+        {
+            return _set.IgnoreQueryFilters().ToListAsync(cancellationToken);
+        }
+
         public override async Task<DiamondShape?> GetById(params object[] ids)
         {
             DiamondShapeId id = (DiamondShapeId)ids[0];

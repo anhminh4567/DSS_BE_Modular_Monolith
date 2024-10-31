@@ -24,7 +24,9 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondShapeConfig
             DiamondShape.Create("Asscher",DiamondShapeId.Parse(7.ToString())),
             DiamondShape.Create("Marquise",DiamondShapeId.Parse(8.ToString())),
             DiamondShape.Create("Heart",DiamondShapeId.Parse(9.ToString())),
-            DiamondShape.Create("Pear",DiamondShapeId.Parse(10.ToString()))
+            DiamondShape.Create("Pear",DiamondShapeId.Parse(10.ToString())),
+            DiamondShape.ANY_SHAPES,
+            DiamondShape.FANCY_SHAPES,
         };
         public void Configure(EntityTypeBuilder<DiamondShape> builder)
         {
@@ -33,6 +35,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondShapeConfig
             builder.HasKey(a => a.Id);
             //builder.HasIndex(a => a.Id);
             builder.HasData(SHAPES);
+            builder.HasQueryFilter(x => x.Id != DiamondShape.ANY_SHAPES.Id && x.Id != DiamondShape.FANCY_SHAPES.Id);
         }
     }
 }

@@ -56,6 +56,7 @@ namespace DiamondShop.Infrastructure.Databases
         }
         // Outbox Related //
         internal DbSet<OutboxMessages> OutboxMessages { get; set; }
+        internal DbSet<ApplicationSettings> ApplicationSettings{ get; set; }
         //Roles Related//
         #region Dbset
         public DbSet<AccountRole> AccountRoles { get; set; }
