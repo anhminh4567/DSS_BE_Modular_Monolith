@@ -4,6 +4,7 @@ using DiamondShop.Application.Usecases.Diamonds.Commands.Create;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Delete;
 using DiamondShop.Application.Usecases.Diamonds.Commands.LockForUser;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetAll;
+using DiamondShop.Application.Usecases.Diamonds.Queries.GetAllAdmin;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetAllAttributes;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging;
@@ -45,6 +46,14 @@ namespace DiamondShop.Api.Controllers.Diamonds
             var mappedResult = _mapper.Map<List<DiamondDto>>(result);
             return Ok(mappedResult);
         }
+        [HttpGet("All/Admin")]
+        [Produces(typeof(List<DiamondDto>))]
+        public async Task<ActionResult> GetAllAdmin()
+        {
+            var result = await _sender.Send(new GetAllDiamondAdminQuery());
+            var mappedResult = _mapper.Map<List<DiamondDto>>(result);
+            return Ok(mappedResult);
+        }
         [HttpGet("{id}")]
         [Produces(typeof(DiamondDto))]
         public async Task<ActionResult> Get([FromRoute] string id )
@@ -81,7 +90,6 @@ namespace DiamondShop.Api.Controllers.Diamonds
                 var mappedResult = _mapper.Map<DiamondDto>(result.Value);
                 return Ok(mappedResult);
             }
-
             return MatchError(result.Errors, ModelState);
         }
         [HttpPut("Lock")]
