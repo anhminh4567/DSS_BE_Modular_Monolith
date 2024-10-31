@@ -12,11 +12,8 @@ namespace DiamondShop.Domain.Models.DiamondShapes
 {
     public class DiamondShape : Entity<DiamondShapeId> , IAggregateRoot
     {
-        public static List<DiamondShape> All_Fancy_Shape = new List<DiamondShape>
-        {
-            PRINCESS,CUSHION,EMERALD,OVAL,RADIANT,ASSCHER,MARQUISE,HEART,PEAR
-        };
-        public static List<DiamondShape> All_Shape = new List<DiamondShape>(All_Fancy_Shape) { ROUND };
+        public static List<DiamondShape> All_Fancy_Shape { get; private set; }
+        public static List<DiamondShape> All_Shape { get; private set; }
         public static DiamondShape ANY_SHAPES = Create("Any",DiamondShapeId.Parse("99"));
         public static DiamondShape FANCY_SHAPES = Create("Fancy_Shape", DiamondShapeId.Parse("98"));
 
@@ -30,15 +27,20 @@ namespace DiamondShop.Domain.Models.DiamondShapes
         public static DiamondShape MARQUISE = Create("Marquise", DiamondShapeId.Parse(8.ToString()));
         public static DiamondShape HEART = Create("Heart", DiamondShapeId.Parse(9.ToString()));
         public static DiamondShape PEAR = Create("Pear", DiamondShapeId.Parse(10.ToString()));
+        static DiamondShape()
+        {
+            // Initialize the static lists here
+            All_Fancy_Shape = new List<DiamondShape>
+            {
+                PRINCESS, CUSHION, EMERALD, OVAL, RADIANT, ASSCHER, MARQUISE, HEART, PEAR,FANCY_SHAPES
+            };
+            All_Shape = new List<DiamondShape>(All_Fancy_Shape) { ROUND };
+        }
+
         public string Shape { get; private set; }
         public List<PromoReqShape> PromoReqShapes { get; set; } = new();
 
         public DiamondShape() { }
-        public static DiamondShape AnyShape = new DiamondShape
-        {
-            Id = DiamondShapeId.Parse("-1"),
-            Shape = "Any"
-        };
         public static DiamondShape Create(string shape, DiamondShapeId? givenId = null)
         {
             return new DiamondShape() 

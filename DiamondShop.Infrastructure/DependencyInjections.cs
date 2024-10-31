@@ -188,6 +188,7 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IDiamondFileService, DiamondFileService>();
             services.AddScoped<IExcelService, ExcelSyncfunctionService>();
             services.AddScoped<IJewelryModelFileService, JewelryModelFileService>();
+            services.AddSingleton<IApplicationSettingService, ApplicationSettingService>();
 
             var serviceProviderInstrance = services.BuildServiceProvider();
             var mailOptions = serviceProviderInstrance.GetRequiredService<IOptions<MailOptions>>().Value;

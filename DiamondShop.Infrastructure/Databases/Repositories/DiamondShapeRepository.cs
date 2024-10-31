@@ -25,7 +25,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         public override async Task<DiamondShape?> GetById(params object[] ids)
         {
             DiamondShapeId id = (DiamondShapeId)ids[0];
-            return await _set.FirstOrDefaultAsync(s => s.Id == id);
+            return await _set.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == id);
         }
         public async Task<bool> IsAnyItemHaveThisShape(DiamondShapeId diamondShapeId, CancellationToken cancellationToken = default)
         {

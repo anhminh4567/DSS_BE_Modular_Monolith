@@ -14,7 +14,11 @@ namespace DiamondShop.Domain.BusinessRules
     }
     public class DiamondRule
     {
-        public static string Type = typeof(DiamondRule).Name;
+        public static DiamondRule Default = new DiamondRule();
+        public static string Type = typeof(DiamondRule).AssemblyQualifiedName;
+        public static string key = "DiamondRule";
+        public decimal MinPriceOffsetPercent { get; set; } = 10;
+        public decimal MaxPriceOffsetPercent { get; set; } = 190;
         public decimal BiggestSideDiamondCarat { get; set; } = 0.2M;
     }
 }

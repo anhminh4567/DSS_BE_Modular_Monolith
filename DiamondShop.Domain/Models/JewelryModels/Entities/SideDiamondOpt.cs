@@ -28,6 +28,8 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
         public float CaratWeight { get; set; }
         public int Quantity { get; set; }
         [NotMapped]
+        public bool IsFancyShape { get => DiamondShape.IsFancyShape(ShapeId); }
+        [NotMapped]
         public decimal Price { get; set; }
         [NotMapped]
         public string Name { get => $"{ClarityMin.ToString() + "-" + ClarityMax.ToString()}({CaratWeight} Tw)"; }

@@ -122,6 +122,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         public void SetSell()
         {
             Status = ProductStatus.Active;
+            ProductLock = null;
             SoldPrice = null;
             DefaultPrice = null;
             ProductLock = null;

@@ -27,6 +27,8 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
         public Clarity ClarityMax { get; set; }
         public SettingType SettingType { get; set; }
         [NotMapped]
+        public bool IsFancyShape { get => DiamondShape.IsFancyShape(DiamondShapeId); }
+        [NotMapped]
         public List<DiamondPrice> DiamondPrice { get; set; } = new();
         [NotMapped]
         public int TotalPriceMatched{ get; set; } = 0;

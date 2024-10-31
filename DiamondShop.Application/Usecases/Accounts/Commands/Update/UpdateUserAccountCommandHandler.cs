@@ -28,12 +28,14 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.Update
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAccountRepository _accountRepository;
         private readonly ILogger<UpdateUserAccountCommandHandler> _logger;
+        private readonly IApplicationSettingService _applicationSettingService;
 
-        public UpdateUserAccountCommandHandler(IUnitOfWork unitOfWork, IAccountRepository accountRepository, ILogger<UpdateUserAccountCommandHandler> logger)
+        public UpdateUserAccountCommandHandler(IUnitOfWork unitOfWork, IAccountRepository accountRepository, ILogger<UpdateUserAccountCommandHandler> logger, IApplicationSettingService applicationSettingService)
         {
             _unitOfWork = unitOfWork;
             _accountRepository = accountRepository;
             _logger = logger;
+            _applicationSettingService = applicationSettingService;
         }
 
         public async Task<Result<Account>> Handle(UpdateUserAccountCommand request, CancellationToken cancellationToken)
@@ -87,11 +89,15 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.Update
         private void AddAddress(Account account, ChangedAddress changedAddress)
         {
             _logger.LogInformation("Add address function is called");
+            AccountRules getRules = AccountRules.Default;
+            var getAddressLimit = _applicationSettingService.Get(AccountRules.key);
+            if (getAddressLimit != null)
+                getRules = (AccountRules)getAddressLimit;
             if (changedAddress.addedAddress is not null)
             {
                 foreach (var address in changedAddress.addedAddress)
                 {
-                    if (account.Addresses.Count >= AccountRules.MaxAddress)
+                    if (account.Addresses.Count >= getRules.MaxAddress)
                         return;
                     account.AddAddress(address.Province, address.District, address.Ward, address.Street);
                 }

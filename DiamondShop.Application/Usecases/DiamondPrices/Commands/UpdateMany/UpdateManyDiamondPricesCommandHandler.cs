@@ -3,6 +3,7 @@ using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
+using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
@@ -39,6 +40,8 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
             var getShape = await _diamondShapeRepository.GetById(parsedShapeId);
             if (getShape == null)
                 return Result.Fail(new NotFoundError());
+            if (getShape.Id != DiamondShape.ROUND.Id && getShape.Id != DiamondShape.FANCY_SHAPES.Id)
+                return Result.Fail("the shape for price can only be Round brilliant or Fancy, which is round and the rest of the shape");
             List<(DiamondCriteriaId criteriaId, decimal normalizedPrice)> parsedList =
                 request.updatedDiamondPrices
                 .Select(x => (DiamondCriteriaId.Parse(x.diamondCriteriaId), MoneyVndRoundUpRules.RoundAmountFromDecimal(x.price))

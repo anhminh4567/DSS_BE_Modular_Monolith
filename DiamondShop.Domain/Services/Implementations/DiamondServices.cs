@@ -3,6 +3,7 @@ using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
+using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
@@ -92,11 +93,9 @@ namespace DiamondShop.Domain.Services.Implementations
                 }
                 continue;
             }
-            //throw new Exception("somehow none of the price match the diamond");
             var emptyPrice = DiamondPrice.CreateUnknownPrice(diamond.DiamondShapeId, null, diamond.IsLabDiamond);
             diamond.DiamondPrice = emptyPrice;
             diamond.SetCorrectPrice(diamond.DiamondPrice.Price);
-            //emptyPrice.ForUnknownPrice = "unknown , please contact us for more information";
             return emptyPrice;
         }
         public static bool ValidateDiamond4CGlobal(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo, Cut cutFrom, Cut cutTo)
@@ -142,7 +141,7 @@ namespace DiamondShop.Domain.Services.Implementations
         }
         public async Task<List<DiamondPrice>> GetSideDiamondPrice(JewelrySideDiamond sideDiamond)
         {
-            List<DiamondPrice> diamondPrices = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamond.AverageCarat);
+            List<DiamondPrice> diamondPrices = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamond.AverageCarat,sideDiamond.IsFancyShape);
             return await GetSideDiamondPriceGlobal(sideDiamond, diamondPrices);
         }
         public static async Task<List<DiamondPrice>> GetSideDiamondPriceGlobal(JewelrySideDiamond sideDiamond, List<DiamondPrice> diamondPrices)
@@ -153,7 +152,6 @@ namespace DiamondShop.Domain.Services.Implementations
                 var isMatchPrice = IsMatchSideDiamondPrice(sideDiamond, price);
                 if (isMatchPrice)
                 {
-                    //decimal correctOffsetPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(price.Price);
                     sideDiamond.DiamondPrice.Add(price);
                 }
                 continue;
@@ -164,12 +162,17 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             sideDiamond.DiamondPrice = matchPrices;
             sideDiamond.AveragePrice = matchPrices.Average(p => p.Price);
-            //emptyPrice.ForUnknownPrice = "unknown , please contact us for more information";
             return sideDiamond.DiamondPrice;
         }
         private static bool IsCorrectPrice(Diamond diamond, DiamondPrice price)
         {
-            if (diamond.DiamondShape.Id != price.ShapeId)
+            //if (diamond.DiamondShape.Id != price.ShapeId)
+            //{
+            //    return false;
+            //}
+            var isPriceFancyShape = DiamondShape.IsFancyShape(price.ShapeId);
+            var isDiamondFancyShape = DiamondShape.IsFancyShape(diamond.DiamondShapeId);
+            if(isPriceFancyShape != isDiamondFancyShape)
             {
                 return false;
             }
@@ -198,7 +201,7 @@ namespace DiamondShop.Domain.Services.Implementations
 
         public async Task<List<DiamondPrice>> GetSideDiamondPrice(SideDiamondOpt sideDiamondOption)
         {
-            List<DiamondPrice> diamondPrices = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamondOption.AverageCarat);
+            List<DiamondPrice> diamondPrices = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamondOption.AverageCarat,sideDiamondOption.IsFancyShape);
             JewelrySideDiamond fakeDiamond = JewelrySideDiamond.Create(JewelryId.Create(), sideDiamondOption.CaratWeight, sideDiamondOption.Quantity, sideDiamondOption.ColorMin, sideDiamondOption.ColorMax, sideDiamondOption.ClarityMin, sideDiamondOption.ClarityMax, sideDiamondOption.SettingType);
             var price = await GetSideDiamondPriceGlobal(fakeDiamond, diamondPrices);
             return price;

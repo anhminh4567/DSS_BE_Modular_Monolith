@@ -45,7 +45,7 @@ namespace DiamondShop.Api.Controllers.Diamonds
             }
             return MatchError(result.Errors, ModelState);
         }
-        [HttpPost("/Range/MainDiamond")]
+        [HttpPost("Range/MainDiamond")]
         [Produces(typeof(DiamondCriteriaDto))]
         public async Task<ActionResult> CreateFromRange([FromBody] CreateCriteriaFromRangeCommand command)
         {
@@ -57,7 +57,7 @@ namespace DiamondShop.Api.Controllers.Diamonds
             }
             return MatchError(result.Errors, ModelState);
         }
-        [HttpPost("/Range/SideDiamond")]
+        [HttpPost("Range/SideDiamond")]
         [Produces(typeof(DiamondCriteriaDto))]
         public async Task<ActionResult> CreateFromRangeSideDimamond([FromBody] CreateCriteriaFromRangeCommand command)
         {

@@ -26,7 +26,7 @@ namespace DiamondShop.Application.Services.Interfaces.JewelryModels
         Task<List<Media>> GetFolders(JewelryModel jewelryModel, CancellationToken cancellationToken = default);
         GalleryTemplate MapPathsToCorrectGallery(JewelryModel jewelryModel, List<Media> paths, CancellationToken cancellationToken = default);
     }
-    public record CategoryFileData(MetalId MetalId, List<SideDiamondOpt>? SideDiamondOpts, List<MainDiamondShape>? MainDiamonds, FileData stream  );
+    public record CategoryFileData(MetalId MetalId, SideDiamondOpt SideDiamondOpts, List<MainDiamondShape>? MainDiamonds, FileData stream  );
     public record BaseMetalFileData(MetalId MetalId, FileData stream);
     public record BaseMainDiamondFileData(List<MainDiamondReq> MainDiamondRequirements, FileData stream);
     public record BaseSideDiamondFileData(SideDiamondOpt SideDiamondOpt, FileData stream);

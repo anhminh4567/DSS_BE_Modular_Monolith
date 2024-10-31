@@ -23,8 +23,8 @@ namespace DiamondShop.Infrastructure.Services
             Console.WriteLine("Application start, begin loading necessary data");
             Console.ResetColor();
             using var scope = _serviceProvider.CreateScope();
-            //var settingsCache = scope.ServiceProvider.GetRequiredService<IApplicationSettingService>();
-            //settingsCache.ReloadAllConfiguration();
+            var settingsCache = scope.ServiceProvider.GetRequiredService<IApplicationSettingService>();
+            settingsCache.InitConfiguration();
             return;
         }
 

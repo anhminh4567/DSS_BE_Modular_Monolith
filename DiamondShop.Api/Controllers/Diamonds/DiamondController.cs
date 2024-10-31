@@ -2,6 +2,7 @@
 using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Create;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Delete;
+using DiamondShop.Application.Usecases.Diamonds.Commands.LockForUser;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetAll;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetAllAttributes;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail;
@@ -75,6 +76,19 @@ namespace DiamondShop.Api.Controllers.Diamonds
         public async Task<ActionResult> Create([FromBody] CreateDiamondCommand createDiamondCommand)
         {
             var result = await _sender.Send(createDiamondCommand);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<DiamondDto>(result.Value);
+                return Ok(mappedResult);
+            }
+
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPut("Lock")]
+        [Produces(typeof(DiamondDto))]
+        public async Task<ActionResult> SetLock([FromBody] LockDiamondForUserCommand lockDiamondForUserCommand)
+        {
+            var result = await _sender.Send(lockDiamondForUserCommand);
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<DiamondDto>(result.Value);

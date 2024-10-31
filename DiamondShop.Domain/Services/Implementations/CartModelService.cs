@@ -4,7 +4,9 @@ using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.DeliveryFees;
+using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
@@ -18,6 +20,8 @@ using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -178,7 +182,9 @@ namespace DiamondShop.Domain.Services.Implementations
             // price 0 is default for new CheckoutPrice();
             if (cartProduct.Diamond is not null)
             {
-                var prices = _diamondPriceRepository.GetPriceByShapes(cartProduct.Diamond.DiamondShape,cartProduct.Diamond.IsLabDiamond).Result;
+                bool isFancyShape = DiamondShape.IsFancyShape(cartProduct.Diamond.DiamondShapeId);
+                List<DiamondPrice> prices = new();
+                prices = _diamondPriceRepository.GetPrice(isFancyShape,cartProduct.Diamond.IsLabDiamond).Result;
                 var diamondPrice = _diamondServices.GetDiamondPrice(cartProduct.Diamond, prices).Result;
                 reviewPrice.DefaultPrice = cartProduct.Diamond.TruePrice;
             }

@@ -9,6 +9,7 @@ namespace DiamondShop.Application.Services.Interfaces
     public interface IApplicationSettingService
     {
         void ReloadAllConfiguration();
+        void InitConfiguration();
         object? Get(string key);
         object Set(string key, object value);
     }

@@ -14,7 +14,9 @@ namespace DiamondShop.Domain.BusinessRules
     }
     public class PromotionRule
     {
-        public static string Type = typeof(PromotionRule).Name;
+        public static PromotionRule Default = new PromotionRule();
+        public static string key = "PromotionRule";
+        public static string Type = typeof(PromotionRule).AssemblyQualifiedName;
         public int MaxDiscountPercent { get; set; } = 90;
         public int MinCode { get; set; } = 10;
         public int MaxCode { get; set; } = 16;

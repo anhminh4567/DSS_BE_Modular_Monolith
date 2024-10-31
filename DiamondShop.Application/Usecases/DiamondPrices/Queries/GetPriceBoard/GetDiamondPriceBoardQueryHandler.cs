@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
 {
     // cut is not required, might leave it as it be
-    public record GetDiamondPriceBoardQuery(string shapeId, bool isLabDiamond, Cut? Cut = Cut.Excelent, bool IsSideDiamond = false) : IRequest<Result<DiamondPriceBoardDto>>;
+    public record GetDiamondPriceBoardQuery(bool isFancyShapePrice, bool isLabDiamond, Cut? Cut = Cut.Excelent, bool IsSideDiamond = false) : IRequest<Result<DiamondPriceBoardDto>>;
     internal class GetDiamondPriceBoardQueryHandler : IRequestHandler<GetDiamondPriceBoardQuery, Result<DiamondPriceBoardDto>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
@@ -39,21 +39,29 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
 
         public async Task<Result<DiamondPriceBoardDto>> Handle(GetDiamondPriceBoardQuery request, CancellationToken cancellationToken)
         {
-            var shapeId = DiamondShapeId.Parse(request.shapeId);
-            var getShape = await _diamondShapeRepository.GetById(shapeId);
-            if (getShape is null)
-                return Result.Fail(new NotFoundError("Shape not found"));
+            //var shapeId = DiamondShapeId.Parse(request.shapeId);
+            //var getShape = await _diamondShapeRepository.GetById(shapeId);
+            //if (getShape is null)
+            //    return Result.Fail(new NotFoundError("Shape not found"));
+            DiamondShape priceBoardMainShape;
+            if(request.isFancyShapePrice)
+            {
+                priceBoardMainShape = await _diamondShapeRepository.GetById(DiamondShape.FANCY_SHAPES.Id); //DiamondShape.FANCY_SHAPES;
+            }
+            else
+            {
+                priceBoardMainShape = await _diamondShapeRepository.GetById(DiamondShape.ROUND.Id);//DiamondShape.ROUND;
+            }
             List<DiamondPrice> prices = new();
-            //List<(float CaratFrom, float CaratTo)> criteriasCarat = new();
             Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>> criteriasByGrouping = new();
 
             DiamondPriceBoardDto priceBoard = DiamondPriceBoardDto.Create();
             priceBoard.MainCut = request.Cut.Value;
-            priceBoard.Shape = _mapper.Map<DiamondShapeDto>(getShape);
+            priceBoard.Shape = _mapper.Map<DiamondShapeDto>(priceBoardMainShape);
             priceBoard.IsLabDiamondBoardPrices = request.isLabDiamond;
             if (request.IsSideDiamond == false)
             {
-                prices = await _diamondPriceRepository.GetPriceByShapes(getShape, request.isLabDiamond, cancellationToken);
+                prices = await _diamondPriceRepository.GetPriceByShapes(priceBoardMainShape, request.isLabDiamond, cancellationToken);
                 priceBoard.IsSideDiamondBoardPrices = false;
                 //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableCaratRange( cancellationToken);
                 criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableCriteria(cancellationToken));
@@ -62,7 +70,6 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             else
             {
                 prices = await _diamondPriceRepository.GetSideDiamondPrice(request.isLabDiamond, cancellationToken);
-                priceBoard.Shape = _mapper.Map<DiamondShapeDto>(DiamondShape.AnyShape);
                 priceBoard.IsSideDiamondBoardPrices = true;
                 //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCaratRange(cancellationToken);
                 criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCriteria(cancellationToken));
@@ -112,6 +119,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             { 
                 x.CellMatrix = new DiamondPriceCellDataDto[colorRange.Count, clarityRange.Count];
                 x.FillAllCellsWithUnknonwPrice(); 
+
             } );
 
             createTable.ForEach(x =>
@@ -123,6 +131,8 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
                     var prices = getCorrectGroupPrice.TableItem;
                     x.MapPriceToCells(prices);
                 }
+                if (x.IsAnyPriceUncover)
+                    priceBoard.UncoveredTableCaratRange.Add((x.CaratFrom, x.CaratTo));
             });
             
             priceBoard.PriceTables = createTable;
