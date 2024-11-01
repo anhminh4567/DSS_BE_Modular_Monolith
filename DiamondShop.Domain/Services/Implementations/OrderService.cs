@@ -44,7 +44,7 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             return ongoingState.Contains(status);
         }
-        public async Task CancelItems(Order order, IOrderRepository _orderRepo, IOrderItemRepository _itemRepo, IJewelryRepository _jewelRepo, IDiamondRepository _diamondRepo)
+        public async Task<Result> CancelItems(Order order, IOrderRepository _orderRepo, IOrderItemRepository _itemRepo, IJewelryRepository _jewelRepo, IDiamondRepository _diamondRepo)
         {
             var orderItemQuery = _itemRepo.GetQuery();
             orderItemQuery = _itemRepo.QueryFilter(orderItemQuery, p => p.OrderId == order.Id);
@@ -67,7 +67,7 @@ namespace DiamondShop.Domain.Services.Implementations
                             {
                                 foreach (var diamond in jewelry.Diamonds)
                                 {
-                                    diamond.SetSell();
+                                    diamond.SetDeactivate();
                                     diamonds.Add(diamond);
                                 }
                             }
@@ -89,9 +89,12 @@ namespace DiamondShop.Domain.Services.Implementations
                     item.Status = OrderItemStatus.Removed;
                 }
             }
+            if (errors.Count > 0)
+                return Result.Fail(errors);
             _itemRepo.UpdateRange(items);
             _jewelRepo.UpdateRange(jewelries);
             _diamondRepo.UpdateRange(diamonds);
+            return Result.Ok();
         }
 
         public Result CheckWarranty(string? jewelryId, string? diamondId, WarrantyType warrantyType)

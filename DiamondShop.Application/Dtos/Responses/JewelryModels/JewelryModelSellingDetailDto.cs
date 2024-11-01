@@ -14,6 +14,7 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         public BackType? BackType { get; set; }
         public ClaspType? ClaspType { get; set; }
         public ChainType? ChainType { get; set; }
+        public List<MainDiamondReqDto> MainDiamonds { get; set; } = new();
         public List<SellingDetailMetalDto> MetalGroups;
         public List<SideDiamondOptDto>? SideDiamonds { get; set; } = new();
         public List<JewelryReviewDto>? Reviews { get; set; }

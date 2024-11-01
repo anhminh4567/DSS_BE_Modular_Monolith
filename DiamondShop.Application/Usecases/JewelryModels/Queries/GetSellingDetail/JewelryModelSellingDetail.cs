@@ -18,6 +18,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
         public ClaspType? ClaspType { get; set; }
         public ChainType? ChainType { get; set; }
         public List<SellingDetailMetal> MetalGroups { get; set; } = new();
+        public List<MainDiamondReq> MainDiamonds { get; set; } = new();
         public List<SideDiamondOpt>? SideDiamonds { get; set; } = new();
         public List<JewelryReview>? Reviews { get; set; } = new();
         public static JewelryModelSellingDetail Create(JewelryModel model, List<SellingDetailMetal> MetalGroups,
@@ -34,6 +35,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
                 BackType = model.BackType,
                 ClaspType = model.ClaspType,
                 ChainType = model.ChainType,
+                MainDiamonds = model.MainDiamonds,
                 MetalGroups = MetalGroups,
                 SideDiamonds = sideDiamondOpts,
                 Reviews = reviews

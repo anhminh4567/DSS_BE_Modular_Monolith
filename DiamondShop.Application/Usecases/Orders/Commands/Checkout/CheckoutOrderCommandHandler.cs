@@ -1,16 +1,7 @@
-﻿using DiamondShop.Application.Dtos.Requests.Carts;
-using DiamondShop.Application.Dtos.Requests.Orders;
+﻿using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Models;
-using DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson;
 using DiamondShop.Application.Usecases.Orders.Commands.Create;
-using DiamondShop.Domain.Common.Addresses;
-using DiamondShop.Domain.Models.AccountAggregate.Entities;
-using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
-using DiamondShop.Domain.Models.Diamonds;
-using DiamondShop.Domain.Models.Jewelries;
-using DiamondShop.Domain.Models.Orders;
-using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
@@ -20,7 +11,6 @@ using DiamondShop.Domain.Repositories.TransactionRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
-using System.Numerics;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Checkout
 {
