@@ -18,10 +18,12 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
         public ClaspType? ClaspType { get; set; }
         public ChainType? ChainType { get; set; }
         public List<SellingDetailMetal> MetalGroups { get; set; } = new();
+        public List<MainDiamondReq> MainDiamonds { get; set; } = new();
+        public List<Metal> Metals { get; set; } = new();
         public List<SideDiamondOpt>? SideDiamonds { get; set; } = new();
         public List<JewelryReview>? Reviews { get; set; } = new();
         public static JewelryModelSellingDetail Create(JewelryModel model, List<SellingDetailMetal> MetalGroups,
-            List<SideDiamondOpt>? sideDiamondOpts, List<JewelryReview>? reviews)
+            List<SideDiamondOpt>? sideDiamondOpts, List<Metal> metals, List<JewelryReview>? reviews)
         {
             return new JewelryModelSellingDetail()
             {
@@ -34,8 +36,10 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
                 BackType = model.BackType,
                 ClaspType = model.ClaspType,
                 ChainType = model.ChainType,
+                MainDiamonds = model.MainDiamonds,
                 MetalGroups = MetalGroups,
                 SideDiamonds = sideDiamondOpts,
+                Metals = metals,
                 Reviews = reviews
             };
         }
@@ -43,7 +47,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
     public class SellingDetailMetal
     {
         public string Name { get; set; }
-        public Metal Metal { get; set; }
+        public MetalId MetalId { get; set; }
         public SideDiamondOptId? SideDiamondId { get; set; }
         public List<string>? Images { get; set; } = new();
         public List<SellingDetailSize> SizeGroups { get; set; } = new();
@@ -53,7 +57,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
             return new SellingDetailMetal
             {
                 Name = $"{modelName} in {metal.Name} ({sideDiamondOpt.CaratWeight} Tw)",
-                Metal = metal,
+                MetalId = metal.Id,
                 SideDiamondId = sideDiamondOpt.Id,
                 Images = images,
                 SizeGroups = sizeGroup
@@ -65,7 +69,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
             return new SellingDetailMetal
             {
                 Name = $"{modelName} in {metal.Name}",
-                Metal = metal,
+                MetalId = metal.Id,
                 Images = images,
                 SizeGroups = sizeGroup
             };

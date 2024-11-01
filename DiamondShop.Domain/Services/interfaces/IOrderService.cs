@@ -15,6 +15,6 @@ namespace DiamondShop.Domain.Services.interfaces
         public bool IsCancellable(OrderStatus order);
         public bool IsProceedable(OrderStatus order);
         public bool CheckForSameCity(List<Order> orders);
-        public Task CancelItems(Order order, IOrderRepository _orderRepo, IOrderItemRepository _itemRepo, IJewelryRepository _jewelRepo, IDiamondRepository _diamondRepo);
+        public Task<Result> CancelItems(Order order, IOrderRepository _orderRepo, IOrderItemRepository _itemRepo, IJewelryRepository _jewelRepo, IDiamondRepository _diamondRepo);
     }
 }

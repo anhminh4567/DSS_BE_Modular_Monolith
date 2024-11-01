@@ -32,6 +32,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetDetail
             var query = _jewelryRepository.GetQuery();
             query = _jewelryRepository.QueryInclude(query, p => p.Model);
             query = _jewelryRepository.QueryInclude(query, p => p.Model.Category);
+            query = _jewelryRepository.QueryInclude(query, p => p.Size);
             query = _jewelryRepository.QueryInclude(query, p => p.Metal);
             query = _jewelryRepository.QueryInclude(query, p => p.Diamonds);
             query = _jewelryRepository.QueryFilter(query, p => p.Id == JewelryId.Parse(request.jewelryId));

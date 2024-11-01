@@ -25,8 +25,14 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         {
             get
             {
-                if (SizeMetals != null)
-                    return SizeMetals.GroupBy(p => p.Metal.Name).Select(p => p.Key).ToList();
+                if (SizeMetals.Count > 0)
+                {
+                    var metal = SizeMetals.FirstOrDefault();
+                    if (metal != null && metal.Metal != null)
+                    {
+                        return SizeMetals.GroupBy(p => p.Metal.Name).Select(p => p.Key).ToList();
+                    }
+                }
                 return null;
             }
         }

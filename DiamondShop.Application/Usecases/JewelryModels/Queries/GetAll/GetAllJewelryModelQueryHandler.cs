@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll
 {
-    public record GetAllJewelryModelQuery(int page = 0, int take = 20, string? Category = null, bool? IsRhodiumFinished = null, bool? IsEngravable = null) : IRequest<PagingResponseDto<JewelryModel>>;
+    public record GetAllJewelryModelQuery(int page = 0, int take = 20, string? name = "", string? Category = null, bool? IsRhodiumFinished = null, bool? IsEngravable = null) : IRequest<PagingResponseDto<JewelryModel>>;
     internal class GetAllJewelryModelQueryHandler : IRequestHandler<GetAllJewelryModelQuery, PagingResponseDto<JewelryModel>>
     {
         private readonly IJewelryModelCategoryRepository _categoryRepository;
@@ -22,13 +22,13 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll
         }
         public async Task<PagingResponseDto<JewelryModel>> Handle(GetAllJewelryModelQuery request, CancellationToken token)
         {
-            request.Deconstruct(out int page, out int take, out string? Category, out bool? isRhodiumFinished, out bool? isEngravable);
+            request.Deconstruct(out int page, out int take, out string? name, out string? categoryName, out bool? isRhodiumFinished, out bool? isEngravable);
             var query = _jewelryModelRepository.GetSellingModelQuery();
             query = _jewelryModelRepository.QueryInclude(query, p => p.SideDiamonds);
             query = _jewelryModelRepository.QueryInclude(query, p => p.MainDiamonds);
-            if (!string.IsNullOrEmpty(Category))
+            if (!string.IsNullOrEmpty(categoryName))
             {
-                var category = await _categoryRepository.ContainsName(Category);
+                var category = await _categoryRepository.ContainsName(categoryName);
                 if (category == null)
                 {
                     return BlankPaging();
@@ -43,9 +43,13 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll
             {
                 query = _jewelryModelRepository.QueryFilter(query, p => p.IsEngravable == isEngravable);
             }
+            if (!string.IsNullOrEmpty(name))
+            {
+                query = _jewelryModelRepository.QueryFilter(query, p => p.Name.ToUpper().Contains(name.ToUpper()));
+            }
             int maxPage = (int)Math.Ceiling((decimal)query.Count() / take);
             var list = query.Skip(page * take).Take(take).ToList();
-            return new PagingResponseDto<JewelryModel>(maxPage,page,list);
+            return new PagingResponseDto<JewelryModel>(maxPage, page+1, list);
         }
         private PagingResponseDto<JewelryModel> BlankPaging() => new PagingResponseDto<JewelryModel>(0, 0, []);
     }

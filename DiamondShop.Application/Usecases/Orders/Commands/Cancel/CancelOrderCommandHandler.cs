@@ -57,7 +57,9 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
             order.CancelledReason = reason;
             await _orderRepository.Update(order);
             //Return to selling
-            await _orderService.CancelItems(order, _orderRepository, _orderItemRepository, _jewelryRepository, _diamondRepository);
+            var res = await _orderService.CancelItems(order, _orderRepository, _orderItemRepository, _jewelryRepository, _diamondRepository);
+            if (res.IsFailed)
+                return Result.Fail(res.Errors);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
             return Result.Ok(order);

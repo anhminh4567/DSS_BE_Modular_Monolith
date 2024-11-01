@@ -14,14 +14,16 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         public BackType? BackType { get; set; }
         public ClaspType? ClaspType { get; set; }
         public ChainType? ChainType { get; set; }
+        public List<MainDiamondReqDto> MainDiamonds { get; set; } = new();
         public List<SellingDetailMetalDto> MetalGroups;
+        public List<MetalDto>? Metals { get; set; } = new();
         public List<SideDiamondOptDto>? SideDiamonds { get; set; } = new();
         public List<JewelryReviewDto>? Reviews { get; set; }
     }
     public class SellingDetailMetalDto
     {
         public string Name { get; set; }
-        public MetalDto Metal { get; set; }
+        public string MetalId { get; set; }
         public string? SideDiamondId { get; set; }
         public List<string>? Images { get; set; } = new();
         public List<SellingDetailSizeDto> SizeGroups { get; set; } = new();
