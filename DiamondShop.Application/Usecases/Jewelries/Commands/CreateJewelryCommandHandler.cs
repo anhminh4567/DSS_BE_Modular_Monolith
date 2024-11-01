@@ -29,8 +29,9 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
         private readonly IMainDiamondService _mainDiamondService;
         private readonly ISender _sender;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IExcelService _excelService;
 
-        public CreateJewelryCommandHandler(IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, ISizeMetalRepository sizeMetalRepository, IDiamondRepository diamondRepository, ISender sender, IUnitOfWork unitOfWork, IJewelryService jewelryService, IMainDiamondService mainDiamondService, IMainDiamondRepository mainDiamondRepository)
+        public CreateJewelryCommandHandler(IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, ISizeMetalRepository sizeMetalRepository, IDiamondRepository diamondRepository, ISender sender, IUnitOfWork unitOfWork, IJewelryService jewelryService, IMainDiamondService mainDiamondService, IMainDiamondRepository mainDiamondRepository, IExcelService excelService)
         {
             _jewelryRepository = jewelryRepository;
             _jewelryModelRepository = jewelryModelRepository;
@@ -41,6 +42,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
             _jewelryService = jewelryService;
             _mainDiamondService = mainDiamondService;
             _mainDiamondRepository = mainDiamondRepository;
+            _excelService = excelService;
         }
 
         public async Task<Result<Jewelry>> Handle(CreateJewelryCommand request, CancellationToken token)

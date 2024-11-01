@@ -1,4 +1,5 @@
 ﻿[
+  //No side - no main
   {
     "modelSpec": {
       "name": "No Diamond Test Ring",
@@ -50,6 +51,7 @@
       }
     ]
   },
+  //With side - no main
   {
     "modelSpec": {
       "name": "Side Diamond Test Ring",
@@ -132,7 +134,134 @@
         "weight": 13
       }
     ]
+  },
+  //With side - With main
+  {
+    "modelSpec": {
+      "name": "Full Diamond Test Ring",
+      "categoryId": "1",
+      "width": 12,
+      "isEngravable": true,
+      "isRhodiumFinish": true
+    },
+    "mainDiamondSpecs": [
+      {
+        "settingType": 1,
+        "quantity": 1,
+        "shapeSpecs": [
+          {
+            "shapeId": "1",
+            "caratFrom": 0.3,
+            "caratTo": 3
+          },
+          {
+            "shapeId": "2",
+            "caratFrom": 0.3,
+            "caratTo": 3
+          },
+          {
+            "shapeId": "3",
+            "caratFrom": 0.3,
+            "caratTo": 3
+          }
+        ]
+      },
+      {
+        "settingType": 2,
+        "quantity": 1,
+        "shapeSpecs": [
+          {
+            "shapeId": "1",
+            "caratFrom": 0.3,
+            "caratTo": 3
+          },
+          {
+            "shapeId": "2",
+            "caratFrom": 0.3,
+            "caratTo": 3
+          },
+          {
+            "shapeId": "3",
+            "caratFrom": 0.3,
+            "caratTo": 3
+          }
+        ]
+      }
+    ],
+    "sideDiamondSpecs": [
+      {
+        "shapeId": "1",
+        "colorMin": 1,
+        "colorMax": 3,
+        "clarityMin": 2,
+        "clarityMax": 7,
+        "settingType": 1,
+        "caratWeight": 0.75,
+        "quantity": 15
+      },
+      {
+        "shapeId": "1",
+        "colorMin": 3,
+        "colorMax": 8,
+        "clarityMin": 2,
+        "clarityMax": 7,
+        "settingType": 1,
+        "caratWeight": 1,
+        "quantity": 10
+      },
+      {
+        "shapeId": "1",
+        "colorMin": 6,
+        "colorMax": 8,
+        "clarityMin": 2,
+        "clarityMax": 7,
+        "settingType": 1,
+        "caratWeight": 1.5,
+        "quantity": 5
+      }
+    ],
+    "metalSizeSpecs": [
+      {
+        "metalId": "1",
+        "sizeId": "3",
+        "weight": 10
+      },
+      {
+        "metalId": "2",
+        "sizeId": "3",
+        "weight": 10
+      },
+      {
+        "metalId": "3",
+        "sizeId": "3",
+        "weight": 10
+      },
+      {
+        "metalId": "4",
+        "sizeId": "3",
+        "weight": 10
+      },
+      {
+        "metalId": "1",
+        "sizeId": "4",
+        "weight": 13
+      },
+      {
+        "metalId": "2",
+        "sizeId": "4",
+        "weight": 13
+      },
+      {
+        "metalId": "3",
+        "sizeId": "4",
+        "weight": 13
+      },
+      {
+        "metalId": "4",
+        "sizeId": "4",
+        "weight": 13
+      }
+    ]
   }
-
 
 ]

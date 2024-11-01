@@ -1,10 +1,9 @@
 ﻿using DiamondShop.Application.Dtos.Requests.JewelryModels;
 using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Application.Usecases.MainDiamonds.Commands.Create;
-using DiamondShop.Application.Usecases.ModelSideDiamonds.Commands;
-using DiamondShop.Application.Usecases.SizeMetals.Commands.Create;
 using DiamondShop.Commons;
+using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
+using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using FluentResults;
@@ -16,6 +15,9 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
     internal class CreateJewelryModelCommandHandler : IRequestHandler<CreateJewelryModelCommand, Result<JewelryModel>>
     {
         private readonly ISender _sender;
+        private readonly ISizeMetalRepository _sizeMetalRepository;
+        private readonly IMainDiamondRepository _mainDiamondRepository;
+        private readonly ISideDiamondRepository _sideDiamondRepository;
         private readonly IJewelryModelRepository _jewelryModelRepository;
         private readonly IJewelryModelCategoryRepository _categoryRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -23,12 +25,18 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
             ISender sender,
             IJewelryModelCategoryRepository categoryRepository,
             IJewelryModelRepository jewelryModelRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ISizeMetalRepository sizeMetalRepository,
+        ISideDiamondRepository sideDiamondRepository,
+        IMainDiamondRepository mainDiamondRepository)
         {
             _sender = sender;
             _jewelryModelRepository = jewelryModelRepository;
             _categoryRepository = categoryRepository;
             _unitOfWork = unitOfWork;
+            _sizeMetalRepository = sizeMetalRepository;
+            _sideDiamondRepository = sideDiamondRepository;
+            _mainDiamondRepository = mainDiamondRepository;
         }
         public async Task<Result<JewelryModel>> Handle(CreateJewelryModelCommand request, CancellationToken token)
         {
@@ -36,38 +44,39 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
             request.Deconstruct(out JewelryModelRequestDto modelSpec, out List<MainDiamondRequestDto>? mainDiamondSpecs,
                 out List<SideDiamondRequestDto>? sideDiamondSpecs, out List<ModelMetalSizeRequestDto> metalSizeSpecs);
             var category = _categoryRepository.GetQuery().FirstOrDefault(p => p.Id == JewelryModelCategoryId.Parse(modelSpec.CategoryId));
-            if(category is null) return Result.Fail(new NotFoundError("Can't find model category object."));
-            
+            if (category is null) return Result.Fail(new NotFoundError("Can't find model category object."));
+
             var matchingName = _jewelryModelRepository.GetQuery().Any(p => p.Name.ToUpper() == modelSpec.Name.ToUpper());
             if (matchingName) return Result.Fail("This model name has already existed");
 
             var newModel = JewelryModel.Create(modelSpec.Name, category.Id, modelSpec.Width, modelSpec.Length, modelSpec.IsEngravable, modelSpec.IsRhodiumFinish, modelSpec.BackType, modelSpec.ClaspType, modelSpec.ChainType);
             await _jewelryModelRepository.Create(newModel, token);
-            
-            var flagSizeMetal = await _sender.Send(new CreateSizeMetalCommand(newModel.Id, metalSizeSpecs));
-            if (flagSizeMetal.IsFailed) return Result.Fail(flagSizeMetal.Errors);
+
+            var sizeMetals = metalSizeSpecs.Select(p => SizeMetal.Create(newModel.Id, MetalId.Parse(p.MetalId), SizeId.Parse(p.SizeId), p.Weight)).ToList();
+            await _sizeMetalRepository.CreateRange(sizeMetals, token);
+            await _unitOfWork.SaveChangesAsync(token);
 
             if (mainDiamondSpecs != null)
             {
-
                 foreach (var mainDiamondSpec in mainDiamondSpecs)
                 {
-                    var flagMainDiamond = await _sender.Send(new CreateMainDiamondCommand(newModel.Id, mainDiamondSpec));
-                    if (flagMainDiamond.IsFailed) return Result.Fail(flagMainDiamond.Errors);
-                    newModel.MainDiamonds.Add(flagMainDiamond.Value);
+                    var mainDiamond = MainDiamondReq.Create(newModel.Id, mainDiamondSpec.SettingType, mainDiamondSpec.Quantity);
+                    await _mainDiamondRepository.Create(mainDiamond, token);
+                    if (mainDiamondSpec.ShapeSpecs.Count > 0)
+                    {
+                        List<MainDiamondShape> mainDiamondShapes = mainDiamondSpec.ShapeSpecs.Select(p => MainDiamondShape.Create(mainDiamond.Id, DiamondShapeId.Parse(p.ShapeId), p.CaratFrom, p.CaratTo)).ToList();
+                        await _mainDiamondRepository.CreateRange(mainDiamondShapes, token);
+                    }
+                    await _unitOfWork.SaveChangesAsync(token);
+                    newModel.MainDiamonds.Add(mainDiamond);
                 }
             }
             if (sideDiamondSpecs != null)
             {
-                foreach (var sideDiamondSpec in sideDiamondSpecs)
-                {
-
-                    var flagSideDiamond = await _sender.Send(new CreateModelSideDiamondCommand(newModel.Id, sideDiamondSpec));
-                    if (flagSideDiamond.IsFailed) return Result.Fail(flagSideDiamond.Errors);
-                    newModel.SideDiamonds.Add(flagSideDiamond.Value);
-                }
+                var sideDiamonds = sideDiamondSpecs.Select(p => SideDiamondOpt.Create(newModel.Id, DiamondShapeId.Parse(p.ShapeId), p.ColorMin, p.ColorMax, p.ClarityMin, p.ClarityMax, p.SettingType, p.CaratWeight, p.Quantity)).ToList();
+                await _sideDiamondRepository.CreateRange(sideDiamonds, token);
+                await _unitOfWork.SaveChangesAsync(token);
             }
-
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
             newModel.Category = category;

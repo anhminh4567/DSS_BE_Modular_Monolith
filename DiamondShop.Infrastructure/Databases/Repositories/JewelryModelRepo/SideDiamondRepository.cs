@@ -13,6 +13,12 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
     internal class SideDiamondRepository : BaseRepository<SideDiamondOpt>, ISideDiamondRepository
     {
         public SideDiamondRepository(DiamondShopDbContext dbContext) : base(dbContext) { }
+
+        public async Task CreateRange(List<SideDiamondOpt> sideDiamondOpts, CancellationToken token = default)
+        {
+            await _set.AddRangeAsync(sideDiamondOpts, token);
+        }
+
         public override async Task<SideDiamondOpt?> GetById(params object[] ids)
         {
             var id = (SideDiamondOptId)ids[0];

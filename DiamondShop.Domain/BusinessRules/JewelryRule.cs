@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.BusinessRules
 {
-    public static class JewelryModelRule
+    public static class JewelryRule
     {
-        public static int MaximumSideDiamondOption = 5;
-        public static int MaximumMainDiamond = 4;
-        public static int ModelPerQuery = 3;
         public static int MinimumItemPerPaging = 20;
     }
 }

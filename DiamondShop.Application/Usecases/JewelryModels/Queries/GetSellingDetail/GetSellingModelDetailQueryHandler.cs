@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
+using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
@@ -10,13 +11,15 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
     internal class GetSellingModelDetailQueryHandler : IRequestHandler<GetSellingModelDetailQuery, Result<JewelryModelSellingDetail>>
     {
 
+        private readonly IJewelryRepository _jewelryRepository;
         private readonly IJewelryModelRepository _modelRepository;
         private readonly IJewelryModelService _modelService;
 
-        public GetSellingModelDetailQueryHandler(IJewelryModelRepository modelRepository, IJewelryModelService modelService)
+        public GetSellingModelDetailQueryHandler(IJewelryModelRepository modelRepository, IJewelryModelService modelService, IJewelryRepository jewelryRepository)
         {
             _modelRepository = modelRepository;
             _modelService = modelService;
+            _jewelryRepository = jewelryRepository;
         }
 
         public async Task<Result<JewelryModelSellingDetail>> Handle(GetSellingModelDetailQuery request, CancellationToken cancellationToken)
@@ -46,19 +49,22 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
                     sideDiamonds.ForEach(p =>
                     {
                         p.Price = DiamondPrices;
+                        var sizesInStock = _jewelryRepository.GetSizesInStock(model.Id, metals.Key.Id, p);
                         metalGroups.Add(
                             SellingDetailMetal.CreateWithSide(
                                 model.Name, metals.Key, p, null,
-                                metals.Select(k => SellingDetailSize.Create(k.Size.Value, p.Price + model.CraftmanFee + k.Price)).ToList()
+                                metals.Select(k =>
+                                SellingDetailSize.Create(k.Size.Value, p.Price + model.CraftmanFee + k.Price, sizesInStock.Contains(k.SizeId))).ToList()
                             ));
                     });
                 }
                 else
                 {
+                    var sizesInStock = _jewelryRepository.GetSizesInStock(model.Id, metals.Key.Id);
                     metalGroups.Add(
                         SellingDetailMetal.CreateNoSide(
                             model.Name, metals.Key, null,
-                            metals.Select(p => SellingDetailSize.Create(p.Size.Value, p.Price + model.CraftmanFee)).ToList()
+                            metals.Select(p => SellingDetailSize.Create(p.Size.Value, p.Price + model.CraftmanFee, sizesInStock.Contains(p.SizeId))).ToList()
                         ));
                 }
             }

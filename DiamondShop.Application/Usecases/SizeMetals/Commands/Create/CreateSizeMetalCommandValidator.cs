@@ -9,10 +9,7 @@ namespace DiamondShop.Application.Usecases.SizeMetals.Commands.Create
         {
             RuleFor(c => c.ModelId)
                 .NotEmpty();
-            RuleFor(c => c.MetalSizeSpecs)
-                .NotEmpty()
-                .Must(CheckDuplicateItem).WithMessage("No duplicates allowed");
-            RuleForEach(c => c.MetalSizeSpecs)
+            RuleFor(c => c.MetalSizeSpec)
                 .NotEmpty()
                 .ChildRules(p =>
                 {
@@ -27,17 +24,6 @@ namespace DiamondShop.Application.Usecases.SizeMetals.Commands.Create
                         .GreaterThan(0f);
                 })
                 ;
-        }
-        private bool CheckDuplicateItem(List<ModelMetalSizeRequestDto> spec)
-        {
-            Dictionary<(string metal,string size),bool> set = new();
-            foreach(var item in spec)
-            {
-                (string metal, string size) holder = new(item.MetalId, item.SizeId);
-                if (set.ContainsKey(holder)) return false;
-                else set.Add(holder, true);
-            }
-            return true;
         }
     }
 }

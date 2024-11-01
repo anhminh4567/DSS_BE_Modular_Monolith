@@ -1,5 +1,4 @@
 ﻿using DiamondShop.Application.Dtos.Requests.JewelryModels;
-using DiamondShop.Application.Usecases.ModelSideDiamonds.Commands;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
@@ -7,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Usecases.SideDiamonds.Commands
+namespace DiamondShop.Application.Usecases.SideDiamonds.Commands.Create
 {
     public class CreateModelSideDiamondCommandValidator : AbstractValidator<CreateModelSideDiamondCommand>
     {
@@ -16,7 +15,7 @@ namespace DiamondShop.Application.Usecases.SideDiamonds.Commands
             RuleFor(c => c.ModelId)
                 .NotEmpty();
 
-            RuleFor(c => c.SideDiamondSpecs)
+            RuleFor(c => c.SideDiamondSpec)
                 .NotEmpty()
                 .ChildRules(p =>
                 {

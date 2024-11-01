@@ -1,10 +1,12 @@
 ﻿using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
+using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
 
@@ -30,6 +32,17 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 if (jewelry.Metal == null) return false;
                 var sizeMetal = sizeMetals.FirstOrDefault(k => jewelry.ModelId == k.ModelId && jewelry.SizeId == k.SizeId && jewelry.MetalId == k.MetalId);
+                if (sizeMetal?.Metal == null)
+                    return false;
+                jewelry.ND_Price = sizeMetal.Price != null ? sizeMetal.Price : GetPrice(sizeMetal.Weight, jewelry.Metal.Price);
+            }
+            return true;
+        }
+        public bool SetupUnmapped(List<Jewelry> jewelries, SizeMetal sizeMetal)
+        {
+            foreach (var jewelry in jewelries)
+            {
+                if (jewelry.Metal == null) return false;
                 if (sizeMetal?.Metal == null)
                     return false;
                 jewelry.ND_Price = sizeMetal.Price != null ? sizeMetal.Price : GetPrice(sizeMetal.Weight, jewelry.Metal.Price);
@@ -112,6 +125,15 @@ namespace DiamondShop.Domain.Services.Implementations
                 }
             }
             return mostValuableDiscont;
+        }
+        public IQueryable<Jewelry> GetJewelryQueryFromModel(JewelryModelId modelId, MetalId metalId, SizeId sizeId, IJewelryRepository jewelryRepository)
+        {
+            var jewelryQuery = jewelryRepository.GetQuery();
+            jewelryQuery = jewelryRepository.QueryFilter(jewelryQuery,
+                p =>
+                p.MetalId == metalId && p.ModelId == modelId && p.SizeId == sizeId
+                );
+            return jewelryQuery;
         }
     }
 }

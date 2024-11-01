@@ -32,8 +32,6 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
         [NotMapped]
         public decimal Price { get; set; }
         [NotMapped]
-        public string Name { get => $"{ClarityMin.ToString() + "-" + ClarityMax.ToString()}({CaratWeight} Tw)"; }
-        [NotMapped]
         public float AverageCarat { get => (float)CaratWeight / (float)Quantity; }
         public SideDiamondOpt() { }
         public static SideDiamondOpt Create(JewelryModelId modelId, DiamondShapeId shapeId, Color colorMin, Color colorMax, Clarity clarityMin, Clarity clarityMax, SettingType settingType, float caratWeight, int quantity, SideDiamondOptId givenId = null)

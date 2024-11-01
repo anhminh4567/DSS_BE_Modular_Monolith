@@ -21,8 +21,39 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         public string? BackType { get; set; }
         public string? ClaspType { get; set; }
         public string? ChainType { get; set; }
+        public List<string>? MetalSupported
+        {
+            get
+            {
+                if (SizeMetals != null)
+                    return SizeMetals.GroupBy(p => p.Metal.Name).Select(p => p.Key).ToList();
+                return null;
+            }
+        }
+        public int? MainDiamondCount
+        {
+            get
+            {
+                if (MainDiamonds != null)
+                {
+                    return MainDiamonds.Sum(p => p.Quantity);
+                }
+                return null;
+            }
+        }
+        public int? SideDiamondOptionCount
+        {
+            get
+            {
+                if (SideDiamonds != null)
+                {
+                    return SideDiamonds.Count();
+                }
+                return null;
+            }
+        }
         public List<MainDiamondReqDto> MainDiamonds { get; set; } = new();
-        public List<SideDiamondReqDto> SideDiamonds { get; set; } = new();
+        public List<SideDiamondOptDto> SideDiamonds { get; set; } = new();
         public List<SizeMetalDto> SizeMetals { get; set; } = new();
     }
 }
