@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
 {
     public record UpdatedDiamondPrice(string diamondCriteriaId, decimal price); 
-    public record UpdateManyDiamondPricesCommand(List<UpdatedDiamondPrice> updatedDiamondPrices, bool isFancy, bool islabDiamond, bool? IsSideDiamond = false) :  IRequest<Result<List<DiamondPrice>>>;
+    public record UpdateManyDiamondPricesCommand(List<UpdatedDiamondPrice> updatedDiamondPrices, bool isFancyShapePrice, bool islabDiamond, bool? IsSideDiamond = false) :  IRequest<Result<List<DiamondPrice>>>;
     internal class UpdateManyDiamondPricesCommandHandler : IRequestHandler<UpdateManyDiamondPricesCommand, Result<List<DiamondPrice>>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
@@ -47,7 +47,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
             //    return Result.Fail("the shape for price can only be Round brilliant or Fancy, which is round and the rest of the shape");
             var getAllShape = await _diamondShapeRepository.GetAllIncludeSpecialShape();
             DiamondShape selectedShape;
-            if (request.isFancy)
+            if (request.isFancyShapePrice)
                 selectedShape = getAllShape.FirstOrDefault(x => x.Id == DiamondShape.FANCY_SHAPES.Id);
             else
                 selectedShape = getAllShape.FirstOrDefault(x => x.Id == DiamondShape.ROUND.Id);

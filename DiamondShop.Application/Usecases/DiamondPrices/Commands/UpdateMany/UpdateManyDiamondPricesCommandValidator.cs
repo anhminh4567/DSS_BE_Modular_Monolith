@@ -7,7 +7,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
         public UpdateManyDiamondPricesCommandValidator()
         {
             var validator = new UpdatedDiamondPriceValidator();
-            RuleFor(x => x.isFancy).NotNull();
+            RuleFor(x => x.isFancyShapePrice).NotNull();
             RuleForEach(x => x.updatedDiamondPrices)
                 .SetValidator(validator);
         }
