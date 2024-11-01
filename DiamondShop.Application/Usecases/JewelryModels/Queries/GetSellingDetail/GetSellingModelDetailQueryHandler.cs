@@ -26,6 +26,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
         {
             request.Deconstruct(out string modelId);
             var query = _modelRepository.GetSellingModelQuery();
+            query = _modelRepository.IncludeMainDiamondQuery(query);
             query = _modelRepository.QueryFilter(query, p => p.Id == JewelryModelId.Parse(modelId));
             var model = query.FirstOrDefault();
             if (model == null)

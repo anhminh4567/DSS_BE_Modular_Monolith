@@ -56,7 +56,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
             }
             List<JewelryModelSelling> sellingModels = new();
             var pageIndex = GetData(sellingModels, query, page, metalId, minPrice, maxPrice);
-            return new PagingResponseDto<JewelryModelSelling>(0, pageIndex, sellingModels);
+            return new PagingResponseDto<JewelryModelSelling>(0, 0, sellingModels);
         }
         private PagingResponseDto<JewelryModelSelling> BlankPaging() => new PagingResponseDto<JewelryModelSelling>(0, 0, []);
         private int GetData(List<JewelryModelSelling> sellingModels, IQueryable<JewelryModel> query, int page, string? metalId, decimal? minPrice, decimal? maxPrice)
