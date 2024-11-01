@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+﻿using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Services.interfaces;
@@ -41,7 +42,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
             _modelService.GetSizeMetalPrice(model.SizeMetals);
             var metalGroup = model.SizeMetals
                 .GroupBy(p => p.Metal);
-
+            List<Metal> metalList = metalGroup.Select(p => p.Key).ToList();
             List<SellingDetailMetal> metalGroups = new();
             foreach (var metals in metalGroup)
             {
@@ -69,7 +70,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
                         ));
                 }
             }
-            return JewelryModelSellingDetail.Create(model, metalGroups, sideDiamonds, null);
+            return JewelryModelSellingDetail.Create(model, metalGroups, sideDiamonds, metalList, null);
         }
     }
 }
