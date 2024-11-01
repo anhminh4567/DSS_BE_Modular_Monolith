@@ -27,6 +27,7 @@ using DiamondShop.Infrastructure.Services.Scrapers;
 using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System;
 using System.Diagnostics;
@@ -51,7 +52,7 @@ namespace DiamondShopSystem.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ISender _sender;
         private readonly IOptions<LocationOptions> _locationOptions;
-        private readonly DiamondShopDbContext _context;
+        private readonly DiamondShopDbContext _dbContext;
         private readonly ILocationService _locationService;
         private readonly IDeliveryFeeRepository _deliveryFeeRepository;
         private readonly IEmailService _emailService;
@@ -67,7 +68,7 @@ namespace DiamondShopSystem.Controllers
             _httpContextAccessor = httpContextAccessor;
             _sender = sender;
             _locationOptions = locationOptions;
-            _context = context;
+            _dbContext = context;
             _locationService = locationService;
             _deliveryFeeRepository = deliveryFeeRepository;
             _emailService = emailService;
@@ -205,7 +206,10 @@ namespace DiamondShopSystem.Controllers
             var clarityEnums = Enum.GetValues(typeof(Clarity));
             Cut defaultCut = Cut.Excelent;
             decimal startPrice = 30_000;//vnd
-            List<DiamondShape> getShapes = await _sender.Send(new GetAllDiamondShapeQuery());
+            List<DiamondShape> getShapes = _dbContext.DiamondShapes.IgnoreQueryFilters().ToList()
+                .Where(x => x.Id == DiamondShape.ROUND.Id 
+                || x.Id == DiamondShape.FANCY_SHAPES.Id)// only 2 shape
+                .ToList(); //await _sender.Send(new GetAllDiamondShapeQuery());
             List<(float caratFrom, float caratTo)> caratRange = new()
             {
                 new (0.01f, 0.03f),
@@ -271,7 +275,7 @@ namespace DiamondShopSystem.Controllers
             var clarityEnums = Enum.GetValues(typeof(Clarity));
             Cut defaultCut = Cut.Excelent;
             decimal startPrice = 20_000;//vnd
-            List<DiamondShape> getShapes = await _sender.Send(new GetAllDiamondShapeQuery());
+            List<DiamondShape> getShapes = _dbContext.DiamondShapes.IgnoreQueryFilters().ToList(); //await _sender.Send(new GetAllDiamondShapeQuery());
             List<(float caratFrom, float caratTo)> caratRange = new()
             {
                 new (0.001f, 0.01f),
@@ -310,10 +314,10 @@ namespace DiamondShopSystem.Controllers
                     }
                 }
                 var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(diamondCriteriaRequestDtos, true));
-                var getAnyShape = getShapes.FirstOrDefault(x => x.Id.Value == "1");
+                var getAnyShape = getShapes.FirstOrDefault(x => x.Id == DiamondShape.ANY_SHAPES.Id);
 
                 var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, getAnyShape.Id, prices[index], true)).ToList();
-                var mappedListNatural = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, getAnyShape.Id, prices[index], false)).ToList();
+                //var mappedListNatural = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, getAnyShape.Id, prices[index], false)).ToList();
 
                 var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, true));
                 //var resultNatural = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListNatural, true));

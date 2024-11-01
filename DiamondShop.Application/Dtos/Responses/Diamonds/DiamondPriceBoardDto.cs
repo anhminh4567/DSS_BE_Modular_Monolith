@@ -35,6 +35,7 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         [Newtonsoft.Json.JsonIgnore]
         public List<DiamondCriteria> GroupedCriteria { get; set; }
         public DiamondPriceCellDataDto[,] CellMatrix { get; set; }
+        public bool IsAnyPriceUncover => CellMatrix.Cast<DiamondPriceCellDataDto>().Any(x => x.IsPriceKnown == false);
         public void FillAllCellsWithUnknonwPrice()
         {
             foreach (var color in ColorRange.Keys)

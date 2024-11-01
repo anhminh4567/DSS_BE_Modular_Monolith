@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
+using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.Promotions;
@@ -23,6 +24,9 @@ namespace DiamondShop.Domain.Services.interfaces
         bool ValidateDiamond3C(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo);
 
         Task<Discount?> AssignDiamondDiscount(Diamond diamond, List<Discount> discounts);
+
+        Task<List<DiamondPrice>> GetPrice(DiamondShape? shape = null, bool? isLabDiamond = null, CancellationToken token = default);
+
 
     }
 }

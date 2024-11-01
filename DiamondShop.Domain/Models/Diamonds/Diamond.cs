@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.Diamonds
 { 
-    public record Diamond_4C (Cut Cut , Color Color, Clarity Clarity, float Carat, bool isLabDiamond);
+    public record Diamond_4C (Cut? Cut , Color Color, Clarity Clarity, float Carat, bool isLabDiamond);
     public record Diamond_Measurement(float withLenghtRatio, float Depth, float table, string Measurement);
     public record Diamond_Details( Polish Polish, Symmetry Symmetry, Girdle Girdle, Fluorescence Fluorescence, Culet Culet);
     public class Diamond : Entity<DiamondId> , IAggregateRoot
@@ -70,7 +70,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         public static Diamond Create(DiamondShape shape, Diamond_4C diamond_4C, Diamond_Details diamond_Details,
            Diamond_Measurement diamond_Measurement,decimal priceOffset) 
         {
-            return new Diamond()
+            var newdiamond =  new Diamond()
             {
                 Id = DiamondId.Create(),
                 DiamondShapeId = shape.Id,
@@ -88,10 +88,12 @@ namespace DiamondShop.Domain.Models.Diamonds
                 Culet = diamond_Details.Culet,
                 Fluorescence = diamond_Details.Fluorescence,
                 Measurement = diamond_Measurement.Measurement,
-                PriceOffset = Math.Clamp(priceOffset,DiamondRules.MinPriceOffset,DiamondRules.MaxPriceOffset),
+                PriceOffset = Math.Clamp(priceOffset, DiamondRules.MinPriceOffset, DiamondRules.MaxPriceOffset),
                 SoldPrice = null,
                 DefaultPrice = null,
             };
+            newdiamond.SerialCode = DiamondRule.GetDiamondSerialCode(newdiamond,shape);
+            return newdiamond;
         }
         public void UpdatePriceOffset(decimal priceOffset)
         {
@@ -122,6 +124,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         public void SetSell()
         {
             Status = ProductStatus.Active;
+            ProductLock = null;
             SoldPrice = null;
             DefaultPrice = null;
             ProductLock = null;

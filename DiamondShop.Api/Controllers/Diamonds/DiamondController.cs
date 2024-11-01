@@ -2,10 +2,12 @@
 using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Create;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Delete;
+using DiamondShop.Application.Usecases.Diamonds.Commands.LockForUser;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetAll;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetAllAdmin;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetAllAttributes;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail;
+using DiamondShop.Application.Usecases.Diamonds.Queries.GetDiamondPricesComparisons;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging;
 using DiamondShop.Domain.Models.Diamonds;
 using MapsterMapper;
@@ -66,7 +68,16 @@ namespace DiamondShop.Api.Controllers.Diamonds
             }
             return MatchError(result.Errors, ModelState);
         }
-        [HttpGet]
+        [HttpPost("EstimatePrice")]
+        [Produces(typeof(DiamondDto))]
+        public async Task<ActionResult> Estimation(GetDiamondPricesComparisonsQuery getDiamondPricesComparisonsQuery)
+        {
+            var result = await _sender.Send(getDiamondPricesComparisonsQuery);
+            if (result.IsSuccess)
+                return Ok(result);
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpGet("Page")]
         [Produces(typeof(PagingResponseDto<DiamondDto>))]
         public async Task<ActionResult> GetPaging([FromQuery]GetDiamondPagingQuery getDiamondPagingQuery)
         {
@@ -89,6 +100,19 @@ namespace DiamondShop.Api.Controllers.Diamonds
                 var mappedResult = _mapper.Map<DiamondDto>(result.Value);
                 return Ok(mappedResult);
             }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPut("Lock")]
+        [Produces(typeof(DiamondDto))]
+        public async Task<ActionResult> SetLock([FromBody] LockDiamondForUserCommand lockDiamondForUserCommand)
+        {
+            var result = await _sender.Send(lockDiamondForUserCommand);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<DiamondDto>(result.Value);
+                return Ok(mappedResult);
+            }
+
             return MatchError(result.Errors, ModelState);
         }
         [HttpDelete("{id}")]

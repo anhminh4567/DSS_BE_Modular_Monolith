@@ -4,6 +4,7 @@ using DiamondShop.Application.Usecases.DiamondCriterias.Commands.Delete;
 using DiamondShop.Application.Usecases.DiamondCriterias.Queries.GetAll;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.Create;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.Delete;
+using DiamondShop.Application.Usecases.DiamondPrices.Commands.DeleteMany;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany;
 using DiamondShop.Application.Usecases.DiamondPrices.Queries.GetAllByShape;
 using DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPaging;
@@ -80,6 +81,16 @@ namespace DiamondShop.Api.Controllers.Diamonds
             {
                 var mappedResult = _mapper.Map<List<DiamondPriceDto>>(result.Value); 
                 return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpDelete]
+        public async Task<ActionResult> Delete([FromBody] DeleteManyDiamondPriceCommand deleteManyDiamondPriceCommand)
+        {
+            var result = await _sender.Send(deleteManyDiamondPriceCommand);
+            if (result.IsSuccess)
+            {
+                return Ok();
             }
             return MatchError(result.Errors, ModelState);
         }

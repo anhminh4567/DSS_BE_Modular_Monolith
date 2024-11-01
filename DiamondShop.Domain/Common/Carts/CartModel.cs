@@ -9,6 +9,9 @@ using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Models.AccountAggregate;
+using DiamondShop.Domain.Models.RoleAggregate;
 
 namespace DiamondShop.Domain.Common.Carts
 {
@@ -33,6 +36,37 @@ namespace DiamondShop.Domain.Common.Carts
             //OrderPrices.DefaultPrice += shipping.FinalPrice; 
 
             OrderPrices.TotalShippingPrice += shipping.FinalPrice;
+        }
+        public void SetWarrantyTotalPrice()
+        {
+            foreach(var prod in Products)
+            {
+                if (prod.CurrentWarrantyApplied != null)
+                {
+                    OrderPrices.TotalWarrantyPrice += prod.CurrentWarrantyPrice;
+                }
+            }
+        }
+        public void SetUserRankDiscount(PromotionRule rankDiscountRules, Account? userAccount)
+        {
+            if(userAccount!= null && userAccount.Roles != null)
+            {
+                var goldUserId = AccountRole.CustomerGold.Id;
+                var silverUserId = AccountRole.CustomerSilver.Id;
+                var bronzeUserId = AccountRole.CustomerBronze.Id;
+                if (userAccount.Roles.Any(x => x.Id == goldUserId))
+                    SetUserRankDiscountPercent(rankDiscountRules.GoldUserDiscountPercent);
+                else if (userAccount.Roles.Any(x => x.Id == silverUserId))
+                    SetUserRankDiscountPercent(rankDiscountRules.SilverUserDiscountPercent);
+                else if (userAccount.Roles.Any(x => x.Id == bronzeUserId))
+                    SetUserRankDiscountPercent(rankDiscountRules.BronzeUserDiscountPercent);
+            }
+        }
+        private void SetUserRankDiscountPercent(decimal discountPercent)
+        {
+            OrderPrices.UserRankDiscountPercent = discountPercent;
+            OrderPrices.UserRankDiscountAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(OrderPrices.OrderPriceExcludeShipAndWarranty * ((decimal)discountPercent / 100m)) ;
+            OrderPrices.OrderAmountSaved += OrderPrices.UserRankDiscountAmount;
         }
     }
 

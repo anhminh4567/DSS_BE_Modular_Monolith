@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.Diamonds;
+﻿using DiamondShop.Domain;
+using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Infrastructure.BackgroundJobs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -27,8 +28,8 @@ namespace DiamondShop.Infrastructure.Databases
         public string Value { get; set; }
         public object? GetObjectFromJsonString()
         {
-            Assembly asm = typeof(Diamond).Assembly;
-            var messageType = asm.GetType(Type);
+            Assembly asm = typeof(DomainLayer).Assembly;
+            var messageType = System.Type.GetType(this.Type);
             if(messageType == null)
                 throw new InvalidOperationException($"Type {Type} not found in assembly {asm.FullName}");
             var parsedObject = JsonConvert.DeserializeObject(Value, messageType);

@@ -1,10 +1,7 @@
 ﻿using Azure.Storage.Blobs;
 using DiamondShop.Application.Commons.Models;
-using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.JewelryModels;
 using DiamondShop.Domain.Common.ValueObjects;
-using DiamondShop.Domain.Models.Diamonds;
-using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
@@ -13,14 +10,6 @@ using FluentEmail.Core;
 using FluentResults;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Syncfusion.XlsIO.Parser.Biff_Records.Formula;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Services.Blobs
 {
@@ -57,7 +46,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             gallery.GalleryFolder = GetAzureFilePath(jewelryModel);
             var basePath = GetAzureFilePath(jewelryModel);
             // init gallery dictionary and set keys 
-            List<List<SideDiamondOpt>> listSideDiamonds = new();
+            //List<List<SideDiamondOpt>> listSideDiamonds = new();
             List<List<MainDiamondShape>> listMainDiamonds = new();
             //get all possible combinations of side diamonds and main diamonds
             //MapCorrectSideDiamondOptionCombinationBackTrack(jewelryModel.SideDiamonds, 0, new List<SideDiamondOpt>(), listSideDiamonds);
@@ -127,34 +116,20 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             fromBaseString += $"/{metalId.Value}";
             return fromBaseString;
         }
-        private string GetAzureMainDiamondPathIdentifier(string fromBaseString, List<MainDiamondShape>? combinedShapes)
+        private string GetAzureSideDiamondPathIdentifier(string fromBaseString, SideDiamondOpt sideDiamond)
         {
             //throw new NotImplementedException();
-            if (combinedShapes != null)
-                foreach (var mainDiamond in combinedShapes)
-                    fromBaseString += $"/{mainDiamond.MainDiamondReqId.Value}_{mainDiamond.ShapeId.Value}";
+            if (sideDiamond != null)
+                fromBaseString += $"/{sideDiamond.Id.Value}";
             return fromBaseString;
         }
-        private string GetAzureSideDiamondPathIdentifier(string fromBaseString, List<SideDiamondOpt>? combinedOptions)
-        {
-            throw new NotImplementedException();
-            //if (combinedOptions != null)
-            //    foreach (var sideDiamond in combinedOptions)
-            //        fromBaseString += $"/{sideDiamond.SideDiamondReqId.Value}_{sideDiamond.Id.Value}";
-            //return fromBaseString;
-        }
 
-        private string GetCategoryIdentifierName(MetalId metalId, List<SideDiamondOpt>? sideDiamondOpt, List<MainDiamondShape>? mainDiamondShape)
+        private string GetCategoryIdentifierName(MetalId metalId, SideDiamondOpt sideDiamondOpt)
         {
-            throw new NotImplementedException();
-            //string basePath = $"{metalId.Value}";
-            //if (mainDiamondShape != null)
-            //    foreach (var mainDiamond in mainDiamondShape)
-            //        basePath += $"/{mainDiamond.MainDiamondReqId.Value}_{mainDiamond.ShapeId.Value}";
-            //if (sideDiamondOpt != null)
-            //    foreach (var sideDiamond in sideDiamondOpt)
-            //        basePath += $"/{sideDiamond.SideDiamondReqId.Value}_{sideDiamond.Id.Value}";
-            //return basePath;
+            string basePath = $"{metalId.Value}";
+            if (sideDiamondOpt != null)
+                basePath += $"/{sideDiamondOpt.Id.Value}";
+            return basePath;
         }
         private string GetAzureFilePath(JewelryModel jewelryModel)
         {
@@ -162,8 +137,8 @@ namespace DiamondShop.Infrastructure.Services.Blobs
         }
         private string GetTimeStamp()
         {
-            throw new NotImplementedException();
-            //return DateTime.UtcNow.Ticks.ToString();
+            //throw new NotImplementedException();
+            return DateTime.UtcNow.Ticks.ToString();
         }
         //private static void MapCorrectSideDiamondOptionCombinationBackTrack(List<SideDiamondReq> requirements, int reqPosition, List<SideDiamondOpt> currentCombination, List<List<SideDiamondOpt>> storedResult)
         //{
@@ -182,107 +157,106 @@ namespace DiamondShop.Infrastructure.Services.Blobs
         //}
         private static void MapCorrectMainDiamondCombinationBackTrack(List<MainDiamondReq> requirements, int reqPosition, List<MainDiamondShape> currentCombination, List<List<MainDiamondShape>> storedResult)
         {
-            throw new NotImplementedException();
-            //if (reqPosition == requirements.Count)
-            //{
-            //    storedResult.Add(currentCombination);
-            //    return;
-            //}
-            //var currentReq = requirements[reqPosition];
-            //foreach (var opt in currentReq.Shapes)
-            //{
-            //    var newCombination = new List<MainDiamondShape>(currentCombination);
-            //    newCombination.Add(opt);
-            //    MapCorrectMainDiamondCombinationBackTrack(requirements, reqPosition + 1, newCombination, storedResult);
-            //}
+            // throw new NotImplementedException();
+            if (reqPosition == requirements.Count)
+            {
+                storedResult.Add(currentCombination);
+                return;
+            }
+            var currentReq = requirements[reqPosition];
+            foreach (var opt in currentReq.Shapes)
+            {
+                var newCombination = new List<MainDiamondShape>(currentCombination);
+                newCombination.Add(opt);
+                MapCorrectMainDiamondCombinationBackTrack(requirements, reqPosition + 1, newCombination, storedResult);
+            }
         }
 
         public async Task<Result<string[]>> UploadCategory(JewelryModel jewelryModel, CategoryFileData[] fileStreams, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
             //get all base key for metals, side diamonds and main diamonds[BASE_... ]
-            //List<(FileData fileData, string relativePath)> fileDataTobeUploaded = new();
-            ////init keys
-            //foreach (var file in fileStreams)
-            //{
-            //    string FinalPath = GetCategoryIdentifierName(file.MetalId, file.SideDiamondOpts, file.MainDiamonds);
-            //    fileDataTobeUploaded.Add(new (new FileData(file.stream.FileName, file.stream.FileExtension, file.stream.contentType,file.stream.Stream),FinalPath));
-            //}
-            //string basePath = GetAzureFilePath(jewelryModel);
-            //basePath = $"{basePath}/{CATEGORIZED_IMAGES_FOLDER}";
-            //List<Task<Result<string[]>>> uploadTasks = new();
-            //foreach (var file in fileDataTobeUploaded)
-            //{
-            //    var finalPath = $"{basePath}/{file.relativePath}";
-            //    uploadTasks.Add(UploadFromBasePath(finalPath, new List<FileData> { file.fileData }.ToArray(), cancellationToken));
-            //}
-            //var results = await Task.WhenAll(uploadTasks);
-            //var stringResult = results.Where(r => r.IsSuccess).SelectMany(r => r.Value).ToArray();
-            //if (stringResult.Length == 0)
-            //    return Result.Fail("Failed to upload any files at all");
-            //return Result.Ok(stringResult);
+            List<(FileData fileData, string relativePath)> fileDataTobeUploaded = new();
+            //init keys
+            foreach (var file in fileStreams)
+            {
+                string FinalPath = GetCategoryIdentifierName(file.MetalId, file.SideDiamondOpts);
+                fileDataTobeUploaded.Add(new(new FileData(file.stream.FileName, file.stream.FileExtension, file.stream.contentType, file.stream.Stream), FinalPath));
+            }
+            string basePath = GetAzureFilePath(jewelryModel);
+            basePath = $"{basePath}/{CATEGORIZED_IMAGES_FOLDER}";
+            List<Task<Result<string[]>>> uploadTasks = new();
+            foreach (var file in fileDataTobeUploaded)
+            {
+                var finalPath = $"{basePath}/{file.relativePath}";
+                uploadTasks.Add(UploadFromBasePath(finalPath, new List<FileData> { file.fileData }.ToArray(), cancellationToken));
+            }
+            var results = await Task.WhenAll(uploadTasks);
+            var stringResult = results.Where(r => r.IsSuccess).SelectMany(r => r.Value).ToArray();
+            if (stringResult.Length == 0)
+                return Result.Fail("Failed to upload any files at all");
+            return Result.Ok(stringResult);
         }
 
         public async Task<Result<string[]>> UploadBaseMetal(JewelryModel jewelryModel, BaseMetalFileData[] fileStreams, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
-            //string basePath = GetAzureFilePath(jewelryModel);
-            //basePath = $"{basePath}/{BASE_METAL_IMAGES_FOLDER}";
-            //List<Task<Result<string[]>>> uploadTasks = new();
-            //foreach (var file in fileStreams)
-            //{
-            //    var finalPath = $"{basePath}/{file.MetalId.Value}";
-            //    uploadTasks.Add(UploadFromBasePath(finalPath, new List<FileData> { file.stream }.ToArray(), cancellationToken));
-            //}
-            //var results = await Task.WhenAll(uploadTasks);
-            //var stringResult = results.Where(r => r.IsSuccess).SelectMany(r => r.Value).ToArray();
-            //if (stringResult.Length == 0)
-            //    return Result.Fail("Failed to upload any files at all");
-            //return Result.Ok(stringResult);
+            //throw new NotImplementedException();
+            string basePath = GetAzureFilePath(jewelryModel);
+            basePath = $"{basePath}/{BASE_METAL_IMAGES_FOLDER}";
+            List<Task<Result<string[]>>> uploadTasks = new();
+            foreach (var file in fileStreams)
+            {
+                var finalPath = GetAzureMetalPathIdentifier(basePath, file.MetalId);// $"{basePath}/{file.MetalId.Value}";
+                uploadTasks.Add(UploadFromBasePath(finalPath, new List<FileData> { file.stream }.ToArray(), cancellationToken));
+            }
+            var results = await Task.WhenAll(uploadTasks);
+            var stringResult = results.Where(r => r.IsSuccess).SelectMany(r => r.Value).ToArray();
+            if (stringResult.Length == 0)
+                return Result.Fail("Failed to upload any files at all");
+            return Result.Ok(stringResult);
         }
 
         public async Task<Result<string[]>> UploadBaseMainDiamond(JewelryModel jewelryModel, BaseMainDiamondFileData[] fileStreams, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
-            //string basePath = GetAzureFilePath(jewelryModel);
-            //basePath = $"{basePath}/{BASE_MAIN_DIAMOND_IMAGES_FOLDER}";
-            //List<Task<Result<string[]>>> uploadTasks = new();
-            //foreach (var file in fileStreams)
-            //{
-            //    //var path = GetAzureMainDiamondPathIdentifier("", file.MainDiamonds);
-            //    //var finalPath = $"{basePath}/{file.MainDiamond.MainDiamondReqId.Value}_{file.MainDiamond.ShapeId.Value}";
-            //    var pathOrderd = file.MainDiamondRequirements.Select(x => x.Id).OrderBy(x => x).ToArray();
-            //    string path = "";
-            //    pathOrderd.ForEach(x => path += $"/{x}");
-            //    path.Remove(0, 1);// remove the / from the first position
-            //    var finalPath = $"{basePath}/{path}";
-            //    uploadTasks.Add(UploadFromBasePath(finalPath, new List<FileData> { file.stream }.ToArray(), cancellationToken));
-            //}
-            //var results = await Task.WhenAll(uploadTasks);
-            //var stringResult = results.Where(r => r.IsSuccess).SelectMany(r => r.Value).ToArray();
-            //if (stringResult.Length == 0)
-            //    return Result.Fail("Failed to upload any files at all");
-            //return Result.Ok(stringResult);
+            // throw new NotImplementedException();
+            string basePath = GetAzureFilePath(jewelryModel);
+            basePath = $"{basePath}/{BASE_MAIN_DIAMOND_IMAGES_FOLDER}";
+            List<Task<Result<string[]>>> uploadTasks = new();
+            foreach (var file in fileStreams)
+            {
+                //var path = GetAzureMainDiamondPathIdentifier("", file.MainDiamonds);
+                //var finalPath = $"{basePath}/{file.MainDiamond.MainDiamondReqId.Value}_{file.MainDiamond.ShapeId.Value}";
+                var pathOrderd = file.MainDiamondRequirements.Select(x => x.Id).OrderBy(x => x).ToArray();
+                string path = "";
+                pathOrderd.ForEach(x => path += $"/{x}");
+                path.Remove(0, 1);// remove the / from the first position
+                var finalPath = $"{basePath}/{path}";
+                uploadTasks.Add(UploadFromBasePath(finalPath, new List<FileData> { file.stream }.ToArray(), cancellationToken));
+            }
+            var results = await Task.WhenAll(uploadTasks);
+            var stringResult = results.Where(r => r.IsSuccess).SelectMany(r => r.Value).ToArray();
+            if (stringResult.Length == 0)
+                return Result.Fail("Failed to upload any files at all");
+            return Result.Ok(stringResult);
         }
 
         public async Task<Result<string[]>> UploadBaseSideDiamond(JewelryModel jewelryModel, BaseSideDiamondFileData[] fileStreams, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
-            //string basePath = GetAzureFilePath(jewelryModel);
-            //basePath = $"{basePath}/{BASE_SIDE_DIAMOND_IMAGES_FOLDER}";
-            //List<Task<Result<string[]>>> uploadTasks = new();
-            //foreach (var file in fileStreams)
-            //{
-            //    var getSideDiamondsPath = GetAzureSideDiamondPathIdentifier("", file.SideDiamondOpt);
-            //    //var finalPath = $"{basePath}/{file.SideDiamondOpt.SideDiamondReqId.Value}_{file.SideDiamondOpt.Id.Value}";
-            //    var finalPath = $"{basePath}/{getSideDiamondsPath}";
-            //    uploadTasks.Add(UploadFromBasePath(finalPath, new List<FileData> { file.stream }.ToArray(), cancellationToken));
-            //}
-            //var results = await Task.WhenAll(uploadTasks);
-            //var stringResult = results.Where(r => r.IsSuccess).SelectMany(r => r.Value).ToArray();
-            //if (stringResult.Length == 0)
-            //    return Result.Fail("Failed to upload any files at all");
-            //return Result.Ok(stringResult);
+            //throw new NotImplementedException();
+            string basePath = GetAzureFilePath(jewelryModel);
+            basePath = $"{basePath}/{BASE_SIDE_DIAMOND_IMAGES_FOLDER}";
+            List<Task<Result<string[]>>> uploadTasks = new();
+            foreach (var file in fileStreams)
+            {
+                var getSideDiamondsPath = GetAzureSideDiamondPathIdentifier("", file.SideDiamondOpt);
+                //var finalPath = $"{basePath}/{file.SideDiamondOpt.SideDiamondReqId.Value}_{file.SideDiamondOpt.Id.Value}";
+                var finalPath = $"{basePath}/{getSideDiamondsPath}";
+                uploadTasks.Add(UploadFromBasePath(finalPath, new List<FileData> { file.stream }.ToArray(), cancellationToken));
+            }
+            var results = await Task.WhenAll(uploadTasks);
+            var stringResult = results.Where(r => r.IsSuccess).SelectMany(r => r.Value).ToArray();
+            if (stringResult.Length == 0)
+                return Result.Fail("Failed to upload any files at all");
+            return Result.Ok(stringResult);
         }
 
         public Task<Result<string[]>> UploadBase(JewelryModel jewelryModel, FileData[] fileStreams, CancellationToken cancellationToken = default)

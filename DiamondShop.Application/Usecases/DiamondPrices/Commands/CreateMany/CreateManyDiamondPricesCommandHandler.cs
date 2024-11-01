@@ -31,7 +31,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
 
         public async Task<Result> Handle(CreateManyDiamondPricesCommand request, CancellationToken cancellationToken)
         {
-            var getShapes = await _diamondShapeRepository.GetAll();
+            var getShapes = await _diamondShapeRepository.GetAllIncludeSpecialShape();
             var getCriteria = await _diamondCriteriaRepository.GetAll();
             await _unitOfWork.BeginTransactionAsync();
             foreach (var price in request.listPrices)
@@ -53,7 +53,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
                     var tryGetCriteria = getCriteria.FirstOrDefault(c => c.Id == price.DiamondCriteriaId && c.IsSideDiamond == true);
                     if (getCriteria is null)
                         return Result.Fail(new NotFoundError());
-                    var newPrice = DiamondPrice.CreateSideDiamondPrice(tryGetShape.Id, tryGetCriteria.Id, price.price, price.IsLabDiamond);
+                    var newPrice = DiamondPrice.CreateSideDiamondPrice(tryGetCriteria.Id, price.price, price.IsLabDiamond);
                     await _diamondPriceRepository.Create(newPrice);
                 }
             }

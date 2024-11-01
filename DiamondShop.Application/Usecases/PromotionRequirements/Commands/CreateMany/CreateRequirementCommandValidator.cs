@@ -7,7 +7,9 @@ namespace DiamondShop.Application.Usecases.PromotionRequirements.Commands.Create
     {
         public CreateRequirementCommandValidator()
         {
-            RuleForEach(x => x.Requirements).SetValidator(new RequirementSpecValidator());
+            var validator = new RequirementSpecValidator();
+            RuleFor(x => x.Requirements).Cascade(CascadeMode.Stop).NotNull();
+            RuleForEach(x => x.Requirements).SetValidator(validator);
         }
     }
     public class RequirementSpecValidator : AbstractValidator<RequirementSpec>

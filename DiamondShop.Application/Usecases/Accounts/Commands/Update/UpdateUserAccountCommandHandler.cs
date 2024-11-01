@@ -1,39 +1,32 @@
-﻿using Azure.Core;
-using DiamondShop.Application.Dtos.Requests.Accounts;
-using DiamondShop.Application.Dtos.Responses.Accounts;
-using DiamondShop.Application.Services.Interfaces;
+﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
-using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.AccountAggregate;
-using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 
 namespace DiamondShop.Application.Usecases.Accounts.Commands.Update
 {
-   
+
     internal class UpdateUserAccountCommandHandler : IRequestHandler<UpdateUserAccountCommand, Result<Account>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAccountRepository _accountRepository;
         private readonly ILogger<UpdateUserAccountCommandHandler> _logger;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public UpdateUserAccountCommandHandler(IUnitOfWork unitOfWork, IAccountRepository accountRepository, ILogger<UpdateUserAccountCommandHandler> logger)
+        public UpdateUserAccountCommandHandler(IUnitOfWork unitOfWork, IAccountRepository accountRepository, ILogger<UpdateUserAccountCommandHandler> logger, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _unitOfWork = unitOfWork;
             _accountRepository = accountRepository;
             _logger = logger;
+            _optionsMonitor = optionsMonitor;
         }
 
         public async Task<Result<Account>> Handle(UpdateUserAccountCommand request, CancellationToken cancellationToken)
@@ -87,11 +80,16 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.Update
         private void AddAddress(Account account, ChangedAddress changedAddress)
         {
             _logger.LogInformation("Add address function is called");
+            //AccountRules getRules = AccountRules.Default;
+            //var getAddressLimit = _applicationSettingService.Get(AccountRules.key);
+            //if (getRules.MaxAddress != null)
+            //    getRules = (AccountRules)getAddressLimit;
+            AccountRules getRules = _optionsMonitor.CurrentValue.AccountRules; 
             if (changedAddress.addedAddress is not null)
             {
                 foreach (var address in changedAddress.addedAddress)
                 {
-                    if (account.Addresses.Count >= AccountRules.MaxAddress)
+                    if (account.Addresses.Count >= getRules.MaxAddress)
                         return;
                     account.AddAddress(address.Province, address.District, address.Ward, address.Street);
                 }

@@ -4,6 +4,9 @@ namespace DiamondShop.Domain.Common.Carts
 {
     public class CartModelPrice
     {
+        public decimal UserRankDiscountPercent { get; set; } = 0;
+        public decimal UserRankDiscountAmount { get; set; } = 0;
+        //
         private decimal _defaultPrice;
         public decimal DefaultPrice
         {
@@ -13,10 +16,12 @@ namespace DiamondShop.Domain.Common.Carts
         public decimal DiscountAmountSaved { get; set; } = 0;
         public decimal DiscountPrice { get => DefaultPrice - DiscountAmountSaved; }
         public decimal PromotionAmountSaved { get; set; } = 0;
+        public decimal OrderPriceExcludeShipAndWarranty { get => DefaultPrice - DiscountAmountSaved - PromotionAmountSaved; }
+        public decimal OrderAmountSaved { get; set; } = 0;//when user reach a rank or promotion order
         // shipping and warranty may sit outside discount and promotion scope
-        //public decimal TotalWarrantyPrice { get; set; } = 0;
+        public decimal TotalWarrantyPrice { get; set; } = 0;
         public decimal TotalShippingPrice { get; set; } = 0;
-        public decimal FinalPrice { get => MoneyVndRoundUpRules.RoundAmountFromDecimal(DefaultPrice - DiscountAmountSaved - PromotionAmountSaved  + TotalShippingPrice); }
+        public decimal FinalPrice { get => MoneyVndRoundUpRules.RoundAmountFromDecimal(DefaultPrice - DiscountAmountSaved - PromotionAmountSaved - OrderAmountSaved + TotalShippingPrice + TotalWarrantyPrice); }
         
     }
 

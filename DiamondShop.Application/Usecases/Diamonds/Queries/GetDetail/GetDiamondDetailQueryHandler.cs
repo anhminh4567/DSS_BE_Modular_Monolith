@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
+using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
@@ -45,7 +46,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail
             {
                 return Result.Fail(new NotFoundError());
             }
-            var prices = await _diamondPriceRepository.GetPriceByShapes(getResult.DiamondShape,getResult.IsLabDiamond,cancellationToken);
+            bool isFancyShape = DiamondShape.IsFancyShape(getResult.DiamondShapeId);
+            var prices = await _diamondPriceRepository.GetPrice(isFancyShape, getResult.IsLabDiamond,cancellationToken);
             var diamondPrice = await _diamondServices.GetDiamondPrice(getResult, prices);
             //getResult.DiamondPrice = diamondPrice;
             //var testingOnly = await _diamondRepository.GetByIdIncludeDiscountAndPromotion(parsedId);

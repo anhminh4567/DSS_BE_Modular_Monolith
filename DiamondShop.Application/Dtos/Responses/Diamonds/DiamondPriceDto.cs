@@ -18,5 +18,7 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public decimal? DiscountPrice { get; set; }
         public DiscountDto? Discount { get; set; }
         public string ForUnknownPrice { get; set; }
+        public bool IsLabDiamond { get; set; }
+        public bool IsSideDiamond { get; set; }
     }
 }

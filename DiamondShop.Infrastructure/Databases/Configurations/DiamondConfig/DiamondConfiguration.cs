@@ -61,7 +61,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondConfig
             //builder.Property(o => o.Fluorescence).HasConversion<string>();
             builder.HasKey(o => o.Id);
             builder.HasIndex(o => new { o.Carat, o.Color, o.Clarity, o.Cut, o.IsLabDiamond, o.JewelryId });
-            builder.HasQueryFilter(x => x.Status == Domain.Common.Enums.ProductStatus.Active);
+            //builder.HasQueryFilter(x => x.Status == Domain.Common.Enums.ProductStatus.Active);
             //builder.HasIndex(o => o.Id);
         }
     }
