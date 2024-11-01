@@ -3,12 +3,14 @@ using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.Implementations;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,8 +29,9 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
         private readonly IDiamondShapeRepository _diamondShapeRepository;
         private readonly IDiscountService _discountService;
         private readonly IDiscountRepository _discountRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public GetDiamondPagingQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, IDiamondServices diamondService, IDiamondShapeRepository diamondShapeRepository, IDiscountService discountService, IDiscountRepository discountRepository)
+        public GetDiamondPagingQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, IDiamondServices diamondService, IDiamondShapeRepository diamondShapeRepository, IDiscountService discountService, IDiscountRepository discountRepository, IHttpContextAccessor httpContextAccessor)
         {
             _diamondRepository = diamondRepository;
             _diamondPriceRepository = diamondPriceRepository;
@@ -36,12 +39,17 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             _diamondShapeRepository = diamondShapeRepository;
             _discountService = discountService;
             _discountRepository = discountRepository;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Result<PagingResponseDto<Diamond>>> Handle(GetDiamondPagingQuery request, CancellationToken cancellationToken)
         {
             request.Deconstruct(out int pageSize, out int start, out var diamond_4C, out var diamond_Details, out var isLab);
             var query = _diamondRepository.GetQuery();
+            if (AccountRole.ShopRoles.Any(x => _httpContextAccessor.HttpContext.User.IsInRole(x.Id.Value)) is false)//not in shop
+            {
+                query = _diamondRepository.QueryFilter(query, d => d.Status == Domain.Common.Enums.ProductStatus.Active);
+            }
             //query = _diamondRepository.QueryInclude(query, d => d.DiamondShape);
             if (diamond_4C is not null)
                 query  = Filtering4C(query, diamond_4C);

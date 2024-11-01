@@ -4,6 +4,7 @@ using DiamondShop.Application.Dtos.Responses;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Diamonds;
 using DiamondShop.Application.Services.Interfaces.JewelryModels;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.DeliveryRepo;
@@ -30,6 +31,7 @@ using DiamondShop.Infrastructure.Outbox;
 using DiamondShop.Infrastructure.Securities;
 using DiamondShop.Infrastructure.Securities.Authentication;
 using DiamondShop.Infrastructure.Services;
+using DiamondShop.Infrastructure.Services.ApplicationConfigurations;
 using DiamondShop.Infrastructure.Services.Blobs;
 using DiamondShop.Infrastructure.Services.Excels;
 using DiamondShop.Infrastructure.Services.Locations;
@@ -188,7 +190,7 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IDiamondFileService, DiamondFileService>();
             services.AddScoped<IExcelService, ExcelSyncfunctionService>();
             services.AddScoped<IJewelryModelFileService, JewelryModelFileService>();
-            services.AddSingleton<IApplicationSettingService, ApplicationSettingService>();
+            services.AddScoped<IApplicationSettingService, ApplicationSettingService>();
 
             var serviceProviderInstrance = services.BuildServiceProvider();
             var mailOptions = serviceProviderInstrance.GetRequiredService<IOptions<MailOptions>>().Value;
@@ -241,6 +243,9 @@ namespace DiamondShop.Infrastructure
             services.ConfigureOptions<JwtBearerOptionSetup>();
             services.ConfigureOptions<GoogleOptionSetup>();
             services.ConfigureOptions<QuartzOptionSetup>();
+
+            //configure changeable settings
+            services.Configure<ApplicationSettingGlobal>(config => { });
             return services;
         }
         // test if origin change work

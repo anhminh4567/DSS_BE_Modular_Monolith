@@ -17,7 +17,7 @@ namespace DiamondShop.Domain.Models.RoleAggregate
         public string RoleDescription { get; private set; }
         public List<Account> Accounts { get; private set; } = new();
 
-        public AccountRole(AccountRoleId id,AccountRoleType type, string name, string description): base(id) 
+        public AccountRole(AccountRoleId id, AccountRoleType type, string name, string description) : base(id)
         {
             RoleName = name;
             RoleType = type;
@@ -27,6 +27,13 @@ namespace DiamondShop.Domain.Models.RoleAggregate
         {
 
         }
+        static AccountRole()
+        {
+            ShopRoles = new List<AccountRole>() { Staff, Manager, Admin, Deliverer };
+            CustomerRoles = new List<AccountRole>() { Customer, CustomerBronze, CustomerSilver, CustomerGold };
+        }
+        public static List<AccountRole> ShopRoles { get; private set; }
+        public static List<AccountRole> CustomerRoles { get; private set; }
 
         public const string StaffId = "11";
         public const string ManagerId = "22";

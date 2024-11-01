@@ -11,6 +11,6 @@ namespace DiamondShop.Domain.BusinessRules
         public static AccountRules Default = new AccountRules();
         public static string key = "AccountRules";
         public static string Type = typeof(AccountRules).AssemblyQualifiedName;
-        public int MaxAddress = 5;
+        public int MaxAddress { get; set; } = 5;
     }
 }

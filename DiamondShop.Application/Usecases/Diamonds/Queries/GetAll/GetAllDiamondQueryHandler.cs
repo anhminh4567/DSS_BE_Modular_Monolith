@@ -38,7 +38,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetAll
         public async Task<List<Diamond>> Handle(GetAllDiamondQuery request, CancellationToken cancellationToken)
         {
             _logger.LogDebug("get all diamond");
-            var result = (await _diamondRepository.GetAll()).ToList();
+            var result = (await _diamondRepository.GetAll()).Where(x => x.Status == Domain.Common.Enums.ProductStatus.Active).ToList();
             var getAllShape = await _diamondShapeRepository.GetAll();
             //Dictionary<string, List<DiamondPrice>> shapeDictPrice = new();
             //foreach (var shape in getAllShape)

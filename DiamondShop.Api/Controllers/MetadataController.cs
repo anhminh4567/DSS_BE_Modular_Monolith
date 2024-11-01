@@ -1,9 +1,12 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common;
 using FluentResults;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System.Reflection;
 
 namespace DiamondShop.Api.Controllers
@@ -16,12 +19,14 @@ namespace DiamondShop.Api.Controllers
         private readonly IMapper _mapper;
         private readonly ISender _sender;
         private readonly IApplicationSettingService _applicationSettingService;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public MetadataController(IMapper mapper, ISender sender, IApplicationSettingService applicationSettingService)
+        public MetadataController(IMapper mapper, ISender sender, IApplicationSettingService applicationSettingService, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _mapper = mapper;
             _sender = sender;
             _applicationSettingService = applicationSettingService;
+            _optionsMonitor = optionsMonitor;
         }
 
         [HttpGet]
@@ -71,8 +76,19 @@ namespace DiamondShop.Api.Controllers
             return Ok(response);
         }
         [HttpGet("Settings")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult> PrintAllSettings()
         {
+            var option = _optionsMonitor.CurrentValue.AccountRules;
+            return Ok();
+        }
+        [HttpGet("changeshit")]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public async Task<ActionResult> changesetting()
+        {
+            var get = (AccountRules)_applicationSettingService.Get(AccountRules.key);
+            get.MaxAddress += 10;
+            _applicationSettingService.Set(AccountRules.key, get);
             return Ok();
         }
     }
