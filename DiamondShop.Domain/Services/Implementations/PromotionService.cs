@@ -218,7 +218,7 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             if (orderGift.TargetType != TargetType.Order)
                 return;
-            var orderPriceNow = cartModel.OrderPrices.FinalPrice;//cartModel.OrderPrices.DefaultPrice - cartModel.OrderPrices.DiscountAmountSaved;
+            var orderPriceNow = cartModel.OrderPrices.OrderPriceExcludeShipAndWarranty;
             decimal promotionPriceSavedAmount = orderGift.UnitType switch
             {
                 UnitType.Percent => Math.Ceiling((orderPriceNow * orderGift.UnitValue) / (decimal)100),
@@ -226,7 +226,8 @@ namespace DiamondShop.Domain.Services.Implementations
                 UnitType.Free_Gift => throw new Exception("Major error, gift for order have a type of freeGift ??? major error, check back flow "),
                 _ => throw new Exception("Major error, gift for order have not unit type ")
             };
-            cartModel.OrderPrices.PromotionAmountSaved += MoneyVndRoundUpRules.RoundAmountFromDecimal(promotionPriceSavedAmount);
+            cartModel.OrderPrices.OrderAmountSaved += MoneyVndRoundUpRules.RoundAmountFromDecimal(promotionPriceSavedAmount);
+            //cartModel.OrderPrices.PromotionAmountSaved += MoneyVndRoundUpRules.RoundAmountFromDecimal(promotionPriceSavedAmount);
         }
         /// <summary>
         /// the function handle the interation over product, to check which is gift, which is not

@@ -20,5 +20,8 @@ namespace DiamondShop.Domain.BusinessRules
         public int MaxDiscountPercent { get; set; } = 90;
         public int MinCode { get; set; } = 10;
         public int MaxCode { get; set; } = 16;
+        public int BronzeUserDiscountPercent { get; set; } = 5;
+        public int SilverUserDiscountPercent { get; set; } = 8;
+        public int GoldUserDiscountPercent { get; set; } = 10;
     }
 }

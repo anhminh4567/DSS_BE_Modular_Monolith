@@ -29,6 +29,7 @@
     <Folder Include="Usecases\Deliveries\Commands\Create\" />
     <Folder Include="Usecases\Deliveries\Queries\GetAll\" />
     <Folder Include="Usecases\Deliveries\Queries\GetUser\" />
+    <Folder Include="Usecases\Diamonds\Queries\GetDiamondPrices\" />
     <Folder Include="Usecases\JewelryModelCategories\Commands\Delete\" />
     <Folder Include="Usecases\JewelryModelCategories\Commands\Update\" />
     <Folder Include="Usecases\JewelryModels\Commands\Delete\" />

@@ -219,7 +219,7 @@ namespace DiamondShop.Infrastructure
             services.AddSingleton<PaypalClient>();
             services.AddSingleton<ZalopayClient>();
             services.AddTransient<IPaymentService, ZalopayPaymentService>();
-            services.AddScoped<IApplicationSettingService, ApplicationSettingService>();
+            //services.AddScoped<IApplicationSettingService, ApplicationSettingService>();
             return services;
         }
 

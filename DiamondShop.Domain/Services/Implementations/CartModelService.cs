@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
@@ -18,6 +19,7 @@ using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -42,8 +44,10 @@ namespace DiamondShop.Domain.Services.Implementations
         private readonly IMainDiamondRepository _mainDiamondRepository;
         private readonly IDiamondPriceRepository _diamondPriceRepository;
         private readonly IWarrantyRepository _warrantyRepository;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
         private CartModel CurrentCart;
-        public CartModelService(IDiamondServices diamondServices, IJewelryService jewelryService, IPromotionServices promotionServices, IDiscountService discountService, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, ISizeMetalRepository sizeMetalRepository, IMainDiamondService mainDiamondService, IMainDiamondRepository mainDiamondRepository, IDiamondPriceRepository diamondPriceRepository, IWarrantyRepository warrantyRepository)
+
+        public CartModelService(IDiamondServices diamondServices, IJewelryService jewelryService, IPromotionServices promotionServices, IDiscountService discountService, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, ISizeMetalRepository sizeMetalRepository, IMainDiamondService mainDiamondService, IMainDiamondRepository mainDiamondRepository, IDiamondPriceRepository diamondPriceRepository, IWarrantyRepository warrantyRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _diamondServices = diamondServices;
             _jewelryService = jewelryService;
@@ -57,6 +61,7 @@ namespace DiamondShop.Domain.Services.Implementations
             _mainDiamondRepository = mainDiamondRepository;
             _diamondPriceRepository = diamondPriceRepository;
             _warrantyRepository = warrantyRepository;
+            _optionsMonitor = optionsMonitor;
         }
 
         public void AssignProductAndItemCounter(CartModel cartModel)
@@ -102,9 +107,10 @@ namespace DiamondShop.Domain.Services.Implementations
                     break;// only one promotion is applied at a time
                 }
             }
+            CurrentCart.SetUserRankDiscount(_optionsMonitor.CurrentValue.PromotionRule,null);
             CurrentCart.SetOrderShippingPrice(shipPrice);
+            CurrentCart.SetWarrantyTotalPrice();
             CurrentCart.SetErrorMessages();
-            
             //CurrentCart.SetOrderPrice();
             
             return Result.Ok(CurrentCart);
@@ -351,6 +357,7 @@ namespace DiamondShop.Domain.Services.Implementations
                     }
                     cartProduct.CurrentWarrantyApplied = usedWarranty;
                     cartProduct.CurrentWarrantyPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal( usedWarranty.Price);
+                    //this is not importrant, can be ignored, warranty should be place seperately like above is enought
                     cartProduct.ReviewPrice.WarrantyPrice = cartProduct.CurrentWarrantyPrice;
                 }
             }

@@ -97,7 +97,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
         private IQueryable<Diamond> Filtering4C( IQueryable<Diamond> query, GetDiamond_4C diamond_4C)
         {
             if (diamond_4C.cutFrom is not null || diamond_4C.cutTo is not null)
-                query = _diamondRepository.QueryFilter(query, d => d.Cut >= diamond_4C.cutFrom && d.Cut <= diamond_4C.cutTo);
+                query = _diamondRepository.QueryFilter(query, d => d.Cut == null || ( d.Cut >= diamond_4C.cutFrom && d.Cut <= diamond_4C.cutTo));
             if (diamond_4C.clarityFrom is not null || diamond_4C.clarityTo is not null)
                 query = _diamondRepository.QueryFilter(query, d => d.Clarity >= diamond_4C.clarityFrom && d.Clarity <= diamond_4C.clarityTo);
             if (diamond_4C.colorFrom is not null || diamond_4C.colorTo is not null)
