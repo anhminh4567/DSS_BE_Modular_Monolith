@@ -18,6 +18,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Services.Implementations
@@ -205,6 +206,49 @@ namespace DiamondShop.Domain.Services.Implementations
             JewelrySideDiamond fakeDiamond = JewelrySideDiamond.Create(JewelryId.Create(), sideDiamondOption.CaratWeight, sideDiamondOption.Quantity, sideDiamondOption.ColorMin, sideDiamondOption.ColorMax, sideDiamondOption.ClarityMin, sideDiamondOption.ClarityMax, sideDiamondOption.SettingType);
             var price = await GetSideDiamondPriceGlobal(fakeDiamond, diamondPrices);
             return price;
+        }
+
+        public async Task<List<DiamondPrice>> GetPrice(DiamondShape? shape = null, bool? isLabDiamond = null, CancellationToken token = default)
+        {
+            List<DiamondPrice> result = new();
+            if(shape == null)
+            {
+                if(isLabDiamond != null)
+                {
+                    var getRoundBrilliantPrice = await _diamondPriceRepository.GetPrice(false, true, token);
+                    var getFancyPrice = await _diamondPriceRepository.GetPrice(true, true, token);
+                    var getRoundBrilliantPriceNatural = await _diamondPriceRepository.GetPrice(false, false, token);
+                    var getFancyPriceNatural = await _diamondPriceRepository.GetPrice(true, false, token);
+                    result.AddRange(getRoundBrilliantPrice);
+                    result.AddRange(getFancyPrice);
+                    result.AddRange(getRoundBrilliantPriceNatural);
+                    result.AddRange(getFancyPriceNatural);
+                }
+                else
+                {
+                    var getRound = await _diamondPriceRepository.GetPrice(true, isLabDiamond, token);
+                    var getFancy = await _diamondPriceRepository.GetPrice(false, isLabDiamond, token);
+                    result.AddRange(getRound);
+                    result.AddRange(getFancy);
+                }
+            }
+            else
+            {
+                bool isFancyShape = DiamondShape.IsFancyShape(shape.Id);
+                if (isLabDiamond != null)
+                {
+                    var getlab = await _diamondPriceRepository.GetPrice(isFancyShape, true, token);
+                    var getNatural = await _diamondPriceRepository.GetPrice(isFancyShape, false, token);
+                    result.AddRange(getlab);
+                    result.AddRange(getNatural);
+                }
+                else
+                {
+                    var get = await _diamondPriceRepository.GetPrice(isFancyShape, isLabDiamond, token);
+                    result.AddRange(get);
+                }
+            }
+            return result;
         }
     }
 }

@@ -7,7 +7,16 @@ namespace DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany
     {
         public CreateGiftCommandValidator()
         {
-            RuleForEach(x => x.giftSpecs).SetValidator(new GiftSpecValidator());
+            var validator = new GiftSpecValidator();
+            RuleFor(x => x.giftSpecs).Cascade(CascadeMode.Stop).NotNull();
+            RuleForEach(x => x.giftSpecs).SetValidator(validator);
+            When(x => x.giftSpecs.Any(g => g.TargetType == TargetType.Order), () => 
+            {
+                RuleFor(x => x.giftSpecs)
+                .Must(x => x.Count(g => g.TargetType == TargetType.Order) == 1)
+                .WithName("OrderGiftCount")
+                .WithMessage("Only one gift can be set for order.");
+            });
         }
     }
     public class GiftSpecValidator : AbstractValidator<GiftSpec>

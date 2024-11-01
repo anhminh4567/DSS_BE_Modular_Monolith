@@ -7,6 +7,7 @@ using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Infrastructure.Databases.Configurations.DiamondShapeConfig;
 using FluentEmail.Core;
+using FluentResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System;
@@ -250,6 +251,20 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                     results.AddRange(tryGetNatural);
                 return results;
             }
+        }
+        //dangerous function, make sure no field is null !!!
+        public async Task<Result> DeleteMany(List<DeleteManyParameter> parameters, CancellationToken cancellationToken = default)
+        {
+            var getResult = await _set.IgnoreQueryFilters().Where(dp => parameters.Any(c =>
+                dp.ShapeId == c.DiamondShapeId &&
+                dp.CriteriaId == c.CriteriaId &&
+                dp.IsLabDiamond == c.Islab &&
+                dp.IsSideDiamond == c.IsSide))
+                .ToListAsync();
+            if (getResult == null || getResult.Count == 0)
+                return Result.Fail("no diamond price found for this criteria");
+            _set.RemoveRange(getResult);
+            return Result.Ok();
         }
     }
 }
