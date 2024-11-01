@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
 {
     // cut is not required, might leave it as it be
-    public record GetDiamondPriceBoardQuery(bool isFancyShapePrice, bool isLabDiamond, Cut? Cut = Cut.Excelent, bool IsSideDiamond = false) : IRequest<Result<DiamondPriceBoardDto>>;
+    public record GetDiamondPriceBoardQuery(bool isFancy, bool isLabDiamond, Cut? Cut = Cut.Excelent, bool IsSideDiamond = false) : IRequest<Result<DiamondPriceBoardDto>>;
     internal class GetDiamondPriceBoardQueryHandler : IRequestHandler<GetDiamondPriceBoardQuery, Result<DiamondPriceBoardDto>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
@@ -44,7 +44,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             //if (getShape is null)
             //    return Result.Fail(new NotFoundError("Shape not found"));
             DiamondShape priceBoardMainShape;
-            if(request.isFancyShapePrice)
+            if(request.isFancy)
             {
                 priceBoardMainShape = await _diamondShapeRepository.GetById(DiamondShape.FANCY_SHAPES.Id); //DiamondShape.FANCY_SHAPES;
             }
