@@ -2,6 +2,7 @@
 using DiamondShop.Application.Dtos.Responses.JewelryModels;
 using DiamondShop.Application.Usecases.JewelryModels.Commands.Create;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll;
+using DiamondShop.Application.Usecases.JewelryModels.Queries.GetDetail;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetail;
 using DiamondShop.Application.Usecases.SideDiamonds.Commands.Create;
@@ -25,12 +26,20 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             _sender = sender;
             _mapper = mapper;
         }
-        [HttpGet("All")]
+        [HttpGet("/Admin/All")]
         [Produces(type: typeof(List<JewelryModelDto>))]
-        public async Task<ActionResult> GetAll()
+        public async Task<ActionResult> GetAll([FromQuery] GetAllJewelryModelQuery jewelryModelQuery)
         {
-            var result = await _sender.Send(new GetAllJewelryModelQuery());
-            var mappedResult = _mapper.Map<List<JewelryModelDto>>(result);
+            var result = await _sender.Send(jewelryModelQuery);
+            var mappedResult = _mapper.Map<PagingResponseDto<JewelryModelDto>>(result);
+            return Ok(mappedResult);
+        }
+        [HttpGet("/Admin/Detail")]
+        [Produces(type: typeof(List<JewelryModelDto>))]
+        public async Task<ActionResult> GetDetail([FromQuery] string modelId)
+        {
+            var result = await _sender.Send(new GetJewelryModelDetailQuery(modelId));
+            var mappedResult = _mapper.Map<JewelryModelDto>(result.Value);
             return Ok(mappedResult);
         }
         [HttpGet("Selling")]

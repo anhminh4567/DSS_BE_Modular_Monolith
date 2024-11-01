@@ -31,7 +31,6 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetDetail
             var jewelryModel = await _jewelryModelRepository.GetById(JewelryModelId.Parse(modelId));
             if (jewelryModel == null)
                 return Result.Fail("This jewelry model doesn't exist");
-            _jewelryModelService.GetSizeMetalPrice(jewelryModel.SizeMetals);
             return jewelryModel;
         }
     }
