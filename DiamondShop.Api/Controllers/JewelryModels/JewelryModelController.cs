@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Commons.Responses;
+using DiamondShop.Application.Dtos.Responses.Jewelries;
 using DiamondShop.Application.Dtos.Responses.JewelryModels;
 using DiamondShop.Application.Usecases.JewelryModels.Commands.Create;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll;
@@ -26,21 +27,25 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             _sender = sender;
             _mapper = mapper;
         }
-        [HttpGet("/Admin/All")]
-        [Produces(type: typeof(List<JewelryModelDto>))]
+        [HttpGet("Admin/All")]
+        [Produces(type: typeof(PagingResponseDto<JewelryModelDto>))]
         public async Task<ActionResult> GetAll([FromQuery] GetAllJewelryModelQuery jewelryModelQuery)
         {
             var result = await _sender.Send(jewelryModelQuery);
             var mappedResult = _mapper.Map<PagingResponseDto<JewelryModelDto>>(result);
             return Ok(mappedResult);
         }
-        [HttpGet("/Admin/Detail")]
-        [Produces(type: typeof(List<JewelryModelDto>))]
+        [HttpGet("Admin/Detail")]
+        [Produces(type: typeof(JewelryModelDto))]
         public async Task<ActionResult> GetDetail([FromQuery] string modelId)
         {
             var result = await _sender.Send(new GetJewelryModelDetailQuery(modelId));
-            var mappedResult = _mapper.Map<JewelryModelDto>(result.Value);
-            return Ok(mappedResult);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<JewelryModelDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
         }
         [HttpGet("Selling")]
         [Produces(type: typeof(PagingResponseDto<JewelryModelSellingDto>))]
