@@ -57,8 +57,12 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
                 ).ToList();
             List<DiamondCriteriaId> diamondCriteriaIds = parsedList.Select(x => x.criteriaId).ToList();
             List<DiamondPrice> getPrices = new();
+            bool isFancyShape = DiamondShape.IsFancyShape(selectedShape.Id);
 
-            getPrices = await _diamondServices.GetPrice(selectedShape, request.islabDiamond, cancellationToken);
+            if(request.IsSideDiamond is false)
+                getPrices = await _diamondPriceRepository.GetPriceIgnoreCache(isFancyShape, request.islabDiamond, cancellationToken);
+            else
+                getPrices = await _diamondPriceRepository.GetSideDiamondPrice(request.islabDiamond, cancellationToken);
             //if(request.IsSideDiamond is false)
             //    getPrices = await _diamondPriceRepository.GetPriceByShapes(selectedShape,request.islabDiamond,cancellationToken);
             //else
@@ -72,7 +76,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
                 await _diamondPriceRepository.Update(price);
             }
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            return getPrices;
+            return new List<DiamondPrice>();
         }
     }
 }

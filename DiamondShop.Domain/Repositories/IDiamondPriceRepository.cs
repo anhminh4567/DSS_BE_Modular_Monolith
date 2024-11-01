@@ -15,6 +15,7 @@ namespace DiamondShop.Domain.Repositories
         Task<List<DiamondPrice>> GetPriceByShapes(DiamondShape shape, bool? isLabDiamond = null, CancellationToken token = default);
         Task<List<DiamondPrice>> GetPriceByCriteria(DiamondCriteriaId diamondCriteriaId, bool? isLabDiamond = null, CancellationToken token = default);
         Task<List<DiamondPrice>> GetPrice(bool isFancyShape, bool? isLabDiamond = null, CancellationToken token = default);
+        Task<List<DiamondPrice>> GetPriceIgnoreCache(bool isFancyShape, bool? isLabDiamond = null, CancellationToken token = default);
 
         Task<DiamondPrice?> GetById(DiamondShapeId shapeId, DiamondCriteriaId criteriaId, CancellationToken cancellationToken =default);
         Task CreateMany(List<DiamondPrice> prices);

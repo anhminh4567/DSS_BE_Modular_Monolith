@@ -56,11 +56,11 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             RemoveAllKey(entity.ShapeId);
         }
 
-        public async Task<List<DiamondPrice>> GetPriceByShapes(DiamondShape shape , bool? isLabDiamond = null, CancellationToken token = default)
+        public async Task<List<DiamondPrice>> GetPriceByShapes(DiamondShape shape, bool? isLabDiamond = null, CancellationToken token = default)
         {
             bool isFancyShape = DiamondShape.IsFancyShape(shape.Id);
             DiamondShape correctShape = shape;
-            if(isFancyShape)
+            if (isFancyShape)
                 correctShape = DiamondShape.FANCY_SHAPES;
             else
                 correctShape = DiamondShape.ROUND;
@@ -188,10 +188,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         public Task<List<DiamondPrice>> GetSideDiamondPriceByAverageCarat(float avgCarat, bool? isLabDiamond = null, CancellationToken token = default)
         {
             if (isLabDiamond != null)
-                    return _set.Where(d => d.ShapeId == DiamondShape.ANY_SHAPES.Id && d.IsLabDiamond == isLabDiamond && d.IsSideDiamond == true)
-                    .Include(p => p.Criteria)
-                    .Where(p => p.Criteria.CaratFrom <= avgCarat && p.Criteria.CaratTo >= avgCarat)
-                    .ToListAsync();
+                return _set.Where(d => d.ShapeId == DiamondShape.ANY_SHAPES.Id && d.IsLabDiamond == isLabDiamond && d.IsSideDiamond == true)
+                .Include(p => p.Criteria)
+                .Where(p => p.Criteria.CaratFrom <= avgCarat && p.Criteria.CaratTo >= avgCarat)
+                .ToListAsync();
 
             else
 
@@ -265,6 +265,33 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                 return Result.Fail("no diamond price found for this criteria");
             _set.RemoveRange(getResult);
             return Result.Ok();
+        }
+
+        public async Task<List<DiamondPrice>> GetPriceIgnoreCache(bool isFancyShape, bool? isLabDiamond = null, CancellationToken token = default)
+        {
+            DiamondShape getShape;
+            if (isFancyShape)
+                getShape = _dbContext.DiamondShapes.IgnoreQueryFilters().ToList().First(s => s.Id == DiamondShape.FANCY_SHAPES.Id);
+            else
+                getShape = _dbContext.DiamondShapes.IgnoreQueryFilters().ToList().First(s => s.Id == DiamondShape.ROUND.Id);
+            if (isLabDiamond != null)
+            {
+                var get = await _set.Include(p => p.Criteria)
+                    .Where(p => p.ShapeId == getShape.Id && p.IsLabDiamond == isLabDiamond && p.IsSideDiamond == false)
+                    .OrderBy(s => s.Criteria.CaratTo).ToListAsync();
+
+                return get;
+            }
+            else
+            {
+                List<DiamondPrice> results = new();
+                var getFromDb = await _set.Include(p => p.Criteria)
+                  .Where(p => p.ShapeId == getShape.Id && p.IsLabDiamond == true && p.IsSideDiamond == false)
+                  .OrderBy(s => s.Criteria.CaratTo).ToListAsync();
+
+                results.AddRange(getFromDb);
+                return results;
+            }
         }
     }
 }

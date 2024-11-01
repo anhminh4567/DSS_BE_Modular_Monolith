@@ -45,6 +45,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.DeleteMany
                 request.isSideDiamond
             )).ToList();
             var deleteResult = await _diamondPriceRepository.DeleteMany(parsedList);
+            await _unitOfWork.SaveChangesAsync();
             return deleteResult;
 
         }
