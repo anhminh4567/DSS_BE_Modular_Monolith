@@ -33,11 +33,12 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public int? DiscountPercent { get; set; }
         public UnitType? PromoType { get; set; }
         public decimal? PromoValue { get; set; }
+        public decimal WarrantyPrice { get; set; }
         //public List<OrderItemWarranty>? Warranties { get; set; } = new();
         public OrderItemWarrantyId? WarrantyId { get; set; }
         public OrderItemWarranty? Warranty { get; set; }
         public OrderItem() { }
-        public static OrderItem Create(OrderId orderId, JewelryId? jewelryId, DiamondId? diamondId, decimal? finalPrice = 0, decimal? purchasedPrice = 0, DiscountId? discountId = null,  int? discountPercent = 0, UnitType? promoType = UnitType.Percent, decimal? promoValue = 0, OrderItemId? givenId = null)
+        public static OrderItem Create(OrderId orderId, JewelryId? jewelryId, DiamondId? diamondId, decimal? finalPrice = 0, decimal? purchasedPrice = 0, DiscountId? discountId = null,  int? discountPercent = 0, UnitType? promoType = UnitType.Percent, decimal? promoValue = 0, decimal warrantyPrice = 0, OrderItemId? givenId = null)
         {
             return new OrderItem()
             {
@@ -52,6 +53,7 @@ namespace DiamondShop.Domain.Models.Orders.Entities
                 DiscountPercent = discountPercent ?? 0,
                 PromoType = promoType,
                 PromoValue = promoValue ?? 0,
+                WarrantyPrice = warrantyPrice
             };
         }
     }

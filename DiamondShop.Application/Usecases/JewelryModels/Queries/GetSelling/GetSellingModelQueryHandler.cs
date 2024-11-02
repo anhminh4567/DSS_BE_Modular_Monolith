@@ -18,12 +18,13 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
         private readonly IJewelryModelRepository _jewelryModelRepository;
         private readonly ISizeMetalRepository _sizeMetalRepository;
         private readonly IMainDiamondRepository _mainDiamondRepository;
+        private readonly IDiamondServices _diamondServices;
         private readonly IJewelryModelService _jewelryModelService;
 
         public GetSellingModelQueryHandler(
             ISizeMetalRepository sizeMetalRepository,
             IJewelryModelRepository jewelryModelRepository,
-            IMainDiamondRepository mainDiamondRepository, IJewelryModelCategoryRepository categoryRepository, IJewelryModelService jewelryModelService, IJewelryRepository jewelryRepository)
+            IMainDiamondRepository mainDiamondRepository, IJewelryModelCategoryRepository categoryRepository, IJewelryModelService jewelryModelService, IJewelryRepository jewelryRepository, IDiamondServices diamondServices)
         {
             _sizeMetalRepository = sizeMetalRepository;
             _jewelryModelRepository = jewelryModelRepository;
@@ -31,6 +32,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
             _categoryRepository = categoryRepository;
             _jewelryModelService = jewelryModelService;
             _jewelryRepository = jewelryRepository;
+            _diamondServices = diamondServices;
         }
 
         public async Task<Result<PagingResponseDto<JewelryModelSelling>>> Handle(GetSellingModelQuery request, CancellationToken cancellationToken)
@@ -55,21 +57,22 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                 query = _jewelryModelRepository.QueryFilter(query, p => p.IsEngravable == isEngravable);
             }
             List<JewelryModelSelling> sellingModels = new();
-            var pageIndex = GetData(sellingModels, query, page, metalId, minPrice, maxPrice);
-            return new PagingResponseDto<JewelryModelSelling>(0, 0, sellingModels);
+            var pageIndex = await GetData(sellingModels, query, page, metalId, minPrice, maxPrice);
+            return new PagingResponseDto<JewelryModelSelling>(0, pageIndex, sellingModels);
         }
         private PagingResponseDto<JewelryModelSelling> BlankPaging() => new PagingResponseDto<JewelryModelSelling>(0, 0, []);
-        private int GetData(List<JewelryModelSelling> sellingModels, IQueryable<JewelryModel> query, int page, string? metalId, decimal? minPrice, decimal? maxPrice)
+        private async Task<int> GetData(List<JewelryModelSelling> sellingModels, IQueryable<JewelryModel> query, int page, string? metalId, decimal? minPrice, decimal? maxPrice)
         {
-            //TODO: REplace diamond price with real price getter
-            const decimal DiamondPrices = 10m;
             var models = query.Skip(JewelryModelRule.ModelPerQuery * page).Take(JewelryModelRule.ModelPerQuery).ToList();
             if (models.Count == 0)
                 return page == 0 ? 0 : page - 1;
             foreach (var model in models)
             {
                 var sideDiamonds = model.SideDiamonds;
-                sideDiamonds.ForEach(d => d.Price = DiamondPrices);
+                foreach(var side in sideDiamonds)
+                {
+                    await _diamondServices.GetSideDiamondPrice(side);
+                }
                 var sizeMetals = model.SizeMetals
                     .Where(p =>
                     {
@@ -101,8 +104,8 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                         var created_side = sideDiamonds
                             .Select(p => JewelryModelSelling.CreateWithSide(
                             "", model.Name, sizeMetal.Metal.Name, 0, 0,
-                            model.CraftmanFee, sizeMetal.Min.Price, sizeMetal.Max.Price, p.CaratWeight,
-                            model.Id, sizeMetal.Metal.Id, p.Id))
+                            model.CraftmanFee, sizeMetal.Min.Price, sizeMetal.Max.Price,
+                            model.Id, sizeMetal.Metal.Id, p))
                         .Where(p =>
                         {
                             bool flag = true;
@@ -128,7 +131,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                 }
             }
             if (sellingModels.Count < JewelryModelRule.MinimumItemPerPaging)
-                return GetData(sellingModels, query, page + 1, metalId, minPrice, maxPrice);
+                return await GetData(sellingModels, query, page + 1, metalId, minPrice, maxPrice);
             else
                 return page;
         }

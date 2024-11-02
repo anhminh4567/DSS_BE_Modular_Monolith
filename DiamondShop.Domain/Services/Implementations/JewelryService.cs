@@ -35,6 +35,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 if (sizeMetal?.Metal == null)
                     return false;
                 jewelry.ND_Price = sizeMetal.Price != null ? sizeMetal.Price : GetPrice(sizeMetal.Weight, jewelry.Metal.Price);
+                jewelry.D_Price = GetJewelryDiamondPrice(jewelry).Result;
             }
             return true;
         }
@@ -46,6 +47,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 if (sizeMetal?.Metal == null)
                     return false;
                 jewelry.ND_Price = sizeMetal.Price != null ? sizeMetal.Price : GetPrice(sizeMetal.Weight, jewelry.Metal.Price);
+                jewelry.D_Price = GetJewelryDiamondPrice(jewelry).Result;
             }
             return true;
         }

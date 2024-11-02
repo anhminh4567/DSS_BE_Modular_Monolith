@@ -15,12 +15,13 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
         private readonly IJewelryRepository _jewelryRepository;
         private readonly IJewelryModelRepository _modelRepository;
         private readonly IJewelryModelService _modelService;
-
-        public GetSellingModelDetailQueryHandler(IJewelryModelRepository modelRepository, IJewelryModelService modelService, IJewelryRepository jewelryRepository)
+        private readonly IDiamondServices _diamondServices;
+        public GetSellingModelDetailQueryHandler(IJewelryModelRepository modelRepository, IJewelryModelService modelService, IJewelryRepository jewelryRepository, IDiamondServices diamondServices)
         {
             _modelRepository = modelRepository;
             _modelService = modelService;
             _jewelryRepository = jewelryRepository;
+            _diamondServices = diamondServices;
         }
 
         public async Task<Result<JewelryModelSellingDetail>> Handle(GetSellingModelDetailQuery request, CancellationToken cancellationToken)
@@ -48,17 +49,18 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
             {
                 if (sideDiamonds != null && sideDiamonds.Count > 0)
                 {
-                    sideDiamonds.ForEach(p =>
+                    foreach(var side in sideDiamonds)
                     {
-                        p.Price = DiamondPrices;
-                        var sizesInStock = _jewelryRepository.GetSizesInStock(model.Id, metals.Key.Id, p);
+                        side.Price = DiamondPrices;
+                        var sizesInStock = _jewelryRepository.GetSizesInStock(model.Id, metals.Key.Id, side);
+                        await _diamondServices.GetSideDiamondPrice(side);
                         metalGroups.Add(
                             SellingDetailMetal.CreateWithSide(
-                                model.Name, metals.Key, p, null,
+                                model.Name, metals.Key, side.Price > 0, side, null,
                                 metals.Select(k =>
-                                SellingDetailSize.Create(k.Size.Value, p.Price + model.CraftmanFee + k.Price, sizesInStock.Contains(k.SizeId))).ToList()
+                                SellingDetailSize.Create(k.Size.Value,side.Price != null ? side.Price + model.CraftmanFee + k.Price : 0, sizesInStock.Contains(k.SizeId))).ToList()
                             ));
-                    });
+                    };
                 }
                 else
                 {
