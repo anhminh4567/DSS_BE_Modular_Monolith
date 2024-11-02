@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.Diamonds;
+﻿using DiamondShop.Domain.Models.CustomizeRequests.Entities;
+using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using FluentResults;
@@ -13,5 +14,6 @@ namespace DiamondShop.Domain.Services.interfaces
     public interface IMainDiamondService
     {
         public Task<Result> CheckMatchingDiamond(JewelryModelId jewelryModelId, List<Diamond> diamonds, IMainDiamondRepository mainDiamondRepository);
+        public Task<Result> CheckMatchingDiamond(JewelryModelId jewelryModelId, List<DiamondRequest> customizeRequests, IMainDiamondRepository mainDiamondRepository);
     }
 }

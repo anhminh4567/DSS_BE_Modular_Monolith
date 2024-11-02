@@ -4,8 +4,10 @@ using DiamondShop.Application.Usecases.Jewelries.Commands;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetAll;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetDetail;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetSelling;
+using DiamondShop.Domain.Models.RoleAggregate;
 using MapsterMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiamondShop.Api.Controllers.Jewelries
@@ -24,6 +26,7 @@ namespace DiamondShop.Api.Controllers.Jewelries
         }
 
         [HttpGet("Admin/All")]
+        [Authorize(Roles = AccountRole.StaffId)]
         [Produces(type: typeof(PagingResponseDto<JewelryDto>))]
         public async Task<ActionResult> GetAll([FromQuery] GetAllJewelryQuery getAllJewelryQuery)
         {
@@ -32,6 +35,7 @@ namespace DiamondShop.Api.Controllers.Jewelries
             return Ok(mappedResult);
         }
         [HttpGet("Admin/Detail")]
+        [Authorize(Roles = AccountRole.StaffId)]
         [Produces(type: typeof(JewelryDto))]
         public async Task<ActionResult> GetDetail([FromQuery] GetJewelryDetailQuery getJewelryDetailQuery)
         {

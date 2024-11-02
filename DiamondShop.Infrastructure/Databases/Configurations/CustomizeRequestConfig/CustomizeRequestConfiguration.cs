@@ -41,16 +41,16 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.CustomizeRequestCo
                     dbValue => MetalId.Parse(dbValue));
             builder.Property(o => o.Status).HasConversion<string>();
             builder.HasKey(o => o.Id);
-            builder.HasOne<Domain.Models.AccountAggregate.Account>()
+            builder.HasOne(o => o.Account)
                 .WithMany()
                 .HasForeignKey(o => o.AccountId);
-            builder.HasOne<JewelryModel>()
+            builder.HasOne(o => o.JewelryModel)
                 .WithMany()
                 .HasForeignKey(o => o.JewelryModelId);
-            builder.HasOne<Size>()
+            builder.HasOne(o => o.Size)
                 .WithMany()
                 .HasForeignKey(o => o.SizeId);
-            builder.HasOne<Metal>()
+            builder.HasOne(o => o.Metal)
                 .WithMany()
                 .HasForeignKey(o => o.MetalId);
             builder.HasMany(o => o.DiamondRequests)

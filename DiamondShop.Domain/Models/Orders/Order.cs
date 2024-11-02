@@ -1,28 +1,22 @@
-﻿using DiamondShop.Domain.BusinessRules;
+﻿using DiamondShop.Commons;
+using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
-using DiamondShop.Domain.Models.Notifications.ValueObjects;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Models.Transactions;
-using DiamondShop.Domain.Models.Transactions.Entities;
-using DiamondShop.Domain.Models.Transactions.ValueObjects;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text; 
-using System.Threading.Tasks; 
 
 namespace DiamondShop.Domain.Models.Orders
 {
     public class Order : Entity<OrderId>, IAggregateRoot
     {
+        public string OrderCode { get; set; }
         public AccountId AccountId { get; set; }
         public Account? Account { get; set; }
         public AccountId? DelivererId { get; set; }
@@ -42,11 +36,11 @@ namespace DiamondShop.Domain.Models.Orders
         public decimal TotalPrice { get; set; }
         public decimal TotalRefund { get; set; } = 0;
         public decimal TotalFine { get; set; } = 0;
+        public decimal OrderSavedAmount { get; set; } = 0;
         public string ShippingAddress { get; set; }
         public List<OrderItem> Items { get; set; } = new();
         public List<OrderLog> Logs { get; set; } = new();
         public List<Transaction> Transactions { get; set; } = new();
-
         public OrderId? ParentOrderId { get; set; } // for replacement order
 
         public string? Note { get; set; }
@@ -73,11 +67,12 @@ namespace DiamondShop.Domain.Models.Orders
         public Order() { }
         public static Order Create(AccountId accountId, PaymentType paymentType, 
             decimal totalPrice, decimal shippingFee, string shippingAddress,
-            PromotionId promotionId = null, OrderId givenId = null)
+            PromotionId promotionId = null, decimal orderSavedAmount = 0, OrderId givenId = null)
         {
             return new Order()
             {
                 Id = givenId is null ? OrderId.Create() : givenId,
+                OrderCode = Utilities.GenerateRandomString(OrderRules.OrderCodeLength),
                 AccountId = accountId,
                 Status = OrderStatus.Pending,
                 PaymentStatus = PaymentStatus.Pending,
@@ -85,7 +80,8 @@ namespace DiamondShop.Domain.Models.Orders
                 PaymentType = paymentType,
                 TotalPrice = totalPrice,
                 ShippingFee = shippingFee,
-                ShippingAddress = shippingAddress
+                ShippingAddress = shippingAddress,
+                OrderSavedAmount = orderSavedAmount
             };
         }
     }

@@ -42,11 +42,11 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.CustomizeRequestCo
             //builder.Property(o => o.Girdle).HasConversion<string>();  
             //builder.Property(o => o.Culet).HasConversion<string>();
             builder.HasKey(o => new { o.DiamondRequestId, o.CustomizeRequestId });
-            builder.HasOne<DiamondShape>()
+            builder.HasOne(o => o.DiamondShape)
                 .WithMany()
                 .HasForeignKey(c => c.DiamondShapeId)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.HasOne<Diamond>()
+            builder.HasOne(o => o.Diamond)
                 .WithMany()
                 .HasForeignKey(c => c.DiamondId)
                 .OnDelete(DeleteBehavior.Cascade);

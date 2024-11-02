@@ -7,12 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Usecases\Deliveries\**" />
     <Compile Remove="Usecases\DiamondPrices\Commands\Update\**" />
     <Compile Remove="Usecases\Orders\Commands\AddToDelivery\**" />
     <Compile Remove="Usecases\Orders\Commands\Complete\**" />
+    <EmbeddedResource Remove="Usecases\Deliveries\**" />
     <EmbeddedResource Remove="Usecases\DiamondPrices\Commands\Update\**" />
     <EmbeddedResource Remove="Usecases\Orders\Commands\AddToDelivery\**" />
     <EmbeddedResource Remove="Usecases\Orders\Commands\Complete\**" />
+    <None Remove="Usecases\Deliveries\**" />
     <None Remove="Usecases\DiamondPrices\Commands\Update\**" />
     <None Remove="Usecases\Orders\Commands\AddToDelivery\**" />
     <None Remove="Usecases\Orders\Commands\Complete\**" />
@@ -25,10 +28,6 @@
 
   <ItemGroup>
     <Folder Include="Usecases\Addresses\Queries\GetAllUserAddresses\" />
-    <Folder Include="Usecases\Deliveries\Commands\Begin\" />
-    <Folder Include="Usecases\Deliveries\Commands\Create\" />
-    <Folder Include="Usecases\Deliveries\Queries\GetAll\" />
-    <Folder Include="Usecases\Deliveries\Queries\GetUser\" />
     <Folder Include="Usecases\JewelryModelCategories\Commands\Delete\" />
     <Folder Include="Usecases\JewelryModelCategories\Commands\Update\" />
     <Folder Include="Usecases\JewelryModels\Commands\Delete\" />

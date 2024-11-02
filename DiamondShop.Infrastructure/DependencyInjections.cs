@@ -7,17 +7,17 @@ using DiamondShop.Application.Services.Interfaces.JewelryModels;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Repositories;
+using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Repositories.DeliveryRepo;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Repositories.TransactionRepo;
-using DiamondShop.Domain.Services.Implementations;
-using DiamondShop.Domain.Services.interfaces;
 using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Databases.Interceptors;
 using DiamondShop.Infrastructure.Databases.Repositories;
+using DiamondShop.Infrastructure.Databases.Repositories.CustomizeRequestRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.DeliveryRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo;
@@ -34,15 +34,10 @@ using DiamondShop.Infrastructure.Services;
 using DiamondShop.Infrastructure.Services.ApplicationConfigurations;
 using DiamondShop.Infrastructure.Services.Blobs;
 using DiamondShop.Infrastructure.Services.Excels;
-using DiamondShop.Infrastructure.Services.Locations;
 using DiamondShop.Infrastructure.Services.Locations.Locally;
-using DiamondShop.Infrastructure.Services.Locations.OApi;
-using DiamondShop.Infrastructure.Services.Locations.OpenApiProvinces;
 using DiamondShop.Infrastructure.Services.Payments.Paypals;
 using DiamondShop.Infrastructure.Services.Payments.Zalopays;
-using FluentValidation.Results;
 using Mapster;
-using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -101,6 +96,9 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IOrderItemRepository, OrderItemRepository>();
             services.AddScoped<IOrderLogRepository, OrderLogRepository>();
 
+            services.AddScoped<ICustomizeRequestRepository, CustomizeRequestRepository>();
+            services.AddScoped<IDiamondRequestRepository, DiamondRequestRepository>();
+
             services.AddScoped<ITransactionRepository, TransactionRepository>();
             services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
 
@@ -120,6 +118,7 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IPaymentService, ZalopayPaymentService>();
 
             services.AddSingleton<ICartService, CartService>();
+
             // file service persist
             services.AddSingleton((serviceProvider) =>
             {

@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+﻿using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 
 namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
 {
@@ -14,20 +15,20 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
         public MetalId MetalId { get; set; }
         public SideDiamondOptId SideDiamondOptId { get; set; }
         public static JewelryModelSelling CreateWithSide(string thumbnail, string modelName, string metalName, int star, int reviewCount,
-            decimal craftmanFee, decimal minMetalPrice, decimal maxMetalPrice, float caratWeight,
-            JewelryModelId modelId, MetalId metalId, SideDiamondOptId sideDiamondOptId)
+            decimal craftmanFee, decimal minMetalPrice, decimal maxMetalPrice,
+            JewelryModelId modelId, MetalId metalId, SideDiamondOpt sideDiamondOpt)
         {
             return new JewelryModelSelling()
             {
-                Name = $"{modelName} in {metalName} ({caratWeight} Tw)",
+                Name = $"{modelName} in {metalName} ({sideDiamondOpt.CaratWeight} Tw)",
                 ThumbnailPath = "",
                 StarRating = 0,
                 ReviewCount = 0,
-                MinPrice = craftmanFee + minMetalPrice,
-                MaxPrice = craftmanFee + maxMetalPrice,
+                MinPrice = craftmanFee + minMetalPrice + sideDiamondOpt.Price,
+                MaxPrice = craftmanFee + maxMetalPrice + sideDiamondOpt.Price,
                 JewelryModelId = modelId,
                 MetalId = metalId,
-                SideDiamondOptId = sideDiamondOptId
+                SideDiamondOptId = sideDiamondOpt.Id
             };
         }
         public static JewelryModelSelling CreateNoSide(string thumbnail, string modelName, string metalName, int star, int reviewCount,

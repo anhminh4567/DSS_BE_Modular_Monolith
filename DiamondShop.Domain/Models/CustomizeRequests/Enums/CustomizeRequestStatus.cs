@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.CustomizeRequests.Enums
 {
-    public enum CustomizeDiamondRequestStatus
+    public enum CustomizeRequestStatus
     {
-         Accepted = 1, Rejected = 2, Invalid = 3, Finish = 4
+         Pending = 1, Pricing = 2, Requesting = 3, Accepted = 4, Rejected = 5
     }
 }
