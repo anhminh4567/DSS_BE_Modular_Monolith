@@ -4,9 +4,12 @@ using DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.AccountRoleAggregate.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories;
+using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Identity.Models;
 using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services;
@@ -17,6 +20,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -46,9 +50,10 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IMemoryCache _cache;
         private readonly IEmailService _emailService;
+        private readonly DiamondShopDbContext _dbContext;
         private const string BEARER_HEADER = "Bearer ";
 
-        public AuthenticationService(CustomRoleManager roleManager, CustomSigninManager signinManager, CustomUserManager userManager, IUnitOfWork unitOfWork, ILogger<AuthenticationService> logger, IJwtTokenProvider jwtTokenProvider, IAccountRepository accountRepository, IAccountRoleRepository accountRoleRepository, IHttpContextAccessor contextAccessor, IDateTimeProvider dateTimeProvider, IMemoryCache cache, IEmailService emailService)
+        public AuthenticationService(CustomRoleManager roleManager, CustomSigninManager signinManager, CustomUserManager userManager, IUnitOfWork unitOfWork, ILogger<AuthenticationService> logger, IJwtTokenProvider jwtTokenProvider, IAccountRepository accountRepository, IAccountRoleRepository accountRoleRepository, IHttpContextAccessor contextAccessor, IDateTimeProvider dateTimeProvider, IMemoryCache cache, IEmailService emailService, DiamondShopDbContext dbContext)
         {
             _roleManager = roleManager;
             _signinManager = signinManager;
@@ -62,10 +67,12 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             _dateTimeProvider = dateTimeProvider;
             _cache = cache;
             _emailService = emailService;
+            _dbContext = dbContext;
         }
+
         private bool CheckIfUserIsValidToLogin(CustomIdentityUser user)
         {
-            if(user is null)
+            if (user is null)
                 return false;
             if (!user.LockoutEnabled)
                 return false;
@@ -377,6 +384,52 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             var generateToken = await _userManager.GenerateEmailConfirmationTokenAsync(getUserIdentity);
             generateToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(generateToken));
             return await _emailService.SendConfirmAccountEmail(getUserAccount, generateToken, cancellationToken);
+        }
+
+        public async Task<PagingResponseDto<Account>> GetAccountPagingIncludeIdentity(string[]? roleIds, int current = 0, int size = 10, CancellationToken cancellationToken = default)
+        {
+            //throw new NotImplementedException();
+            var trueCurrent = current * size;
+            List<Account> result = new();
+            int total = 0;
+
+            var roleQuery = _accountRoleRepository.GetQuery();
+            if (roleIds != null && roleIds.Count() > 0)
+            {
+                var parsedRolesId = roleIds.Select(x => AccountRoleId.Parse(x)).ToList();
+                roleQuery = _accountRoleRepository.QueryFilter(roleQuery, x => parsedRolesId.Contains(x.Id));
+            }
+            roleQuery = _accountRoleRepository.QueryInclude(roleQuery, x => x.Accounts);
+            result = roleQuery.SelectMany(x => x.Accounts).Include(x => x.Roles).AsSplitQuery().Skip(trueCurrent).Take(size).ToList();
+            var identityIds = result.Select(a => a.IdentityId).Distinct().ToList();
+
+            var customIdentityUsers = await _userManager.Users
+                .Where(u => identityIds.Contains(u.Id))
+                .ToListAsync();
+            //var customIdentityUsers = await _dbContext.Users
+            //    .Where(u => identityIds.Contains(u.Id))
+            //    .ToListAsync();
+
+            result.ForEach(x => x.UserIdentity = customIdentityUsers.FirstOrDefault(u => u.Id == x.IdentityId));
+
+            total = roleQuery.SelectMany(x => x.Accounts).Count();
+
+            return new PagingResponseDto<Account>(
+                TotalPage: (int)Math.Ceiling((decimal)total / (decimal)size),
+                CurrentPage: current,
+                Values: result);
+        }
+
+        public async Task<Result<Account>> GetAccountDetailIncludeIdentity(AccountId accountId, CancellationToken cancellationToken = default)
+        {
+            var getAccDetail = await _accountRepository.GetById(accountId);
+            if (getAccDetail is null)
+            {
+                return Result.Fail(new NotFoundError());
+            }
+            var Identity = await _userManager.FindByIdAsync(getAccDetail.IdentityId);
+             getAccDetail.UserIdentity = Identity;
+            return getAccDetail;
         }
     }
 }

@@ -71,6 +71,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             {
                 prices = await _diamondPriceRepository.GetSideDiamondPrice(request.isLabDiamond, cancellationToken);
                 priceBoard.IsSideDiamondBoardPrices = true;
+                priceBoard.Shape = _mapper.Map<DiamondShapeDto>(DiamondShape.ANY_SHAPES); 
                 //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCaratRange(cancellationToken);
                 criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCriteria(cancellationToken));
             }
@@ -92,16 +93,24 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
                         x.Criteria.CaratTo == dcr.Key.CaratTo).ToList()
                 })
             .ToList();
-            Dictionary<Color, int> colorRange = groupByCaratRangeFromPrices
-                .SelectMany(x => x.TableItem)
-                .Select(x => x.Criteria.Color)
+            Dictionary<Color, int> colorRange = criteriasByGrouping.SelectMany(x => x.Value)
+                .Select(x => x.Color)
                 .Distinct()
                 .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => ((int)x.Value));
-            Dictionary<Clarity, int> clarityRange = groupByCaratRangeFromPrices
-                .SelectMany(x => x.TableItem)
-                .Select(x => x.Criteria.Clarity)
+            Dictionary<Clarity, int> clarityRange = criteriasByGrouping.SelectMany(x => x.Value)
+                .Select(x => x.Clarity)
                 .Distinct()
-                .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => ((int) x.Value));
+                .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => ((int)x.Value));
+            //Dictionary<Color, int> colorRange = groupByCaratRangeFromPrices
+            //    .SelectMany(x => x.TableItem)
+            //    .Select(x => x.Criteria.Color)
+            //    .Distinct()
+            //    .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => ((int)x.Value));
+            //Dictionary<Clarity, int> clarityRange = groupByCaratRangeFromPrices
+            //    .SelectMany(x => x.TableItem)
+            //    .Select(x => x.Criteria.Clarity)
+            //    .Distinct()
+            //    .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => ((int) x.Value));
 
 
             var createTable = criteriasByGrouping

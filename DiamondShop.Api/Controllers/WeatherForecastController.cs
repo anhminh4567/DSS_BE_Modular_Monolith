@@ -141,11 +141,11 @@ namespace DiamondShopSystem.Controllers
             var getShapes = await _sender.Send(new GetAllDiamondShapeQuery());
             var round = getShapes.FirstOrDefault(item => item.Shape.ToUpper() == "ROUND");
             var pear = getShapes.FirstOrDefault(item => item.Shape.ToUpper() == "PEAR");
-            var mappedPriceList = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, round.Id, prices[index], true)).ToList();
-            var mappedPriceList2 = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, pear.Id, prices[index], true)).ToList();
+            var mappedPriceList = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, prices[index])).ToList();
+            var mappedPriceList2 = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, prices[index])).ToList();
 
-            var result2 = await _sender.Send(new CreateManyDiamondPricesCommand(mappedPriceList));
-            var result3 = await _sender.Send(new CreateManyDiamondPricesCommand(mappedPriceList2));
+            var result2 = await _sender.Send(new CreateManyDiamondPricesCommand(mappedPriceList, true, true, false));
+            var result3 = await _sender.Send(new CreateManyDiamondPricesCommand(mappedPriceList2, false, true, false));
 
             return Ok();
         }
@@ -255,15 +255,18 @@ namespace DiamondShopSystem.Controllers
                     }
                 }
                 var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(diamondCriteriaRequestDtos));
-                foreach (var shape in getShapes)
-                {
-                    var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, shape.Id, prices[index], true)).ToList();
-                    var mappedListNatural = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, shape.Id, prices[index], false)).ToList();
+                //foreach (var shape in getShapes)
+                //{
+                    var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, prices[index])).ToList();
+                    var mappedListNatural = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, prices[index])).ToList();
 
-                    var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab));
-                    var resultNatural = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListNatural));
+                    var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab,false,true,false));
+                    var resultLabFancy = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, true, true, false));
 
-                }
+                    var resultNatural = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListNatural, false, false, false));
+                    var resultNaturalFancy = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListNatural, true, false, false));
+
+                //}
             }
 
             return Ok();
@@ -316,11 +319,10 @@ namespace DiamondShopSystem.Controllers
                 var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(diamondCriteriaRequestDtos, true));
                 var getAnyShape = getShapes.FirstOrDefault(x => x.Id == DiamondShape.ANY_SHAPES.Id);
 
-                var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, getAnyShape.Id, prices[index], true)).ToList();
-                //var mappedListNatural = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, getAnyShape.Id, prices[index], false)).ToList();
+                var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, prices[index])).ToList();
 
-                var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, true));
-                //var resultNatural = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListNatural, true));
+                var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, true,true , true ));
+                var resultNatural = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, true,false,true));
 
             }
             stopwatch.Stop();

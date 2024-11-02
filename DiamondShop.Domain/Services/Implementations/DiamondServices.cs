@@ -163,6 +163,7 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             sideDiamond.DiamondPrice = matchPrices;
             sideDiamond.AveragePrice = matchPrices.Average(p => p.Price);
+            sideDiamond.TotalPriceMatched = matchPrices.Count;
             return sideDiamond.DiamondPrice;
         }
         private static bool IsCorrectPrice(Diamond diamond, DiamondPrice price)
@@ -205,6 +206,9 @@ namespace DiamondShop.Domain.Services.Implementations
             List<DiamondPrice> diamondPrices = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamondOption.AverageCarat,sideDiamondOption.IsFancyShape);
             JewelrySideDiamond fakeDiamond = JewelrySideDiamond.Create(JewelryId.Create(), sideDiamondOption.CaratWeight, sideDiamondOption.Quantity, sideDiamondOption.ColorMin, sideDiamondOption.ColorMax, sideDiamondOption.ClarityMin, sideDiamondOption.ClarityMax, sideDiamondOption.SettingType);
             var price = await GetSideDiamondPriceGlobal(fakeDiamond, diamondPrices);
+            sideDiamondOption.TotalPriceMatched = fakeDiamond.TotalPriceMatched;
+            sideDiamondOption.Price = fakeDiamond.AveragePrice;
+            sideDiamondOption.DiamondPrice = fakeDiamond.DiamondPrice;
             return price;
         }
 

@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Common.ValueObjects;
+﻿using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.RoleAggregate;
@@ -20,5 +21,6 @@ namespace DiamondShop.Application.Dtos.Responses.Accounts
         public string LastName { get;  set; }
 
         public string Email { get;  set; }
+        public IUserIdentity? UserIdentity { get; set; }
     }
 }

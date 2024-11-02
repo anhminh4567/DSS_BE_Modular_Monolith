@@ -20,11 +20,13 @@ namespace DiamondShop.Application.Usecases.Accounts.Queries.GetDetail
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IAuthenticationService _authenticationService;
 
-        public GetAccountDetailQueryHandler(IAccountRepository accountRepository, IHttpContextAccessor contextAccessor)
+        public GetAccountDetailQueryHandler(IAccountRepository accountRepository, IHttpContextAccessor contextAccessor, IAuthenticationService authenticationService)
         {
             _accountRepository = accountRepository;
             _contextAccessor = contextAccessor;
+            _authenticationService = authenticationService;
         }
 
         public async Task<Result<Account>> Handle(GetAccountDetailQuery request, CancellationToken cancellationToken)
@@ -45,7 +47,8 @@ namespace DiamondShop.Application.Usecases.Accounts.Queries.GetDetail
             }
             else
             {
-                getAccDetail = await _accountRepository.GetById(request.AccountId);
+                var result  = await _authenticationService.GetAccountDetailIncludeIdentity(request.AccountId,cancellationToken);
+                return result;
             }
             return Result.Ok(getAccDetail);
         }

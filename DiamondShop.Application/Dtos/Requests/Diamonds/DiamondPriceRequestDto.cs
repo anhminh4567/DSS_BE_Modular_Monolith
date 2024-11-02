@@ -8,6 +8,6 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Dtos.Requests.Diamonds
 {
-    public record DiamondPriceRequestDto(DiamondCriteriaId DiamondCriteriaId, DiamondShapeId DiamondShapeId, decimal price,bool IsLabDiamond);
+    public record DiamondPriceRequestDto(DiamondCriteriaId DiamondCriteriaId, decimal price);
     
 }

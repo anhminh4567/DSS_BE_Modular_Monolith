@@ -14,6 +14,7 @@ using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.Orders;
 using System.Runtime.CompilerServices;
 using DiamondShop.Domain.Models.AccountAggregate.Events;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DiamondShop.Domain.Models.AccountAggregate
 {
@@ -25,6 +26,8 @@ namespace DiamondShop.Domain.Models.AccountAggregate
         public FullName FullName { get; private set; }
         public string Email { get; private set; }
         public long? PhoneNumber { get; set; }
+        [NotMapped]
+        public IUserIdentity? UserIdentity { get; set; }
         //public List<Blog> Blogs { get; private set; }
         //public List<JewelryReview> JewelryReviews { get; private set; }
         //public List<Order> Orders { get; private set; }
