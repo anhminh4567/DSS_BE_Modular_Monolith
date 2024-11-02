@@ -55,6 +55,15 @@ namespace DiamondShop.Domain.Models.DiamondPrices.Entities
                 IsSideDiamond = true,
             };
         }
+        public void ChangeCaratRange(float caratFrom, float caratTo)
+        {
+            if(caratFrom >= caratTo)
+            {
+                throw new ArgumentException("from carat is greater than to carat");
+            }
+            CaratFrom = caratFrom;
+            CaratTo= caratTo;
+        }
         private DiamondCriteria() { }
     }
 }

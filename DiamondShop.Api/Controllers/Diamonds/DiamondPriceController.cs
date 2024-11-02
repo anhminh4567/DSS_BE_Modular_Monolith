@@ -3,6 +3,7 @@ using DiamondShop.Application.Usecases.DiamondCriterias.Commands.Create;
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.Delete;
 using DiamondShop.Application.Usecases.DiamondCriterias.Queries.GetAll;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.Create;
+using DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.Delete;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.DeleteMany;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany;
@@ -55,7 +56,7 @@ namespace DiamondShop.Api.Controllers.Diamonds
         }
         [HttpPost]
         [Produces(typeof(DiamondPriceDto))]
-        public async Task<ActionResult> Create([FromBody] CreateDiamondPricesCommand command)
+        public async Task<ActionResult> Create([FromBody] CreateManyDiamondPricesCommand command)
         {
             var result = await _sender.Send(command);
             if (result.IsSuccess)

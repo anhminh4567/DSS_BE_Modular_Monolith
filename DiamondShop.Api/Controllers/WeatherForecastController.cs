@@ -141,8 +141,8 @@ namespace DiamondShopSystem.Controllers
             var getShapes = await _sender.Send(new GetAllDiamondShapeQuery());
             var round = getShapes.FirstOrDefault(item => item.Shape.ToUpper() == "ROUND");
             var pear = getShapes.FirstOrDefault(item => item.Shape.ToUpper() == "PEAR");
-            var mappedPriceList = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, prices[index])).ToList();
-            var mappedPriceList2 = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, prices[index])).ToList();
+            var mappedPriceList = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
+            var mappedPriceList2 = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
 
             var result2 = await _sender.Send(new CreateManyDiamondPricesCommand(mappedPriceList, true, true, false));
             var result3 = await _sender.Send(new CreateManyDiamondPricesCommand(mappedPriceList2, false, true, false));
@@ -257,8 +257,8 @@ namespace DiamondShopSystem.Controllers
                 var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(diamondCriteriaRequestDtos));
                 //foreach (var shape in getShapes)
                 //{
-                    var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, prices[index])).ToList();
-                    var mappedListNatural = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, prices[index])).ToList();
+                    var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
+                    var mappedListNatural = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
 
                     var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab,false,true,false));
                     var resultLabFancy = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, true, true, false));
@@ -319,7 +319,7 @@ namespace DiamondShopSystem.Controllers
                 var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(diamondCriteriaRequestDtos, true));
                 var getAnyShape = getShapes.FirstOrDefault(x => x.Id == DiamondShape.ANY_SHAPES.Id);
 
-                var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id, prices[index])).ToList();
+                var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
 
                 var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, true,true , true ));
                 var resultNatural = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, true,false,true));

@@ -2,6 +2,7 @@
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.Create;
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromRange;
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.Delete;
+using DiamondShop.Application.Usecases.DiamondCriterias.Commands.UpdateRange;
 using DiamondShop.Application.Usecases.DiamondCriterias.Queries.GetAll;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Create;
 using DiamondShop.Domain.Models.DiamondPrices.Entities;
@@ -65,6 +66,18 @@ namespace DiamondShop.Api.Controllers.Diamonds
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<DiamondCriteriaDto>(result);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPut("Range")]
+        [Produces(typeof(DiamondCriteriaDto))]
+        public async Task<ActionResult> UpdateFromRange([FromBody] UpdateDiamondCriteriaRangeCommand command)
+        {
+            var result = await _sender.Send(command);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<List<DiamondCriteriaDto>>(result);
                 return Ok(mappedResult);
             }
             return MatchError(result.Errors, ModelState);
