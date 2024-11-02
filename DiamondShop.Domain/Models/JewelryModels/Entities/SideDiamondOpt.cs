@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
@@ -29,6 +30,10 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
         public int Quantity { get; set; }
         [NotMapped]
         public bool IsFancyShape { get => DiamondShape.IsFancyShape(ShapeId); }
+        [NotMapped]
+        public List<DiamondPrice> DiamondPrice { get; set; } = new();
+        [NotMapped]
+        public int TotalPriceMatched { get; set; } = 0;
         [NotMapped]
         public decimal Price { get; set; }
         [NotMapped]
