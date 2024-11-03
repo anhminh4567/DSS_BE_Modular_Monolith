@@ -15,6 +15,6 @@ namespace DiamondShop.Domain.Services.interfaces
         Task<Discount?> AssignJewelryDiscount(Jewelry jewelry, List<Discount> discounts);
         Jewelry AddPrice(Jewelry jewelry, SizeMetal sizeMetal);
         Jewelry AddPrice(Jewelry jewelry, ISizeMetalRepository sizeMetalRepository);
-        IQueryable<Jewelry> GetJewelryQueryFromModel(JewelryModelId modelId, MetalId metalId, SizeId sizeId, IJewelryRepository jewelryRepository);
+        IQueryable<Jewelry> GetJewelryQueryFromModel(JewelryModelId modelId, MetalId metalId, SizeId sizeId);
     }
 }

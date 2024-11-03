@@ -8,20 +8,5 @@ namespace DiamondShop.Domain.Services.Implementations
 {
     public class JewelryModelService : IJewelryModelService
     {
-        public void GetSizeMetalPrice(SizeMetal sizeMetal)
-        {
-            if (sizeMetal.Metal == null)
-                throw new Exception("Please include metal to get price");
-            sizeMetal.Price = sizeMetal.Metal.Price * (decimal)sizeMetal.Weight;
-        }
-        public void GetSizeMetalPrice(List<SizeMetal> sizeMetals)
-        {
-            foreach (var sizeMetal in sizeMetals)
-            {
-                if (sizeMetal.Metal == null)
-                    throw new Exception("Please include metal to get price");
-                sizeMetal.Price = sizeMetal.Metal.Price * (decimal)sizeMetal.Weight;
-            }
-        }
     }
 }

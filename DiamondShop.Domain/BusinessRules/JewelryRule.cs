@@ -8,6 +8,6 @@ namespace DiamondShop.Domain.BusinessRules
 {
     public static class JewelryRule
     {
-        public static int MinimumItemPerPaging = 20;
+        public static int MinimumItemPerPaging = 5;
     }
 }

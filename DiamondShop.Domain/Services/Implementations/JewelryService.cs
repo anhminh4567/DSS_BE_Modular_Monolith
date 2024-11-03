@@ -18,13 +18,15 @@ namespace DiamondShop.Domain.Services.Implementations
         private readonly IDiamondServices _diamondServices;
         private readonly IDiamondPriceRepository _diamondPriceRepository;
         private readonly IDiscountRepository _discountRepository;
+        private readonly IJewelryRepository jewelryRepository;
 
-        public JewelryService(IDiamondRepository diamondRepository, IDiamondServices diamondServices, IDiamondPriceRepository diamondPriceRepository, IDiscountRepository discountRepository)
+        public JewelryService(IDiamondRepository diamondRepository, IDiamondServices diamondServices, IDiamondPriceRepository diamondPriceRepository, IDiscountRepository discountRepository, IJewelryRepository jewelryRepository)
         {
             _diamondRepository = diamondRepository;
             _diamondServices = diamondServices;
             _diamondPriceRepository = diamondPriceRepository;
             _discountRepository = discountRepository;
+            this.jewelryRepository = jewelryRepository;
         }
         public bool SetupUnmapped(List<Jewelry> jewelries, List<SizeMetal> sizeMetals)
         {
@@ -34,7 +36,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 var sizeMetal = sizeMetals.FirstOrDefault(k => jewelry.ModelId == k.ModelId && jewelry.SizeId == k.SizeId && jewelry.MetalId == k.MetalId);
                 if (sizeMetal?.Metal == null)
                     return false;
-                jewelry.ND_Price = sizeMetal.Price != null ? sizeMetal.Price : GetPrice(sizeMetal.Weight, jewelry.Metal.Price);
+                jewelry.ND_Price = sizeMetal.Price;
                 jewelry.D_Price = GetJewelryDiamondPrice(jewelry).Result;
             }
             return true;
@@ -43,10 +45,9 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             foreach (var jewelry in jewelries)
             {
-                if (jewelry.Metal == null) return false;
                 if (sizeMetal?.Metal == null)
                     return false;
-                jewelry.ND_Price = sizeMetal.Price != null ? sizeMetal.Price : GetPrice(sizeMetal.Weight, jewelry.Metal.Price);
+                jewelry.ND_Price = sizeMetal.Price;
                 jewelry.D_Price = GetJewelryDiamondPrice(jewelry).Result;
             }
             return true;
@@ -59,7 +60,7 @@ namespace DiamondShop.Domain.Services.Implementations
             var sizeMetal = query.FirstOrDefault();
             if (sizeMetal != null)
             {
-                jewelry.ND_Price = GetPrice(sizeMetal.Weight, sizeMetal.Metal.Price);
+                jewelry.ND_Price = sizeMetal.Price;
             }
             jewelry.D_Price = GetJewelryDiamondPrice(jewelry).Result;
             return jewelry;
@@ -68,12 +69,10 @@ namespace DiamondShop.Domain.Services.Implementations
         public Jewelry AddPrice(Jewelry jewelry, SizeMetal sizeMetal)
         {
             if (sizeMetal.Metal == null) return null;
-            jewelry.ND_Price = GetPrice(sizeMetal.Weight, sizeMetal.Metal.Price);
+            jewelry.ND_Price = sizeMetal.Price;
             jewelry.D_Price = GetJewelryDiamondPrice(jewelry).Result;
             return jewelry;
         }
-        private decimal GetPrice(float Weight, decimal Price) => MoneyVndRoundUpRules.RoundAmountFromDecimal((decimal)Weight * Price);
-
         private async Task<decimal> GetJewelryDiamondPrice(Jewelry jewelry)
         {
             var getJewelryDiamonds = await _diamondRepository.GetDiamondsJewelry(jewelry.Id);
@@ -128,11 +127,11 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             return mostValuableDiscont;
         }
-        public IQueryable<Jewelry> GetJewelryQueryFromModel(JewelryModelId modelId, MetalId metalId, SizeId sizeId, IJewelryRepository jewelryRepository)
+        public IQueryable<Jewelry> GetJewelryQueryFromModel(JewelryModelId modelId, MetalId metalId, SizeId sizeId)
         {
             var jewelryQuery = jewelryRepository.GetQuery();
             jewelryQuery = jewelryRepository.QueryFilter(jewelryQuery,
-                p =>
+                p => p.Status == Common.Enums.ProductStatus.Active &&
                 p.MetalId == metalId && p.ModelId == modelId && p.SizeId == sizeId
                 );
             return jewelryQuery;

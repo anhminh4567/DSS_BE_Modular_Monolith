@@ -6,7 +6,5 @@ namespace DiamondShop.Domain.Services.interfaces
 {
     public interface IJewelryModelService
     {
-        void GetSizeMetalPrice(List<SizeMetal> sizeMetals);
-        void GetSizeMetalPrice(SizeMetal sizeMetal);
     }
 }
