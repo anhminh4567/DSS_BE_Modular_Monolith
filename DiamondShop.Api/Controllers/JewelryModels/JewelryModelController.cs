@@ -27,7 +27,7 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             _sender = sender;
             _mapper = mapper;
         }
-        [HttpGet("Admin/All")]
+        [HttpGet("Staff/All")]
         [Produces(type: typeof(PagingResponseDto<JewelryModelDto>))]
         public async Task<ActionResult> GetAll([FromQuery] GetAllJewelryModelQuery jewelryModelQuery)
         {
@@ -35,7 +35,7 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             var mappedResult = _mapper.Map<PagingResponseDto<JewelryModelDto>>(result);
             return Ok(mappedResult);
         }
-        [HttpGet("Admin/Detail")]
+        [HttpGet("Staff/Detail")]
         [Produces(type: typeof(JewelryModelDto))]
         public async Task<ActionResult> GetDetail([FromQuery] string modelId)
         {

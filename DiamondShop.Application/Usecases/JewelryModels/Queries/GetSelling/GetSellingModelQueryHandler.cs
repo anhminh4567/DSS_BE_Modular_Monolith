@@ -85,11 +85,6 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                     {
                         var min = p.MinBy(k => k.Weight);
                         var max = p.MaxBy(k => k.Weight);
-                        if (min != null || max != null)
-                        {
-                            _jewelryModelService.GetSizeMetalPrice(min);
-                            _jewelryModelService.GetSizeMetalPrice(max);
-                        }
                         return new
                         {
                             Metal = p.Key,

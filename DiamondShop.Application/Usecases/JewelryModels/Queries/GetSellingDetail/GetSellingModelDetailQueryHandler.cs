@@ -40,7 +40,6 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
             sideDiamonds.ForEach(d => d.Price = DiamondPrices);
 
             //SizeMetal
-            _modelService.GetSizeMetalPrice(model.SizeMetals);
             var metalGroup = model.SizeMetals
                 .GroupBy(p => p.Metal);
             List<Metal> metalList = metalGroup.Select(p => p.Key).ToList();

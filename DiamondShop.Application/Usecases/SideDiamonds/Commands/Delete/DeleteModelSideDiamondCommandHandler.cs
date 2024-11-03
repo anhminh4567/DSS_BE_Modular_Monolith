@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
 using FluentResults;
@@ -13,7 +14,6 @@ namespace DiamondShop.Application.Usecases.SizeMetals.Commands.Delete
         private readonly IJewelryRepository _jewelryRepository;
         private readonly ISideDiamondRepository _sideDiamondRepository;
         private readonly IUnitOfWork _unitOfWork;
-
         public DeleteModelSideDiamondCommandHandler(IJewelryRepository jewelryRepository, ISideDiamondRepository sideDiamondRepository, IUnitOfWork unitOfWork)
         {
             _jewelryRepository = jewelryRepository;
