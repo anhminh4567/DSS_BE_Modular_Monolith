@@ -16,13 +16,14 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
 
         public async Task<List<MainDiamondReq>> GetCriteria(JewelryModelId modelId)
         {
-            string key = $"MD_{modelId}";
-            var value = (List<MainDiamondReq>)_memoryCache.Get(key);
-            if (value == null)
-            {
-                value = await _set.Where(p => p.ModelId == modelId).Include(p => p.Shapes).ToListAsync();
-                _memoryCache.Set(key, value, TimeSpan.FromHours(4));
-            }
+            //string key = $"MD_{modelId}";
+            //var value = (List<MainDiamondReq>)_memoryCache.Get(key);
+            //if (value == null)
+            //{
+            //    value = await _set.Where(p => p.ModelId == modelId).Include(p => p.Shapes).ToListAsync();
+            //    _memoryCache.Set(key, value, TimeSpan.FromHours(4));
+            //}
+            var value = await _set.Where(p => p.ModelId == modelId).Include(p => p.Shapes).AsNoTracking().ToListAsync();
             return value;
         }
 

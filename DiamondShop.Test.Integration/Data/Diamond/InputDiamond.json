@@ -1,0 +1,24 @@
+{
+  "diamond4c": {
+    "cut": 1,
+    "color": 1,
+    "clarity": 1,
+    "carat": 1,
+    "isLabDiamond": false
+  },
+  "details": {
+    "polish": 1,
+    "symmetry": 1,
+    "girdle": 1,
+    "fluorescence": 1,
+    "culet": 1
+  },
+  "measurement": {
+    "withLenghtRatio": 1,
+    "depth": 1,
+    "table": 1,
+    "measurement": "1x1"
+  },
+  "shapeId": "1",
+  "priceOffset": 0
+}

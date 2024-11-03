@@ -24,7 +24,6 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
                         .NotEmpty();
 
                     p.RuleFor(p => p.SerialCode)
-                        .NotEmpty()
                         .MinimumLength(SerialCodeRule.MinLength)
                         .MaximumLength(SerialCodeRule.MaxLength);
                 });

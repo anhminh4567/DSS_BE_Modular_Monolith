@@ -26,7 +26,7 @@ namespace DiamondShop.Domain.Services.Implementations
             var diamondReqs = await mainDiamondRepository.GetCriteria(jewelryModelId);
             if (diamonds.Count != diamondReqs.Sum(p => p.Quantity))
                 return Result.Fail(new ConflictError("The quantity of the main diamond differs from what the model requires."));
-            var flagMatchedDiamonds = MatchingDiamond(diamonds, diamondReqs);
+            var flagMatchedDiamonds = MatchingDiamond(diamonds, diamondReqs.ToList());
             if (!flagMatchedDiamonds) return Result.Fail(new ConflictError("Diamonds don't meet the model requirement."));
             return Result.Ok();
         }
