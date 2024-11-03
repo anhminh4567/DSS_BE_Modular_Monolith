@@ -49,7 +49,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
 
         public Task<List<Diamond>> GetDiamondsJewelry(JewelryId jewelryId, CancellationToken cancellationToken = default)
         {
-            return _set.Where(d => d.JewelryId == jewelryId).ToListAsync(cancellationToken);
+            return _set.Where(d => d.JewelryId == jewelryId).Include(d => d.DiamondShape).ToListAsync(cancellationToken);
         }
 
         public Task<List<Diamond>> GetAllAdmin(CancellationToken cancellationToken = default)

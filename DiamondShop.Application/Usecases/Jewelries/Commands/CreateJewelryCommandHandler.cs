@@ -86,7 +86,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
                    sizeMetal.SizeId,
                    sizeMetal.MetalId,
                    sizeMetal.Weight,
-                   jewelryRequest.SerialCode,
+                   jewelryRequest.SerialCode ?? Guid.NewGuid().ToString().Substring(0,7),
                    status: jewelryRequest.Status
                );
             if (sideDiamondOptId is not null)
@@ -106,9 +106,8 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
                 var flagAttachDiamond = await _sender.Send(new AttachDiamondCommand(jewelry.Id, attachedDiamonds));
                 if (flagAttachDiamond.IsFailed) return Result.Fail(flagAttachDiamond.Errors);
             }
-
-            await _unitOfWork.CommitAsync(token);
             jewelry = _jewelryService.AddPrice(jewelry, sizeMetal);
+            await _unitOfWork.CommitAsync(token);
             return jewelry;
         }
 
