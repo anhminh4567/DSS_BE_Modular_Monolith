@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
 {
     public record UpdatedDiamondPrice(string diamondCriteriaId, decimal price); 
-    public record UpdateManyDiamondPricesCommand(List<UpdatedDiamondPrice> updatedDiamondPrices, bool isFancyShapePrice, bool islabDiamond, bool? IsSideDiamond = false) :  IRequest<Result<List<DiamondPrice>>>;
+    public record UpdateManyDiamondPricesCommand(List<UpdatedDiamondPrice> updatedDiamondPrices, bool isFancyShapePrice, bool isLabDiamond, bool? IsSideDiamond = false) :  IRequest<Result<List<DiamondPrice>>>;
     internal class UpdateManyDiamondPricesCommandHandler : IRequestHandler<UpdateManyDiamondPricesCommand, Result<List<DiamondPrice>>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
@@ -60,9 +60,9 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
             bool isFancyShape = DiamondShape.IsFancyShape(selectedShape.Id);
 
             if(request.IsSideDiamond is false)
-                getPrices = await _diamondPriceRepository.GetPriceIgnoreCache(isFancyShape, request.islabDiamond, cancellationToken);
+                getPrices = await _diamondPriceRepository.GetPriceIgnoreCache(isFancyShape, request.isLabDiamond, cancellationToken);
             else
-                getPrices = await _diamondPriceRepository.GetSideDiamondPrice(request.islabDiamond, cancellationToken);
+                getPrices = await _diamondPriceRepository.GetSideDiamondPrice(request.isLabDiamond, cancellationToken);
             //if(request.IsSideDiamond is false)
             //    getPrices = await _diamondPriceRepository.GetPriceByShapes(selectedShape,request.islabDiamond,cancellationToken);
             //else

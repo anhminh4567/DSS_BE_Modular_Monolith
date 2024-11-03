@@ -2,6 +2,7 @@
 using DiamondShop.Application.Commons.Models;
 using DiamondShop.Application.Dtos.Responses;
 using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Application.Services.Interfaces.Deliveries;
 using DiamondShop.Application.Services.Interfaces.Diamonds;
 using DiamondShop.Application.Services.Interfaces.JewelryModels;
 using DiamondShop.Domain.Common;
@@ -33,6 +34,7 @@ using DiamondShop.Infrastructure.Securities.Authentication;
 using DiamondShop.Infrastructure.Services;
 using DiamondShop.Infrastructure.Services.ApplicationConfigurations;
 using DiamondShop.Infrastructure.Services.Blobs;
+using DiamondShop.Infrastructure.Services.Deliveries;
 using DiamondShop.Infrastructure.Services.Excels;
 using DiamondShop.Infrastructure.Services.Locations.Locally;
 using DiamondShop.Infrastructure.Services.Payments.Paypals;
@@ -190,6 +192,7 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IExcelService, ExcelSyncfunctionService>();
             services.AddScoped<IJewelryModelFileService, JewelryModelFileService>();
             services.AddScoped<IApplicationSettingService, ApplicationSettingService>();
+            services.AddScoped<IDeliveryFeeServices, DeliveryFeeServices>();
 
             var serviceProviderInstrance = services.BuildServiceProvider();
             var mailOptions = serviceProviderInstrance.GetRequiredService<IOptions<MailOptions>>().Value;

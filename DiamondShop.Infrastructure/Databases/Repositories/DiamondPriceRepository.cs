@@ -113,9 +113,12 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         {
             await _set.AddRangeAsync(prices);
             var getShapeNames = DiamondShapeConfiguration.SHAPES.Select(x => x.Shape);
-            getShapeNames.Select(x => $"DP_{x}")
-                .ToArray()
-                .ForEach(x => _cache.Remove(x));
+            //getShapeNames.Select(x => $"DP_{x}")
+            //    .ToArray()
+            //    .ForEach(x => _cache.Remove(x));
+            RemoveAllKey(DiamondShape.ROUND.Id);
+            RemoveAllKey(DiamondShape.FANCY_SHAPES.Id);
+
         }
 
         public Task<List<DiamondPrice>> GetPriceByCriteria(DiamondCriteriaId diamondCriteriaId, bool? isLabDiamond = null, CancellationToken token = default)
@@ -280,8 +283,9 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
 
             if (getResult == null || getResult.Count == 0)
                 return Result.Fail("no diamond price found for this criteria");
-            var getCorrectPrice = getResult.Where(x => getShape.Contains(x.ShapeId)).ToList();
+            var getCorrectPrice = getResult.Where(x => getShape.Any(s => s == x.ShapeId)).ToList();
             _set.RemoveRange(getCorrectPrice);
+            getShape.ForEach(x => RemoveAllKey(x));
             return Result.Ok();
         }
 

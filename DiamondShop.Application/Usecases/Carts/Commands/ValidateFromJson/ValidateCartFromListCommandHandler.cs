@@ -23,6 +23,7 @@ using Azure.Core;
 using DiamondShop.Domain.Repositories.DeliveryRepo;
 using DiamondShop.Application.Dtos.Requests.Accounts;
 using System.Numerics;
+using DiamondShop.Application.Services.Interfaces.Deliveries;
 
 namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
 {
@@ -35,9 +36,10 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
         private readonly IDeliveryFeeRepository _deliveryFeeRepository;
         private readonly IDiscountRepository _discountRepository;
         private readonly IPromotionRepository _promotionRepository;
+        private readonly IDeliveryFeeServices _deliveryFeeServices;
         private readonly IMapper _mapper;
 
-        public ValidateCartFromListCommandHandler(ICartModelService cartModelService, ILocationService locationService, IDeliveryService deliveryService, IDeliveryFeeRepository deliveryFeeRepository, IDiscountRepository discountRepository, IPromotionRepository promotionRepository, IMapper mapper)
+        public ValidateCartFromListCommandHandler(ICartModelService cartModelService, ILocationService locationService, IDeliveryService deliveryService, IDeliveryFeeRepository deliveryFeeRepository, IDiscountRepository discountRepository, IPromotionRepository promotionRepository, IDeliveryFeeServices deliveryFeeServices, IMapper mapper)
         {
             _cartModelService = cartModelService;
             _locationService = locationService;
@@ -45,6 +47,7 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
             _deliveryFeeRepository = deliveryFeeRepository;
             _discountRepository = discountRepository;
             _promotionRepository = promotionRepository;
+            _deliveryFeeServices = deliveryFeeServices;
             _mapper = mapper;
         }
 
@@ -61,7 +64,7 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
             List<CartProduct> getProducts = _cartModelService.GetCartProduct(cartItem).Result;//PrepareCartProduct(cartItem).Result;
             if (request.items.UserAddress != null)
             {
-                 getShippingPrice = GetShippingPrice(request.items.UserAddress).Result;
+                 getShippingPrice = _deliveryFeeServices.GetShippingPrice(request.items.UserAddress).Result;
             }
             Result<CartModel> result = await _cartModelService.ExecuteNormalOrder(getProducts, getDiscounts, getPromotion,getShippingPrice);
             if (result.IsSuccess)
@@ -82,30 +85,30 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
                 return  await _promotionRepository.GetActivePromotion();
             }
         }
-        private async Task<ShippingPrice> GetShippingPrice(AddressRequestDto addressRequestDto)
-        {
-            var shipPrice = new ShippingPrice();
-            var shopLocation = _locationService.GetShopLocation();
-            var createShopAddress = Address.Create(shopLocation.Province,shopLocation.District,shopLocation.Ward,shopLocation.Road,AccountId.Parse("0"),AddressId.Parse("0"));
-            shipPrice.From = createShopAddress;
-            var city = addressRequestDto.Province;
-            var getCityIfFound = _locationService.GetProvinces().FirstOrDefault(x => x.Name == city);
-            if(getCityIfFound == null)
-            {
-                shipPrice.To = null;
-                return shipPrice;
-            }    
-            var createDestinationAddress = Address.Create(addressRequestDto.Province, addressRequestDto.District, addressRequestDto.Ward, addressRequestDto.Street, AccountId.Parse("1"), AddressId.Parse("1"));
-            shipPrice.To = createDestinationAddress;
-            var getDeliveryLocationFees = await _deliveryFeeRepository.GetLocationType();
-            var deliveryFee = _deliveryService.GetDeliveryFeeForLocation(shipPrice.To,shipPrice.From,getDeliveryLocationFees);      
-            shipPrice.DeliveryFeeFounded = deliveryFee;
-            if (shipPrice.IsValid)
-                shipPrice.DefaultPrice = deliveryFee.Cost;
-            else
-                shipPrice.DefaultPrice = 0;
-            return shipPrice;
-        }
+        //private async Task<ShippingPrice> GetShippingPrice(AddressRequestDto addressRequestDto)
+        //{
+        //    var shipPrice = new ShippingPrice();
+        //    var shopLocation = _locationService.GetShopLocation();
+        //    var createShopAddress = Address.Create(shopLocation.Province,shopLocation.District,shopLocation.Ward,shopLocation.Road,AccountId.Parse("0"),AddressId.Parse("0"));
+        //    shipPrice.From = createShopAddress;
+        //    var city = addressRequestDto.Province;
+        //    var getCityIfFound = _locationService.GetProvinces().FirstOrDefault(x => x.Name == city);
+        //    if(getCityIfFound == null)
+        //    {
+        //        shipPrice.To = null;
+        //        return shipPrice;
+        //    }    
+        //    var createDestinationAddress = Address.Create(addressRequestDto.Province, addressRequestDto.District, addressRequestDto.Ward, addressRequestDto.Street, AccountId.Parse("1"), AddressId.Parse("1"));
+        //    shipPrice.To = createDestinationAddress;
+        //    var getDeliveryLocationFees = await _deliveryFeeRepository.GetLocationType();
+        //    var deliveryFee = _deliveryService.GetDeliveryFeeForLocation(shipPrice.To,shipPrice.From,getDeliveryLocationFees);      
+        //    shipPrice.DeliveryFeeFounded = deliveryFee;
+        //    if (shipPrice.IsValid)
+        //        shipPrice.DefaultPrice = deliveryFee.Cost;
+        //    else
+        //        shipPrice.DefaultPrice = 0;
+        //    return shipPrice;
+        //}
     }
 
 }
