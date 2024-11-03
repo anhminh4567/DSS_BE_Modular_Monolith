@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Dtos.Responses.Promotions;
+﻿using DiamondShop.Application.Dtos.Requests.Carts;
+using DiamondShop.Application.Dtos.Responses.Promotions;
 using DiamondShop.Application.Usecases.Discounts.Commands.Cancel;
 using DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany;
 using DiamondShop.Application.Usecases.PromotionGifts.Commands.Delete;
@@ -48,9 +49,9 @@ namespace DiamondShop.Api.Controllers.Promotions
         }
         [HttpPost("GetApplicable")]
         [ProducesResponseType(typeof(ApplicablePromotionDto), 200)]
-        public async Task<ActionResult> GetApplicablePromotion(GetApplicablePromotionForCartQuery getApplicablePromotionForCartQuery)
+        public async Task<ActionResult> GetApplicablePromotion([FromBody] CartRequestDto cartDto)
         {
-            var result = await _sender.Send(getApplicablePromotionForCartQuery);
+            var result = await _sender.Send(new GetApplicablePromotionForCartQuery(cartDto));
             if (result.IsSuccess)
             {
                 return Ok(result.Value);
