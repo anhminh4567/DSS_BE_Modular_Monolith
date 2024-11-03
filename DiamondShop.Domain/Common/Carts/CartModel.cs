@@ -12,6 +12,8 @@ using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.RoleAggregate;
+using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 
 namespace DiamondShop.Domain.Common.Carts
 {
@@ -68,6 +70,13 @@ namespace DiamondShop.Domain.Common.Carts
             OrderPrices.UserRankDiscountAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(OrderPrices.OrderPriceExcludeShipAndWarranty * ((decimal)discountPercent / 100m)) ;
             OrderPrices.OrderAmountSaved += OrderPrices.UserRankDiscountAmount;
         }
+        public static CartModel? CloneCart(CartModel cartModelTobeCloned)
+        {
+            var serializedObj = JsonConvert.SerializeObject(cartModelTobeCloned,new JsonSerializerSettings() 
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            });
+            return JsonConvert.DeserializeObject<CartModel>(serializedObj);
+        }
     }
-
 }

@@ -25,8 +25,12 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Services.Implementations
 {
-    public class PromotionService : IPromotionServices
+    public partial class PromotionService : IPromotionServices
     {
+        public Result ApplyPromotionOnCartModel(CartModel cartModel, Promotion promotion)
+        {
+            return ApplyPromotionOnCartModelGlobal(cartModel, promotion);
+        }
         /// <summary>
         /// the thing is in error state, need to handle amuont or requirement promotion state, 
         /// </summary>
@@ -34,7 +38,7 @@ namespace DiamondShop.Domain.Services.Implementations
         /// <param name="promotion"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public Result ApplyPromotionOnCartModel(CartModel cartModel, Promotion promotion)
+        public static Result ApplyPromotionOnCartModelGlobal(CartModel cartModel, Promotion promotion)
         {
             //Init Data
             // the Data is that , the product req and gift is sorted, so that the ORDER TYPE is the last one
@@ -75,7 +79,7 @@ namespace DiamondShop.Domain.Services.Implementations
                     // like not haveing enought price or quantity met, then we can ignore this requirement entirely, and keep the
                     // original requirementProducts empty to add the real requirement that met the conditon
                     // NOTE: the requirement IS THE DECISION MAKER, to decide whether you add the product to the requirement list or not
-                    var isAnyValid = HandleProductRequirement(cartModel, req, scopedRequirementProducts);
+                    var isAnyValid = HandleProductRequirement(cartModel.Products, req, scopedRequirementProducts);
                     if (isAnyValid)
                     {
                         var totalItemCount = scopedRequirementProducts.Count;
@@ -157,19 +161,23 @@ namespace DiamondShop.Domain.Services.Implementations
 
 
 
-        private bool HandleOrderRequirement(CartModel cartModel, PromoReq orderRequirement)
+        private static bool HandleOrderRequirement(CartModel cartModel, PromoReq orderRequirement)
         {
             var isValid = orderRequirement.Operator switch
             {
-                Operator.Larger => cartModel.OrderPrices.FinalPrice > orderRequirement.Amount,
-                Operator.Equal_Or_Larger => cartModel.OrderPrices.FinalPrice >= orderRequirement.Amount,
+                //Operator.Larger => cartModel.OrderPrices.FinalPrice > orderRequirement.Amount,
+                //Operator.Equal_Or_Larger => cartModel.OrderPrices.FinalPrice >= orderRequirement.Amount,
+                Operator.Larger => cartModel.OrderPrices.OrderPriceExcludeShipAndWarranty > orderRequirement.Amount,
+                Operator.Equal_Or_Larger => cartModel.OrderPrices.OrderPriceExcludeShipAndWarranty >= orderRequirement.Amount,
+
                 _ => throw new Exception("Major error, requirement for order have not operator")
             };
             return isValid;
         }
-        private bool HandleProductRequirement(CartModel cartModel, PromoReq requirement, Dictionary<int, CartProduct> scopedRequirementProducts)
+        private static bool HandleProductRequirement(List<CartProduct> products, PromoReq requirement, Dictionary<int, CartProduct> scopedRequirementProducts)
         {
-            var productList = cartModel.Products;
+            //var productList = cartModel.Products;
+            var productList = products;
             //var promotionRequirement = promotion.PromoReqs;
             bool isAnyValid = false;
             for (int i = 0; i < productList.Count; i++)
@@ -208,13 +216,13 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             return isAnyValid;
         }
-        private void CleanupAfterAppliedFail(CartModel cartModel)
+        private static void CleanupAfterAppliedFail(CartModel cartModel)
         {
             cartModel.Promotion.ClearPreviousPromotionData();
             cartModel.Products.ForEach(p => p.ClearPreviousPromotion());
             cartModel.OrderPrices.PromotionAmountSaved = 0;
         }
-        private void HandleOrderGift(CartModel cartModel, Gift orderGift)
+        private static void HandleOrderGift(CartModel cartModel, Gift orderGift)
         {
             if (orderGift.TargetType != TargetType.Order)
                 return;
@@ -238,7 +246,7 @@ namespace DiamondShop.Domain.Services.Implementations
         /// <param name="gift"></param>
         /// <param name="IsExcludeQualifierProduct"></param>
         /// <param name="giftProducts"></param>
-        private void HandleProductGift(CartModel cartModel, Gift gift,bool IsExcludeQualifierProduct, Dictionary<int, CartProduct> scopedGiftProducts)
+        private static void HandleProductGift(CartModel cartModel, Gift gift,bool IsExcludeQualifierProduct, Dictionary<int, CartProduct> scopedGiftProducts)
         {
             var productList = cartModel.Products;
             //var promotionGift = promotion.Gifts;
@@ -300,7 +308,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 //do nothing
             }
         }
-        private void SetProductPriceFromGift(CartModel cartModel,CartProduct product, Gift giftReq)
+        private static void SetProductPriceFromGift(CartModel cartModel,CartProduct product, Gift giftReq)
         {
             decimal savedAmount = giftReq.UnitType switch
             {
@@ -323,7 +331,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 cartModel.OrderPrices.PromotionAmountSaved += item.ReviewPrice.PromotionAmountSaved;
             }
         }
-        private bool CheckJewerlyModelIsQualified(JewelryModelId jewelryModelId, PromoReq requirement)
+        private static bool CheckJewerlyModelIsQualified(JewelryModelId jewelryModelId, PromoReq requirement)
         {
             if (requirement.TargetType != TargetType.Jewelry_Model)
                 return false;
@@ -333,11 +341,11 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             return false;
         }
-        private bool CheckJewelryIsQualified(Jewelry jewelry, PromoReq requirements)
+        private static bool CheckJewelryIsQualified(Jewelry jewelry, PromoReq requirements)
         {
             return CheckJewerlyModelIsQualified(jewelry.ModelId, requirements);
         }
-        private bool CheckDiamondIsQualified(Diamond diamond, PromoReq requirement)
+        private static bool CheckDiamondIsQualified(Diamond diamond, PromoReq requirement)
         {
 
             if (requirement.TargetType != TargetType.Diamond)
@@ -355,15 +363,15 @@ namespace DiamondShop.Domain.Services.Implementations
                 return false;
 
         }
-        private bool CheckDiamond4C(Diamond diamond, PromoReq requirement)
+        private static bool CheckDiamond4C(Diamond diamond, PromoReq requirement)
         {
             return ValidateDiamond4C(diamond, requirement.CaratFrom.Value, requirement.CaratTo.Value, requirement.ColorFrom.Value, requirement.ColorTo.Value, requirement.ClarityFrom.Value, requirement.ClarityTo.Value, requirement.CutFrom.Value, requirement.CutTo.Value);
         }
-        private bool CheckDiamond4CGift(Diamond diamond, Gift gift)
+        private static bool CheckDiamond4CGift(Diamond diamond, Gift gift)
         {
             return ValidateDiamond4C(diamond, gift.CaratFrom.Value, gift.CaratTo.Value, gift.ColorFrom.Value, gift.ColorTo.Value, gift.ClarityFrom.Value, gift.ClarityTo.Value, gift.CutFrom.Value, gift.CutTo.Value);
         }
-        private bool ValidateDiamond4C(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo, Cut cutFrom, Cut cutTo)
+        private static bool ValidateDiamond4C(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo, Cut cutFrom, Cut cutTo)
         {
             if (caratFrom <= diamond.Carat && caratTo >= diamond.Carat)
             {
@@ -380,7 +388,7 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             return false;
         }
-        private bool CheckIfDiamondIsGift(Diamond diamond, Gift gift)
+        private static bool CheckIfDiamondIsGift(Diamond diamond, Gift gift)
         {
             bool isQualified = false;
             if (gift.TargetType != TargetType.Diamond)
@@ -395,11 +403,11 @@ namespace DiamondShop.Domain.Services.Implementations
                 isQualified = CheckDiamond4CGift(diamond, gift);
             return isQualified;
         }
-        private bool CheckIfJewelryIsGift(Jewelry jewelry, Gift gift)
+        private static bool CheckIfJewelryIsGift(Jewelry jewelry, Gift gift)
         {
             return CheckIfJewelryModelIsGift(jewelry.ModelId, gift);
         }
-        private bool CheckIfJewelryModelIsGift(JewelryModelId jewelryModelId, Gift gift)
+        private static bool CheckIfJewelryModelIsGift(JewelryModelId jewelryModelId, Gift gift)
         {
             if (gift.TargetType != TargetType.Jewelry_Model)
                 return false;
@@ -454,6 +462,16 @@ namespace DiamondShop.Domain.Services.Implementations
                 ColorFrom = promoReq.ColorFrom.Value,
                 ColorTo = promoReq.ColorTo.Value
             };
+        }
+    }
+    public partial class PromotionService : IPromotionServices
+    {
+        public static Result IsCartMeetPromotionRequirent(CartModel clonedCartModel,Promotion promotion)
+        {
+            var result = ApplyPromotionOnCartModelGlobal(clonedCartModel,promotion);
+            if (result.IsSuccess)
+                return result;
+            return Result.Fail("this promotion is not applicable for this cart");
         }
     }
 }
