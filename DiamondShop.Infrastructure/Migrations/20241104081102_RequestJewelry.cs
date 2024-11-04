@@ -17,16 +17,6 @@ namespace DiamondShop.Infrastructure.Migrations
                 nullable: false,
                 defaultValue: "");
 
-            migrationBuilder.AlterColumn<string>(
-                name: "JewelryId",
-                table: "Diamond",
-                type: "text",
-                nullable: false,
-                defaultValue: "",
-                oldClrType: typeof(string),
-                oldType: "text",
-                oldNullable: true);
-
             migrationBuilder.AddColumn<string>(
                 name: "JewelryId",
                 table: "CustomizeRequest",
@@ -66,14 +56,6 @@ namespace DiamondShop.Infrastructure.Migrations
             migrationBuilder.DropColumn(
                 name: "JewelryId",
                 table: "CustomizeRequest");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "JewelryId",
-                table: "Diamond",
-                type: "text",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "text");
         }
     }
 }
