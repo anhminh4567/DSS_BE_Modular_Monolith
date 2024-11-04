@@ -3,6 +3,7 @@ using DiamondShop.Application.Services.Models;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.OrderRepo;
+using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.DataProtection.KeyManagement.Internal;
@@ -22,13 +23,15 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetPaymentLink
         private readonly ILogger<GetOrderPaymentLinkHandler> _logger;
         private readonly IOrderRepository _orderRepository;
         private readonly IAccountRepository _accountRepository;
+        private readonly IOrderTransactionService _orderTransactionService;
 
-        public GetOrderPaymentLinkHandler(IPaymentService paymentService, ILogger<GetOrderPaymentLinkHandler> logger, IOrderRepository orderRepository, IAccountRepository accountRepository)
+        public GetOrderPaymentLinkHandler(IPaymentService paymentService, ILogger<GetOrderPaymentLinkHandler> logger, IOrderRepository orderRepository, IAccountRepository accountRepository, IOrderTransactionService orderTransactionService)
         {
             _paymentService = paymentService;
             _logger = logger;
             _orderRepository = orderRepository;
             _accountRepository = accountRepository;
+            _orderTransactionService = orderTransactionService;
         }
 
         public async Task<Result<PaymentLinkResponse>> Handle(GetOrderPaymentLink request, CancellationToken cancellationToken)
@@ -44,11 +47,12 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetPaymentLink
             {
                 return Result.Fail("Account not found");
             }
+            var correctAmount = _orderTransactionService.GetCorrectAmountFromOrder(getOrder);
             PaymentLinkRequest paymentLinkRequest = new() 
             {
                 Account = getAccount,
                 Address = getOrder.ShippingAddress,
-                Amount = getOrder.TotalPrice,
+                Amount = correctAmount,//getOrder.TotalPrice,
                 Description = getOrder.Note,
                 Email = getAccount.Email,
                 Order = getOrder,

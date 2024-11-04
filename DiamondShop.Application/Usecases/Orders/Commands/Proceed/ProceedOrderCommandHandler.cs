@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Domain.Models.Orders.Events;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.Transactions;
 using DiamondShop.Domain.Models.Transactions.Enum;
@@ -44,8 +45,11 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             request.Deconstruct(out string orderId, out string? accountId);
             await _unitOfWork.BeginTransactionAsync(token);
             var order = await _orderRepository.GetById(OrderId.Parse(orderId));
+            var account = await _accountRepository.GetById(order.AccountId);
             if (order == null)
                 return Result.Fail("No order found!");
+            if (account == null)
+                return Result.Fail("No account found!");
             if (!_orderService.IsProceedable(order.Status))
                 return Result.Fail("This order can't proceed!");
             var orderItemQuery = _orderItemRepository.GetQuery();
@@ -83,6 +87,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                     //TODO: Add payment here
                     _orderTransactionService.AddCODPayment(order);
                 order.Status = OrderStatus.Success;
+                order.Raise(new OrderCompleteEvent(account.Id,order.Id, DateTime.UtcNow));
             }
             else
             {

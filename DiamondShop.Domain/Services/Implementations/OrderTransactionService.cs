@@ -73,7 +73,7 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             if (getCorrectAmount is null)
                 throw new Exception("the correct amount is null");
-            return getCorrectAmount.Value;
+            return MoneyVndRoundUpRules.RoundAmountFromDecimal(getCorrectAmount.Value);
         }
 
         public decimal GetDepositValueForOrder(Order order)
@@ -209,14 +209,14 @@ namespace DiamondShop.Domain.Services.Implementations
             return order.TotalPrice - paidAmount;
         }
 
-        public Result<(decimal allowAmount, decimal remainingAmount)> GetTransactionValueForOrder(Order order, decimal wantedAmount)
+        public Result<(decimal allowAmount, decimal remainingAmount)> GetTransactionValueForOrder(Order order, decimal wantedAmount, TransactionRule transactionRule)
         {
             var orderTotal = order.TotalPrice;
             var remaining = orderTotal - wantedAmount;
-            if (wantedAmount > TransactionRules.MaximumPerTransaction)
-                return Result.Fail($"the wanted to pay amount is: {wantedAmount} , which is not in our rules is maximum = {TransactionRules.MaximumPerTransaction}");
-            if (remaining < TransactionRules.MinimumPerTransaction)
-                return Result.Fail($"the remaining money is: {remaining} , which is not in our rules is minimum = {TransactionRules.MinimumPerTransaction}");
+            if (wantedAmount > transactionRule.MaximumPerTransaction)
+                return Result.Fail($"the wanted to pay amount is: {wantedAmount} , which is not in our rules is maximum = {transactionRule.MaximumPerTransaction}");
+            if (remaining < transactionRule.MinimumPerTransaction)
+                return Result.Fail($"the remaining money is: {remaining} , which is not in our rules is minimum = {transactionRule.MinimumPerTransaction}");
             return Result.Ok((wantedAmount, remaining));
         }
 

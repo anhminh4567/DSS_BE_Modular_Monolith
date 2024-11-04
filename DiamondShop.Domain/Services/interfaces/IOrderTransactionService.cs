@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.Orders;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Transactions;
 using FluentResults;
@@ -12,7 +13,7 @@ namespace DiamondShop.Domain.Services.interfaces
 {
     public interface IOrderTransactionService
     {
-        Result<(decimal allowAmount, decimal remainingAmount)> GetTransactionValueForOrder(Order order, decimal wantedAmount);
+        Result<(decimal allowAmount, decimal remainingAmount)> GetTransactionValueForOrder(Order order, decimal wantedAmount, TransactionRule transactionRule);
         decimal GetDepositValueForOrder(Order order);
         decimal GetFullPaymentValueForOrder(Order order);
         decimal GetRemaingValueForOrder(Order order);

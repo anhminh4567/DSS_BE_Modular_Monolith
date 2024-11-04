@@ -67,6 +67,7 @@ namespace DiamondShop.Api.Controllers.Orders
                 return Unauthorized();
         }
         [HttpGet("PaymentLink/{orderId}")]
+        [AllowAnonymous]
         public async Task<ActionResult> GetPaymentLink([FromRoute] GetOrderPaymentLink getOrderPaymentLink)
         {
             var result = await _sender.Send(getOrderPaymentLink);
