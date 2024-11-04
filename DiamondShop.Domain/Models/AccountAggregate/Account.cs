@@ -50,7 +50,7 @@ namespace DiamondShop.Domain.Models.AccountAggregate
 
             user.AddRole(roleToAdd);
             //add domain events
-            user.DomainEvents.Add(new CustomerCreatedMessage(user.Id, DateTime.UtcNow));
+            user.Raise(new CustomerCreatedMessage(user.Id, DateTime.UtcNow));
             return user;
         }
         public static Account CreateBaseStaff(FullName fullName, string email, string identityId, List<AccountRole> allRoles)

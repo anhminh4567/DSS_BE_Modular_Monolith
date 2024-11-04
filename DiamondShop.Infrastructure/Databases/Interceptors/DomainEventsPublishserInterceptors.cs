@@ -54,8 +54,8 @@ namespace DiamondShop.Infrastructure.Databases.Interceptors
                 {
                     Id = _dateTimeProvider.UtcNow.Ticks.ToString(),
                     CreationTime = _dateTimeProvider.UtcNow,
-                    Type = e.GetType().Name,
-                    Content = JsonConvert.SerializeObject(e, _jsonSerializerSettings),
+                    Type = e.GetType().AssemblyQualifiedName,
+                    Content = JsonConvert.SerializeObject(e),
                 })
                 .ToList();
             entitiesWithDomainEvents.ForEach(ev =>

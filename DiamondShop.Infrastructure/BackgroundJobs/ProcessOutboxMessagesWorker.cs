@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Domain;
 using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Outbox;
 using MediatR;
@@ -41,7 +42,7 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
         {
             _logger.LogInformation("outbox processor is called");
             await RemoveProcessedMessage(context);
-            //await ProcessingMessage(context);
+            await ProcessingMessage(context);
         }
         private async Task RemoveProcessedMessage(IJobExecutionContext jobExecutionContext)
         {
@@ -53,10 +54,10 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
         {
             await _unitOfWork.BeginTransactionAsync();
             var getUnprocessMessage = await _context.OutboxMessages
-                .FromSqlRaw("SELECT  Id, Type, Content, ProcessTime, CreationTime , CompleteTime, Exception" +
-                            "FROM outbox_message " +
-                            "WHERE CompleteTime IS NULL " +
-                            "ORDER BY CreationTime " +
+                .FromSqlRaw("SELECT * " + //Id, Type, Content, ProcessTime, CreationTime , CompleteTime, Exception
+                            "FROM outbox_message om " +
+                            "WHERE om.\"CompleteTime\" IS NULL " +
+                            "ORDER BY om.\"CreationTime\" " +
                             "LIMIT {0} FOR UPDATE SKIP LOCKED", _outboxOptions.Value.BatchSize)
                 .ToListAsync();
             
@@ -65,8 +66,8 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
                 Exception any = null;
                 try
                 {
-                    Assembly asm = typeof(ProcessOutboxMessagesWorker).Assembly;
-                    var messageType = asm.GetType(message.Type);
+                    Assembly asm = typeof(DomainLayer).Assembly;
+                    var messageType = System.Type.GetType(message.Type); //asm.GetType(message.Type);
                     var parsedMessage = JsonConvert.DeserializeObject(message.Content, messageType);
                     await _publisher.Publish(parsedMessage);
                     message.Exception = null;
