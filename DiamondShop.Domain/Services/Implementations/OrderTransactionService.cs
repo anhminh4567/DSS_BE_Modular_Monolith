@@ -73,7 +73,7 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             if (getCorrectAmount is null)
                 throw new Exception("the correct amount is null");
-            return getCorrectAmount.Value;
+            return MoneyVndRoundUpRules.RoundAmountFromDecimal(getCorrectAmount.Value);
         }
 
         public decimal GetDepositValueForOrder(Order order)

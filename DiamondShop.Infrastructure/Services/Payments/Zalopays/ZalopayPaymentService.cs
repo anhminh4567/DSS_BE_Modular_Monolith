@@ -27,11 +27,10 @@ using Microsoft.Extensions.Options;
 using DiamondShop.Infrastructure.Options;
 using MediatR;
 using DiamondShop.Domain.Models.Orders.Enum;
-using DiamondShop.Infrastructure.Databases.Repositories.OrderRepo;
-using HtmlAgilityPack.CssSelectors.NetCore;
 using DiamondShop.Domain.Common;
 using Microsoft.Extensions.Caching.Memory;
-using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.Transactions.Events;
+using Azure.Storage.Blobs.Models;
 
 namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
 {
@@ -50,6 +49,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
         private readonly ILogger<ZalopayPaymentService> _logger;
 
         private readonly ISender _sender;
+        private readonly IPublisher _publisher;
         private static string appid = "2554";
         private static string key1 = "sdngKKJmqEMzvh5QQcdD2A9XBSKUNaYn";
         private static string key2 = "trMrHtvjo6myautxDUiAcYsVtaeQ8nhf";
@@ -63,8 +63,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
         private static string refund_url = "https://sb-openapi.zalopay.vn/v2/refund";
         private static string query_refund_url = "https://sb-openapi.zalopay.vn/v2/query_refund";
 
-        
-        public ZalopayPaymentService(IUnitOfWork unitOfWork, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IPaymentMethodRepository paymentMethodRepository, IHttpContextAccessor httpContextAccessor, IOrderTransactionService orderTransactionService, IMemoryCache cache, IOptions<UrlOptions> urlOptions, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, ILogger<ZalopayPaymentService> logger, ISender sender)
+        public ZalopayPaymentService(IUnitOfWork unitOfWork, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IPaymentMethodRepository paymentMethodRepository, IHttpContextAccessor httpContextAccessor, IOrderTransactionService orderTransactionService, IMemoryCache cache, IOptions<UrlOptions> urlOptions, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, ILogger<ZalopayPaymentService> logger, ISender sender, IPublisher publisher)
         {
             _unitOfWork = unitOfWork;
             _orderRepository = orderRepository;
@@ -78,6 +77,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             _optionsMonitor = optionsMonitor;
             _logger = logger;
             _sender = sender;
+            _publisher = publisher;
         }
 
         public async Task<object> Callback()
@@ -128,16 +128,17 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                         result["return_code"] = 1;
                         result["return_message"] = "success";
                         var getOrderDetail = await _orderRepository.GetById(orderIdParsed);
-                        getOrderDetail.Status = OrderStatus.Processing;
-                        getOrderDetail.PaymentStatus = getOrderDetail.PaymentType == PaymentType.Payall ? PaymentStatus.PaidAll : PaymentStatus.Deposited;
+                        //getOrderDetail.Status = OrderStatus.Processing;
+                        //getOrderDetail.PaymentStatus = getOrderDetail.PaymentType == PaymentType.Payall ? PaymentStatus.PaidAll : PaymentStatus.Deposited;
+                        await _publisher.Publish(new TransactionCreatedEvent(newTran, DateTime.UtcNow));
                         await _orderRepository.Update(getOrderDetail);
                         await _unitOfWork.SaveChangesAsync();
 
-                        var orderItemQuery = _orderItemRepository.GetQuery();
-                        orderItemQuery = _orderItemRepository.QueryFilter(orderItemQuery, p => p.OrderId == getOrderDetail.Id);
-                        var orderItems = orderItemQuery.ToList();
-                        orderItems.ForEach(p => p.Status = OrderItemStatus.Pending);
-                        _orderItemRepository.UpdateRange(orderItems);
+                        //var orderItemQuery = _orderItemRepository.GetQuery();
+                        //orderItemQuery = _orderItemRepository.QueryFilter(orderItemQuery, p => p.OrderId == getOrderDetail.Id);
+                        //var orderItems = getOrderDetail.Items ;//orderItemQuery.ToList();
+                        //orderItems.ForEach(p => p.Status = OrderItemStatus.Pending);
+                        //_orderItemRepository.UpdateRange(orderItems);
 
                         await _unitOfWork.SaveChangesAsync();
                         await _unitOfWork.CommitAsync();
@@ -182,13 +183,11 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                 paymentLink = tryGetFromCache as string;
                 return new PaymentLinkResponse() { PaymentUrl  =  paymentLink} ;
             }
-            var orderEndDateExpected = paymentLinkRequest.Order.CreatedDate.AddHours(OrderRules.ExpiredOrderHour).ToUniversalTime();
-            DateTime now = DateTime.UtcNow;
-            var trueTimeRemainForPaymentLink = (orderEndDateExpected - now).TotalSeconds;
-            trueTimeRemainForPaymentLink = Math.Floor(trueTimeRemainForPaymentLink);
-            //var orderSecondExpiredTime = OrderRules.ExpiredOrderHour * 60 * 60;
-
-
+            double? secondsExpired = GetSecondPaymentTimeOut(paymentLinkRequest.Order);
+            if(secondsExpired == null)
+            {
+                return Result.Fail("order is not in pending or delivering state");
+            }
             var callbackUrl = string.Concat(_urlOptions.Value.HttpsUrl,"/", CallbackUri);
             var returnUrl = string.Concat(_urlOptions.Value.HttpsUrl,"/", ReturnUri);
 
@@ -199,7 +198,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                 redirecturl = returnUrl,
                 preferred_payment_method =[]//["domestic_card", "account"],
             };
-            var correctAmount = _orderTransactionService.GetCorrectAmountFromOrder(order);
+            var correctAmount = paymentLinkRequest.Amount; //_orderTransactionService.GetCorrectAmountFromOrder(order);
 
             var param = new Dictionary<string, string>();
             var app_trans_id = DateTime.UtcNow.ToString("yyyyMMddHHmmss"); //rnd.Next(100000000); // Generate a random order's ID.
@@ -229,7 +228,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             param.Add("item", JsonConvert.SerializeObject(falseList));
             param.Add("description", description);
             param.Add("bank_code", "");
-            param.Add("expire_duration_seconds", ((int)trueTimeRemainForPaymentLink).ToString()); // 15 minutes (900 seconds)
+            param.Add("expire_duration_seconds", ((int)secondsExpired).ToString()); // 15 minutes (900 seconds)
             param.Add("callback_url", callbackUrl);
             var data = appid + "|" + param["app_trans_id"] + "|" + param["app_user"] + "|" + param["amount"] + "|"
                 + param["app_time"] + "|" + param["embed_data"] + "|" + param["item"];
@@ -237,7 +236,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             var result = await HttpHelper.PostFormAsync<ZalopayCreateOrderResponse>(create_order_url, param);
             if (result.return_code != 1)
                 return Result.Fail($"fail with message from paygate: {result.sub_return_message} and code: {result.return_code} ");
-            _cache.Set(cacheKey, result.order_url, TimeSpan.FromSeconds(trueTimeRemainForPaymentLink));
+            _cache.Set(cacheKey, result.order_url, TimeSpan.FromSeconds(secondsExpired.Value));
             return Result.Ok(new PaymentLinkResponse { PaymentUrl = result.order_url ,QrCode = result.qr_code });
         }
 
@@ -373,6 +372,29 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
         {
             var statusString = order.PaymentStatus.ToString();
             return $"ZP_{order.Id.Value}_{statusString}";
+        }
+        private double? GetSecondPaymentTimeOut(Order order)
+        {
+            if(order.Status != OrderStatus.Pending && order.Status != OrderStatus.Delivering)
+                return null;
+            if(order.ExpiredDate != null)
+                return null;
+            if(order.PaymentStatus == PaymentStatus.PaidAll)
+                return null;
+            if (order.Status == OrderStatus.Pending)
+            {
+                var orderEndDateExpected = order.CreatedDate.AddHours(OrderRules.ExpiredOrderHour).ToUniversalTime();
+                double trueTimeRemainForPaymentLink = (orderEndDateExpected - DateTime.UtcNow).TotalSeconds;
+                trueTimeRemainForPaymentLink = Math.Floor(trueTimeRemainForPaymentLink);
+                return trueTimeRemainForPaymentLink;
+            }
+            else if (order.Status == OrderStatus.Delivering)
+            {
+                double trueTimeRemainForPaymentLink = Math.Floor(TimeSpan.FromHours((double)OrderRules.ExpiredOrderHour).TotalSeconds);
+                return trueTimeRemainForPaymentLink;
+            }
+            else
+                return null;
         }
     }
 }

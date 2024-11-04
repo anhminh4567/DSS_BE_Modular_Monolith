@@ -10,6 +10,7 @@ using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Models.Transactions;
+using DiamondShop.Domain.Models.Transactions.Enum;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DiamondShop.Domain.Models.Orders
@@ -85,5 +86,35 @@ namespace DiamondShop.Domain.Models.Orders
                 OrderSavedAmount = orderSavedAmount
             };
         }
+        public void Deposit(Transaction depositedTransaction)
+        {
+            if(depositedTransaction.TotalAmount >= TotalPrice)
+                throw new InvalidOperationException("Transaction deposit must be less then the order, this is not deposit transaction");
+            AddTransaction(depositedTransaction);
+            Status = OrderStatus.Processing;
+            PaymentStatus = PaymentStatus.Deposited;
+            Items.ForEach(p => p.Status = OrderItemStatus.Pending);
+        }
+        public void PayAll(Transaction payAllTransaction)
+        {
+            if (payAllTransaction.TotalAmount < TotalPrice)
+                throw new InvalidOperationException("Transaction pay all must be equal the order, this is not pay all transaction");
+            AddTransaction(payAllTransaction);
+            Status = OrderStatus.Processing;
+            PaymentStatus = PaymentStatus.PaidAll;
+            Items.ForEach(p => p.Status = OrderItemStatus.Pending);
+        }
+        public void PayRemainingForDepositOrder(Transaction payRemainingTransaction)
+        {
+            var totalDeposited = Transactions.Where(p => p.TransactionType == TransactionType.Pay).Sum(x => x.TotalAmount);
+            var remaining = TotalPrice - totalDeposited;
+            if (payRemainingTransaction.TotalAmount < remaining)
+                throw new InvalidOperationException("Transaction for the remaining is not valid");
+            AddTransaction(payRemainingTransaction);
+            Status = OrderStatus.Success;
+            PaymentStatus = PaymentStatus.PaidAll;
+            Items.ForEach(p => p.Status = OrderItemStatus.Done);
+        }
+
     }
 }

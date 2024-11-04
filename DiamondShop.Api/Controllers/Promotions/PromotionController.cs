@@ -12,6 +12,7 @@ using DiamondShop.Application.Usecases.Promotions.Commands.Create;
 using DiamondShop.Application.Usecases.Promotions.Commands.CreateFull;
 using DiamondShop.Application.Usecases.Promotions.Commands.Delete;
 using DiamondShop.Application.Usecases.Promotions.Commands.SetThumbnail;
+using DiamondShop.Application.Usecases.Promotions.Commands.Update;
 using DiamondShop.Application.Usecases.Promotions.Commands.UpdateGifts;
 using DiamondShop.Application.Usecases.Promotions.Commands.UpdateInfo;
 using DiamondShop.Application.Usecases.Promotions.Commands.UpdateRequirements;
@@ -102,12 +103,24 @@ namespace DiamondShop.Api.Controllers.Promotions
             }
             return MatchError(result.Errors, ModelState);
         }
+        //[HttpPut("{promotionId}")]
+        //[ProducesResponseType(typeof(PromotionDto), 200)]
+        //public async Task<ActionResult> UpdateInformation([FromRoute] string promotionId, [FromBody] UpdatePromotionInformationCommand updatePromotionInformationCommand)
+        //{
+        //    var command = updatePromotionInformationCommand with { promotionId = promotionId };
+        //    var result = await _sender.Send(command);
+        //    if (result.IsSuccess)
+        //    {
+        //        var mappedResult = _mapper.Map<PromotionDto>(result.Value);
+        //        return Ok(mappedResult);
+        //    }
+        //    return MatchError(result.Errors, ModelState);
+        //}
         [HttpPut("{promotionId}")]
         [ProducesResponseType(typeof(PromotionDto), 200)]
-        public async Task<ActionResult> UpdateInformation([FromRoute] string promotionId, [FromBody] UpdatePromotionInformationCommand updatePromotionInformationCommand)
+        public async Task<ActionResult> UpdatePromotionFull([FromRoute] string promotionId,[FromBody] UpdatePromotionRequest request)
         {
-            var command = updatePromotionInformationCommand with { promotionId = promotionId };
-            var result = await _sender.Send(command);
+            var result = await _sender.Send(new UpdatePromotionCommand(promotionId,request.UpdatePromotionParams,request.addedRquirements,request.addedGifts,request.removedRequirement,request.removedGifts));
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<PromotionDto>(result.Value);
