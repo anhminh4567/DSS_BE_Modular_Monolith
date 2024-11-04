@@ -55,6 +55,14 @@ namespace DiamondShop.Infrastructure.Options.Setups
                         .WithIntervalInMinutes(40)
                         .RepeatForever()));
 
+            string accountJobName = nameof(AccountManagerWorkers);
+            options.AddJob<AccountManagerWorkers>(config => config.WithIdentity(accountJobName))
+                .AddTrigger(config => config.ForJob(accountJobName)
+                    .WithSimpleSchedule(schedule => schedule
+                        .WithIntervalInMinutes(5)
+                        .RepeatForever()));
+
+
         }
     }
 }

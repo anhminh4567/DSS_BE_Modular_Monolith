@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Common;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.DeliveryFees.ValueObjects;
 using System;
 using System.Collections.Generic;
@@ -55,7 +56,7 @@ namespace DiamondShop.Domain.Models.DeliveryFees
             };
         }
         public void ChangeName( string name) => Name = name;
-        public void ChangeCost( decimal cost) => Cost = cost;
+        public void ChangeCost( decimal cost) => Cost = MoneyVndRoundUpRules.RoundAmountFromDecimal(cost);
         public void ChangeFromToKm(int from, int to)
         {
             FromKm = from; ToKm = to;

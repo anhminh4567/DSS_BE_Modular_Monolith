@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DeliveryFees.Queries.GetAll
 {
-    public record GetAllDeliveryFeeQuery() : IRequest<List<DeliveryFee>>;
+    public record GetAllDeliveryFeeQuery(bool? isLocation) : IRequest<List<DeliveryFee>>;
     internal class GetAllDeliveryFeesQueryHandler : IRequestHandler<GetAllDeliveryFeeQuery, List<DeliveryFee>>
     {
         private readonly IDeliveryFeeRepository _deliveryFeeRepository;
@@ -24,11 +24,22 @@ namespace DiamondShop.Application.Usecases.DeliveryFees.Queries.GetAll
 
         public async Task<List<DeliveryFee>> Handle(GetAllDeliveryFeeQuery request, CancellationToken cancellationToken)
         {
-            var query = _deliveryFeeRepository.GetQuery();
-            query = query.OrderBy(s => s.FromKm).ThenBy(s => s.Cost);
-            var result = query.ToList();
-            _logger.LogInformation("GetAll DeliveryFees is called with total " + result.Count + " items");
-            return result;
+            //var query = _deliveryFeeRepository.GetQuery();
+            //query = query.OrderBy(s => s.FromKm).ThenBy(s => s.Cost);
+            //var result = query.ToList();
+            
+            var getAll = await _deliveryFeeRepository.GetAll();
+            getAll = getAll.OrderBy(s => s.FromKm).ThenBy(s => s.Cost).ToList();
+            if (request.isLocation != null)
+            {
+                if(request.isLocation == true)
+                    getAll = getAll.Where(s => s.IsDistancePriceType == false).ToList();
+                else
+                    getAll = getAll.Where(s => s.IsDistancePriceType == true).ToList();
+            }
+            else { }
+            _logger.LogInformation("GetAll DeliveryFees is called with total " + getAll.Count + " items");
+            return getAll;
         }
     }
 }

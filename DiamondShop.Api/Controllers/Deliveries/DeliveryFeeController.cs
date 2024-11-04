@@ -26,9 +26,9 @@ namespace DiamondShop.Api.Controllers.Deliveries
 
         [HttpGet("All")]
         [Produces(typeof(List<DeliveryFeeDto>))]
-        public async Task<ActionResult> GetAll()
+        public async Task<ActionResult> GetAll([FromQuery]GetAllDeliveryFeeQuery getAllDeliveryFeeQuery)
         {
-            var result = await _mediator.Send(new GetAllDeliveryFeeQuery());
+            var result = await _mediator.Send(getAllDeliveryFeeQuery);
             var mappedResult = _mapper.Map<List<DeliveryFeeDto>>(result);
             return Ok(mappedResult);
         }

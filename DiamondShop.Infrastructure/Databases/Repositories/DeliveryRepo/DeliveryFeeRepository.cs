@@ -31,6 +31,11 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.DeliveryRepo
             return _set.Where(d => d.FromLocation != null && d.ToLocation != null).ToListAsync(cancellationToken);
         }
 
+        public Task<List<DeliveryFee>> GetRange(List<DeliveryFeeId> deliveryFeeIds, CancellationToken cancellationToken = default)
+        {
+            return _set.Where(fee => deliveryFeeIds.Contains(fee.Id)).ToListAsync(cancellationToken);
+        }
+
         public Task<DeliveryFee?> GetWithDistance(decimal distant, CancellationToken cancellationToken = default)
         {
             return _set.Where(d => d.FromKm <= distant && d.ToKm >= distant).FirstOrDefaultAsync(cancellationToken);

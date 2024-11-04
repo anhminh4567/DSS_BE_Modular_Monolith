@@ -79,7 +79,9 @@ namespace DiamondShop.Api.Controllers.ThirdParties
         public async Task<ActionResult> Return()
         {
             //this will redirect client to the frontend, but not important for now, so just return ok
-            return Ok(HttpContext.Request.QueryString.Value);
+            var redirectUrl = _frontendOptions.Value.FailedPaymentUrl;
+            return Redirect(redirectUrl + "/"+HttpContext.Request.QueryString.Value);
+            //return Ok(HttpContext.Request.QueryString.Value);
         }
     }
 }

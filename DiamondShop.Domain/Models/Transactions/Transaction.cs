@@ -79,7 +79,7 @@ namespace DiamondShop.Domain.Models.Transactions
                 OrderId = orderId,
                 FineAmount = 0,
                 PayDate = dateTimeNow,
-                TimeStampe = dateTimeNow.ToString(TransactionRules.TransactionTimeStamp),
+                TimeStampe = dateTimeNow.ToString(TransactionRule.TransactionTimeStamp),
                 IsManual = true,
             };
         }
@@ -97,7 +97,7 @@ namespace DiamondShop.Domain.Models.Transactions
                 TransactionAmount = amount,
                 OrderId = orderId,
                 PayDate = dateTimeNow,
-                TimeStampe = dateTimeNow.ToString(TransactionRules.TransactionTimeStamp),
+                TimeStampe = dateTimeNow.ToString(TransactionRule.TransactionTimeStamp),
                 IsManual = true,
             };
         }
