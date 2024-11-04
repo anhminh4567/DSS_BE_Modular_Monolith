@@ -11,7 +11,6 @@ namespace DiamondShop.Application.Mappers
         {
             config.NewConfig<Jewelry, JewelryDto>()
                 .Map(dest => dest.SideDiamond, src => src.SideDiamond)
-                .Map(dest => dest.Name, src => src.Model != null ? src.Model.Name : null)
                 .Map(dest => dest.ModelCode, src => src.Model != null ? src.Model.ModelCode : null)
                 .Map(dest => dest.Category, src => src.Model != null ? src.Model.Category : null)
                 ;
