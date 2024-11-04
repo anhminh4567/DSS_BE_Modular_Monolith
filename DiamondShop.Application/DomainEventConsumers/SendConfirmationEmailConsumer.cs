@@ -11,12 +11,12 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.DomainEventConsumers
 {
-    internal class SendConfirmationEmail : INotificationHandler<CustomerCreatedMessage>
+    internal class SendConfirmationEmailConsumer : INotificationHandler<CustomerCreatedMessage>
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IAuthenticationService _authenticationService;
 
-        public SendConfirmationEmail(IAccountRepository accountRepository, IAuthenticationService authenticationService)
+        public SendConfirmationEmailConsumer(IAccountRepository accountRepository, IAuthenticationService authenticationService)
         {
             _accountRepository = accountRepository;
             _authenticationService = authenticationService;

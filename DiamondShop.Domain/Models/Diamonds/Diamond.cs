@@ -149,6 +149,12 @@ namespace DiamondShop.Domain.Models.Diamonds
             ProductLock = ProductLock.CreateLockForUser(userAccount.Id, TimeSpan.FromHours(lockHour));
         }
         public void ChangeThumbnail(Media? thumbnail) => Thumbnail = thumbnail;
+        public void ChangeOffset(decimal newOffset)
+        {
+            if (newOffset <= 0)
+                throw new Exception();
+            PriceOffset = newOffset;
+        }
         private Diamond() { }
     }
 }

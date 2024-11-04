@@ -47,7 +47,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromo
             var emptyPromo = new List<Promotion>();
             // init response
             ApplicablePromotionDto response = new();
-            getAllActivePromo.ForEach(x => response.Promotions.Add(new PromoResponse(x.Id.Value,_mapper.Map<PromotionDto>(x), false)));
+            getAllActivePromo.ForEach(x => response.Promotions.Add(new PromoResponse(0,x.Id.Value,_mapper.Map<PromotionDto>(x), false)));
             
             var cartItem = _mapper.Map<List<CartItem>>(request.CartRequestDto.Items);
             PromotionId promotionId = null;
@@ -74,7 +74,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromo
                 var result = PromotionService.IsCartMeetPromotionRequirent(clonedCart, promo);
                 if(result.IsSuccess)
                 {
-                    successfulPromotions.Add(new PromoResponse(promo.Id.Value, _mapper.Map<PromotionDto>(promo), true));
+                    successfulPromotions.Add(new PromoResponse(clonedCart.OrderPrices.OrderPriceExcludeShipAndWarranty,promo.Id.Value, _mapper.Map<PromotionDto>(promo), true));
                 }
             });
             foreach (var item in response.Promotions)
@@ -82,6 +82,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromo
                 if (successfulPromotions.Any(x => x.PromoId == item.PromoId))
                     item.IsApplicable = true;
             }
+            response.Promotions.OrderByDescending(x => x.AmountSaved).ToList();
             return response;
         }
     }
