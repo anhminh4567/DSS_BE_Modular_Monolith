@@ -1,6 +1,8 @@
 ﻿using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.Enums;
+using DiamondShop.Domain.Common.Products;
 using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
@@ -64,7 +66,7 @@ namespace DiamondShop.Domain.Models.Jewelries
         public string? EngravedText { get; set; }
         public string? EngravedFont { get; set; }
         public ProductStatus Status { get; set; } = ProductStatus.Active;
-
+        public ProductLock? ProductLock { get; set; }
         private Jewelry() { }
         public static Jewelry Create(
            JewelryModelId modelId, SizeId sizeId, MetalId metalId,
@@ -123,6 +125,11 @@ namespace DiamondShop.Domain.Models.Jewelries
             ND_Price = 0;
             D_Price = 0;
             SoldPrice = 0;
+        }
+        public void SetLockForUser(Account userAccount, int lockHour)
+        {
+            Status = ProductStatus.Locked;
+            ProductLock = ProductLock.CreateLockForUser(userAccount.Id, TimeSpan.FromHours(lockHour));
         }
         public void SetTotalDiamondPrice(decimal totalAllDiamondPrice)
         {

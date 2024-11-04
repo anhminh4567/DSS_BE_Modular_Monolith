@@ -4,11 +4,13 @@ using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Outbox;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration.EnvironmentVariables;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Quartz;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -60,7 +62,7 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
                             "ORDER BY om.\"CreationTime\" " +
                             "LIMIT {0} FOR UPDATE SKIP LOCKED", _outboxOptions.Value.BatchSize)
                 .ToListAsync();
-            
+            var concurrentMessage = new ConcurrentBag<OutboxMessages>(getUnprocessMessage) ;
             foreach (var message in getUnprocessMessage)
             {
                 Exception any = null;

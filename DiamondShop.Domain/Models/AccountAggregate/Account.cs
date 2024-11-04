@@ -26,6 +26,7 @@ namespace DiamondShop.Domain.Models.AccountAggregate
         public FullName FullName { get; private set; }
         public string Email { get; private set; }
         public long? PhoneNumber { get; set; }
+        public decimal TotalPoint { get; set; } = 0;
         [NotMapped]
         public IUserIdentity? UserIdentity { get; set; }
         //public List<Blog> Blogs { get; private set; }
@@ -123,6 +124,12 @@ namespace DiamondShop.Domain.Models.AccountAggregate
                 throw new ArgumentNullException("Fullname is invalid");
             }
             FullName = fullName;
+        }
+        public void AddTotalPoint(decimal amount)
+        {
+            TotalPoint += amount;
+            if (TotalPoint < 0)
+                TotalPoint = 0;
         }
         private Account()
         {

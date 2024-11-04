@@ -19,7 +19,7 @@ namespace DiamondShop.Application.Dtos.Responses.Accounts
         public List<AddressDto> Addresses { get;  set; } = new();
         public string FirstName { get;  set; }
         public string LastName { get;  set; }
-
+        public decimal? TotalPoint { get; set; }
         public string Email { get;  set; }
         public IUserIdentity? UserIdentity { get; set; }
     }

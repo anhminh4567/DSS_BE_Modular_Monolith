@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.Jewelries;
+﻿using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
@@ -59,6 +60,13 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryConfig
             builder.OwnsOne(o => o.Thumbnail, childBuilder =>
             {
                 childBuilder.ToJson();
+            });
+            builder.OwnsOne(o => o.ProductLock, childBuilder =>
+            {
+                childBuilder.Property(o => o.AccountId)
+                .HasConversion(
+                    Id => Id.Value,
+                    dbValue => AccountId.Parse(dbValue));
             });
             builder.HasKey(o => o.Id);
             //builder.HasIndex(o => o.Id);
