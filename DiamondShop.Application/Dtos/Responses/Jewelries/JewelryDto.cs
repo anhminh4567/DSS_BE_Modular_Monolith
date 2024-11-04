@@ -10,7 +10,6 @@ namespace DiamondShop.Application.Dtos.Responses.Jewelries
         public string Id { get; set; }
         public string SerialCode { get; set; }
         public string ModelId { get; set; }
-        public string Name { get; set; }
         public string ModelCode { get; set; }
         public JewelryModelCategoryDto? Category { get; set; }
         public string SizeId { get; set; }
