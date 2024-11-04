@@ -55,5 +55,7 @@
 			<_Parameter1>DiamondShop.Test.General</_Parameter1>
 		</AssemblyAttribute>
 	</ItemGroup>
-
+	<ItemGroup>
+		<InternalsVisibleTo Include="DiamondShop.Test.Application" />
+	</ItemGroup>
 </Project>

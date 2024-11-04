@@ -35,6 +35,7 @@ namespace DiamondShop.Application
             services.AddScoped<IDeliveryService, DeliveryService>();
             services.AddScoped<IJewelryService, JewelryService>();
             services.AddScoped<IJewelryModelService, JewelryModelService>();
+            services.AddSingleton<IAccountServices,AccountServices>();
             
             services.AddSingleton<IMainDiamondService, MainDiamondService>();
             services.AddSingleton<IOrderService, OrderService>();

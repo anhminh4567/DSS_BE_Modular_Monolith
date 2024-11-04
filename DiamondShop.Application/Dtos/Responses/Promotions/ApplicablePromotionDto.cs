@@ -15,12 +15,15 @@ namespace DiamondShop.Application.Dtos.Responses.Promotions
     }
     public class PromoResponse
     {
-        public PromoResponse(string promoId, PromotionDto promotionDto, bool isApplicable)
+        public PromoResponse(decimal amountSaved, string promoId, PromotionDto promotionDto, bool isApplicable)
         {
+            AmountSaved = amountSaved;
             PromoId = promoId;
             PromotionDto = promotionDto;
             IsApplicable = isApplicable;
         }
+
+        public decimal AmountSaved { get; set; } = 0;
         public string PromoId { get; set; }
         public PromotionDto PromotionDto { get; set; }
         public bool IsApplicable { get; set; }

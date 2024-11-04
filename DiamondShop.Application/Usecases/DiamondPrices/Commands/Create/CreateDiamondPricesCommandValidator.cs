@@ -9,7 +9,6 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.Create
             RuleFor(c => c.price).NotEmpty().GreaterThan(0);
             RuleFor(c => c.DiamondCriteriaId.Value).NotEmpty();
             RuleFor(c => c.DiamondShapeId.Value).NotEmpty();
-
         }
     }
 }

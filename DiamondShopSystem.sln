@@ -36,6 +36,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiamondShop.Test.Infrastruc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiamondShop.Test.Integration", "DiamondShop.Test.Integration\DiamondShop.Test.Integration.csproj", "{9CE03912-F7FD-44CB-9591-3EE5F01B3BB9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiamondShop.Test.Application.Integrations", "DiamondShop.Test.Application.Integrations\DiamondShop.Test.Application.Integrations.csproj", "{9F734BD6-DC01-466C-8563-4F86E72CFCE7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,6 +88,10 @@ Global
 		{9CE03912-F7FD-44CB-9591-3EE5F01B3BB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CE03912-F7FD-44CB-9591-3EE5F01B3BB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CE03912-F7FD-44CB-9591-3EE5F01B3BB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F734BD6-DC01-466C-8563-4F86E72CFCE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F734BD6-DC01-466C-8563-4F86E72CFCE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F734BD6-DC01-466C-8563-4F86E72CFCE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F734BD6-DC01-466C-8563-4F86E72CFCE7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,6 +108,7 @@ Global
 		{61F660BC-80CE-4D6C-A98F-0B890085E681} = {3D4F42B8-2C5E-4EFB-A70E-FCAC911C004D}
 		{9CD76206-3588-4023-8C23-B019799595EB} = {3D4F42B8-2C5E-4EFB-A70E-FCAC911C004D}
 		{9CE03912-F7FD-44CB-9591-3EE5F01B3BB9} = {3D4F42B8-2C5E-4EFB-A70E-FCAC911C004D}
+		{9F734BD6-DC01-466C-8563-4F86E72CFCE7} = {3D4F42B8-2C5E-4EFB-A70E-FCAC911C004D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {24239908-BE9E-40E6-B585-DAC5D95EF8A4}
