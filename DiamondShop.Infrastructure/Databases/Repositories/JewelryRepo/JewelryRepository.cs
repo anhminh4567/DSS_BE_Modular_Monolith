@@ -70,5 +70,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
             p.SideDiamond.ClarityMax == sideDiamondOpt.ClarityMax && p.SideDiamond.ClarityMax == sideDiamondOpt.ClarityMax
             ).AnyAsync();
         }
+
+        public int GetSameModelCount(JewelryModelId jewelryModelId, MetalId metalId, SizeId sizeId)
+        {
+            return _set.Where(p => p.ModelId == jewelryModelId &&  p.MetalId == metalId && p.SizeId ==  sizeId).Count();
+        }
     }
 }

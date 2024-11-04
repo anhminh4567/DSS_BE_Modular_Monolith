@@ -1,4 +1,6 @@
-﻿using DiamondShop.Application.Services.Interfaces;
+﻿using DiamondShop.Application.Dtos.Requests.Jewelries;
+using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Application.Usecases.Jewelries.Commands;
 using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
@@ -23,7 +25,6 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
         private readonly ICustomizeRequestService _customizeRequestService;
         private readonly IDiamondServices _diamondServices;
         private readonly IUnitOfWork _unitOfWork;
-
         public ProceedPendingRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, ICustomizeRequestService customizeRequestService, IDiamondRepository diamondRepository, IDiamondRequestRepository diamondRequestRepository, IDiamondServices diamondServices, ISideDiamondRepository sideDiamondRepository)
         {
             _customizeRequestRepository = customizeRequestRepository;
@@ -94,6 +95,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
                             {
                                 diamondRequest.DiamondId = diamond.Id;
                                 await _diamondRequestRepository.Update(diamondRequest);
+                                await _unitOfWork.SaveChangesAsync(token);
                             }
                         }
                     }

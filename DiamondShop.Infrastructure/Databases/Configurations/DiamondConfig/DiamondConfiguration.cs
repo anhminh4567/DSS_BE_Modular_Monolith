@@ -4,6 +4,7 @@ using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries;
+using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -49,8 +50,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondConfig
             {
                 childBuilder.ToJson();
             });
-
-            builder.Property(o => o.JewelryId).IsRequired(false); 
+            builder.Property(o => o.JewelryId)
+                .HasConversion(
+                    Id => Id.Value,
+                    dbValue => JewelryId.Parse(dbValue)).IsRequired();
             //builder.Property(o => o.Clarity).HasConversion<string>();
             //builder.Property(o => o.Color).HasConversion<string>();
             //builder.Property(o => o.Cut).HasConversion<string>();

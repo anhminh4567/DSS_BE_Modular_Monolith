@@ -52,7 +52,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryConfig
                   sideDiamond.Property(n => n.ClarityMin).HasColumnName("ClarityMin").HasConversion<string>();
                   sideDiamond.Property(n => n.ClarityMax).HasColumnName("ClarityMax").HasConversion<string>();
               });
-            builder.HasMany(o => o.Diamonds).WithOne().HasForeignKey(p => p.JewelryId).IsRequired(false).OnDelete(DeleteBehavior.SetNull);
+            builder.HasMany(p => p.Diamonds).WithOne().HasForeignKey(p => p.JewelryId).OnDelete(DeleteBehavior.SetNull).IsRequired(false);
             builder.HasOne(o => o.Model).WithMany().HasForeignKey(o => o.ModelId);
             builder.HasOne(o => o.Size).WithMany().HasForeignKey(o => o.SizeId);
             builder.HasOne(o => o.Metal).WithMany().HasForeignKey(o => o.MetalId);

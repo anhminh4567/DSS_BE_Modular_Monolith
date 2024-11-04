@@ -3,6 +3,7 @@ using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Orders;
@@ -21,7 +22,7 @@ using System.Collections.Generic;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 {
-    public record CreateOrderInfo(PaymentType PaymentType, string PaymentName, string? PromotionId, string Address, List<OrderItemRequestDto> OrderItemRequestDtos);
+    public record CreateOrderInfo(PaymentType PaymentType, string PaymentName, string? RequestId, string? PromotionId, string Address, List<OrderItemRequestDto> OrderItemRequestDtos);
     public record CreateOrderCommand(string AccountId, CreateOrderInfo CreateOrderInfo, Order? ParentOrder = null, List<OrderItem> ParentItems = null) : IRequest<Result<Order>>;
     internal class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Result<Order>>
     {
@@ -56,7 +57,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         {
             await _unitOfWork.BeginTransactionAsync(token);
             request.Deconstruct(out string accountId, out CreateOrderInfo createOrderInfo, out Order? parentOrder, out List<OrderItem> parentItems);
-            createOrderInfo.Deconstruct(out PaymentType paymentType, out string paymentName, out string? promotionId, out string address, out List<OrderItemRequestDto> orderItemReqs);
+            createOrderInfo.Deconstruct(out PaymentType paymentType, out string paymentName, out string? requestId, out string? promotionId, out string address, out List<OrderItemRequestDto> orderItemReqs);
             var account = await _accountRepository.GetById(AccountId.Parse(accountId));
             if (account == null)
                 return Result.Fail("This account doesn't exist");
@@ -107,10 +108,10 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             //        var invalidItem = cartModel.Products[index];
             //        var error = Result.Fail(cartModel);
             //    }
-
+            var customizeRequestId = requestId == null ? null : CustomizeRequestId.Parse(requestId);
             var orderPromo = cartModel.Promotion.Promotion;
             var order = Order.Create(account.Id, paymentType, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice,
-                address, orderPromo?.Id);
+                address, customizeRequestId, orderPromo?.Id);
             //if replacement order
             if (parentOrder != null)
             {
@@ -135,7 +136,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 if (product.Jewelry != null)
                 {
                     _jewelryService.AddPrice(product.Jewelry, _sizeMetalRepository);
-                    product.Jewelry.SetSold(product.Jewelry.ND_Price.Value, product.ReviewPrice.DefaultPrice);
+                    product.Jewelry.SetSold(product.Jewelry.ND_Price.Value, product.ReviewPrice.DefaultPrice,product.EngravedText, product.EngravedFont);
                     jewelries.Add(product.Jewelry);
                 }
                 if (product.Diamond != null)

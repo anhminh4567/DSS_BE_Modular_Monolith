@@ -56,14 +56,12 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
 
             var sizeMetalQuery = _sizeMetalRepository.GetQuery();
             sizeMetalQuery = _sizeMetalRepository.QueryInclude(sizeMetalQuery, p => p.Metal);
+            sizeMetalQuery = _sizeMetalRepository.QueryInclude(sizeMetalQuery, p => p.Size);
             var sizeMetal = sizeMetalQuery.FirstOrDefault(p => p.ModelId == model.Id && p.SizeId == SizeId.Parse(jewelryRequest.SizeId) && p.MetalId == MetalId.Parse(jewelryRequest.MetalId));
             if (sizeMetal is null) return Result.Fail(new NotFoundError("Can't find jewelry size metal object."));
 
             var attachedDiamonds = new List<Diamond>();
             await _unitOfWork.BeginTransactionAsync(token);
-            var flagDuplicatedSerial = await _jewelryRepository.CheckDuplicatedSerial(jewelryRequest.SerialCode);
-            if (flagDuplicatedSerial) return Result.Fail(new ConflictError($"This serial number has already existed ({jewelryRequest.SerialCode})"));
-
             if (attachedDiamondIds is not null)
             {
                 var convertedId = attachedDiamondIds.Select(DiamondId.Parse).ToList();
@@ -80,13 +78,14 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
                 if (flagUnmatchedDiamonds.IsFailed)
                     return Result.Fail(flagUnmatchedDiamonds.Errors);
             }
+            var serialCode = _jewelryService.GetSerialCode(model, sizeMetal.Metal, sizeMetal.Size);
             var jewelry = Jewelry.Create
                (
                    model.Id,
                    sizeMetal.SizeId,
                    sizeMetal.MetalId,
                    sizeMetal.Weight,
-                   jewelryRequest.SerialCode ?? Guid.NewGuid().ToString().Substring(0,7),
+                   serialCode,
                    status: jewelryRequest.Status
                );
             if (sideDiamondOptId is not null)

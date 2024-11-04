@@ -8,6 +8,8 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
 {
     public class SizeMetalDto
     {
+        public string SizeId { get; set; }
+        public string MetalId { get; set; }
         public SizeDto Size { get; set; }
         public MetalDto Metal { get; set; }
         public float Weight { get; set; }

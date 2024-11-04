@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.Jewelries;
+using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Models.Promotions.Entities;
@@ -18,7 +19,7 @@ namespace DiamondShop.Domain.Services.Implementations
         private readonly IDiamondServices _diamondServices;
         private readonly IDiamondPriceRepository _diamondPriceRepository;
         private readonly IDiscountRepository _discountRepository;
-        private readonly IJewelryRepository jewelryRepository;
+        private readonly IJewelryRepository _jewelryRepository;
 
         public JewelryService(IDiamondRepository diamondRepository, IDiamondServices diamondServices, IDiamondPriceRepository diamondPriceRepository, IDiscountRepository discountRepository, IJewelryRepository jewelryRepository)
         {
@@ -26,8 +27,16 @@ namespace DiamondShop.Domain.Services.Implementations
             _diamondServices = diamondServices;
             _diamondPriceRepository = diamondPriceRepository;
             _discountRepository = discountRepository;
-            this.jewelryRepository = jewelryRepository;
+            _jewelryRepository = jewelryRepository;
         }
+        public string GetSerialCode(JewelryModel model, Metal metal, Size size)
+        {
+            if (model == null || metal == null || size == null)
+                throw new Exception("model or metal or size is null");
+            int count = _jewelryRepository.GetSameModelCount(model.Id,metal.Id,size.Id) +1;
+            return $"J_{model.ModelCode}-{metal.CodeName}{size.Value}_{count}";
+        }
+
         public bool SetupUnmapped(List<Jewelry> jewelries, List<SizeMetal> sizeMetals)
         {
             foreach (var jewelry in jewelries)
@@ -129,8 +138,8 @@ namespace DiamondShop.Domain.Services.Implementations
         }
         public IQueryable<Jewelry> GetJewelryQueryFromModel(JewelryModelId modelId, MetalId metalId, SizeId sizeId)
         {
-            var jewelryQuery = jewelryRepository.GetQuery();
-            jewelryQuery = jewelryRepository.QueryFilter(jewelryQuery,
+            var jewelryQuery = _jewelryRepository.GetQuery();
+            jewelryQuery = _jewelryRepository.QueryFilter(jewelryQuery,
                 p => p.Status == Common.Enums.ProductStatus.Active &&
                 p.MetalId == metalId && p.ModelId == modelId && p.SizeId == sizeId
                 );

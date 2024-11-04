@@ -4,6 +4,8 @@ using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests.Entities;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Models.Jewelries;
+using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
@@ -19,6 +21,8 @@ namespace DiamondShop.Domain.Models.CustomizeRequests
     {
         public AccountId AccountId { get; set; }
         public Account Account { get; set; }
+        public JewelryId JewelryId { get; set; }
+        public Jewelry Jewelry { get; set; }
         public JewelryModelId JewelryModelId { get; set; }
         public JewelryModel JewelryModel { get; set; }
         public SizeId SizeId { get; set; }

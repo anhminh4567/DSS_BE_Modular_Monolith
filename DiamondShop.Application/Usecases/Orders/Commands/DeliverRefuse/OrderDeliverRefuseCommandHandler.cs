@@ -123,7 +123,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverComplete
             else
                 errors = new List<IError>();
             //Create replacement order
-            var newOrderInfo = new CreateOrderInfo(order.PaymentType, "zalopay", order.PromotionId?.Value, order.ShippingAddress, newItemList);
+            var newOrderInfo = new CreateOrderInfo(order.PaymentType, "zalopay", null, order.PromotionId?.Value, order.ShippingAddress, newItemList);
             var orderResult = await _sender.Send(new CreateOrderCommand(order.AccountId.Value, newOrderInfo, order, oldItemList));
             if (orderResult.IsFailed)
                 return Result.Fail(orderResult.Errors);

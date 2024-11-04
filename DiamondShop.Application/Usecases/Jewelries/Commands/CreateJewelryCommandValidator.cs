@@ -22,10 +22,6 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
                     
                     p.RuleFor(p => p.MetalId)
                         .NotEmpty();
-
-                    p.RuleFor(p => p.SerialCode)
-                        .MinimumLength(SerialCodeRule.MinLength)
-                        .MaximumLength(SerialCodeRule.MaxLength);
                 });
 
             RuleForEach(p => p.SideDiamondOptId)

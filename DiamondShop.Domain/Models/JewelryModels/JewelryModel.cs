@@ -14,6 +14,7 @@ namespace DiamondShop.Domain.Models.JewelryModels
         public string Name { get; set; }
         public JewelryModelCategoryId CategoryId { get; set; }
         public JewelryModelCategory Category { get; set; }
+        public string ModelCode { get; set; }
         public float? Width { get; set; }
         public float? Length { get; set; }
         public bool IsEngravable { get; set; }
@@ -47,12 +48,13 @@ namespace DiamondShop.Domain.Models.JewelryModels
                 ChainType = modelSpec.ChainType,
             };
         }*/
-        public static JewelryModel Create(string name, JewelryModelCategoryId categoryId, float? width, float? length, bool? isEngravable, bool? isRhodiumFinish, BackType? backType, ClaspType? claspType, ChainType? chainType, JewelryModelId givenId = null)
+        public static JewelryModel Create(string name, string serialCode, JewelryModelCategoryId categoryId, float? width, float? length, bool? isEngravable, bool? isRhodiumFinish, BackType? backType, ClaspType? claspType, ChainType? chainType, JewelryModelId givenId = null)
         {
             return new JewelryModel()
             {
                 Id = givenId is null ? JewelryModelId.Create() : givenId,
                 Name = name,
+                ModelCode = serialCode,
                 CategoryId = categoryId,
                 Width = width,
                 Length = length,
@@ -64,6 +66,5 @@ namespace DiamondShop.Domain.Models.JewelryModels
             };
         }
         public void ChangeThumbnail(Media? thumbnail) => Thumbnail = thumbnail;
-
     }
 }

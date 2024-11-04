@@ -8,22 +8,23 @@ namespace DiamondShop.Application.Dtos.Responses.Jewelries
     public class JewelryDto
     {
         public string Id { get; set; }
+        public string SerialCode { get; set; }
         public string ModelId { get; set; }
-        public JewelryModelDto Model { get; set; }
+        public string Name { get; set; }
+        public string ModelCode { get; set; }
+        public JewelryModelCategoryDto? Category { get; set; }
         public string SizeId { get; set; }
         public SizeDto Size { get; set; }
         public string MetalId { get; set; }
         public MetalDto Metal { get; set; }
         public float Weight { get; set; }
-        public string SerialCode { get; set; }
         public ProductStatus Status { get; set; }
         public DateTime ShippingDate { get; set; }
         public List<DiamondDto> Diamonds { get; set; } = new();
-        public List<JewelrySideDiamondDto>? SideDiamonds { get; set; } = new();
+        public JewelrySideDiamondDto? SideDiamond { get; set; } = new();
         public string ReviewId { get; set; }
         public JewelryReviewDto? Review { get; set; }
         public Media Thumbnail { get; set; }
-        public string Name { get; set; }
         public decimal TotalPrice { get; set; }
         public bool IsPreset { get; set; }
         public decimal? ND_Price { get; set; }
