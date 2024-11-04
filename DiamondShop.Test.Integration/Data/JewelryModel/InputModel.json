@@ -3,6 +3,7 @@
   {
     "modelSpec": {
       "name": "No Diamond Test Ring",
+      "code": "NDTR",
       "categoryId": "1",
       "width": 10,
       "isEngravable": true,
@@ -55,6 +56,7 @@
   {
     "modelSpec": {
       "name": "Side Diamond Test Ring",
+      "code": "SDTR",
       "categoryId": "1",
       "width": 12,
       "isEngravable": true,
@@ -139,6 +141,7 @@
   {
     "modelSpec": {
       "name": "Full Diamond Test Ring",
+      "code": "FDTR",
       "categoryId": "1",
       "width": 12,
       "isEngravable": true,

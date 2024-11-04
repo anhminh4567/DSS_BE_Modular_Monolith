@@ -2,6 +2,8 @@
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Models.Diamonds.ValueObjects;
+using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
@@ -27,6 +29,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.CustomizeRequestCo
                 .HasConversion(
                     o => o.Value,
                     dbValue => AccountId.Parse(dbValue));
+            builder.Property(o => o.JewelryId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => JewelryId.Parse(dbValue));
             builder.Property(o => o.JewelryModelId)
                 .HasConversion(
                     o => o.Value,

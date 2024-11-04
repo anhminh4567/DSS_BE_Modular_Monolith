@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.Orders;
+﻿using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +41,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
                 .Include(p => p.Items)
                     .ThenInclude(c => c.Diamond);
             return query.AsSplitQuery();
+        }
+        public bool IsRequestCreated(CustomizeRequestId customizeRequestId)
+        {
+            return _set.Any(p => p.CustomizeRequestId == customizeRequestId);
         }
     }
 }

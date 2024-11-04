@@ -99,13 +99,15 @@ namespace DiamondShop.Domain.Models.Jewelries
                 Status = status,
             };
         }
-        public void SetSold(decimal noDiamondPrice, decimal soldPrice)
+        public void SetSold(decimal noDiamondPrice, decimal soldPrice, string? engravedText, string? engravedFont)
         {
 
             Status = ProductStatus.Sold;
             ND_Price = noDiamondPrice;
             D_Price = soldPrice - noDiamondPrice;
             SoldPrice = soldPrice;
+            EngravedText = engravedText;
+            EngravedFont = engravedFont;
             Diamonds.ForEach(p =>
             {
                 if (p.TruePrice != null)
@@ -118,6 +120,8 @@ namespace DiamondShop.Domain.Models.Jewelries
             ND_Price = 0;
             D_Price = 0;
             SoldPrice = 0;
+            EngravedFont = null;
+            EngravedText = null;
         }
         public void SetDeactivate()
         {
@@ -125,6 +129,8 @@ namespace DiamondShop.Domain.Models.Jewelries
             ND_Price = 0;
             D_Price = 0;
             SoldPrice = 0;
+            EngravedFont = null;
+            EngravedText = null;
         }
         public void SetLockForUser(Account userAccount, int lockHour)
         {

@@ -66,7 +66,7 @@ namespace DiamondShop.Domain.Models.Orders
 
         public Order() { }
         public static Order Create(AccountId accountId, PaymentType paymentType, 
-            decimal totalPrice, decimal shippingFee, string shippingAddress,
+            decimal totalPrice, decimal shippingFee, string shippingAddress, CustomizeRequestId? customizeRequestId = null,
             PromotionId promotionId = null, decimal orderSavedAmount = 0, OrderId givenId = null)
         {
             return new Order()
@@ -76,6 +76,7 @@ namespace DiamondShop.Domain.Models.Orders
                 AccountId = accountId,
                 Status = OrderStatus.Pending,
                 PaymentStatus = PaymentStatus.Pending,
+                CustomizeRequestId = customizeRequestId,
                 PromotionId = promotionId,
                 PaymentType = paymentType,
                 TotalPrice = totalPrice,
