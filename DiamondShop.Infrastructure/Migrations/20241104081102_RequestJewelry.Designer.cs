@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiamondShop.Infrastructure.Migrations
 {
     [DbContext(typeof(DiamondShopDbContext))]
-    [Migration("20241104060534_RequestJewelry")]
+    [Migration("20241104081102_RequestJewelry")]
     partial class RequestJewelry
     {
         /// <inheritdoc />
@@ -461,7 +461,6 @@ namespace DiamondShop.Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("JewelryId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Measurement")

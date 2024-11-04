@@ -53,7 +53,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondConfig
             builder.Property(o => o.JewelryId)
                 .HasConversion(
                     Id => Id.Value,
-                    dbValue => JewelryId.Parse(dbValue)).IsRequired();
+                    dbValue => JewelryId.Parse(dbValue)).IsRequired(false);
             //builder.Property(o => o.Clarity).HasConversion<string>();
             //builder.Property(o => o.Color).HasConversion<string>();
             //builder.Property(o => o.Cut).HasConversion<string>();

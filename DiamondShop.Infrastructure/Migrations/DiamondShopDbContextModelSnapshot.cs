@@ -458,7 +458,6 @@ namespace DiamondShop.Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("JewelryId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Measurement")
