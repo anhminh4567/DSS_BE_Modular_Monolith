@@ -314,5 +314,15 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                 return results;
             }
         }
+
+        public void RemoveAllCache()
+        {
+            var roundShape = DiamondShape.ROUND.Id;
+            var fancyShape = DiamondShape.FANCY_SHAPES.Id;
+            var anyShape = DiamondShape.ANY_SHAPES.Id;
+            RemoveAllKey(roundShape);
+            RemoveAllKey(fancyShape);
+            RemoveAllKey(anyShape);
+        }
     }
 }

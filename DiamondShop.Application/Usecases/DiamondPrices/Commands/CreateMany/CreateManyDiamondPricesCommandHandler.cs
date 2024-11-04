@@ -76,6 +76,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
             }
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
+            _diamondPriceRepository.RemoveAllCache();
             return Result.Ok();
         }
     }

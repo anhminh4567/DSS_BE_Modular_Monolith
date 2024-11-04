@@ -23,5 +23,7 @@ namespace DiamondShop.Domain.Repositories
         Task<List<DiamondPrice>> GetSideDiamondPrice(bool? isLabDiamond = null, CancellationToken token = default);
         Task<List<DiamondPrice>> GetSideDiamondPriceByAverageCarat(float avgCarat, bool? isLabDiamond = null, CancellationToken token = default);
         Task<Result> DeleteMany(List<DeleteManyParameter> parameters , bool Islab, bool IsSide, CancellationToken cancellationToken = default);
+        void RemoveAllCache();
+
     }
 }
