@@ -47,6 +47,26 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             }
             return MatchError(result.Errors, ModelState);
         }
+        [HttpGet("/Customize/All")]
+        [Produces(type: typeof(PagingResponseDto<JewelryModelDto>))]
+        public async Task<ActionResult> GetCustomizeAll([FromQuery] GetAllJewelryModelQuery jewelryModelQuery)
+        {
+            var result = await _sender.Send(jewelryModelQuery);
+            var mappedResult = _mapper.Map<PagingResponseDto<JewelryModelDto>>(result);
+            return Ok(mappedResult);
+        }
+        [HttpGet("/Customize/Detail")]
+        [Produces(type: typeof(JewelryModelDto))]
+        public async Task<ActionResult> GetCustomizeDetail([FromQuery] string modelId)
+        {
+            var result = await _sender.Send(new GetJewelryModelDetailQuery(modelId));
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<JewelryModelDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
         [HttpGet("Selling")]
         [Produces(type: typeof(PagingResponseDto<JewelryModelSellingDto>))]
         public async Task<ActionResult> GetSelling([FromQuery] GetSellingModelQuery getSellingModelQuery)

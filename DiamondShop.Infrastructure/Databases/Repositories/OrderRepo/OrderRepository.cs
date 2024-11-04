@@ -35,11 +35,13 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
                 query = query
                     .Include(p => p.Items)
                         .ThenInclude(c => c.Jewelry)
-                        .ThenInclude(c => c.Diamonds);
+                        .ThenInclude(c => c.Diamonds)
+                        .ThenInclude(c => c.DiamondShape);
             if (isIncludeDiamond)
                 query = query
                 .Include(p => p.Items)
-                    .ThenInclude(c => c.Diamond);
+                    .ThenInclude(c => c.Diamond)
+                    .ThenInclude(c => c.DiamondShape);
             return query.AsSplitQuery();
         }
         public bool IsRequestCreated(CustomizeRequestId customizeRequestId)
