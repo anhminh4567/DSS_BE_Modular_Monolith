@@ -131,6 +131,16 @@ namespace DiamondShop.Test.Integration.Data
             model.SizeMetals = sizeMetals;
             return model;
         }
+        public static async Task<JewelryModel> SeedSideDiamondOnlyRingModel(DiamondShopDbContext _context)
+        {
+            var model = DefaultRingModel("Test NoDiamond Model", "TNM", DefaultCategoryId, 1f, null, true, true, null, null, null, "1");
+            _context.Set<JewelryModel>().Add(model);
+            var sideDiamondOpts = DefaultRingSideDiamondOpts(model.Id);
+            var sizeMetals = DefaultRingSizeMetal(model.Id);
+            await SeedingModel(_context, model, null, null, sideDiamondOpts, sizeMetals);
+            model.SizeMetals = sizeMetals;
+            return model;
+        }
         public static async Task<JewelryModel> SeedNoDiamondRingModel(DiamondShopDbContext _context)
         {
             var model = DefaultRingModel("Test NoDiamond Model", "TNM", DefaultCategoryId, 1f, null, true, true, null, null, null, "1");
