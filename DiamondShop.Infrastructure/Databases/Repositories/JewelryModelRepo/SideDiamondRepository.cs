@@ -18,7 +18,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
         {
             await _set.AddRangeAsync(sideDiamondOpts, token);
         }
-
+        public async Task<List<SideDiamondOpt>> GetByModelId(JewelryModelId modelId)
+        {
+            return await _set.Include(p => p.Shape).Where(p => p.ModelId == modelId).ToListAsync();
+        }
         public override async Task<SideDiamondOpt?> GetById(params object[] ids)
         {
             var id = (SideDiamondOptId)ids[0];

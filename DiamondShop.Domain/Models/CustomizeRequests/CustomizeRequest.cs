@@ -36,7 +36,7 @@ namespace DiamondShop.Domain.Models.CustomizeRequests
         public List<DiamondRequest> DiamondRequests { get; set; } = new();
         public SideDiamondOptId? SideDiamondId { get; set; }
         public SideDiamondOpt? SideDiamond { get; set; }
-        public static CustomizeRequest CreatePending(AccountId accountId, JewelryModelId jewelryModelId, SizeId sizeId, MetalId metalId, SideDiamondOptId sideDiamondOptId, string? engravedText, string? engravedFont, string? Note)
+        public static CustomizeRequest CreatePending(AccountId accountId, JewelryModelId jewelryModelId, SizeId sizeId, MetalId metalId, SideDiamondOptId? sideDiamondOptId, string? engravedText, string? engravedFont, string? Note)
         {
             return new CustomizeRequest()
             {
@@ -52,7 +52,7 @@ namespace DiamondShop.Domain.Models.CustomizeRequests
                 Status = CustomizeRequestStatus.Pending,
             };
         }
-        public static CustomizeRequest CreateRequesting(AccountId accountId, JewelryModelId jewelryModelId, SizeId sizeId, MetalId metalId, SideDiamondOptId sideDiamondOptId, string? engravedText, string? engravedFont, string? Note)
+        public static CustomizeRequest CreateRequesting(AccountId accountId, JewelryModelId jewelryModelId, SizeId sizeId, MetalId metalId, SideDiamondOptId? sideDiamondOptId, string? engravedText, string? engravedFont, string? Note)
         {
             return new CustomizeRequest()
             {
