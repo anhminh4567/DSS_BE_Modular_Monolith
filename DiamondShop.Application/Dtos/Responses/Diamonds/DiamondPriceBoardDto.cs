@@ -21,7 +21,6 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public bool IsSideDiamondBoardPrices { get; set; }
         public List<DiamondPriceTableDto> PriceTables { get; set; } = new();
         public static DiamondPriceBoardDto Create() => new DiamondPriceBoardDto() { IsSideDiamondBoardPrices = false };
-        public static DiamondPriceBoardDto CreateSideDiamondBoard() => new DiamondPriceBoardDto { IsSideDiamondBoardPrices = true };
 
     }
     public class DiamondPriceTableDto

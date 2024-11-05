@@ -207,7 +207,7 @@ namespace DiamondShopSystem.Controllers
             Cut defaultCut = Cut.Excelent;
             decimal startPrice = 30_000;//vnd
             List<DiamondShape> getShapes = _dbContext.DiamondShapes.IgnoreQueryFilters().ToList()
-                .Where(x => x.Id == DiamondShape.ROUND.Id 
+                .Where(x => x.Id == DiamondShape.ROUND.Id
                 || x.Id == DiamondShape.FANCY_SHAPES.Id)// only 2 shape
                 .ToList(); //await _sender.Send(new GetAllDiamondShapeQuery());
             List<(float caratFrom, float caratTo)> caratRange = new()
@@ -257,14 +257,14 @@ namespace DiamondShopSystem.Controllers
                 var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(diamondCriteriaRequestDtos));
                 //foreach (var shape in getShapes)
                 //{
-                    var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
-                    var mappedListNatural = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
+                var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
+                var mappedListNatural = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
 
-                    var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab,false,true,false));
-                    var resultLabFancy = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, true, true, false));
+                var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, false, true, false));
+                var resultLabFancy = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, true, true, false));
 
-                    var resultNatural = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListNatural, false, false, false));
-                    var resultNaturalFancy = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListNatural, true, false, false));
+                var resultNatural = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListNatural, false, false, false));
+                var resultNaturalFancy = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListNatural, true, false, false));
 
                 //}
             }
@@ -287,8 +287,8 @@ namespace DiamondShopSystem.Controllers
                 new (0.07f, 0.14f),
                 new (0.14f, 0.18f),
             };
-            var rowIncrementPrice = 5_000;
-            var columnIncrementPrice = 3_000;
+            //var rowIncrementPrice = 5_000;
+            //var columnIncrementPrice = 3_000;
             var caratIncrementPrice = 10_000;
             Stopwatch stopwatch = new();
             stopwatch.Start();
@@ -296,33 +296,31 @@ namespace DiamondShopSystem.Controllers
             {
                 List<DiamondCriteriaRequestDto> diamondCriteriaRequestDtos = new();
                 List<decimal> prices = new();
-                var basePrice = Math.Clamp((decimal)(carat.caratFrom * 100) * (startPrice * (decimal)(carat.caratTo * 100)), startPrice, decimal.MaxValue);
-                for (int i = 0; i < colorEnums.Length; i++)
+                //var basePrice =  Math.Clamp((decimal)(carat.caratFrom * 100) * (startPrice * (decimal)(carat.caratTo * 100)), startPrice, decimal.MaxValue);
+                startPrice += caratIncrementPrice;
+                //for (int i = 0; i < colorEnums.Length; i++)
+                //{
+                //    var color = (Color)colorEnums.GetValue(i);
+                //    var rowPrice = basePrice + rowIncrementPrice * i;
+                //    for (int j = 0; j < clarityEnums.Length; j++)
+                //    {
+                //var clarity = (Clarity)clarityEnums.GetValue(j);
+                //var columnPrice = rowPrice + columnIncrementPrice * j;
+                diamondCriteriaRequestDtos.Add(new DiamondCriteriaRequestDto()
                 {
-                    var color = (Color)colorEnums.GetValue(i);
-                    var rowPrice = basePrice + rowIncrementPrice * i;
-                    for (int j = 0; j < clarityEnums.Length; j++)
-                    {
-                        var clarity = (Clarity)clarityEnums.GetValue(j);
-                        var columnPrice = rowPrice + columnIncrementPrice * j;
-                        diamondCriteriaRequestDtos.Add(new DiamondCriteriaRequestDto()
-                        {
-                            CaratFrom = ((float)carat.caratFrom),
-                            CaratTo = (float)carat.caratTo,
-                            Clarity = clarity,
-                            Color = color,
-                            Cut = defaultCut,
-                        });
-                        prices.Add(columnPrice);
-                    }
-                }
+                    CaratFrom = ((float)carat.caratFrom),
+                    CaratTo = (float)carat.caratTo,
+                });
+                prices.Add(startPrice);
+                //    }
+                //}
                 var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(diamondCriteriaRequestDtos, true));
                 var getAnyShape = getShapes.FirstOrDefault(x => x.Id == DiamondShape.ANY_SHAPES.Id);
 
                 var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
 
-                var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, true,true , true ));
-                var resultNatural = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, true,false,true));
+                var result1 = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, true, true, true));
+                //var resultNatural = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, true, false, true));
 
             }
             stopwatch.Stop();

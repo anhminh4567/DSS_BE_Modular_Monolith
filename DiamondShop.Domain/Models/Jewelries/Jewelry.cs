@@ -33,9 +33,16 @@ namespace DiamondShop.Domain.Models.Jewelries
                     inalPrice += ND_Price.Value;
                 if (D_Price is not null)
                     inalPrice += D_Price.Value;
+                if(SD_Price is not null)
+                    inalPrice += SD_Price.Value;
                 return inalPrice;
             }
         }
+        [NotMapped]
+        public decimal DiscountPrice { get; set; }
+        [NotMapped]
+        public decimal SalePrice { get; set; }
+
         [NotMapped]
         public bool IsAllSideDiamondPriceKnown { get; set; }
 

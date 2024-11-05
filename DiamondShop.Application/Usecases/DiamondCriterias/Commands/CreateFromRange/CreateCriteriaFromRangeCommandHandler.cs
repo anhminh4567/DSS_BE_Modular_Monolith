@@ -45,21 +45,34 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
                 }
             }
             //when all is valid
+
             List<DiamondCriteriaRequestDto> requests = new();
-            foreach(var color in Enum.GetValues(typeof(Color)))
+            if (request.IsSideDiamond == false)
             {
-                foreach(var clarity in Enum.GetValues(typeof(Clarity)))
+                foreach (var color in Enum.GetValues(typeof(Color)))
                 {
-                    requests.Add(new DiamondCriteriaRequestDto() 
+                    foreach (var clarity in Enum.GetValues(typeof(Clarity)))
                     {
-                        CaratFrom = request.caratFrom,
-                        CaratTo = request.caratTo,
-                        Clarity = (Clarity)clarity,
-                        Color = (Color)color,
-                        Cut = DEFAULT_CUT//request.Cut.Value,
-                    });
+                        requests.Add(new DiamondCriteriaRequestDto()
+                        {
+                            CaratFrom = request.caratFrom,
+                            CaratTo = request.caratTo,
+                            Clarity = (Clarity)clarity,
+                            Color = (Color)color,
+                            Cut = DEFAULT_CUT//request.Cut.Value,
+                        });
+                    }
                 }
             }
+            else
+            {
+                requests.Add(new DiamondCriteriaRequestDto()
+                {
+                    CaratFrom = request.caratFrom,
+                    CaratTo = request.caratTo,
+                });
+            }
+            
             var command = new CreateManyDiamondCriteriasCommand(requests, request.IsSideDiamond);
             var result = await _sender.Send(command, cancellationToken);
             return result;
