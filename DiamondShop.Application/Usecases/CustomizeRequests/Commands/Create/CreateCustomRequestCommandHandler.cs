@@ -4,6 +4,7 @@ using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Entities;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
+using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
@@ -57,16 +58,21 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendReques
             //Check if model allow engraving text
             if (!string.IsNullOrEmpty(engravedText) && modelOpt.Model.IsEngravable)
                 return Result.Fail("This model doesn't allow engraving text");
-            var sideDiamondOpt = await _sideDiamondRepository.GetById(SideDiamondOptId.Parse(sideDiamondOptId));
-            if (sideDiamondOpt == null || sideDiamondOpt.ModelId != modelOpt.ModelId)
-                return Result.Fail("This side diamond option for this model doesn't exist");
+            var sideDiamondOpts = await _sideDiamondRepository.GetByModelId(modelOpt.ModelId);
+            SideDiamondOpt? sideDiamondOpt = null;
+            if (sideDiamondOpts != null && sideDiamondOpts.Count > 0)
+            {
+                var selectedOne = sideDiamondOpts.FirstOrDefault(p => p.Id.Value == sideDiamondOptId);
+                if (selectedOne == null)
+                    return Result.Fail("This side diamond option doesn't exist for this model ");
+                sideDiamondOpt = selectedOne;
+                await _diamondServices.GetSideDiamondPrice(sideDiamondOpt);
+            }
             CustomizeRequest customizedRequest = null;
-
-            await _diamondServices.GetSideDiamondPrice(sideDiamondOpt);
-            if (sideDiamondOpt.Price == 0)
+            if (sideDiamondOpt != null && sideDiamondOpt.Price == 0)
                 customizedRequest = CustomizeRequest.CreatePending(AccountId.Parse(accountId), modelOpt.ModelId, modelOpt.SizeId, modelOpt.MetalId, sideDiamondOpt.Id, engravedText, engravedFont, note);
             else
-                customizedRequest = CustomizeRequest.CreateRequesting(AccountId.Parse(accountId), modelOpt.ModelId, modelOpt.SizeId, modelOpt.MetalId, sideDiamondOpt.Id, engravedText, engravedFont, note);
+                customizedRequest = CustomizeRequest.CreateRequesting(AccountId.Parse(accountId), modelOpt.ModelId, modelOpt.SizeId, modelOpt.MetalId, sideDiamondOpt?.Id, engravedText, engravedFont, note);
             await _customizeRequestRepository.Create(customizedRequest);
             await _unitOfWork.SaveChangesAsync(token);
             if (diamondRequests != null)

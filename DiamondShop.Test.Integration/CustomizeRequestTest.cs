@@ -32,27 +32,20 @@ namespace DiamondShop.Test.Integration
 
         async Task<CustomizeRequest> SeedingDiamondRequest(AccountId accountId, JewelryModel jewelryModel)
         {
+            Assert.NotNull(jewelryModel.SizeMetals);
             var sizeMetal = jewelryModel.SizeMetals.FirstOrDefault();
+
+            Assert.NotNull(jewelryModel.MainDiamonds);
+            var mainDiamond = jewelryModel.MainDiamonds?.FirstOrDefault();
+
+            Assert.NotNull(mainDiamond);
+            var firstShape = mainDiamond.Shapes.FirstOrDefault();
+            Assert.NotNull(firstShape);
+
             //model has 3 main diamond
             List<CustomizeDiamondRequest> diamondRequests = new()
             {
-                new(TestData.DiamondShapeIds[0].Value,Clarity.IF,Color.D,Cut.Good,0.3f,1f,false,Polish.Excellent,Symmetry.Excellent,Girdle.Thin, Culet.Medium),
-            };
-            CustomizeModelRequest customizeModelRequest = new(jewelryModel.Id.Value, sizeMetal.MetalId.Value, sizeMetal.SizeId.Value, jewelryModel.SideDiamonds[0].Id.Value, null, null, null, diamondRequests);
-            var result = await _sender.Send(new CreateCustomizeRequestCommand(accountId.Value,customizeModelRequest));
-            if (result.IsFailed)
-                WriteError(result.Errors);
-            Assert.True(result.IsSuccess);
-            Assert.NotNull(result.Value);
-            return result.Value;
-        }
-        async Task<CustomizeRequest> SeedingNoDiamondRequest(AccountId accountId, JewelryModel jewelryModel)
-        {
-            var sizeMetal = jewelryModel.SizeMetals.FirstOrDefault();
-            //model has 3 main diamond
-            List<CustomizeDiamondRequest> diamondRequests = new()
-            {
-                new(TestData.DiamondShapeIds[0].Value,Clarity.IF,Color.D,Cut.Good,0.3f,1f,false,Polish.Excellent,Symmetry.Excellent,Girdle.Thin, Culet.Medium),
+                new(firstShape.ShapeId.Value,Clarity.IF,Color.D,Cut.Good,firstShape.CaratFrom,firstShape.CaratTo,false,Polish.Excellent,Symmetry.Excellent,Girdle.Thin, Culet.Medium),
             };
             CustomizeModelRequest customizeModelRequest = new(jewelryModel.Id.Value, sizeMetal.MetalId.Value, sizeMetal.SizeId.Value, jewelryModel.SideDiamonds[0].Id.Value, null, null, null, diamondRequests);
             var result = await _sender.Send(new CreateCustomizeRequestCommand(accountId.Value, customizeModelRequest));
@@ -62,28 +55,42 @@ namespace DiamondShop.Test.Integration
             Assert.NotNull(result.Value);
             return result.Value;
         }
+        async Task<CustomizeRequest> SeedingNoDiamondRequest(AccountId accountId, JewelryModel jewelryModel)
+        {
+            if (jewelryModel.SideDiamonds != null) Assert.Equal(0, jewelryModel.SideDiamonds.Count());
+            if (jewelryModel.MainDiamonds != null) Assert.Equal(0, jewelryModel.MainDiamonds.Count());
+            var sizeMetal = jewelryModel.SizeMetals.FirstOrDefault();
+            //model has 3 main diamond
+            CustomizeModelRequest customizeModelRequest = new(jewelryModel.Id.Value, sizeMetal.MetalId.Value, sizeMetal.SizeId.Value, null, null, null, null, null);
+            var result = await _sender.Send(new CreateCustomizeRequestCommand(accountId.Value, customizeModelRequest));
+            if (result.IsFailed)
+                WriteError(result.Errors);
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Value);
+            return result.Value;
+        }
 
-        [Trait("ReturnTrue", "CreateRequest")]
+        [Trait("ReturnTrue", "CreatePendingRequest")]
         [Fact]
         public async Task Create_UnpricedSideDiamond_OrDiamond_CustomizeRequest_Should_ReturnPending()
         {
             var account = await TestData.SeedDefaultCustomer(_context, _authentication);
             var model = await TestData.SeedDefaultRingModel(_context);
-            var result = await SeedingDiamondRequest(account.Id,model);
-            var request = await _context.Set<CustomizeRequest>().FirstOrDefaultAsync();
-            _output.WriteLine(request.ToString());
-            Assert.Equal(CustomizeRequestStatus.Pending,request.Status);
-        }
-        public async Task Create_PricedDiamond_AndNoDiamond_CustomizeRequest_Should_ReturnRequesting()
-        {
-            var account = await TestData.SeedDefaultCustomer(_context, _authentication);
-            var model = await TestData.SeedDefaultRingModel(_context);
-            Assert.NotNull(model.SideDiamonds);
-            //await SeedingSideDiamondPrice(model.SideDiamonds[0]);
-            //var result = await SeedingRequest(account.Id, model);
+            var result = await SeedingDiamondRequest(account.Id, model);
             var request = await _context.Set<CustomizeRequest>().FirstOrDefaultAsync();
             _output.WriteLine(request.ToString());
             Assert.Equal(CustomizeRequestStatus.Pending, request.Status);
+        }
+        [Trait("ReturnTrue", "CreateRequestingRequest")]
+        [Fact]
+        public async Task Create_PricedDiamond_AndNoDiamond_CustomizeRequest_Should_ReturnRequesting()
+        {
+            var account = await TestData.SeedDefaultCustomer(_context, _authentication);
+            var model = await TestData.SeedNoDiamondRingModel(_context);
+            var result = await SeedingNoDiamondRequest(account.Id, model);
+            var request = await _context.Set<CustomizeRequest>().FirstOrDefaultAsync();
+            _output.WriteLine(request.ToString());
+            Assert.Equal(CustomizeRequestStatus.Requesting, request.Status);
         }
         [Trait("ReturnTrue", "ProceedRequest_HappyCase")]
         [Fact]
