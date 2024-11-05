@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
 {
     // cut is not required, might leave it as it be
-    public record GetDiamondPriceBoardQuery(bool isFancyShapePrice, bool isLabDiamond, Cut? Cut = Cut.Excelent, bool IsSideDiamond = false) : IRequest<Result<DiamondPriceBoardDto>>;
+    public record GetDiamondPriceBoardQuery(bool isFancyShapePrice, bool isLabDiamond, Cut? Cut = Cut.Excelent) : IRequest<Result<DiamondPriceBoardDto>>;// bool IsSideDiamond = false
     internal class GetDiamondPriceBoardQueryHandler : IRequestHandler<GetDiamondPriceBoardQuery, Result<DiamondPriceBoardDto>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
@@ -44,7 +44,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             //if (getShape is null)
             //    return Result.Fail(new NotFoundError("Shape not found"));
             DiamondShape priceBoardMainShape;
-            if(request.isFancyShapePrice)
+            if (request.isFancyShapePrice)
             {
                 priceBoardMainShape = await _diamondShapeRepository.GetById(DiamondShape.FANCY_SHAPES.Id); //DiamondShape.FANCY_SHAPES;
             }
@@ -59,22 +59,21 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             priceBoard.MainCut = request.Cut.Value;
             priceBoard.Shape = _mapper.Map<DiamondShapeDto>(priceBoardMainShape);
             priceBoard.IsLabDiamondBoardPrices = request.isLabDiamond;
-            if (request.IsSideDiamond == false)
-            {
-                prices = await _diamondPriceRepository.GetPriceByShapes(priceBoardMainShape, request.isLabDiamond, cancellationToken);
-                priceBoard.IsSideDiamondBoardPrices = false;
-                //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableCaratRange( cancellationToken);
-                criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableCriteria(cancellationToken));
-
-            }
-            else
-            {
-                prices = await _diamondPriceRepository.GetSideDiamondPrice(request.isLabDiamond, cancellationToken);
-                priceBoard.IsSideDiamondBoardPrices = true;
-                priceBoard.Shape = _mapper.Map<DiamondShapeDto>(DiamondShape.ANY_SHAPES); 
-                //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCaratRange(cancellationToken);
-                criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCriteria(cancellationToken));
-            }
+            //if (request.IsSideDiamond == false)
+            //{
+            prices = await _diamondPriceRepository.GetPriceByShapes(priceBoardMainShape, request.isLabDiamond, cancellationToken);
+            priceBoard.IsSideDiamondBoardPrices = false;
+            //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableCaratRange( cancellationToken);
+            criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableCriteria(cancellationToken));
+            //}
+            //else
+            //{
+            //    prices = await _diamondPriceRepository.GetSideDiamondPrice(request.isLabDiamond, cancellationToken);
+            //    priceBoard.IsSideDiamondBoardPrices = true;
+            //    priceBoard.Shape = _mapper.Map<DiamondShapeDto>(DiamondShape.ANY_SHAPES); 
+            //    //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCaratRange(cancellationToken);
+            //    criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCriteria(cancellationToken));
+            //}
             //criteriasCarat = criteriasCarat.OrderBy(x => x.CaratTo).ToList();
 
 
@@ -101,17 +100,6 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
                 .Select(x => x.Clarity)
                 .Distinct()
                 .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => ((int)x.Value));
-            //Dictionary<Color, int> colorRange = groupByCaratRangeFromPrices
-            //    .SelectMany(x => x.TableItem)
-            //    .Select(x => x.Criteria.Color)
-            //    .Distinct()
-            //    .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => ((int)x.Value));
-            //Dictionary<Clarity, int> clarityRange = groupByCaratRangeFromPrices
-            //    .SelectMany(x => x.TableItem)
-            //    .Select(x => x.Criteria.Clarity)
-            //    .Distinct()
-            //    .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => ((int) x.Value));
-
 
             var createTable = criteriasByGrouping
                 .AsParallel()
@@ -124,18 +112,18 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
                     ClarityRange = clarityRange,
                     GroupedCriteria = dp.Value
                 }).ToList();
-            createTable.ForEach(x => 
-            { 
+            createTable.ForEach(x =>
+            {
                 x.CellMatrix = new DiamondPriceCellDataDto[colorRange.Count, clarityRange.Count];
-                x.FillAllCellsWithUnknonwPrice(); 
+                x.FillAllCellsWithUnknonwPrice();
 
-            } );
+            });
 
             createTable.ForEach(x =>
             {
-                var getCorrectGroupPrice = groupByCaratRangeFromPrices.FirstOrDefault(gp => gp.TableRange.CaratFrom == x.CaratFrom&& gp.TableRange.CaratTo == x.CaratTo);
+                var getCorrectGroupPrice = groupByCaratRangeFromPrices.FirstOrDefault(gp => gp.TableRange.CaratFrom == x.CaratFrom && gp.TableRange.CaratTo == x.CaratTo);
                 if (getCorrectGroupPrice == null) { }
-                else 
+                else
                 {
                     var prices = getCorrectGroupPrice.TableItem;
                     x.MapPriceToCells(prices);
@@ -143,53 +131,13 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
                 if (x.IsAnyPriceUncover)
                     priceBoard.UncoveredTableCaratRange.Add((x.CaratFrom, x.CaratTo));
             });
-            
+
             priceBoard.PriceTables = createTable;
             stopwatch.Stop();
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("execution time measured in miliseconds: " + stopwatch.ElapsedMilliseconds);
             Console.ResetColor();
             return priceBoard;
-            //var createTable = groupByCaratRangeFromPrices
-            //    .AsParallel()
-            //    //.AsOrdered()
-            //    .Select(dp => new DiamondPriceTableDto()
-            //    {
-            //        CaratFrom = dp.TableRange.CaratFrom,
-            //        CaratTo = dp.TableRange.CaratTo,
-            //        ColorRange = colorRange,
-            //        ClarityRange = clarityRange,
-            //        PriceCells = dp.TableItem
-            //            .Select(x => new DiamondPriceCellDataDto()
-            //            {
-            //                CriteriaId = x.Criteria.Id.Value,
-            //                Color = x.Criteria.Color.Value,
-            //                Clarity = x.Criteria.Clarity.Value,
-            //                Price = x.Price
-            //            }).ToList()
-            //    }).ToList();
-            //priceBoard.PriceTables = createTable;
-            //var anyMissingCaratRangeNotCovered = createTable
-            //    .GroupBy(x => new { x.CaratFrom, x.CaratTo })
-            //    .Select(x => (x.Key.CaratFrom, x.Key.CaratTo))
-            //    .ToList();
-            //var caratNotInCriteria = criteriasCarat.Except(anyMissingCaratRangeNotCovered).ToList();
-            //priceBoard.UncoveredTableCaratRange.AddRange(caratNotInCriteria);
-            //priceBoard.UncoveredTableCaratRange.ForEach(x =>
-            //{
-            //    priceBoard.PriceTables.Add(new DiamondPriceTableDto()
-            //    {
-            //        CaratFrom = x.CaratFrom,
-            //        CaratTo = x.CaratTo,
-            //        ClarityRange = clarityRange,
-            //        ColorRange = colorRange,
-            //        PriceCells = new List<DiamondPriceCellDataDto>()
-            //    }) ;
-            //});
-            //var tables = priceBoard.PriceTables;
-            //Parallel.ForEach(priceBoard.PriceTables, table => table.FillMissingCells());
-
-
         }
     }
 }

@@ -138,10 +138,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                 key += "_Natural";
             return key;
         }
-        private string GetSidePriceKey(bool IsLabDiamond)
+        private string GetSidePriceKey()
         {
             var key = $"DP_Side_{DiamondShape.ANY_SHAPES.Id.Value}";
-            if (IsLabDiamond)
+            if (DiamondPrice.DEFAULT_SIDE_DIAMOND_IS_LAB)
                 key += "_Lab";
             else
                 key += "_Natural";
@@ -151,73 +151,52 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         {
             string diamondKey = GetPriceKey(diamondShapeId.Value, true);
             string diamondKeyNatural = GetPriceKey(diamondShapeId.Value, false);
-            string sidediamondKey = GetSidePriceKey(true);
-            string sidediamondKeyNatural = GetSidePriceKey(false);
+            string sidediamondKey = GetSidePriceKey();
+            string sidediamondKeyNatural = GetSidePriceKey();
             _cache.Remove(diamondKey);
             _cache.Remove(diamondKeyNatural);
             _cache.Remove(sidediamondKey);
             _cache.Remove(sidediamondKeyNatural);
         }
-        public async Task<List<DiamondPrice>> GetSideDiamondPriceByShape(DiamondShape shape, bool? islabDiamond = null, CancellationToken cancellationToken = default)
+
+        public Task<List<DiamondPrice>> GetSideDiamondPrice( CancellationToken token = default)
         {
-            // now dont have to cache, because the side diamond is not that much
-            if (islabDiamond != null)
-            {
-                var get = await _set.Include(p => p.Criteria)
-                    .Where(p => p.ShapeId == shape.Id && p.IsLabDiamond == islabDiamond && p.IsSideDiamond == true)
-                    .OrderBy(s => s.Criteria.CaratTo).ToListAsync();
-                return get;
-            }
-            else
-            {
-                var getFromDb = await _set.Include(p => p.Criteria)
-                  .Where(p => p.ShapeId == shape.Id && p.IsSideDiamond == true)
-                  .OrderBy(s => s.Criteria.CaratTo).ToListAsync();
-                return getFromDb;
-            }
+                return _set.Where(d => d.ShapeId == DiamondShape.ANY_SHAPES.Id && d.IsSideDiamond == DiamondPrice.DEFAULT_SIDE_DIAMOND_IS_LAB).Include(p => p.Criteria).ToListAsync();
         }
 
-
-
-        public Task<List<DiamondPrice>> GetSideDiamondPrice(bool? isLabDiamond = null, CancellationToken token = default)
+        public async Task<List<DiamondPrice>> GetSideDiamondPriceByAverageCarat(float avgCarat, CancellationToken token = default)
         {
-            if (isLabDiamond != null)
-                return _set.Where(d => d.ShapeId == DiamondShape.ANY_SHAPES.Id && d.IsLabDiamond == isLabDiamond && d.IsSideDiamond == true).Include(p => p.Criteria).ToListAsync();
-            else
-                return _set.Where(d => d.ShapeId == DiamondShape.ANY_SHAPES.Id && d.IsSideDiamond == true).Include(p => p.Criteria).ToListAsync();
-
-        }
-
-        public async Task<List<DiamondPrice>> GetSideDiamondPriceByAverageCarat(float avgCarat, bool? isLabDiamond = null, CancellationToken token = default)
-        {
-            if (isLabDiamond != null)
-            {
-                string diamondKey = GetSidePriceKey(isLabDiamond.Value);
+                string diamondKey = GetSidePriceKey();
                 var tryGet = _cache.Get<List<DiamondPrice>>(diamondKey);
                 if (tryGet == null)
                 {
-                    return await _set.Where(d => d.ShapeId == DiamondShape.ANY_SHAPES.Id && d.IsLabDiamond == isLabDiamond && d.IsSideDiamond == true)
+                    var result =  await _set.Where(d => d.ShapeId == DiamondShape.ANY_SHAPES.Id && d.IsLabDiamond == DiamondPrice.DEFAULT_SIDE_DIAMOND_IS_LAB && d.IsSideDiamond == true)
                     .Include(p => p.Criteria)
                     .Where(p => p.Criteria.CaratFrom <= avgCarat && p.Criteria.CaratTo >= avgCarat)
                     .ToListAsync();
-                }else
-                    return tryGet;
-            }
-            else
-            {
-                string diamondKey = GetSidePriceKey(isLabDiamond.Value);
-                var tryGet = _cache.Get<List<DiamondPrice>>(diamondKey);
-                if (tryGet == null)
-                {
-                    return await _set.Where(d => d.ShapeId == DiamondShape.ANY_SHAPES.Id && d.IsSideDiamond == true)
-                    .Include(p => p.Criteria)
-                    .Where(p => p.Criteria.CaratFrom <= avgCarat && p.Criteria.CaratTo >= avgCarat)
-                    .ToListAsync();
+                    _cache.Set(diamondKey, result);
+                    return result;  
                 }
                 else
                     return tryGet;
+            
+            //else
+            //{
+            //    string diamondKey = GetSidePriceKey(isLabDiamond.Value);
+            //    var tryGet = _cache.Get<List<DiamondPrice>>(diamondKey);
+            //    if (tryGet == null)
+            //    {
+            //        var result =  await _set.Where(d => d.ShapeId == DiamondShape.ANY_SHAPES.Id && d.IsSideDiamond == true)
+            //        .Include(p => p.Criteria)
+            //        .Where(p => p.Criteria.CaratFrom <= avgCarat && p.Criteria.CaratTo >= avgCarat)
+            //        .ToListAsync();
+            //        _cache.Set(diamondKey, result);
+            //        return result;
+            //    }
+            //    else
+            //        return tryGet;
 
-            }
+            //}
 
         }
 
@@ -277,9 +256,19 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         {
             var getCriteria = parameters.Select(x => x.CriteriaId).ToList();
             var getShape = parameters.Select(x => x.DiamondShapeId).ToList();
-            var getResult = await _set.IgnoreQueryFilters()
-                .Where(x => getCriteria.Contains(x.CriteriaId) && x.IsLabDiamond == Islab && x.IsSideDiamond == IsSide)
+            List<DiamondPrice> getResult = new List<DiamondPrice>();
+            if(IsSide == false)
+            {
+                getResult = await _set.IgnoreQueryFilters()
+                .Where(x => getCriteria.Contains(x.CriteriaId) && x.IsLabDiamond == Islab && x.IsSideDiamond == false)
                 .ToListAsync();
+            }
+            else
+            {
+                getResult = await _set.IgnoreQueryFilters()
+                .Where(x => getCriteria.Contains(x.CriteriaId) && x.IsLabDiamond == DiamondPrice.DEFAULT_SIDE_DIAMOND_IS_LAB && x.IsSideDiamond == true)
+                .ToListAsync();
+            }
 
             if (getResult == null || getResult.Count == 0)
                 return Result.Fail("no diamond price found for this criteria");

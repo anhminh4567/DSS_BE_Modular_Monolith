@@ -103,7 +103,7 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
             {
                 UnitType.Percent => Math.Clamp(unitValue, 0, 100),
                 UnitType.Fix_Price => Math.Clamp(unitValue, 0, 100000000),// max sale 100 tr
-                UnitType.Free_Gift => unitValue,
+                //UnitType.Free_Gift => unitValue,
                 _ => throw new Exception("un detected unit type for this one"),
             };
             return trueUnitValue;

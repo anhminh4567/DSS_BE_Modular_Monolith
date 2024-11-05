@@ -231,7 +231,7 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 UnitType.Percent => Math.Ceiling((orderPriceNow * orderGift.UnitValue) / (decimal)100),
                 UnitType.Fix_Price => orderGift.UnitValue,
-                UnitType.Free_Gift => throw new Exception("Major error, gift for order have a type of freeGift ??? major error, check back flow "),
+                //UnitType.Free_Gift => throw new Exception("Major error, gift for order have a type of freeGift ??? major error, check back flow "),
                 _ => throw new Exception("Major error, gift for order have not unit type ")
             };
             cartModel.OrderPrices.OrderAmountSaved += MoneyVndRoundUpRules.RoundAmountFromDecimal(promotionPriceSavedAmount);
@@ -315,7 +315,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 // we take the money from the discount price and calculate base on that
                 UnitType.Percent => Math.Ceiling((product.ReviewPrice.DiscountPrice * giftReq.UnitValue) / 100),
                 UnitType.Fix_Price => giftReq.UnitValue,
-                UnitType.Free_Gift => product.ReviewPrice.DiscountPrice,
+                //UnitType.Free_Gift => product.ReviewPrice.DiscountPrice,
                 _ => throw new Exception("Major error, gift for product have not unit type ")
             };
             product.ReviewPrice.PromotionAmountSaved = MoneyVndRoundUpRules.RoundAmountFromDecimal(savedAmount);
@@ -417,7 +417,37 @@ namespace DiamondShop.Domain.Services.Implementations
             return false;
         }
 
-      
+        public Result ApplyPromotionOnDiamond(Diamond diamond, List<Promotion> activePromotion)
+        {
+            var getPromoHaveDiamondAsGift = activePromotion.Where(p => p.Gifts.Any(g => g.TargetType == TargetType.Diamond)).ToList();
+            foreach(var promo in getPromoHaveDiamondAsGift)
+            {
+                var diamondGifts = promo.Gifts.Where(g => g.TargetType == TargetType.Diamond).ToList();
+                decimal savedAmount = 0;
+                foreach(var gift in diamondGifts)
+                {
+                    if(CheckIfDiamondIsGift(diamond, gift))
+                    {
+                        var currentSaveAmount= gift.UnitType switch
+                        {
+                            UnitType.Percent => Math.Ceiling((diamond.TruePrice * gift.UnitValue) / 100),
+                            UnitType.Fix_Price => gift.UnitValue,
+                            _ => throw new Exception("Major error, gift for product have not unit type ")
+                        };
+                        if(currentSaveAmount > savedAmount)
+                            savedAmount = currentSaveAmount;
+
+                    }
+                }
+                
+            }
+            throw new Exception();
+        }
+
+        public Result ApplyPromotionOnJewerly(Jewelry jewelry, List<Promotion> activePromotion)
+        {
+            throw new NotImplementedException();
+        }
     }
     /// <summary>
     /// this is for internal usage for promotion only

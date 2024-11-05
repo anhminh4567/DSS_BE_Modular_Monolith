@@ -30,12 +30,16 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
         public int Quantity { get; set; }
         [NotMapped]
         public bool IsFancyShape { get => DiamondShape.IsFancyShape(ShapeId); }
+        //[NotMapped]
+        //public List<DiamondPrice> DiamondPrice { get; set; } = new();
+        //[NotMapped]
+        //public int TotalPriceMatched { get; set; } = 0;
         [NotMapped]
-        public List<DiamondPrice> DiamondPrice { get; set; } = new();
+        public DiamondPrice DiamondPriceFound { get; set; }
         [NotMapped]
-        public int TotalPriceMatched { get; set; } = 0;
+        public bool IsPriceKnown { get => Price > 0; }
         [NotMapped]
-        public decimal Price { get; set; }
+        public decimal Price { get; set; } = 0;
         [NotMapped]
         public float AverageCarat { get => (float)CaratWeight / (float)Quantity; }
         public SideDiamondOpt() { }

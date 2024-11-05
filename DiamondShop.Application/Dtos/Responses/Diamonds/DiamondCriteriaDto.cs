@@ -11,9 +11,9 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
     public class DiamondCriteriaDto
     {
         public string Id { get; set; }
-        public Cut Cut { get; set; }
-        public Clarity Clarity { get; set; }
-        public Color Color { get; set; }
+        public Cut? Cut { get; set; }
+        public Clarity? Clarity { get; set; }
+        public Color? Color { get; set; }
         public float CaratFrom { get; set; }
         public float CaratTo { get; set; }
         //public bool IsLabGrown { get; set; }

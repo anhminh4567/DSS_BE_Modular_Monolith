@@ -20,8 +20,8 @@ namespace DiamondShop.Domain.Repositories
         Task<DiamondPrice?> GetById(DiamondShapeId shapeId, DiamondCriteriaId criteriaId, CancellationToken cancellationToken =default);
         Task CreateMany(List<DiamondPrice> prices);
         //Task<List<DiamondPrice>> GetSideDiamondPriceByShape(DiamondShape shape, bool? islabDiamond = null, CancellationToken cancellationToken = default);
-        Task<List<DiamondPrice>> GetSideDiamondPrice(bool? isLabDiamond = null, CancellationToken token = default);
-        Task<List<DiamondPrice>> GetSideDiamondPriceByAverageCarat(float avgCarat, bool? isLabDiamond = null, CancellationToken token = default);
+        Task<List<DiamondPrice>> GetSideDiamondPrice(CancellationToken token = default);
+        Task<List<DiamondPrice>> GetSideDiamondPriceByAverageCarat(float avgCarat, CancellationToken token = default);
         Task<Result> DeleteMany(List<DeleteManyParameter> parameters , bool Islab, bool IsSide, CancellationToken cancellationToken = default);
         void RemoveAllCache();
 

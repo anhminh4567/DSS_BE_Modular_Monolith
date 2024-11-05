@@ -6,8 +6,8 @@ using System.Text.Json.Serialization;
 
 namespace DiamondShop.Api.Controllers
 {
-    [ProducesResponseType(typeof(ValidationProblemDetailsDocumentation), 400)]
-    [ProducesResponseType(typeof(ProblemDetailDocumentation), 500)]
+    //[ProducesResponseType(typeof(ValidationProblemDetailsDocumentation), 400)]
+    //[ProducesResponseType(typeof(ProblemDetailDocumentation), 500)]
 
     public class ApiControllerBase : ControllerBase
     {
