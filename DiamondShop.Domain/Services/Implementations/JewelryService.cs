@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
@@ -72,7 +73,8 @@ namespace DiamondShop.Domain.Services.Implementations
                 jewelry.ND_Price = sizeMetal.Price;
             }
             jewelry.D_Price = GetJewelryDiamondPrice(jewelry).Result;
-            jewelry.SD_Price = GetJewelrySideDiamondPrice(jewelry).Result;
+            if(jewelry.SideDiamond != null)
+                jewelry.SD_Price = GetJewelrySideDiamondPrice(jewelry).Result;
             return jewelry;
         }
 
@@ -81,7 +83,8 @@ namespace DiamondShop.Domain.Services.Implementations
             if (sizeMetal.Metal == null) return null;
             jewelry.ND_Price = sizeMetal.Price;
             jewelry.D_Price = GetJewelryDiamondPrice(jewelry).Result;
-            jewelry.SD_Price = GetJewelrySideDiamondPrice(jewelry).Result;
+            if (jewelry.SideDiamond != null)
+                jewelry.SD_Price = GetJewelrySideDiamondPrice(jewelry).Result;
             return jewelry;
         }
         private async Task<decimal> GetJewelryDiamondPrice(Jewelry jewelry)
@@ -108,8 +111,11 @@ namespace DiamondShop.Domain.Services.Implementations
             jewelry.IsAllSideDiamondPriceKnown = true;
             return sideDiamond.TotalPrice;
         }
-
         public async Task<Discount?> AssignJewelryDiscount(Jewelry jewelry, List<Discount> discounts)
+        {
+            return await AssignJewelryDiscountGlobal(jewelry, discounts);
+        }
+        public static async Task<Discount?> AssignJewelryDiscountGlobal(Jewelry jewelry, List<Discount> discounts)
         {
             Discount mostValuableDiscont = null;
             foreach (var discount in discounts)
@@ -135,6 +141,11 @@ namespace DiamondShop.Domain.Services.Implementations
                         }
                     }
                 }
+            }
+            if (mostValuableDiscont != null)
+            {
+                var reducedAmount = jewelry.TotalPrice * ((decimal)mostValuableDiscont.DiscountPercent / (decimal)100);
+                jewelry.AssignJewelryDiscount(mostValuableDiscont, reducedAmount);
             }
             return mostValuableDiscont;
         }

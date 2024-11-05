@@ -18,8 +18,8 @@ namespace DiamondShop.Domain.Services.interfaces
     public interface IPromotionServices
     {
         Result ApplyPromotionOnCartModel(CartModel cartModel, Promotion promotion);
-        Result ApplyPromotionOnDiamond(Diamond diamond, List<Promotion> activePromotion);
-        Result ApplyPromotionOnJewerly(Jewelry jewelry, List<Promotion> activePromotion);
+        void ApplyPromotionOnDiamond(Diamond diamond, List<Promotion> activePromotion);
+        void ApplyPromotionOnJewerly(Jewelry jewelry, List<Promotion> activePromotion);
 
         void SetOrderPrice(CartModel cartModel);
     }

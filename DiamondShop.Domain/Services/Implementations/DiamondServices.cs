@@ -67,6 +67,7 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 var reducedAmount = diamond.TruePrice * ((decimal)diamond.Discount.DiscountPercent / (decimal)100);
                 var discountPrice = diamond.TruePrice - reducedAmount;
+                diamond.AssignDiscount(diamond.Discount,reducedAmount);
                 var finalDiscountPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(discountPrice);
                 diamond.DiscountPrice = finalDiscountPrice;
             }

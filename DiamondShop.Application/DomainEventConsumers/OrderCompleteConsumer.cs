@@ -1,9 +1,15 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.Orders.Events;
+using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Services.Implementations;
+using DiamondShop.Domain.Services.interfaces;
 using MediatR;
+using Microsoft.Extensions.Options;
+using Serilog.Context;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -18,12 +24,16 @@ namespace DiamondShop.Application.DomainEventConsumers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderRepository _orderRepository;
         private readonly IAccountRepository _accountRepository;
+        private readonly IAccountRoleRepository _accountRoleRepository;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public OrderCompleteConsumer(IUnitOfWork unitOfWork, IOrderRepository orderRepository, IAccountRepository accountRepository)
+        public OrderCompleteConsumer(IUnitOfWork unitOfWork, IOrderRepository orderRepository, IAccountRepository accountRepository, IAccountRoleRepository accountRoleRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _unitOfWork = unitOfWork;
             _orderRepository = orderRepository;
             _accountRepository = accountRepository;
+            _accountRoleRepository = accountRoleRepository;
+            _optionsMonitor = optionsMonitor;
         }
 
         public async Task Handle(OrderCompleteEvent notification, CancellationToken cancellationToken)
@@ -40,6 +50,12 @@ namespace DiamondShop.Application.DomainEventConsumers
             }
             var getOrderPoint = AccountServices.GetUserPointFromOrderCompleteGlobal(getAccount,GetOrder);
             getAccount.AddTotalPoint(getOrderPoint);
+            var getAllUserRoles = (await _accountRoleRepository.GetRoles()).Where(x => x.RoleType == Domain.Models.AccountRoleAggregate.AccountRoleType.Customer);
+            var goldRank = getAllUserRoles.FirstOrDefault(x => x.Id == AccountRole.CustomerGold.Id);
+            var silverRank = getAllUserRoles.FirstOrDefault(x => x.Id == AccountRole.CustomerSilver.Id);
+            var bronzeRank = getAllUserRoles.FirstOrDefault(x => x.Id == AccountRole.CustomerBronze.Id);
+            var option = _optionsMonitor.CurrentValue.AccountRules;
+            await AccountServices.CheckAndUpdateUserRankIfQualifiedGlobal(new List<Account>() { getAccount }, getAllUserRoles.ToList(), option);
             await _unitOfWork.SaveChangesAsync();
         }
     }

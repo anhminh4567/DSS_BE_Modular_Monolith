@@ -21,7 +21,11 @@ namespace DiamondShop.Domain.Common.Carts
         // shipping and warranty may sit outside discount and promotion scope
         public decimal TotalWarrantyPrice { get; set; } = 0;
         public decimal TotalShippingPrice { get; set; } = 0;
-        public decimal FinalPrice { get => MoneyVndRoundUpRules.RoundAmountFromDecimal(DefaultPrice - DiscountAmountSaved - PromotionAmountSaved - OrderAmountSaved + TotalShippingPrice + TotalWarrantyPrice); }
+        public decimal FinalPrice { get => Math.Clamp(
+                MoneyVndRoundUpRules
+                .RoundAmountFromDecimal(DefaultPrice - DiscountAmountSaved - PromotionAmountSaved - OrderAmountSaved + TotalShippingPrice + TotalWarrantyPrice)
+            ,0m, decimal.MaxValue); }
+        
         
     }
 

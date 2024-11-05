@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 
 namespace DiamondShop.Infrastructure.Databases.Repositories
 {
@@ -55,6 +56,11 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         public Task<List<Diamond>> GetAllAdmin(CancellationToken cancellationToken = default)
         {
             return _set.IgnoreQueryFilters().ToListAsync();
+        }
+
+        public Task<List<Diamond>> GetUserLockDiamonds(AccountId accountId, CancellationToken cancellationToken = default)
+        {
+            return _set.IgnoreQueryFilters().Where(x => x.ProductLock != null && x.ProductLock.AccountId == accountId).ToListAsync(cancellationToken);
         }
     }
 }

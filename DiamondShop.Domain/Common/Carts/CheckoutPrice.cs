@@ -17,7 +17,8 @@ namespace DiamondShop.Domain.Common.Carts
         //warranty is seperate from final price
         //warranty is not subject of any promotion requirement or condition
         public decimal WarrantyPrice { get; set; } = 0;
-        public decimal FinalPrice { get => MoneyVndRoundUpRules.RoundAmountFromDecimal(DefaultPrice - DiscountAmountSaved - PromotionAmountSaved) ; }
+        public decimal FinalPrice { get => Math.Clamp(
+                MoneyVndRoundUpRules.RoundAmountFromDecimal(DefaultPrice - DiscountAmountSaved - PromotionAmountSaved),0,decimal.MaxValue) ; }
     }
 
 }

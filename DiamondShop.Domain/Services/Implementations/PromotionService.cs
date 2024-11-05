@@ -417,7 +417,7 @@ namespace DiamondShop.Domain.Services.Implementations
             return false;
         }
 
-        public Result ApplyPromotionOnDiamond(Diamond diamond, List<Promotion> activePromotion)
+        public void ApplyPromotionOnDiamond(Diamond diamond, List<Promotion> activePromotion)
         {
             var getPromoHaveDiamondAsGift = activePromotion.Where(p => p.Gifts.Any(g => g.TargetType == TargetType.Diamond)).ToList();
             foreach(var promo in getPromoHaveDiamondAsGift)
@@ -436,17 +436,49 @@ namespace DiamondShop.Domain.Services.Implementations
                         };
                         if(currentSaveAmount > savedAmount)
                             savedAmount = currentSaveAmount;
-
                     }
                 }
-                
+                if(savedAmount > 0)
+                {
+                    if (diamond.PromotionReducedAmount == 0)
+                        diamond.AssignPromotion(promo, savedAmount);
+                    else
+                        if(savedAmount > diamond.PromotionReducedAmount)
+                            diamond.AssignPromotion(promo, savedAmount);
+                }
             }
-            throw new Exception();
         }
 
-        public Result ApplyPromotionOnJewerly(Jewelry jewelry, List<Promotion> activePromotion)
+        public void ApplyPromotionOnJewerly(Jewelry jewelry, List<Promotion> activePromotion)
         {
-            throw new NotImplementedException();
+            var getPromoHaveJewelryAsGift = activePromotion.Where(p => p.Gifts.Any(g => g.TargetType == TargetType.Jewelry_Model)).ToList();
+            foreach (var promo in getPromoHaveJewelryAsGift)
+            {
+                var jewelryGifts = promo.Gifts.Where(g => g.TargetType == TargetType.Jewelry_Model).ToList();
+                decimal savedAmount = 0;
+                foreach (var gift in jewelryGifts)
+                {
+                    if (CheckIfJewelryIsGift(jewelry, gift))
+                    {
+                        var currentSaveAmount = gift.UnitType switch
+                        {
+                            UnitType.Percent => Math.Ceiling((jewelry.TotalPrice * gift.UnitValue) / 100),
+                            UnitType.Fix_Price => gift.UnitValue,
+                            _ => throw new Exception("Major error, gift for product have not unit type ")
+                        };
+                        if (currentSaveAmount > savedAmount)
+                            savedAmount = currentSaveAmount;
+                    }
+                }
+                if (savedAmount > 0)
+                {
+                    if (jewelry.PromotionReducedAmount == 0)
+                        jewelry.AssignJewelryPromotion(promo, savedAmount); 
+                    else
+                        if (savedAmount > jewelry.PromotionReducedAmount)
+                            jewelry.AssignJewelryPromotion(promo, savedAmount);
+                }
+            }
         }
     }
     /// <summary>
