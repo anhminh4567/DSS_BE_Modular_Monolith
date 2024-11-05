@@ -72,6 +72,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 jewelry.ND_Price = sizeMetal.Price;
             }
             jewelry.D_Price = GetJewelryDiamondPrice(jewelry).Result;
+            jewelry.SD_Price = GetJewelrySideDiamondPrice(jewelry).Result;
             return jewelry;
         }
 
@@ -80,6 +81,7 @@ namespace DiamondShop.Domain.Services.Implementations
             if (sizeMetal.Metal == null) return null;
             jewelry.ND_Price = sizeMetal.Price;
             jewelry.D_Price = GetJewelryDiamondPrice(jewelry).Result;
+            jewelry.SD_Price = GetJewelrySideDiamondPrice(jewelry).Result;
             return jewelry;
         }
         private async Task<decimal> GetJewelryDiamondPrice(Jewelry jewelry)
@@ -101,10 +103,10 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             var sideDiamond = jewelry.SideDiamond;
             decimal totalDiamondPrice = 0;
-            var thisSidePrice = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamond.AverageCarat, sideDiamond.IsFancyShape);
+            var thisSidePrice = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamond.AverageCarat);
             var price = await _diamondServices.GetSideDiamondPrice(sideDiamond);
             jewelry.IsAllSideDiamondPriceKnown = true;
-            return sideDiamond.AveragePrice;
+            return sideDiamond.TotalPrice;
         }
 
         public async Task<Discount?> AssignJewelryDiscount(Jewelry jewelry, List<Discount> discounts)

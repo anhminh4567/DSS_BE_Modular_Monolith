@@ -58,13 +58,15 @@ namespace DiamondShop.Domain.Models.Diamonds
         [NotMapped]
         public DiamondPrice? DiamondPrice { get; set; }
         [NotMapped]
-        public decimal TruePrice { get; set; }
+        public decimal TruePrice { get; set; } = 0;
         [NotMapped]
         public bool IsPriceKnown { get =>  TruePrice > 0 ; }
         [NotMapped]
         public Discount? Discount { get; set; }
         [NotMapped]
         public decimal? DiscountPrice { get; set; }
+        [NotMapped]
+        public decimal? SalePrice { get; set; }
         [NotMapped]
         public string Title { get => GetTitle(this); }
         public static Diamond Create(DiamondShape shape, Diamond_4C diamond_4C, Diamond_Details diamond_Details,
@@ -108,7 +110,9 @@ namespace DiamondShop.Domain.Models.Diamonds
         }
         public static string GetTitle(Diamond diamond)
         {
-            return $"{diamond.Carat} carat {diamond.Color.ToString()}-{diamond.Clarity.ToString()} {diamond.Cut.ToString()} Cut {diamond.DiamondShape.Shape} diamond";
+            var shapeId = diamond.DiamondShapeId;
+            var getShape = DiamondShape.All_Shape.First(x => x.Id == shapeId);
+            return $"{diamond.Carat} carat {diamond.Color.ToString()}-{diamond.Clarity.ToString()} {diamond.Cut.ToString()} Cut {getShape.Shape} diamond";
         }
         public static string GetDescription(Diamond diamond)
         {

@@ -24,7 +24,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices
         [NotMapped]
         public string? ForUnknownPrice { get; set; }
 
-
+        public const bool DEFAULT_SIDE_DIAMOND_IS_LAB = true;
         public static DiamondPrice Create(DiamondShapeId diamondShapeId, DiamondCriteriaId diamondCriteriaId, decimal price, bool isLabPrice)
         {
             if (price <= 0)
@@ -61,10 +61,10 @@ namespace DiamondShop.Domain.Models.DiamondPrices
                 Price = 0,
                 ForUnknownPrice = "giá kim cương tấm chưa được set rõ",
                 IsLabDiamond = true,// assume all side diamond is lab
-                IsSideDiamond = true,
+                IsSideDiamond = DEFAULT_SIDE_DIAMOND_IS_LAB,
             };
         }
-        public static DiamondPrice CreateSideDiamondPrice( DiamondCriteriaId diamondCriteriaId, decimal price, bool isLabPrice)
+        public static DiamondPrice CreateSideDiamondPrice( DiamondCriteriaId diamondCriteriaId, decimal price)
         {
             if (price <= 0)
                 throw new Exception();
@@ -73,7 +73,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices
                 ShapeId = DiamondShape.ANY_SHAPES.Id, // shape is not matter
                 CriteriaId = diamondCriteriaId,
                 Price = price,
-                IsLabDiamond = isLabPrice,
+                IsLabDiamond = DEFAULT_SIDE_DIAMOND_IS_LAB,
                 IsSideDiamond =true,
             };
         }

@@ -14,5 +14,6 @@ namespace DiamondShop.Application.Dtos.Responses.Jewelries
         public Clarity ClarityMin { get; set; }
         public Clarity ClarityMax { get; set; }
         public SettingType SettingType { get; set; }
+        public decimal? TotalPrice { get; set; }
     }
 }

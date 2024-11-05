@@ -140,31 +140,38 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             return ValidateDiamond3CGlobal(diamond, caratFrom, caratTo, colorFrom, colorTo, clarityFrom, clarityTo);
         }
-        public async Task<List<DiamondPrice>> GetSideDiamondPrice(JewelrySideDiamond sideDiamond)
+        public async Task<DiamondPrice> GetSideDiamondPrice(JewelrySideDiamond sideDiamond)
         {
-            List<DiamondPrice> diamondPrices = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamond.AverageCarat,sideDiamond.IsFancyShape);
+            List<DiamondPrice> diamondPrices = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamond.AverageCarat);
             return await GetSideDiamondPriceGlobal(sideDiamond, diamondPrices);
         }
-        public static async Task<List<DiamondPrice>> GetSideDiamondPriceGlobal(JewelrySideDiamond sideDiamond, List<DiamondPrice> diamondPrices)
+        public static async Task<DiamondPrice> GetSideDiamondPriceGlobal(JewelrySideDiamond sideDiamond, List<DiamondPrice> diamondPrices)
         {
-            List<DiamondPrice> matchPrices = new();
+            // List<DiamondPrice> matchPrices = new();
+            DiamondPrice matchPrice = null;
             foreach (var price in diamondPrices)
             {
                 var isMatchPrice = IsMatchSideDiamondPrice(sideDiamond, price);
                 if (isMatchPrice)
                 {
-                    sideDiamond.DiamondPrice.Add(price);
+                    matchPrice = price;
                 }
-                continue;
+                break;
             }
-            if (matchPrices.Count == 0)
+            if(matchPrice == null)
             {
-                matchPrices.Add(DiamondPrice.CreateUnknownSideDiamondPrice());
+                matchPrice = DiamondPrice.CreateUnknownSideDiamondPrice();
             }
-            sideDiamond.DiamondPrice = matchPrices;
-            sideDiamond.AveragePrice = matchPrices.Average(p => p.Price);
-            sideDiamond.TotalPriceMatched = matchPrices.Count;
-            return sideDiamond.DiamondPrice;
+            //if (matchPrices.Count == 0)
+            //{
+            //    matchPrices.Add(DiamondPrice.CreateUnknownSideDiamondPrice());
+            //}
+            //sideDiamond.DiamondPrice = matchPrices;
+            //sideDiamond.AveragePrice = matchPrices.Average(p => p.Price);
+            //sideDiamond.TotalPriceMatched = matchPrices.Count;
+            sideDiamond.DiamondPriceFound = matchPrice;
+            sideDiamond.AveragePrice = matchPrice.Price;
+            return sideDiamond.DiamondPriceFound;
         }
         private static bool IsCorrectPrice(Diamond diamond, DiamondPrice price)
         {
@@ -193,22 +200,22 @@ namespace DiamondShop.Domain.Services.Implementations
         }
         private static bool IsMatchSideDiamondPrice(JewelrySideDiamond sideDiamond, DiamondPrice price)
         {
-            bool isColorInRange = price.Criteria.Color >= sideDiamond.ColorMin && price.Criteria.Color <= sideDiamond.ColorMax;
-            bool isClarityInRange = price.Criteria.Clarity >= sideDiamond.ClarityMin && price.Criteria.Clarity <= sideDiamond.ClarityMax;
+            //bool isColorInRange = price.Criteria.Color >= sideDiamond.ColorMin && price.Criteria.Color <= sideDiamond.ColorMax;
+            //bool isClarityInRange = price.Criteria.Clarity >= sideDiamond.ClarityMin && price.Criteria.Clarity <= sideDiamond.ClarityMax;
             bool isCaratInRange = price.Criteria.CaratTo > sideDiamond.AverageCarat && price.Criteria.CaratFrom <= sideDiamond.AverageCarat;
             // all side diamond should be lab diamond
             //&& price.IsLabDiamond
-            return isColorInRange && isClarityInRange && isCaratInRange && price.IsSideDiamond;
+            return isCaratInRange && price.IsSideDiamond;
         }
 
-        public async Task<List<DiamondPrice>> GetSideDiamondPrice(SideDiamondOpt sideDiamondOption)
+        public async Task<DiamondPrice> GetSideDiamondPrice(SideDiamondOpt sideDiamondOption)
         {
-            List<DiamondPrice> diamondPrices = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamondOption.AverageCarat,sideDiamondOption.IsFancyShape);
+            List<DiamondPrice> diamondPrices = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamondOption.AverageCarat);
             JewelrySideDiamond fakeDiamond = JewelrySideDiamond.Create(JewelryId.Create(), sideDiamondOption.CaratWeight, sideDiamondOption.Quantity, sideDiamondOption.ColorMin, sideDiamondOption.ColorMax, sideDiamondOption.ClarityMin, sideDiamondOption.ClarityMax, sideDiamondOption.SettingType);
             var price = await GetSideDiamondPriceGlobal(fakeDiamond, diamondPrices);
-            sideDiamondOption.TotalPriceMatched = fakeDiamond.TotalPriceMatched;
-            sideDiamondOption.Price = fakeDiamond.AveragePrice;
-            sideDiamondOption.DiamondPrice = fakeDiamond.DiamondPrice;
+            sideDiamondOption.DiamondPriceFound = fakeDiamond.DiamondPriceFound;
+            // found price x quantity to get true total price
+            sideDiamondOption.Price = fakeDiamond.AveragePrice * sideDiamondOption.Quantity;
             return price;
         }
 
