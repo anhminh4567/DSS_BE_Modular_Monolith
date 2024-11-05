@@ -3,6 +3,7 @@ using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
@@ -44,12 +45,14 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
 
         public async Task<Result<PagingResponseDto<Diamond>>> Handle(GetDiamondPagingQuery request, CancellationToken cancellationToken)
         {
-            request.Deconstruct(out int pageSize, out int start, out var diamond_4C, out var diamond_Details, out var isLab);
+            request.Deconstruct(out int pageSize, out int start,out string shapeId, out var diamond_4C, out var diamond_Details, out var isLab);
             var query = _diamondRepository.GetQuery();
             if (AccountRole.ShopRoles.Any(x => _httpContextAccessor.HttpContext.User.IsInRole(x.Id.Value)) is false)//not in shop
             {
                 query = _diamondRepository.QueryFilter(query, d => d.Status == Domain.Common.Enums.ProductStatus.Active);
             }
+            var parsedShape = DiamondShapeId.Parse(shapeId);
+            query = query.Where(d => d.DiamondShapeId == parsedShape);
             //query = _diamondRepository.QueryInclude(query, d => d.DiamondShape);
             if (diamond_4C is not null)
                 query  = Filtering4C(query, diamond_4C);

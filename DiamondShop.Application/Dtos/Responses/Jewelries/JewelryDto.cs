@@ -28,6 +28,7 @@ namespace DiamondShop.Application.Dtos.Responses.Jewelries
         public bool IsPreset { get; set; }
         public decimal? ND_Price { get; set; }
         public decimal? D_Price { get; set; }
+        public decimal? SD_Price { get; set; }
         public decimal? SoldPrice { get; set; }
         public string? EngravedText { get; set; }
         public string? EngravedFont { get; set; }

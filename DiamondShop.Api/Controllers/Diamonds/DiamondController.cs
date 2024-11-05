@@ -8,6 +8,7 @@ using DiamondShop.Application.Usecases.Diamonds.Queries.GetAllAdmin;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetAllAttributes;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetDiamondPricesComparisons;
+using DiamondShop.Application.Usecases.Diamonds.Queries.GetLockItemsForUser;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging;
 using DiamondShop.Domain.Models.Diamonds;
 using MapsterMapper;
@@ -44,6 +45,14 @@ namespace DiamondShop.Api.Controllers.Diamonds
         public async Task<ActionResult> GetAll()
         {
             var result = await _sender.Send(new GetAllDiamondQuery());
+            var mappedResult = _mapper.Map<List<DiamondDto>>(result);
+            return Ok(mappedResult);
+        }
+        [HttpGet("LockProduct")]
+        [Produces(typeof(List<DiamondDto>))]
+        public async Task<ActionResult> GetAllUserLockProduct([FromQuery] GetLockDiamondsForUserQuery getLockDiamondsForUserQuery)
+        {
+            var result = await _sender.Send(getLockDiamondsForUserQuery);
             var mappedResult = _mapper.Map<List<DiamondDto>>(result);
             return Ok(mappedResult);
         }

@@ -9,6 +9,8 @@ using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+using DiamondShop.Domain.Models.Promotions;
+using DiamondShop.Domain.Models.Promotions.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DiamondShop.Domain.Models.Jewelries
@@ -38,10 +40,15 @@ namespace DiamondShop.Domain.Models.Jewelries
                 return inalPrice;
             }
         }
+        //[NotMapped]
+        //public decimal DiscountPrice { get; set; }
         [NotMapped]
-        public decimal DiscountPrice { get; set; }
+        public decimal DiscountReducedAmount { get; set; } = 0;
         [NotMapped]
-        public decimal SalePrice { get; set; }
+        public decimal PromotionReducedAmount { get; set; } = 0;
+
+        [NotMapped]
+        public decimal SalePrice { get => TotalPrice - DiscountReducedAmount; }
 
         [NotMapped]
         public bool IsAllSideDiamondPriceKnown { get; set; }
@@ -148,5 +155,14 @@ namespace DiamondShop.Domain.Models.Jewelries
         {
             D_Price = totalAllDiamondPrice;
         }
+        public void AssignJewelryDiscount(Discount discount, decimal reducedAmount)
+        {
+            DiscountReducedAmount = reducedAmount;
+        }
+        public void AssignJewelryPromotion(Promotion promotion, decimal reducedAmount)
+        {
+            PromotionReducedAmount = reducedAmount;
+        }
+
     }
 }

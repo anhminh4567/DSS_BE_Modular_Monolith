@@ -27,17 +27,19 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
         private readonly IOrderService _orderService;
         private readonly IOrderTransactionService _orderTransactionService;
         private readonly ISender _sender;
+        private readonly IPublisher _publisher;
 
-        public ProceedOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IOrderTransactionService orderTransactionService)
+        public ProceedOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, ISender sender, IPublisher publisher)
         {
             _accountRepository = accountRepository;
             _orderRepository = orderRepository;
             _orderItemRepository = orderItemRepository;
             _transactionRepository = transactionRepository;
             _unitOfWork = unitOfWork;
-            _sender = sender;
             _orderService = orderService;
             _orderTransactionService = orderTransactionService;
+            _sender = sender;
+            _publisher = publisher;
         }
 
         public async Task<Result<Order>> Handle(ProceedOrderCommand request, CancellationToken token)
@@ -87,7 +89,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                     //TODO: Add payment here
                     _orderTransactionService.AddCODPayment(order);
                 order.Status = OrderStatus.Success;
-                order.Raise(new OrderCompleteEvent(account.Id,order.Id, DateTime.UtcNow));
+                //order.Raise(new OrderCompleteEvent(account.Id,order.Id, DateTime.UtcNow));
+                await _publisher.Publish(new OrderCompleteEvent(account.Id, order.Id, DateTime.UtcNow));
             }
             else
             {

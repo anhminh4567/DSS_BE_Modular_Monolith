@@ -11,6 +11,7 @@ using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
+using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using System;
 using System.Collections.Generic;
@@ -66,7 +67,15 @@ namespace DiamondShop.Domain.Models.Diamonds
         [NotMapped]
         public decimal? DiscountPrice { get; set; }
         [NotMapped]
-        public decimal? SalePrice { get; set; }
+        public decimal DiscountReducedAmount { get; set; } = 0;
+        //[NotMapped]
+        //public Promotion? Promotion { get; set; }
+        [NotMapped]
+        public decimal PromotionReducedAmount { get; set; } = 0;
+        [NotMapped]
+        public decimal? SalePrice { get => Math.Clamp(
+                MoneyVndRoundUpRules.RoundAmountFromDecimal(TruePrice - DiscountReducedAmount - PromotionReducedAmount),0,decimal.MaxValue); }
+        
         [NotMapped]
         public string Title { get => GetTitle(this); }
         public static Diamond Create(DiamondShape shape, Diamond_4C diamond_4C, Diamond_Details diamond_Details,
@@ -158,6 +167,17 @@ namespace DiamondShop.Domain.Models.Diamonds
             if (newOffset <= 0)
                 throw new Exception();
             PriceOffset = newOffset;
+        }
+        public void AssignPromotion(Promotion promotion, decimal reducedAmount)
+        {
+            //Promotion = promotion;
+            PromotionReducedAmount = reducedAmount;
+        }
+        public void AssignDiscount(Discount discount, decimal reducedAmount)
+        {
+            //Promotion = promotion;
+            DiscountReducedAmount = reducedAmount;
+            Discount = discount;
         }
         private Diamond() { }
     }
