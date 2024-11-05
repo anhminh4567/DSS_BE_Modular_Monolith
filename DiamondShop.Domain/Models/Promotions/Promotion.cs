@@ -103,11 +103,26 @@ namespace DiamondShop.Domain.Models.Promotions
         }
         public void ChangeActiveDate(DateTime startDate, DateTime endDate)
         {
-            if(endDate <= startDate || startDate < DateTime.UtcNow)
+            //if(endDate <= startDate || startDate < DateTime.UtcNow)
+            //    throw new InvalidOperationException("cannot change the start date to a date that is already passed");
+            ChangeStartDate(startDate);
+            ChangeEndDate(endDate);
+        }
+        public void ChangeStartDate(DateTime startDate)
+        {
+            if (startDate < DateTime.UtcNow || startDate >= EndDate)
                 throw new InvalidOperationException("cannot change the start date to a date that is already passed");
             StartDate = startDate.ToUniversalTime();
-            EndDate = endDate.ToUniversalTime();
+            Status = Status.Scheduled;
         }
+        public void ChangeEndDate(DateTime enddate)
+        {
+            if (enddate <= StartDate)
+                throw new InvalidOperationException("cannot change the end date to a date that is before start");
+            EndDate = enddate.ToUniversalTime();
+            //Status = Status.Scheduled;
+        }
+
         public Promotion() { }
     }
 }

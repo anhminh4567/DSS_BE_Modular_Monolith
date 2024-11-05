@@ -86,7 +86,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             CartRequestDto cartRequestDto = new CartRequestDto()
             {
                 PromotionId = promotionId,
-                Items = items
+                Items = items,
+                AccountId = account.Id.Value
             };
             //Validate CartModel
             var cartModelResult = await _sender.Send(new ValidateCartFromListCommand(cartRequestDto));

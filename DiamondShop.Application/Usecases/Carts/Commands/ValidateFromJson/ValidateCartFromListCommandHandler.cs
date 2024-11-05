@@ -24,6 +24,7 @@ using DiamondShop.Domain.Repositories.DeliveryRepo;
 using DiamondShop.Application.Dtos.Requests.Accounts;
 using System.Numerics;
 using DiamondShop.Application.Services.Interfaces.Deliveries;
+using DiamondShop.Domain.Models.AccountAggregate;
 
 namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
 {
@@ -37,9 +38,10 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
         private readonly IDiscountRepository _discountRepository;
         private readonly IPromotionRepository _promotionRepository;
         private readonly IDeliveryFeeServices _deliveryFeeServices;
+        private readonly IAccountRepository _accountRepository;
         private readonly IMapper _mapper;
 
-        public ValidateCartFromListCommandHandler(ICartModelService cartModelService, ILocationService locationService, IDeliveryService deliveryService, IDeliveryFeeRepository deliveryFeeRepository, IDiscountRepository discountRepository, IPromotionRepository promotionRepository, IDeliveryFeeServices deliveryFeeServices, IMapper mapper)
+        public ValidateCartFromListCommandHandler(ICartModelService cartModelService, ILocationService locationService, IDeliveryService deliveryService, IDeliveryFeeRepository deliveryFeeRepository, IDiscountRepository discountRepository, IPromotionRepository promotionRepository, IDeliveryFeeServices deliveryFeeServices, IAccountRepository accountRepository, IMapper mapper)
         {
             _cartModelService = cartModelService;
             _locationService = locationService;
@@ -48,6 +50,7 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
             _discountRepository = discountRepository;
             _promotionRepository = promotionRepository;
             _deliveryFeeServices = deliveryFeeServices;
+            _accountRepository = accountRepository;
             _mapper = mapper;
         }
 
@@ -56,7 +59,9 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
             var cartItem = _mapper.Map<List<CartItem>>(request.items.Items);
             PromotionId promotionId = null;
             ShippingPrice getShippingPrice = new();
-
+            Account? userAccount = null;
+            if(request.items.AccountId!= null)
+               userAccount= await _accountRepository.GetById(AccountId.Parse(request.items.AccountId));
             if (request.items.PromotionId != null)
                 promotionId = PromotionId.Parse(request.items.PromotionId);
             var getPromotion = GetPromotion(promotionId).Result;
@@ -66,7 +71,7 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
             {
                  getShippingPrice = _deliveryFeeServices.GetShippingPrice(request.items.UserAddress).Result;
             }
-            Result<CartModel> result = await _cartModelService.ExecuteNormalOrder(getProducts, getDiscounts, getPromotion,getShippingPrice);
+            Result<CartModel> result = await _cartModelService.ExecuteNormalOrder(getProducts, getDiscounts, getPromotion,getShippingPrice,userAccount);
             if (result.IsSuccess)
                 return result.Value;
             return Result.Fail(result.Errors);

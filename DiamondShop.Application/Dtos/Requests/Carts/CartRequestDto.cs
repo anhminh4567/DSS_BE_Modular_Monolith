@@ -12,5 +12,6 @@ namespace DiamondShop.Application.Dtos.Requests.Carts
         public string? PromotionId { get; set; }
         public List<CartItemRequestDto> Items { get; set; } = new();
         public AddressRequestDto? UserAddress { get; set; }
+        public string? AccountId { get; set; }
     }
 }

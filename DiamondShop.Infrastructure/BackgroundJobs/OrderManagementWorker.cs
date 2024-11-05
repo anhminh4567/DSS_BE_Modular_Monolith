@@ -44,7 +44,8 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
             var result = query.ToList();
             if (result.Count == 0)
                 return;
-            foreach(var order in result)
+            _logger.LogInformation("Found {0} order(s) to be expired", result.Count);
+            foreach (var order in result)
             {
                 order.ExpiredDate = utcNow;
                 _orderRepository.Update(order).Wait();

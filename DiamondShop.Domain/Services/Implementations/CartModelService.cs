@@ -2,6 +2,7 @@
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Common.Enums;
+using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.DeliveryFees;
@@ -79,7 +80,7 @@ namespace DiamondShop.Domain.Services.Implementations
         }
 
 
-        public async Task<Result<CartModel>> ExecuteNormalOrder(List<CartProduct> products, List<Discount> givenDiscount, List<Promotion> givenPromotion, ShippingPrice shipPrice)
+        public async Task<Result<CartModel>> ExecuteNormalOrder(List<CartProduct> products, List<Discount> givenDiscount, List<Promotion> givenPromotion, ShippingPrice shipPrice, Account? account)
         {
             ArgumentNullException.ThrowIfNull(products);
             var cartModel = new CartModel { Products = products };
@@ -107,7 +108,7 @@ namespace DiamondShop.Domain.Services.Implementations
                     break;// only one promotion is applied at a time
                 }
             }
-            CurrentCart.SetUserRankDiscount(_optionsMonitor.CurrentValue.PromotionRule,null);
+            CurrentCart.SetUserRankDiscount(_optionsMonitor.CurrentValue.PromotionRule,account);
             CurrentCart.SetOrderShippingPrice(shipPrice);
             CurrentCart.SetWarrantyTotalPrice();
             CurrentCart.SetErrorMessages();
@@ -364,7 +365,7 @@ namespace DiamondShop.Domain.Services.Implementations
             return cartProducts;
         }
 
-        public Task<Result<CartModel>> ExecuteCustomOrder(List<CartProduct> products, List<Discount> givenDiscount, List<Promotion> givenPromotion, ShippingPrice shipPrice)
+        public Task<Result<CartModel>> ExecuteCustomOrder(List<CartProduct> products, List<Discount> givenDiscount, List<Promotion> givenPromotion, ShippingPrice shipPrice, Account? account)
         {
             throw new NotImplementedException();
         }

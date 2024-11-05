@@ -2,6 +2,8 @@
 {
     public class CartModelPriceDto
     {
+        public decimal UserRankDiscountPercent { get; set; }
+        public decimal UserRankDiscountAmount { get; set; } 
         public decimal DefaultPrice { get; set; }
         public decimal DiscountAmountSaved { get; set; } = 0;
         //public decimal DiscountPrice { get => DefaultPrice - DiscountAmountSaved; }
