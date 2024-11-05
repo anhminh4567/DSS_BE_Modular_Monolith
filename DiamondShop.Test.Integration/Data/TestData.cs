@@ -37,11 +37,24 @@ namespace DiamondShop.Test.Integration.Data
             MetalId.Parse("3"),
             MetalId.Parse("4"),
         };
+        public static List<DiamondShapeId> DiamondShapeIds = new()
+        {
+            DiamondShapeId.Parse("1"),
+            DiamondShapeId.Parse("2"),
+            DiamondShapeId.Parse("3"),
+            DiamondShapeId.Parse("4"),
+            DiamondShapeId.Parse("5"),
+            DiamondShapeId.Parse("6"),
+            DiamondShapeId.Parse("7"),
+            DiamondShapeId.Parse("8"),
+            DiamondShapeId.Parse("9"),
+            DiamondShapeId.Parse("10"),
+        };
         //Already seeded
         public static JewelryModelCategoryId DefaultCategoryId = JewelryModelCategoryId.Parse("1");
         #region JewelryModel
-        public static JewelryModel DefaultRingModel(string name, JewelryModelCategoryId categoryId, float? width, float? height, bool? isEngravable, bool? isRhodiumFinish, BackType? backType, ClaspType? claspType, ChainType? chainType, string id) => JewelryModel.Create(
-            name, categoryId, width, height, isEngravable, isRhodiumFinish,
+        public static JewelryModel DefaultRingModel(string name, string code, JewelryModelCategoryId categoryId, float? width, float? height, bool? isEngravable, bool? isRhodiumFinish, BackType? backType, ClaspType? claspType, ChainType? chainType, string id) => JewelryModel.Create(
+            name, code, categoryId, width, height, isEngravable, isRhodiumFinish,
             backType, claspType, chainType, JewelryModelId.Parse(id));
 
         public static MainDiamondReq DefaultRingMainDiamondReq(JewelryModelId modelId, int quantity, string id) => MainDiamondReq.Create(modelId, SettingType.Prong, quantity, MainDiamondReqId.Parse($"{modelId.Value}_{id}"));
@@ -77,7 +90,7 @@ namespace DiamondShop.Test.Integration.Data
         }
         public static async Task<JewelryModel> SeedDefaultRingModel(DiamondShopDbContext _context, string modelId = "1")
         {
-            var model = DefaultRingModel("Test_Default_Model", DefaultCategoryId, 1f, null, true, true, null, null, null, modelId);
+            var model = DefaultRingModel("Test Default Model", "TDM", DefaultCategoryId, 1f, null, true, true, null, null, null, modelId);
             var mainDiamonds = new List<MainDiamondReq>(){
                 DefaultRingMainDiamondReq(model.Id,1,"1")
             };
@@ -98,7 +111,7 @@ namespace DiamondShop.Test.Integration.Data
         }
         public static async Task<JewelryModel> SeedMultiMainDiamondRingModel(DiamondShopDbContext _context)
         {
-            var model = DefaultRingModel("Test_MultiMain_Model", DefaultCategoryId, 1f, null, true, true, null, null, null, "1");
+            var model = DefaultRingModel("Test MultiMain Model", "TMM", DefaultCategoryId, 1f, null, true, true, null, null, null, "1");
             var mainDiamonds = new List<MainDiamondReq>(){
                 DefaultRingMainDiamondReq(model.Id,1,"1"),
                 DefaultRingMainDiamondReq(model.Id,2,"2"),
@@ -120,7 +133,7 @@ namespace DiamondShop.Test.Integration.Data
         }
         public static async Task<JewelryModel> SeedNoDiamondRingModel(DiamondShopDbContext _context)
         {
-            var model = DefaultRingModel("Test_NoDiamond_Model", DefaultCategoryId, 1f, null, true, true, null, null, null, "1");
+            var model = DefaultRingModel("Test NoDiamond Model", "TNM", DefaultCategoryId, 1f, null, true, true, null, null, null, "1");
             _context.Set<JewelryModel>().Add(model);
             var sizeMetals = DefaultRingSizeMetal(model.Id);
             await SeedingModel(_context, model, null, null, null, sizeMetals);
@@ -129,7 +142,7 @@ namespace DiamondShop.Test.Integration.Data
         }
         public static async Task<JewelryModel> SeedDefaultNecklaceModel(DiamondShopDbContext _context)
         {
-            var model = DefaultRingModel("Test_Necklace", DefaultCategoryId, null, 10f, false, false, null, ClaspType.Spring_Ring, ChainType.Rope, "1");
+            var model = DefaultRingModel("Test_Necklace", "TN", DefaultCategoryId, null, 10f, false, false, null, ClaspType.Spring_Ring, ChainType.Rope, "1");
             var mainDiamonds = new List<MainDiamondReq>(){
                 DefaultRingMainDiamondReq(model.Id,1,"1")
             };
@@ -228,10 +241,18 @@ namespace DiamondShop.Test.Integration.Data
             await SeedingCriteria(_context, criteria);
             return criteria;
         }
+        //public static async Task<DiamondCriteria> SeedSideDiamondCriteria(DiamondShopDbContext _context, float caratFrom, float caratTo, bool isLab)
+        //{
+        //    var criteria = DiamondCriteria.CreateSideDiamondCriteria()
+        //    await SeedingCriteria(_context, criteria);
+        //    return criteria;
+        //}
         #endregion
         #region DiamondPrice
         public static DiamondPrice DefaultDiamondPrice(DiamondShapeId shapeId, DiamondCriteriaId criteriaId, bool isLab) =>
             DiamondPrice.Create(shapeId, criteriaId, 100_000_000M, isLab);
+        public static DiamondPrice DefaultSideDiamondPrice(DiamondCriteriaId criteriaId) =>
+            DiamondPrice.Create(DiamondShape.ANY_SHAPES.Id, criteriaId, 100_000_000M, false);
         static async Task SeedingPrice(DiamondShopDbContext _context, DiamondPrice price)
         {
             _context.Set<DiamondPrice>().AddRange(price);
@@ -240,6 +261,12 @@ namespace DiamondShop.Test.Integration.Data
         public static async Task<DiamondPrice> SeedDefaultDiamondPrice(DiamondShopDbContext _context, DiamondShapeId shapeId, DiamondCriteriaId criteriaId, bool isLab)
         {
             var price = DefaultDiamondPrice(shapeId, criteriaId, isLab);
+            await SeedingPrice(_context, price);
+            return price;
+        }
+        public static async Task<DiamondPrice> SeedSideDiamondPrice(DiamondShopDbContext _context, DiamondCriteriaId criteriaId)
+        {
+            var price = DefaultSideDiamondPrice(criteriaId);
             await SeedingPrice(_context, price);
             return price;
         }

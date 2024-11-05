@@ -21,8 +21,8 @@ namespace DiamondShop.Domain.Models.CustomizeRequests
     {
         public AccountId AccountId { get; set; }
         public Account Account { get; set; }
-        public JewelryId JewelryId { get; set; }
-        public Jewelry Jewelry { get; set; }
+        public JewelryId? JewelryId { get; set; }
+        public Jewelry? Jewelry { get; set; }
         public JewelryModelId JewelryModelId { get; set; }
         public JewelryModel JewelryModel { get; set; }
         public SizeId SizeId { get; set; }

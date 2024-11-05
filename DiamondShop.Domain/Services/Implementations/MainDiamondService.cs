@@ -69,45 +69,50 @@ namespace DiamondShop.Domain.Services.Implementations
                 return Result.Fail(new ConflictError("The quantity of the main diamond differs from what the model requires."));
             var ordered = customizeRequests.OrderBy(p => p.DiamondShapeId == null).ThenBy(p => p.DiamondShape).ToList();
             var flagMatchedDiamonds = MatchingDiamond(ordered, diamondReqs);
-            if (!flagMatchedDiamonds) return Result.Fail(new ConflictError("Diamonds don't meet the model requirement."));
+            if (flagMatchedDiamonds.IsFailed) return Result.Fail(flagMatchedDiamonds.Errors);
             return Result.Ok();
         }
-        private bool MatchingDiamond(List<DiamondRequest> diamonds, List<MainDiamondReq> diamondReqs)
+        private Result MatchingDiamond(List<DiamondRequest> diamonds, List<MainDiamondReq> diamondReqs)
         {
             var diamondShapeCaratHolder = diamonds.Select(p => new CustomizeShapeHolder(p.DiamondShapeId, p.CaratFrom, p.CaratTo)).ToList();
             return Backtracking(diamondShapeCaratHolder, diamondReqs);
         }
-        private bool Backtracking(List<CustomizeShapeHolder> shapes, List<MainDiamondReq> diamondReqs, int index = 0)
+        private Result Backtracking(List<CustomizeShapeHolder> shapes, List<MainDiamondReq> diamondReqs, int index = 0)
         {
-            if (index == shapes.Count) return true;
+            if (index == shapes.Count) return Result.Ok();
             var shape = shapes[index];
             foreach (var req in diamondReqs)
             {
                 if (req.Quantity > 0)
                 {
-                    var matchedShape = req.Shapes.FirstOrDefault(p => {
+                    var matchedShape = req.Shapes.FirstOrDefault(p =>
+                    {
                         if (shape.ShapeId == null)
                             return true;
-                        return p.ShapeId == shape.ShapeId; 
+                        return p.ShapeId == shape.ShapeId;
                     });
                     if (matchedShape != null)
                     {
-                        if (matchedShape.CaratFrom >= shape.CaratFrom && matchedShape.CaratTo <= shape.CaratTo)
+                        if (shape.CaratFrom >= matchedShape.CaratFrom && shape.CaratTo <= matchedShape.CaratTo)
                         {
                             req.Quantity--;
                             //Sending a new list of main diamond request with the current removed so that nullable diamondShape will always get a non conflicting one
                             var newList = diamondReqs.ToList();
                             newList.Remove(req);
-                            if (Backtracking(shapes, newList, ++index))
+                            if (Backtracking(shapes, newList, ++index).IsSuccess)
                             {
-                                return true;
+                                return Result.Ok();
                             }
                             req.Quantity++;
                         }
+                        else
+                            return Result.Fail($"Unmatching range of carat for item number #{index}");
                     }
+                    else
+                        return Result.Fail($"No matching shape for item number #{index}");
                 }
             }
-            return false;
+            return Result.Fail($"Diamond list doesn't match criteria");
         }
     }
 }

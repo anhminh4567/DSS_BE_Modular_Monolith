@@ -13,8 +13,8 @@ using MediatR;
 
 namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendRequest
 {
-    public record SendCustomizeRequestCommand(string AccountId, CustomizeModelRequest ModelRequest) : IRequest<Result<CustomizeRequest>>;
-    internal class SendCustomizeRequestCommandHandler : IRequestHandler<SendCustomizeRequestCommand, Result<CustomizeRequest>>
+    public record CreateCustomizeRequestCommand(string AccountId, CustomizeModelRequest ModelRequest) : IRequest<Result<CustomizeRequest>>;
+    internal class CreateCustomizeRequestCommandHandler : IRequestHandler<CreateCustomizeRequestCommand, Result<CustomizeRequest>>
     {
         private readonly ICustomizeRequestRepository _customizeRequestRepository;
         private readonly IDiamondRequestRepository _diamondRequestRepository;
@@ -26,7 +26,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendReques
         private readonly IMainDiamondService _mainDiamondService;
         private readonly IAuthenticationService _authenticationService;
 
-        public SendCustomizeRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, IAuthenticationService authenticationService, ISideDiamondRepository sideDiamondRepository, ISizeMetalRepository sizeMetalRepository, IMainDiamondService mainDiamondService, IDiamondRequestRepository diamondRequestRepository, IMainDiamondRepository mainDiamondRepository)
+        public CreateCustomizeRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, IAuthenticationService authenticationService, ISideDiamondRepository sideDiamondRepository, ISizeMetalRepository sizeMetalRepository, IMainDiamondService mainDiamondService, IDiamondRequestRepository diamondRequestRepository, IMainDiamondRepository mainDiamondRepository, IDiamondServices diamondServices)
         {
             _customizeRequestRepository = customizeRequestRepository;
             _unitOfWork = unitOfWork;
@@ -36,9 +36,10 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendReques
             _mainDiamondService = mainDiamondService;
             _diamondRequestRepository = diamondRequestRepository;
             _mainDiamondRepository = mainDiamondRepository;
+            _diamondServices = diamondServices;
         }
 
-        public async Task<Result<CustomizeRequest>> Handle(SendCustomizeRequestCommand request, CancellationToken token)
+        public async Task<Result<CustomizeRequest>> Handle(CreateCustomizeRequestCommand request, CancellationToken token)
         {
             request.Deconstruct(out string accountId, out CustomizeModelRequest modelRequest);
             modelRequest.Deconstruct(out string jewelryModelId, out string metalId, out string sizeId, out string? sideDiamondOptId, out string? engravedText, out string? engravedFont, out string? note, out List<CustomizeDiamondRequest>? diamondRequests);
@@ -51,7 +52,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendReques
             p.SizeId == SizeId.Parse(sizeId) &&
             p.MetalId == MetalId.Parse(metalId));
             var modelOpt = modelQuery.FirstOrDefault();
-            if (modelOpt != null)
+            if (modelOpt == null)
                 return Result.Fail("The model with this size and metal doesn't exist");
             //Check if model allow engraving text
             if (!string.IsNullOrEmpty(engravedText) && modelOpt.Model.IsEngravable)

@@ -1,6 +1,5 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Infrastructure.Databases;
-using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +22,7 @@ namespace DiamondShop.Test.Integration
             _sender = _scope.ServiceProvider.GetRequiredService<ISender>();
             _authentication = _scope.ServiceProvider.GetRequiredService<IAuthenticationService>();
             _context = _scope.ServiceProvider.GetRequiredService<DiamondShopDbContext>();
+            _context.Database.EnsureDeleted();
             _context.Database.EnsureCreated();
         }
         protected static List<T> GetTestData<T>(string folder, string file) where T : class

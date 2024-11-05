@@ -31,7 +31,7 @@ namespace DiamondShop.Test.Integration
             var model = await TestData.SeedDefaultRingModel(_context);
             var diamond = await TestData.SeedDefaultDiamond(_context);
 
-            var jewelryReq = new JewelryRequestDto(model.Id.Value, TestData.SizeIds[0].Value, TestData.MetalIds[0].Value, "Default_Ring_1", Domain.Common.Enums.ProductStatus.Active);
+            var jewelryReq = new JewelryRequestDto(model.Id.Value, TestData.SizeIds[0].Value, TestData.MetalIds[0].Value, Domain.Common.Enums.ProductStatus.Active);
             var attachedDiamonds = new List<string>() { diamond.Id.Value };
             var command = new CreateJewelryCommand(jewelryReq, model.SideDiamonds.FirstOrDefault().Id.Value, attachedDiamonds);
             var result = await _sender.Send(command);
@@ -48,7 +48,7 @@ namespace DiamondShop.Test.Integration
             var model = await TestData.SeedMultiMainDiamondRingModel(_context);
             var diamonds = await TestData.SeedDefaultDiamonds(_context, 3, "1");
 
-            var jewelryReq = new JewelryRequestDto(model.Id.Value, TestData.SizeIds[0].Value, TestData.MetalIds[0].Value, "MultiMain_Ring_1", Domain.Common.Enums.ProductStatus.Active);
+            var jewelryReq = new JewelryRequestDto(model.Id.Value, TestData.SizeIds[0].Value, TestData.MetalIds[0].Value, Domain.Common.Enums.ProductStatus.Active);
             var attachedDiamonds = diamonds.Select(p => p.Id.Value).ToList();
             var command = new CreateJewelryCommand(jewelryReq, model.SideDiamonds.FirstOrDefault().Id.Value, attachedDiamonds);
             var result = await _sender.Send(command);
@@ -64,7 +64,7 @@ namespace DiamondShop.Test.Integration
         {
             var model = await TestData.SeedNoDiamondRingModel(_context);
 
-            var jewelryReq = new JewelryRequestDto(model.Id.Value, TestData.SizeIds[0].Value, TestData.MetalIds[0].Value, "NoDiamond_Ring_1", Domain.Common.Enums.ProductStatus.Active);
+            var jewelryReq = new JewelryRequestDto(model.Id.Value, TestData.SizeIds[0].Value, TestData.MetalIds[0].Value, Domain.Common.Enums.ProductStatus.Active);
             var command = new CreateJewelryCommand(jewelryReq, null, null);
             var result = await _sender.Send(command);
             if (result.IsFailed)
@@ -80,7 +80,7 @@ namespace DiamondShop.Test.Integration
             var model = await TestData.SeedDefaultNecklaceModel(_context);
             var diamond = await TestData.SeedDefaultDiamond(_context);
 
-            var jewelryReq = new JewelryRequestDto(model.Id.Value, TestData.SizeIds[0].Value, TestData.MetalIds[0].Value, "Default_Ring_1", Domain.Common.Enums.ProductStatus.Active);
+            var jewelryReq = new JewelryRequestDto(model.Id.Value, TestData.SizeIds[0].Value, TestData.MetalIds[0].Value, Domain.Common.Enums.ProductStatus.Active);
             var attachedDiamonds = new List<string>() { diamond.Id.Value };
             var command = new CreateJewelryCommand(jewelryReq, model.SideDiamonds.FirstOrDefault().Id.Value, attachedDiamonds);
             var result = await _sender.Send(command);
@@ -97,7 +97,7 @@ namespace DiamondShop.Test.Integration
             var model = await TestData.SeedMultiMainDiamondRingModel(_context);
             var diamonds = await TestData.SeedDefaultDiamonds(_context, 2, "1");
 
-            var jewelryReq = new JewelryRequestDto(model.Id.Value, TestData.SizeIds[0].Value, TestData.MetalIds[0].Value, "MultiMain_Ring_1", Domain.Common.Enums.ProductStatus.Active);
+            var jewelryReq = new JewelryRequestDto(model.Id.Value, TestData.SizeIds[0].Value, TestData.MetalIds[0].Value, Domain.Common.Enums.ProductStatus.Active);
             var attachedDiamonds = diamonds.Select(p => p.Id.Value).ToList();
             var command = new CreateJewelryCommand(jewelryReq, model.SideDiamonds.FirstOrDefault().Id.Value, attachedDiamonds);
             var result = await _sender.Send(command);
@@ -114,7 +114,7 @@ namespace DiamondShop.Test.Integration
             var model = await TestData.SeedMultiMainDiamondRingModel(_context);
             var diamonds = await TestData.SeedDefaultDiamonds(_context, 3, "4");
 
-            var jewelryReq = new JewelryRequestDto(model.Id.Value, TestData.SizeIds[0].Value, TestData.MetalIds[0].Value, "MultiMain_Ring_1", Domain.Common.Enums.ProductStatus.Active);
+            var jewelryReq = new JewelryRequestDto(model.Id.Value, TestData.SizeIds[0].Value, TestData.MetalIds[0].Value, Domain.Common.Enums.ProductStatus.Active);
             var attachedDiamonds = diamonds.Select(p => p.Id.Value).ToList();
             var command = new CreateJewelryCommand(jewelryReq, model.SideDiamonds.FirstOrDefault().Id.Value, attachedDiamonds);
             var result = await _sender.Send(command);
