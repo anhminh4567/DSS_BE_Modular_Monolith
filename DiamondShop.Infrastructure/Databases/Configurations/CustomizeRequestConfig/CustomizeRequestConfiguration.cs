@@ -32,7 +32,8 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.CustomizeRequestCo
             builder.Property(o => o.JewelryId)
             .HasConversion(
                 Id => Id.Value,
-                dbValue => JewelryId.Parse(dbValue));
+                dbValue => JewelryId.Parse(dbValue))
+            .IsRequired(false);
             builder.Property(o => o.JewelryModelId)
                 .HasConversion(
                     o => o.Value,

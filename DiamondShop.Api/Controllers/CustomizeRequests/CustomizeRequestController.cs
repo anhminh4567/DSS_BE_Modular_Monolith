@@ -75,7 +75,7 @@ namespace DiamondShop.Api.Controllers.CustomRequest
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
             {
-                var result = await _sender.Send(new SendCustomizeRequestCommand(userId.Value, customizeModelRequest));
+                var result = await _sender.Send(new CreateCustomizeRequestCommand(userId.Value, customizeModelRequest));
                 if (result.IsSuccess)
                 {
                     var mappedResult = _mapper.Map<CustomizeRequestDto>(result.Value);

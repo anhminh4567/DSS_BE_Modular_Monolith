@@ -54,7 +54,7 @@ namespace DiamondShop.Test.Integration
                 new OrderItemRequestDto(null, diamond2.Id.Value, null, null, "Default_Diamond_Warranty", WarrantyType.Diamond)
             };
             var address = String.Join(" ", ["HCM", "Thu Duc", "Tam Binh", "abc street"]);
-            var orderDetail = new CreateOrderInfo(paymentType, "zalopay", "", address, itemReqs);
+            var orderDetail = new CreateOrderInfo(paymentType, "zalopay", null, null, address, itemReqs);
             var createCommand = new CreateOrderCommand(account.Id.Value, orderDetail);
             var createResult = await _sender.Send(createCommand);
             if (createResult.IsFailed)

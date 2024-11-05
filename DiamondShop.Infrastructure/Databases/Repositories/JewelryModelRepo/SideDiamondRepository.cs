@@ -22,7 +22,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
         public override async Task<SideDiamondOpt?> GetById(params object[] ids)
         {
             var id = (SideDiamondOptId)ids[0];
-            return await _set.FirstOrDefaultAsync(p => p.Id == id);
+            return await _set.Include(p => p.Shape).FirstOrDefaultAsync(p => p.Id == id);
         }
         public async Task<List<SideDiamondOpt>?> GetSideDiamondOption(List<SideDiamondOptId> sideDiamondOptId)
         {
