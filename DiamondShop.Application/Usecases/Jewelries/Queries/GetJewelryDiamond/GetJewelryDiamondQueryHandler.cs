@@ -43,7 +43,8 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond
         public async Task<Result<PagingResponseDto<Jewelry>>> Handle(GetJewelryDiamondQuery request, CancellationToken cancellationToken)
         {
             request.Deconstruct(out int currentPage, out int pageSize, out string modelId, out string metalId, out string sizeId, out string? sideDiamondOptId, out decimal? minPrice, out decimal? maxPrice);
-            pageSize = pageSize == 0 ? JewelryRule.MinimumItemPerPaging : 1;
+            pageSize = pageSize == 0 ? JewelryRule.MinimumItemPerPaging : pageSize;
+            currentPage = currentPage == 0 ? 1 : currentPage;
             var model = await _jewelryModelRepository.GetSellingModelDetail(JewelryModelId.Parse(modelId), MetalId.Parse(metalId), SizeId.Parse(sizeId));
             if (model == null)
                 return Result.Fail("Can't get the requested model");
