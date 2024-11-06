@@ -8,6 +8,7 @@ using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Staff;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendRequest;
 using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetAll;
+using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetDetail;
 using DiamondShop.Domain.Models.RoleAggregate;
 using MapsterMapper;
 using MediatR;
@@ -36,6 +37,17 @@ namespace DiamondShop.Api.Controllers.CustomRequest
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<PagingResponseDto<CustomizeRequestDto>>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpGet("Staff/Detail")]
+        public async Task<ActionResult> GetDetail([FromQuery] GetDetailCustomizeRequestQuery getDetailCustomizeRequestQuery)
+        {
+            var result = await _sender.Send(getDetailCustomizeRequestQuery);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<CustomizeRequestDto>(result.Value);
                 return Ok(mappedResult);
             }
             return MatchError(result.Errors, ModelState);

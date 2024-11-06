@@ -23,7 +23,12 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
         public override async Task<JewelryModel?> GetById(params object[] ids)
         {
             JewelryModelId id = (JewelryModelId)ids[0];
-            return await _set.Include(p => p.Category).Include(p => p.MainDiamonds).Include(p => p.SideDiamonds).Include(p => p.SizeMetals).ThenInclude(p => p.Metal)
+            var query = _set.AsQueryable();
+            query = query.Include(p => p.Category);
+            query = query.Include(p => p.SideDiamonds);
+            query = query.Include(p => p.MainDiamonds).ThenInclude(p => p.Shapes);
+            query = query.Include(p => p.SizeMetals).ThenInclude(p => p.Metal);
+            return await query
                 .AsSplitQuery()
                 .FirstOrDefaultAsync(s => s.Id == id);
         }

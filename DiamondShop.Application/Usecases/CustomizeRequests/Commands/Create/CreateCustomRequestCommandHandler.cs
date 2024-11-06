@@ -56,7 +56,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendReques
             if (modelOpt == null)
                 return Result.Fail("The model with this size and metal doesn't exist");
             //Check if model allow engraving text
-            if (!string.IsNullOrEmpty(engravedText) && modelOpt.Model.IsEngravable)
+            if (!string.IsNullOrEmpty(engravedText) && !modelOpt.Model.IsEngravable)
                 return Result.Fail("This model doesn't allow engraving text");
             var sideDiamondOpts = await _sideDiamondRepository.GetByModelId(modelOpt.ModelId);
             SideDiamondOpt? sideDiamondOpt = null;
