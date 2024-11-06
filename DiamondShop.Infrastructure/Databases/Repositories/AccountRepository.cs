@@ -1,5 +1,7 @@
 ﻿using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.AccountRoleAggregate.ValueObjects;
+using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -27,6 +29,19 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             AccountId accountId = (AccountId)ids[0];
             var find = await _set.Include(c => c.Roles).Include(c => c.Addresses).FirstOrDefaultAsync(c => c.Id == accountId);
             return find;
+        }
+
+        public Task<List<Account>> GetByRoles(List<AccountRole> roles, CancellationToken cancellationToken = default)
+        {
+            List<Account> result = new();
+            var ids = roles.Select(x => x.Id).ToList();
+            var roleQuery = _dbContext.AccountRoles.AsQueryable()
+                .Where(x => ids.Contains(x.Id))
+                .Include(x => x.Accounts)
+                .SelectMany(x => x.Accounts)
+                    .Include(x => x.Roles)
+                .AsSplitQuery();
+            return roleQuery.ToListAsync();
         }
     }
 }

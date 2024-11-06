@@ -8,6 +8,7 @@ using DiamondShop.Application.Usecases.Diamonds.Queries.GetAllAdmin;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetAllAttributes;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetDiamondPricesComparisons;
+using DiamondShop.Application.Usecases.Diamonds.Queries.GetFilters;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetLockItemsForUser;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging;
 using DiamondShop.Domain.Models.Diamonds;
@@ -32,6 +33,13 @@ namespace DiamondShop.Api.Controllers.Diamonds
         {
             _sender = sender;
             _mapper = mapper;
+        }
+        [HttpGet("FilterLimit")]
+        [Produces(typeof(Dictionary<string, Dictionary<string, int>>))]
+        public async Task<ActionResult> GetFilterLimit()
+        {
+            var result = await _sender.Send(new GetDiamondFiltersLimitQuery());
+            return Ok(result);
         }
         [HttpGet("AttributesValues")]
         [Produces(typeof(Dictionary<string, Dictionary<string, int>>))]

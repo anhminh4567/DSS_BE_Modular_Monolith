@@ -1,5 +1,7 @@
-﻿using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+﻿using DiamondShop.Domain.Models.AccountAggregate;
+using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +23,12 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
         public override Task<Order?> GetById(params object[] ids)
         {
             return _set.Include(o => o.Transactions).Include(x => x.Items).FirstOrDefaultAsync(o => o.Id == (OrderId)ids[0]);
+        }
+
+        public Task<Order?> GetDelivererCurrentlyHandledOrder(Account delivererAccount, CancellationToken cancellationToken = default)
+        {
+            return _set.FirstOrDefaultAsync(x => (x.Status == OrderStatus.Delivering || x.Status == OrderStatus.Prepared) 
+            &&x.DelivererId != null && x.DelivererId == delivererAccount.Id);
         }
 
         public IQueryable<Order> GetDetailQuery(IQueryable<Order> query, bool isIncludeJewelry = true, bool isIncludeDiamond = true)
