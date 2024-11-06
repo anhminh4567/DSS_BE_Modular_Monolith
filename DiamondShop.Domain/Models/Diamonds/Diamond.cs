@@ -155,7 +155,7 @@ namespace DiamondShop.Domain.Models.Diamonds
             if (TruePrice < 0)
                 throw new Exception();
             else
-                TruePrice = truePrice;
+                TruePrice = priceAfterCarat;
         }
         public void SetLockForUser(Account userAccount , int lockHour)
         {

@@ -91,8 +91,8 @@ namespace DiamondShop.Domain.Services.Implementations
                     decimal correctOffsetPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(price.Price * diamond.PriceOffset);
                     diamond.DiamondPrice = price;
                     // day moi la cach tinh gia dung, sua la roi uncomment
-                    //diamond.SetCorrectPrice( price.Price);
-                    diamond.SetCorrectPrice(correctOffsetPrice);
+                    diamond.SetCorrectPrice( price.Price);
+                    //diamond.SetCorrectPrice(correctOffsetPrice);
                     return price;
                 }
                 continue;
@@ -165,9 +165,9 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 matchPrice = DiamondPrice.CreateUnknownSideDiamondPrice();
             }
-            sideDiamond.DiamondPriceFound = matchPrice;
-            sideDiamond.AveragePrice = matchPrice.Price;
-            //sideDiamond.SetCorrectPrice(sideDiamond.DiamondPriceFound.Price);
+            //sideDiamond.DiamondPriceFound = matchPrice;
+            //sideDiamond.AveragePrice = matchPrice.Price;
+            sideDiamond.SetCorrectPrice(sideDiamond.DiamondPriceFound.Price);
             return sideDiamond.DiamondPriceFound;
         }
         private static bool IsCorrectPrice(Diamond diamond, DiamondPrice price)
