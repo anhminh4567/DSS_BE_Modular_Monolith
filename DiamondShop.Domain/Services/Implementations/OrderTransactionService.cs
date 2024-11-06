@@ -137,10 +137,6 @@ namespace DiamondShop.Domain.Services.Implementations
                 var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id.Value}", refundAmount);
                 order.AddRefund(transac);
             }
-            //Get Gateway refund
-            else
-            {
-            }
         }
         public void AddRefundUserCancel(Order order)
         {
@@ -165,10 +161,6 @@ namespace DiamondShop.Domain.Services.Implementations
                 var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id.Value}", refundAmount);
                 order.AddRefund(transac);
             }
-            //Get Gateway refund
-            else
-            {
-            }
         }
 
         public void AddCODPayment(Order order)
@@ -181,10 +173,7 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 var transac = Transaction.CreateManualPayment(order.Id, $"Manual remaining COD payment for order#{order.Id.Value}", remainAmount, TransactionType.Pay);
                 order.AddTransaction(transac);
-            }
-            else
-            {
-
+                order.PaymentStatus = PaymentStatus.PaidAll;
             }
         }
         public decimal GetRefundUserCancelAfterDelivery(Order order)

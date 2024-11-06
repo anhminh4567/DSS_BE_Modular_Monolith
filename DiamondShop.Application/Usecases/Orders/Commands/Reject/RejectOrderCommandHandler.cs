@@ -1,26 +1,18 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Domain.Models.Diamonds;
-using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Orders;
-using DiamondShop.Domain.Repositories.JewelryRepo;
-using DiamondShop.Domain.Repositories;
-using DiamondShop.Domain.Repositories.OrderRepo;
-using FluentResults;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DiamondShop.Domain.Repositories.TransactionRepo;
-using DiamondShop.Domain.Services.interfaces;
-using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
+using DiamondShop.Domain.Repositories;
+using DiamondShop.Domain.Repositories.JewelryRepo;
+using DiamondShop.Domain.Repositories.OrderRepo;
+using DiamondShop.Domain.Repositories.TransactionRepo;
+using DiamondShop.Domain.Services.interfaces;
+using FluentResults;
+using MediatR;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
 {
-    public record RejectOrderCommand(string orderId, string userId, string reason) : IRequest<Result<Order>>;
+    public record RejectOrderCommand(string OrderId, string UserId, string Reason) : IRequest<Result<Order>>;
     internal class RejectOrderCommandHandler : IRequestHandler<RejectOrderCommand, Result<Order>>
     {
         private readonly IOrderRepository _orderRepository;

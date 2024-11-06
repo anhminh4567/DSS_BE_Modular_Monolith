@@ -15,10 +15,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DiamondShop.Domain.Services.interfaces;
+using DiamondShop.Domain.Services.Implementations;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverFail
 {
-    public record OrderDeliverFailCommand(string orderId, string delivererId) : IRequest<Result<Order>>;
+    public record OrderDeliverFailCommand(string OrderId, string DelivererId) : IRequest<Result<Order>>;
     internal class OrderDeliverFailCommandHandler : IRequestHandler<OrderDeliverFailCommand, Result<Order>>
     {
         private readonly IDiamondRepository _diamondRepository;
@@ -27,7 +28,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverFail
         private readonly IOrderRepository _orderRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderService _orderService;
-
+        private readonly IOrderTransactionService _orderTransactionService;
         public OrderDeliverFailCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IOrderItemRepository orderItemRepository)
         {
             _orderRepository = orderRepository;
@@ -53,6 +54,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverFail
                 order.PaymentStatus = PaymentStatus.Refunding;
                 order.CancelledDate = DateTime.UtcNow;
                 order.CancelledReason = "This order has reached maximum shipping attempt. By our policy, it is automatically cancelled.";
+                _orderTransactionService.AddRefundUserCancel(order);
                 //Return to selling
                 await _orderService.CancelItems(order, _orderRepository, _orderItemRepository, _jewelryRepository, _diamondRepository);
             }

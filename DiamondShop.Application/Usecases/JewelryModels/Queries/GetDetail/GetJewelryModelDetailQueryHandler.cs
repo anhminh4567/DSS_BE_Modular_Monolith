@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetDetail
 {
-    public record GetJewelryModelDetailQuery(string modelId) : IRequest<Result<JewelryModel>>;
+    public record GetJewelryModelDetailQuery(string ModelId) : IRequest<Result<JewelryModel>>;
     internal class GetJewelryModelDetailQueryHandler : IRequestHandler<GetJewelryModelDetailQuery, Result<JewelryModel>>
     {
         private readonly IJewelryModelRepository _jewelryModelRepository;
