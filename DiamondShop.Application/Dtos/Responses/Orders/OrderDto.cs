@@ -30,7 +30,7 @@ namespace DiamondShop.Application.Dtos.Responses.Orders
         public List<OrderLogDto> Logs { get; set; }
         public string? TransactionId { get; set; }
         public TransactionDto? Transaction { get; set; }
-
+        public string OrderCode { get; set; }
         public string? ParentOrderId { get; set; } // for replacement order
         public string? DeliveryPackageId { get; set; }
 

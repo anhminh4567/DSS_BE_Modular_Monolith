@@ -95,6 +95,11 @@ namespace DiamondShop.Api.Controllers.Diamonds
             }
             return MatchError(result.Errors, ModelState);
         }
+        [HttpPut("Excel")]
+        public async Task<ActionResult> UpdateByExcelFile([FromForm] IFormFile excelFile)
+        {
+            return Ok(excelFile.FileName);
+        }
         [HttpDelete]
         public async Task<ActionResult> Delete([FromBody] DeleteManyDiamondPriceCommand deleteManyDiamondPriceCommand)
         {

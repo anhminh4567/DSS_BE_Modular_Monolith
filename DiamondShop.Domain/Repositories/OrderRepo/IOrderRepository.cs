@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+﻿using DiamondShop.Domain.Models.AccountAggregate;
+using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using System;
 using System.Collections.Generic;
@@ -13,5 +14,6 @@ namespace DiamondShop.Domain.Repositories.OrderRepo
         IQueryable<Order> GetDetailQuery(IQueryable<Order> query, bool isIncludeJewelry = true, bool isIncludeDiamond = true);
 
         bool IsRequestCreated(CustomizeRequestId customizeRequestId);
+        Task<Order?> GetDelivererCurrentlyHandledOrder(Account delivererAccount, CancellationToken cancellationToken = default);
     }
 }

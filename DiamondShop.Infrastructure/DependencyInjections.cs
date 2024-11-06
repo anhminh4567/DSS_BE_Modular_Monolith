@@ -190,6 +190,7 @@ namespace DiamondShop.Infrastructure
             services.AddSingleton<ILocationService, LocalLocationService>();
             services.AddScoped<IDiamondFileService, DiamondFileService>();
             services.AddScoped<IExcelService, ExcelSyncfunctionService>();
+            services.AddScoped<IDiamondExcelService,DiamondExcelService>();
             services.AddScoped<IJewelryModelFileService, JewelryModelFileService>();
             services.AddScoped<IApplicationSettingService, ApplicationSettingService>();
             services.AddScoped<IDeliveryFeeServices, DeliveryFeeServices>();

@@ -48,6 +48,21 @@ namespace DiamondShop.Application.Commons.Utilities
             }
             return true;
         }
-
+        public static string? IsExcelFileExtension(string fileExtension)
+        {
+            if (!string.Equals(fileExtension, ".xlsx"))
+            {
+                return "only accept .xlsx file type of excel, sorry";
+            }
+            return null;
+        }
+        public static bool IsExcelContentType(string contentType)
+        {
+            if (!string.Equals(contentType, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

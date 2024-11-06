@@ -10,5 +10,22 @@ namespace DiamondShop.Domain.Models.Diamonds.Enums
     {
         Good = 1, Very_Good = 2 , Excelent = 3
     }
+    public static class CutHelper
+    {
+        public static string GetCutName(Cut cut)
+        {
+            return cut switch
+            {
+                Cut.Good => "Good",
+                Cut.Very_Good => "Very Good",
+                Cut.Excelent => "Excelent",
+                _ => throw new ArgumentOutOfRangeException(nameof(cut), cut, null)
+            };
+        }
+        public static List<Cut> GetCutList() 
+        {
+            return Enum.GetValues(typeof(Cut)).Cast<Cut>().ToList();
+        }
+    }
 
 }
