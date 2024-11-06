@@ -15,8 +15,8 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
     internal class JewelryModelRepository : BaseRepository<JewelryModel>, IJewelryModelRepository
     {
         private readonly IMemoryCache _cache;
-        public JewelryModelRepository(DiamondShopDbContext dbContext, IMemoryCache cache) : base(dbContext) 
-        { 
+        public JewelryModelRepository(DiamondShopDbContext dbContext, IMemoryCache cache) : base(dbContext)
+        {
             _cache = cache;
         }
 
@@ -42,7 +42,15 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
         {
             return await _set.FirstOrDefaultAsync(s => s.Id == id);
         }
-
+        public async Task<JewelryModel?> GetSellingModelDetail(JewelryModelId modelId, MetalId metalId, SizeId sizeId)
+        {
+            var query = _set.AsQueryable();
+            query = query.Include(p => p.Category);
+            query = query.Include(p => p.SizeMetals).ThenInclude(p => p.Metal);
+            query = query.Include(p => p.SizeMetals).ThenInclude(p => p.Size);
+            query = query.Include(p => p.SideDiamonds);
+            return await query.AsSplitQuery().FirstOrDefaultAsync(p => p.Id == modelId);
+        }
         public IQueryable<JewelryModel> GetSellingModelQuery()
         {
             var query = _set.AsQueryable();
@@ -59,7 +67,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
 
         public bool IsExistModelCode(string serialName)
         {
-            return _set.Any(p => p.ModelCode ==  serialName.ToUpper());
+            return _set.Any(p => p.ModelCode == serialName.ToUpper());
         }
 
     }

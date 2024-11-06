@@ -1,9 +1,10 @@
 ﻿using DiamondShop.Application.Commons.Responses;
+using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Application.Dtos.Responses.Jewelries;
 using DiamondShop.Application.Usecases.Jewelries.Commands;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetAll;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetDetail;
-using DiamondShop.Application.Usecases.Jewelries.Queries.GetSelling;
+using DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond;
 using DiamondShop.Domain.Models.RoleAggregate;
 using MapsterMapper;
 using MediatR;
@@ -50,12 +51,12 @@ namespace DiamondShop.Api.Controllers.Jewelries
 
         [HttpGet("Selling")]
         [Produces(type: typeof(PagingResponseDto<JewelryDto>))]
-        public async Task<ActionResult> GetSelling([FromQuery] GetSellingJewelryQuery getJewelryPagingQuery)
+        public async Task<ActionResult> GetSelling([FromQuery] GetJewelryDiamondQuery getJewelryPagingQuery)
         {
             var result = await _sender.Send(getJewelryPagingQuery);
             if (result.IsSuccess)
             {
-                var mappedResult = _mapper.Map<PagingResponseDto<JewelryDto>>(result.Value);
+                var mappedResult = _mapper.Map<PagingResponseDto<JewelryDiamondDto>>(result.Value);
                 return Ok(mappedResult);
             }
             return MatchError(result.Errors, ModelState);

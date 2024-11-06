@@ -9,5 +9,6 @@ namespace DiamondShop.Domain.Services.interfaces
     public interface IJewelryModelService
     {
         Task<Discount?> AssignJewelryModelDiscount(JewelryModel jewelry, List<Discount> discounts);
+        Task AddSettingPrice(JewelryModel jewelry, SizeMetal sizeMetal, SideDiamondOpt? sideDiamondOpt);
     }
 }

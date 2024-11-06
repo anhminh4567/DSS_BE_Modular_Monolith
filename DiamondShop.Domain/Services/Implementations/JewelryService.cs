@@ -149,12 +149,22 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             return mostValuableDiscont;
         }
-        public IQueryable<Jewelry> GetJewelryQueryFromModel(JewelryModelId modelId, MetalId metalId, SizeId sizeId)
+        public IQueryable<Jewelry> GetJewelryQueryFromModel(JewelryModelId modelId, MetalId metalId, SizeId sizeId, SideDiamondOpt? sideDiamondOpt)
         {
             var jewelryQuery = _jewelryRepository.GetQuery();
+            jewelryQuery = _jewelryRepository.QueryInclude(jewelryQuery, p => p.Diamonds);
             jewelryQuery = _jewelryRepository.QueryFilter(jewelryQuery,
                 p => p.Status == Common.Enums.ProductStatus.Active &&
                 p.MetalId == metalId && p.ModelId == modelId && p.SizeId == sizeId
+                );
+            if (sideDiamondOpt != null)
+                jewelryQuery = jewelryQuery.Where(p => p.SideDiamond.Carat == sideDiamondOpt.CaratWeight
+                && p.SideDiamond.ClarityMin == sideDiamondOpt.ClarityMin
+                && p.SideDiamond.ClarityMax == sideDiamondOpt.ClarityMax
+                && p.SideDiamond.ColorMin == sideDiamondOpt.ColorMin
+                && p.SideDiamond.ColorMax == sideDiamondOpt.ColorMax
+                && p.SideDiamond.SettingType == sideDiamondOpt.SettingType
+                && p.SideDiamond.DiamondShapeId == sideDiamondOpt.ShapeId
                 );
             return jewelryQuery;
         }

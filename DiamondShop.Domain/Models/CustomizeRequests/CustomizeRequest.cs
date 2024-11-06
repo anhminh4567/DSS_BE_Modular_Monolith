@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Common;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests.Entities;
@@ -11,7 +12,9 @@ using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,6 +35,8 @@ namespace DiamondShop.Domain.Models.CustomizeRequests
         public string? EngravedText { get; set; }
         public string? EngravedFont { get; set; }
         public string? Note { get; set; }   
+        public DateTime CreatedDate { get; set; }
+        public DateTime ExpiredDate { get; set; }
         public CustomizeRequestStatus Status { get; set; } 
         public List<DiamondRequest> DiamondRequests { get; set; } = new();
         public SideDiamondOptId? SideDiamondId { get; set; }
@@ -50,6 +55,8 @@ namespace DiamondShop.Domain.Models.CustomizeRequests
                 EngravedFont = engravedFont,
                 Note = Note,
                 Status = CustomizeRequestStatus.Pending,
+                CreatedDate = DateTime.UtcNow,
+                ExpiredDate = DateTime.UtcNow.AddDays(CustomizeRequestRule.ExpiredTime)
             };
         }
         public static CustomizeRequest CreateRequesting(AccountId accountId, JewelryModelId jewelryModelId, SizeId sizeId, MetalId metalId, SideDiamondOptId? sideDiamondOptId, string? engravedText, string? engravedFont, string? Note)

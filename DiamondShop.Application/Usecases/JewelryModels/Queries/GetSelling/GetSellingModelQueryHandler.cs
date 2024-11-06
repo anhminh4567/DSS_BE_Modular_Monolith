@@ -69,7 +69,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
             foreach (var model in models)
             {
                 var sideDiamonds = model.SideDiamonds;
-                foreach(var side in sideDiamonds)
+                foreach (var side in sideDiamonds)
                 {
                     await _diamondServices.GetSideDiamondPrice(side);
                 }
@@ -94,6 +94,9 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                     });
                 foreach (var sizeMetal in sizeMetals)
                 {
+                    //check if model has product
+                    if (_jewelryRepository.GetSizesInStock(model.Id, sizeMetal.Metal.Id).Count() == 0)
+                        continue;
                     if (sideDiamonds != null && sideDiamonds.Count > 0)
                     {
                         var created_side = sideDiamonds

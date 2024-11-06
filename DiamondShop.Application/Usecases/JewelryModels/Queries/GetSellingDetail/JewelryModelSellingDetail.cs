@@ -17,6 +17,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
         public BackType? BackType { get; set; }
         public ClaspType? ClaspType { get; set; }
         public ChainType? ChainType { get; set; }
+        public bool HasMainDiamond { get; set; }
         public List<SellingDetailMetal> MetalGroups { get; set; } = new();
         public List<MainDiamondReq> MainDiamonds { get; set; } = new();
         public List<Metal> Metals { get; set; } = new();
@@ -40,7 +41,8 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
                 MetalGroups = MetalGroups,
                 SideDiamonds = sideDiamondOpts,
                 Metals = metals,
-                Reviews = reviews
+                Reviews = reviews,
+                HasMainDiamond = model.MainDiamonds.Count > 0,
             };
         }
     }
@@ -84,8 +86,9 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
         public bool IsInStock { get; set; }
         public static SellingDetailSize Create(float sizeValue, decimal Price, bool isInStock)
         {
-            return new SellingDetailSize { 
-                Size = sizeValue, 
+            return new SellingDetailSize
+            {
+                Size = sizeValue,
                 Price = Price,
                 IsInStock = isInStock
             };
