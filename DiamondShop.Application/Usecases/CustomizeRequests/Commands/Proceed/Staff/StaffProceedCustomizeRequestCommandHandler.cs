@@ -25,6 +25,10 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
             if (customizeRequest == null)
                 return Result.Fail("This request doens't exist");
             //if pending - assign diamond
+            if (customizeRequest.ExpiredDate < DateTime.UtcNow)
+            {
+                return Result.Fail("This customize request has already been expired");
+            }
             if (customizeRequest.Status == CustomizeRequestStatus.Pending)
             {
                 var result = await _sender.Send(new ProceedPendingRequestCommand(customizeRequest, diamondAssigning));

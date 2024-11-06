@@ -50,7 +50,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
             if (matchingName) return Result.Fail("This model name has already existed");
             var matchingCode = _jewelryModelRepository.IsExistModelCode(modelSpec.Code);
             if (matchingName) return Result.Fail("This model code has already existed");
-            var newModel = JewelryModel.Create(modelSpec.Name, modelSpec.Code.ToUpper(), category.Id, modelSpec.Width, modelSpec.Length, modelSpec.IsEngravable, modelSpec.IsRhodiumFinish, modelSpec.BackType, modelSpec.ClaspType, modelSpec.ChainType);
+            var newModel = JewelryModel.Create(modelSpec.Name, modelSpec.Code.ToUpper(), category.Id, modelSpec.craftmanFee, modelSpec.Width, modelSpec.Length, modelSpec.IsEngravable, modelSpec.IsRhodiumFinish, modelSpec.BackType, modelSpec.ClaspType, modelSpec.ChainType);
             await _jewelryModelRepository.Create(newModel, token);
 
             var sizeMetals = metalSizeSpecs.Select(p => SizeMetal.Create(newModel.Id, MetalId.Parse(p.MetalId), SizeId.Parse(p.SizeId), p.Weight)).ToList();

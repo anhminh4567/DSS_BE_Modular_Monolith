@@ -28,7 +28,7 @@ namespace DiamondShop.Application.Usecases.Metals.Commands.Update
                 return Result.Fail(new NotFoundError("no metal found"));
             getMetal.Update(request.price);
             await _metalRepository.Update(getMetal);
-            return Result.Ok(getMetal);
+            return getMetal;
         }
     }
 }

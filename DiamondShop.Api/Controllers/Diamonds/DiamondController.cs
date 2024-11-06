@@ -11,14 +11,9 @@ using DiamondShop.Application.Usecases.Diamonds.Queries.GetDiamondPricesComparis
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetFilters;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetLockItemsForUser;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging;
-using DiamondShop.Domain.Models.Diamonds;
 using MapsterMapper;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters;
-using System.Net.Mime;
-using System.Runtime.InteropServices;
 
 namespace DiamondShop.Api.Controllers.Diamonds
 {

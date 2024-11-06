@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Dtos.Responses.Jewelries;
+﻿using DiamondShop.Application.Dtos.Responses.Diamonds;
+using DiamondShop.Application.Dtos.Responses.Jewelries;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.Entities;
 using Mapster;
@@ -18,6 +19,8 @@ namespace DiamondShop.Application.Mappers
             config.NewConfig<JewelryReview, JewelryReviewDto>();
 
             config.NewConfig<JewelrySideDiamond, JewelrySideDiamondDto>();
+
+            config.NewConfig<Jewelry, JewelryDiamondDto>();
         }
     }
 }
