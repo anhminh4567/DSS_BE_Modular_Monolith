@@ -4,6 +4,7 @@
     {
         public bool IsOrderValid { get => MainErrorMessage.Length == 0; }
         public bool IsShippingValid { get; set; }
+        public bool IsPaymentMethodValid { get; set; } = true;
         public int[] InvalidItemIndex { get; set; } = new int[] { };
         public int[] UnavailableItemIndex { get; set; } = new int[] { };
         public string[] MainErrorMessage { get; set; } = new string[] { };

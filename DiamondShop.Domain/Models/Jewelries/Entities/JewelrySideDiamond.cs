@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Common;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
@@ -71,6 +72,12 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
                 ClarityMax = clarityMax,
                 SettingType = settingType,
             };
+        }
+        public void SetCorrectPrice(decimal diamondPriceFromPriceBoard)
+        {
+            var caratCorrectPrice = diamondPriceFromPriceBoard * (decimal)AverageCarat;
+            var price = MoneyVndRoundUpRules.RoundAmountFromDecimal(caratCorrectPrice);
+            AveragePrice = price;
         }
     }
 }

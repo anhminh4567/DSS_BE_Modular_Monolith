@@ -26,6 +26,7 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             _mapper = mapper;
         }
         [HttpGet("{jewelryModelId}/Files")]
+        [Produces(typeof(GalleryTemplateDto))]
         public async Task<ActionResult> GetAllFiles([FromRoute] string jewelryModelId)
         {
             var result = await _sender.Send(new GetAllModelImagesQuery(jewelryModelId));

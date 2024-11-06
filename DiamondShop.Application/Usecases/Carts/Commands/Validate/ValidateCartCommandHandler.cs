@@ -55,7 +55,7 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.Validate
             List<CartProduct> getProducts = await _cartModelService.GetCartProduct(getUserCart);
             var getActiveDiscount = await _discountRepository.GetActiveDiscount();
             var getActivePromotion = await _promotionRepository.GetActivePromotion();
-            Result<CartModel> result = await _cartModelService.ExecuteNormalOrder(getProducts,getActiveDiscount,getActivePromotion , new ShippingPrice());
+            Result<CartModel> result = await _cartModelService.ExecuteNormalOrder(getProducts,getActiveDiscount,getActivePromotion , new ShippingPrice(),null);
             if (result.IsSuccess)
                 return result.Value;
             return Result.Fail(result.Errors);

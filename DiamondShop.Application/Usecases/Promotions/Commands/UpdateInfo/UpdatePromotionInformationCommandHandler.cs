@@ -53,9 +53,23 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.UpdateInfo
 
             if (request.UpdateStartEndDate != null)
             {
-                DateTime startParsed = DateTime.ParseExact(request.UpdateStartEndDate.startDate, DateTimeFormatingRules.DateTimeFormat, null);
-                DateTime endParsed = DateTime.ParseExact(request.UpdateStartEndDate.endDate, DateTimeFormatingRules.DateTimeFormat, null);
-                getPromotion.ChangeActiveDate(startParsed, endParsed);
+                var parsedStartResults = DateTime.TryParseExact(request.UpdateStartEndDate.startDate, DateTimeFormatingRules.DateTimeFormat, null, System.Globalization.DateTimeStyles.None, out DateTime startParsed);
+                var parsedEndResults = DateTime.TryParseExact(request.UpdateStartEndDate.endDate, DateTimeFormatingRules.DateTimeFormat, null, System.Globalization.DateTimeStyles.None, out DateTime endParsed);
+                if(parsedStartResults == true && parsedEndResults == true)
+                    getPromotion.ChangeActiveDate(startParsed, endParsed);
+               
+                else if(parsedStartResults == true && parsedEndResults == false)
+                    getPromotion.ChangeStartDate(startParsed);
+                
+                else if(parsedEndResults == true && parsedStartResults == false)
+                    getPromotion.ChangeEndDate(endParsed);
+                //if (request.UpdateStartEndDate.startDate != null && request.UpdateStartEndDate.endDate != null)
+                //{
+                //    DateTime startParsed = DateTime.ParseExact(request.UpdateStartEndDate.startDate, DateTimeFormatingRules.DateTimeFormat, null);
+                //    DateTime endParsed = DateTime.ParseExact(request.UpdateStartEndDate.endDate, DateTimeFormatingRules.DateTimeFormat, null);
+                //    getPromotion.ChangeActiveDate(startParsed, endParsed);
+                //}
+                
             }
             await _promotionRepository.Update(getPromotion);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
