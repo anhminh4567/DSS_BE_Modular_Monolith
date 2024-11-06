@@ -165,7 +165,7 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 matchPrice = DiamondPrice.CreateUnknownSideDiamondPrice();
             }
-            //sideDiamond.DiamondPriceFound = matchPrice;
+            sideDiamond.DiamondPriceFound = matchPrice;
             //sideDiamond.AveragePrice = matchPrice.Price;
             sideDiamond.SetCorrectPrice(sideDiamond.DiamondPriceFound.Price);
             return sideDiamond.DiamondPriceFound;
