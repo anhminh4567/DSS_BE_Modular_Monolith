@@ -27,7 +27,7 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             var mappedResult = _mapper.Map<List<MetalDto>>(result);
             return Ok(mappedResult);
         }
-        [HttpPut("/UpdatePrice")]
+        [HttpPut("UpdatePrice")]
         [Produces(type: typeof(MetalDto))]
         public async Task<ActionResult> UpdatePrice([FromBody] UpdateMetalCommand updateMetalCommand)
         {
