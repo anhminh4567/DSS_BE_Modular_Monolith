@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll
 {
-    public record GetAllJewelryModelQuery(int page = 0, int take = 20, string? name = "", string? Category = null, bool? IsRhodiumFinished = null, bool? IsEngravable = null) : IRequest<PagingResponseDto<JewelryModel>>;
+    public record GetAllJewelryModelQuery(int CurrentPage = 0, int PageSize = 20, string? Name = "", string? Category = null, bool? IsRhodiumFinished = null, bool? IsEngravable = null) : IRequest<PagingResponseDto<JewelryModel>>;
     internal class GetAllJewelryModelQueryHandler : IRequestHandler<GetAllJewelryModelQuery, PagingResponseDto<JewelryModel>>
     {
         private readonly IJewelryModelCategoryRepository _categoryRepository;
@@ -22,7 +22,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll
         }
         public async Task<PagingResponseDto<JewelryModel>> Handle(GetAllJewelryModelQuery request, CancellationToken token)
         {
-            request.Deconstruct(out int page, out int take, out string? name, out string? categoryName, out bool? isRhodiumFinished, out bool? isEngravable);
+            request.Deconstruct(out int currentPage, out int pageSize, out string? name, out string? categoryName, out bool? isRhodiumFinished, out bool? isEngravable);
             var query = _jewelryModelRepository.GetSellingModelQuery();
             query = _jewelryModelRepository.QueryInclude(query, p => p.SideDiamonds);
             query = _jewelryModelRepository.QueryInclude(query, p => p.MainDiamonds);
@@ -47,9 +47,9 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll
             {
                 query = _jewelryModelRepository.QueryFilter(query, p => p.Name.ToUpper().Contains(name.ToUpper()));
             }
-            int maxPage = (int)Math.Ceiling((decimal)query.Count() / take);
-            var list = query.Skip(page * take).Take(take).ToList();
-            return new PagingResponseDto<JewelryModel>(maxPage, page+1, list);
+            int maxPage = (int)Math.Ceiling((decimal)query.Count() / pageSize);
+            var list = query.Skip(currentPage * pageSize).Take(pageSize).ToList();
+            return new PagingResponseDto<JewelryModel>(maxPage, currentPage+1, list);
         }
         private PagingResponseDto<JewelryModel> BlankPaging() => new PagingResponseDto<JewelryModel>(0, 0, []);
     }

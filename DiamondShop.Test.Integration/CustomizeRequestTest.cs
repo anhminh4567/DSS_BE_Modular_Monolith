@@ -80,7 +80,7 @@ namespace DiamondShop.Test.Integration
             {
                 new(firstShape.ShapeId.Value,Clarity.IF,Color.D,Cut.Good,firstShape.CaratFrom,firstShape.CaratTo,false,Polish.Excellent,Symmetry.Excellent,Girdle.Thin, Culet.Medium),
             };
-            CustomizeModelRequest customizeModelRequest = new(jewelryModel.Id.Value, sizeMetal.MetalId.Value, sizeMetal.SizeId.Value, jewelryModel.SideDiamonds[0].Id.Value, null, null, null, diamondRequests);
+            CustomizeModelRequest customizeModelRequest = new(jewelryModel.Id.Value, sizeMetal.MetalId.Value, sizeMetal.SizeId.Value, jewelryModel.SideDiamonds[0].Id.Value, "engraving", "ASCII", null, diamondRequests);
             var result = await _sender.Send(new CreateCustomizeRequestCommand(accountId.Value, customizeModelRequest));
             if (result.IsFailed)
                 WriteError(result.Errors);
