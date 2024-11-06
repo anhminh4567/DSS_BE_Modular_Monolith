@@ -20,11 +20,11 @@ namespace DiamondShop.Domain.BusinessRules
     {
         public static DiamondRule Default = new DiamondRule();
         public static string Type = typeof(DiamondRule).AssemblyQualifiedName;
-        public static string key = "DiamondRule2";
+        public static string key = "DiamondRule4";
 
         public static string GetDiamondSerialCode(Diamond diamond,DiamondShape shape)
         {
-            var getshapechars = shape.Shape.Substring(0, 2);
+            var getshapechars = shape.Shape.Substring(0, 2).ToUpper();
             var caratString = "C"+diamond.Carat.ToString().Replace(".", "");
             var cut = diamond.Cut == null ? "" : $"CU{( (int)diamond.Cut)}";
             var color = $"CO{(int)diamond.Color}";
@@ -36,10 +36,12 @@ namespace DiamondShop.Domain.BusinessRules
         public decimal MinPriceOffset{ get; set; } = 0.1m;
         public decimal MaxPriceOffset { get; set; } = 1.9m;
         public decimal BiggestSideDiamondCarat { get; set; } = 0.2M;
-        public decimal AverageOffsetVeryGoodCutFromExcelentCut { get; set; } = -0.11M;
-        public decimal AverageOffsetGoodCutFromExcelentCut { get; set; } = -0.15M;
-        public decimal AverageOffsetFancyShapeFromRoundShape { get; set; } = -0.2M;
+        public decimal AverageOffsetVeryGoodCutFromIdealCut { get; set; } = -0.11M;
+        public decimal AverageOffsetGoodCutFromIdealCut { get; set; } = -0.15M;
 
+        public decimal AverageOffsetVeryGoodCutFromIdealCut_FANCY_SHAPE { get; set; } = -0.11M;
+        public decimal AverageOffsetGoodCutFromIdealCut_FANCY_SHAPE { get; set; } = -0.12M;
+        //public decimal AverageOffsetFancyShapeFromRoundShape { get; set; } = -0.2M;
         public decimal PearlOffsetFromFancyShape { get; set; } = -0.2m;
         public decimal PrincessOffsetFromFancyShape { get; set; } = +0.2m;
         public decimal CushionOffsetFromFancyShape { get; set; } = -0.2m;

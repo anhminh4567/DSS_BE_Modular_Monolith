@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
 {
     // cut is not required, might leave it as it be
-    public record GetDiamondPriceBoardQuery(bool isFancyShapePrice, bool isLabDiamond, Cut? Cut = Cut.Excelent) : IRequest<Result<DiamondPriceBoardDto>>;// bool IsSideDiamond = false
+    public record GetDiamondPriceBoardQuery(bool isFancyShapePrice, bool isLabDiamond, bool isSideDiamond) : IRequest<Result<DiamondPriceBoardDto>>;// bool IsSideDiamond = false
     internal class GetDiamondPriceBoardQueryHandler : IRequestHandler<GetDiamondPriceBoardQuery, Result<DiamondPriceBoardDto>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
@@ -54,26 +54,25 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             }
             List<DiamondPrice> prices = new();
             Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>> criteriasByGrouping = new();
-
             DiamondPriceBoardDto priceBoard = DiamondPriceBoardDto.Create();
-            priceBoard.MainCut = request.Cut.Value;
+            priceBoard.MainCut = Cut.Ideal;
             priceBoard.Shape = _mapper.Map<DiamondShapeDto>(priceBoardMainShape);
             priceBoard.IsLabDiamondBoardPrices = request.isLabDiamond;
-            //if (request.IsSideDiamond == false)
-            //{
-            prices = await _diamondPriceRepository.GetPriceByShapes(priceBoardMainShape, request.isLabDiamond, cancellationToken);
-            priceBoard.IsSideDiamondBoardPrices = false;
-            //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableCaratRange( cancellationToken);
-            criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableCriteria(cancellationToken));
-            //}
-            //else
-            //{
-            //    prices = await _diamondPriceRepository.GetSideDiamondPrice(request.isLabDiamond, cancellationToken);
-            //    priceBoard.IsSideDiamondBoardPrices = true;
-            //    priceBoard.Shape = _mapper.Map<DiamondShapeDto>(DiamondShape.ANY_SHAPES); 
-            //    //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCaratRange(cancellationToken);
-            //    criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCriteria(cancellationToken));
-            //}
+            if (request.isSideDiamond == false)
+            {
+                prices = await _diamondPriceRepository.GetPrice(request.isFancyShapePrice, request.isLabDiamond, cancellationToken);
+                priceBoard.IsSideDiamondBoardPrices = false;
+                //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableCaratRange( cancellationToken);
+                criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableCriteria(cancellationToken));
+            }
+            else
+            {
+                prices = await _diamondPriceRepository.GetSideDiamondPrice(request.isFancyShapePrice, request.isLabDiamond, cancellationToken);
+                priceBoard.IsSideDiamondBoardPrices = true;
+                //priceBoard.Shape = _mapper.Map<DiamondShapeDto>(DiamondShape.ANY_SHAPES);
+                //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCaratRange(cancellationToken);
+                criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCriteria(cancellationToken));
+            }
             //criteriasCarat = criteriasCarat.OrderBy(x => x.CaratTo).ToList();
 
 

@@ -13,5 +13,7 @@ namespace DiamondShop.Domain.BusinessRules
         public static string key = "DiamondPriceRules";
         public decimal MinPriceOffsetPercent { get; set; } = 100 - 90;//%
         public decimal MaxPriceOffsetPercent { get; set; } = 100 + 90;//%
+
+
     }
 }

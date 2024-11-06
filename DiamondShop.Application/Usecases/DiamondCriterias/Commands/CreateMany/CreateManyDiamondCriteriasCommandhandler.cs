@@ -28,7 +28,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
         {
             List<DiamondCriteria> mappedItems = new();
             if (request.IsSideDiamondCriteria)
-                mappedItems = request.listCriteria.Select(c => DiamondCriteria.CreateSideDiamondCriteria(c.CaratFrom, c.CaratTo)).ToList();
+                mappedItems = request.listCriteria.Select(c => DiamondCriteria.CreateSideDiamondCriteria(c.CaratFrom, c.CaratTo,c.Clarity.Value,c.Color.Value)).ToList();
             else
                 mappedItems = request.listCriteria.Select(c => DiamondCriteria.Create(c.Cut.Value, c.Clarity.Value, c.Color.Value, c.CaratFrom, c.CaratTo)).ToList();
             await _unitOfWork.BeginTransactionAsync();

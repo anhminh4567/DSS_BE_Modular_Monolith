@@ -28,22 +28,25 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
         //Total CaratWeight
         public float CaratWeight { get; set; }
         public int Quantity { get; set; }
+        public bool IsLabGrown { get; set; }
         [NotMapped]
         public bool IsFancyShape { get => DiamondShape.IsFancyShape(ShapeId); }
+        [NotMapped]
+        public List<DiamondPrice> DiamondPrice { get; set; } = new();
+        [NotMapped]
+        public int TotalPriceMatched { get => DiamondPrice.Count; }
         //[NotMapped]
-        //public List<DiamondPrice> DiamondPrice { get; set; } = new();
-        //[NotMapped]
-        //public int TotalPriceMatched { get; set; } = 0;
+        //public DiamondPrice DiamondPriceFound { get; set; }
         [NotMapped]
-        public DiamondPrice DiamondPriceFound { get; set; }
+        public decimal AveragePricePerCarat { get; set; } = 0;
         [NotMapped]
-        public bool IsPriceKnown { get => Price > 0; }
+        public bool IsPriceKnown { get => TotalPrice > 0; }
         [NotMapped]
-        public decimal Price { get; set; } = 0;
+        public decimal TotalPrice { get => AveragePricePerCarat * Quantity; }
         [NotMapped]
         public float AverageCarat { get => (float)CaratWeight / (float)Quantity; }
         public SideDiamondOpt() { }
-        public static SideDiamondOpt Create(JewelryModelId modelId, DiamondShapeId shapeId, Color colorMin, Color colorMax, Clarity clarityMin, Clarity clarityMax, SettingType settingType, float caratWeight, int quantity, SideDiamondOptId givenId = null)
+        public static SideDiamondOpt Create(JewelryModelId modelId, DiamondShapeId shapeId, Color colorMin, Color colorMax, Clarity clarityMin, Clarity clarityMax, SettingType settingType, float caratWeight, int quantity, bool isLabDiamond, SideDiamondOptId givenId = null)
         {
             return new SideDiamondOpt()
             {
@@ -53,6 +56,7 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
                 ColorMin = colorMin,
                 ColorMax = colorMax,
                 ClarityMin = clarityMin,
+                IsLabGrown = isLabDiamond,
                 ClarityMax = clarityMax,
                 SettingType = settingType,
                 CaratWeight = caratWeight,

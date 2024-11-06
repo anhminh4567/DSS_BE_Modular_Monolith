@@ -87,8 +87,13 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromo
             });
             foreach (var item in response.Promotions)
             {
-                if (successfulPromotions.Any(x => x.PromoId == item.PromoId))
+                var founded = successfulPromotions.FirstOrDefault(x => x.PromoId == item.PromoId);
+                if (founded != null)
+                {
                     item.IsApplicable = true;
+                    item.AmountSaved = founded.AmountSaved;
+                }
+                    
             }
             response.Promotions.OrderByDescending(x => x.AmountSaved).ToList();
             return response;

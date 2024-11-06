@@ -24,8 +24,8 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                 ThumbnailPath = "",
                 StarRating = 0,
                 ReviewCount = 0,
-                MinPrice = craftmanFee + minMetalPrice + sideDiamondOpt.Price,
-                MaxPrice = craftmanFee + maxMetalPrice + sideDiamondOpt.Price,
+                MinPrice = craftmanFee + minMetalPrice + sideDiamondOpt.TotalPrice,
+                MaxPrice = craftmanFee + maxMetalPrice + sideDiamondOpt.TotalPrice,
                 JewelryModelId = modelId,
                 MetalId = metalId,
                 SideDiamondOptId = sideDiamondOpt.Id

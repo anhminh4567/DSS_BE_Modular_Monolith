@@ -40,7 +40,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices.Entities
                 IsSideDiamond = false,
             };
         }
-        public static DiamondCriteria CreateSideDiamondCriteria(float fromCarat, float toCarat)//Cut cut, Clarity clarity, Color color,
+        public static DiamondCriteria CreateSideDiamondCriteria(float fromCarat, float toCarat , Clarity clarity, Color color)
         {
             if (fromCarat > toCarat)
             {
@@ -50,8 +50,8 @@ namespace DiamondShop.Domain.Models.DiamondPrices.Entities
             {
                 Id = DiamondCriteriaId.Create(),
                 Cut = null,
-                Clarity = null,
-                Color = null,
+                Clarity = clarity,
+                Color = color,
                 CaratFrom = fromCarat,
                 CaratTo = toCarat,
                 IsLabGrown = null,

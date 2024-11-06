@@ -22,6 +22,8 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
         public DiamondShape? DiamondShape { get; set; }
         public float Carat { get; set; }
         public int Quantity { get; set; }
+        public bool IsLabGrown { get; set; } = true;
+        //public Cut? AverageCut { get; set; }
         public Color ColorMin { get; set; }
         public Color ColorMax { get; set; }
         public Clarity ClarityMin { get; set; }
@@ -29,18 +31,18 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
         public SettingType SettingType { get; set; }
         [NotMapped]
         public bool IsFancyShape { get => DiamondShape.IsFancyShape(DiamondShapeId); }
+        [NotMapped]
+        public List<DiamondPrice> DiamondPrice { get; set; } = new();
+        [NotMapped]
+        public int TotalPriceMatched { get => DiamondPrice.Count; }
         //[NotMapped]
-        //public List<DiamondPrice> DiamondPrice { get; set; } = new();
-        //[NotMapped]
-        //public int TotalPriceMatched{ get; set; } = 0;
+        //public DiamondPrice DiamondPriceFound { get; set; }
         [NotMapped]
-        public DiamondPrice DiamondPriceFound { get; set; }
+        public decimal AveragePricePerCarat { get; set; } = 0;
         [NotMapped]
-        public decimal AveragePrice { get; set; } = 0;
+        public decimal TotalPrice { get => AveragePricePerCarat * Quantity; }
         [NotMapped]
-        public decimal TotalPrice { get => AveragePrice * Quantity; }
-        [NotMapped]
-        public bool IsPriceKnown { get => AveragePrice > 0; }
+        public bool IsPriceKnown { get => AveragePricePerCarat > 0; }
         // price is not just from diamondPrice, must * the amount of diamond to get real price
         // price from diamondPrice is average price per diamond not total price
         [NotMapped]
@@ -58,6 +60,7 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
                 ClarityMax = sideDiamondOpt.ClarityMax,
                 SettingType = sideDiamondOpt.SettingType,
                 DiamondShapeId = sideDiamondOpt.ShapeId,
+                IsLabGrown = sideDiamondOpt.IsLabGrown,
             };
         }
         public static JewelrySideDiamond Create(JewelryId jewelryId, float carat, int quantity, Color colorMin, Color colorMax, Clarity clarityMin, Clarity clarityMax, SettingType settingType)
@@ -73,11 +76,12 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
                 SettingType = settingType,
             };
         }
-        public void SetCorrectPrice(decimal diamondPriceFromPriceBoard)
+        public void SetCorrectPrice()
         {
-            var caratCorrectPrice = diamondPriceFromPriceBoard * (decimal)AverageCarat;
+            var caratCorrectPrice = AveragePricePerCarat * (decimal)Quantity;
             var price = MoneyVndRoundUpRules.RoundAmountFromDecimal(caratCorrectPrice);
-            AveragePrice = price;
+            //TotalPrice = price;
+            //AveragePricePerCarat = price;
         }
     }
 }

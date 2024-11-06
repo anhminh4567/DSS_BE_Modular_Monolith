@@ -24,7 +24,9 @@ namespace DiamondShop.Domain.Models.DiamondPrices
         [NotMapped]
         public string? ForUnknownPrice { get; set; }
 
-        public const bool DEFAULT_SIDE_DIAMOND_IS_LAB = true;
+        [NotMapped]
+        public bool IsFancyShape => ShapeId == DiamondShape.FANCY_SHAPES.Id;
+        //public const bool DEFAULT_SIDE_DIAMOND_IS_LAB = true;
         public static DiamondPrice Create(DiamondShapeId diamondShapeId, DiamondCriteriaId diamondCriteriaId, decimal price, bool isLabPrice)
         {
             if (price <= 0)
@@ -51,7 +53,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices
                 IsSideDiamond = false,
             };
         }
-        public static DiamondPrice CreateUnknownSideDiamondPrice()
+        public static DiamondPrice CreateUnknownSideDiamondPrice(bool isLab)
         {
             //this is not supposed to be in db, just for assigning
             return new DiamondPrice
@@ -60,20 +62,20 @@ namespace DiamondShop.Domain.Models.DiamondPrices
                 CriteriaId = DiamondCriteriaId.Parse("-1"),
                 Price = 0,
                 ForUnknownPrice = "giá kim cương tấm chưa được set rõ",
-                IsLabDiamond = true,// assume all side diamond is lab
-                IsSideDiamond = DEFAULT_SIDE_DIAMOND_IS_LAB,
+                IsLabDiamond = isLab,// assume all side diamond is lab
+                IsSideDiamond = true,
             };
         }
-        public static DiamondPrice CreateSideDiamondPrice( DiamondCriteriaId diamondCriteriaId, decimal price)
+        public static DiamondPrice CreateSideDiamondPrice( DiamondCriteriaId diamondCriteriaId, decimal price,bool isLabDiamond, DiamondShape shape)
         {
             if (price <= 0)
                 throw new Exception();
             return new DiamondPrice
             {
-                ShapeId = DiamondShape.ANY_SHAPES.Id, // shape is not matter
+                ShapeId = shape.Id, 
                 CriteriaId = diamondCriteriaId,
                 Price = price,
-                IsLabDiamond = DEFAULT_SIDE_DIAMOND_IS_LAB,
+                IsLabDiamond = isLabDiamond,
                 IsSideDiamond =true,
             };
         }

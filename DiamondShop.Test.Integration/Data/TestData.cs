@@ -66,9 +66,9 @@ namespace DiamondShop.Test.Integration.Data
         };
         public static List<SideDiamondOpt> DefaultRingSideDiamondOpts(JewelryModelId modelId) => new()
         {
-            SideDiamondOpt.Create(modelId,DiamondShapeId.Parse("1"),Color.K, Color.D, Clarity.VS2, Clarity.IF, SettingType.Prong,0.15f,15,SideDiamondOptId.Parse($"{modelId}_1")),
-            SideDiamondOpt.Create(modelId,DiamondShapeId.Parse("1"),Color.F, Color.D, Clarity.VVS1, Clarity.IF, SettingType.Prong,0.25f,2,SideDiamondOptId.Parse($"{modelId}_2")),
-            SideDiamondOpt.Create(modelId,DiamondShapeId.Parse("1"),Color.D, Color.D, Clarity.IF, Clarity.IF, SettingType.Prong,0.35f,5,SideDiamondOptId.Parse($"{modelId}_3")),
+            SideDiamondOpt.Create(modelId,DiamondShapeId.Parse("1"),Color.K, Color.D, Clarity.VS2, Clarity.IF, SettingType.Prong,0.15f,15,true,SideDiamondOptId.Parse($"{modelId}_1")),
+            SideDiamondOpt.Create(modelId,DiamondShapeId.Parse("1"),Color.F, Color.D, Clarity.VVS1, Clarity.IF, SettingType.Prong,0.25f,2,true,SideDiamondOptId.Parse($"{modelId}_2")),
+            SideDiamondOpt.Create(modelId,DiamondShapeId.Parse("1"),Color.D, Color.D, Clarity.IF, Clarity.IF, SettingType.Prong,0.35f,5,true, SideDiamondOptId.Parse($"{modelId}_3")),
         };
         public static List<SizeMetal> DefaultRingSizeMetal(JewelryModelId modelId) => new()
         {
@@ -210,7 +210,7 @@ namespace DiamondShop.Test.Integration.Data
         public static async Task<Diamond> SeedDefaultDiamond(DiamondShopDbContext _context, JewelryId? jewelryId = null)
         {
             DiamondShape DefaultDiamondShape = DiamondShape.Create("Round", DiamondShapeId.Parse("1"));
-            Diamond_4C DefaultDiamond4C = new Diamond_4C(Cut.Excelent, Color.K, Clarity.FL, 1, false);
+            Diamond_4C DefaultDiamond4C = new Diamond_4C(Cut.Ideal, Color.K, Clarity.FL, 1, false);
             Diamond_Details DefaultDiamondDetail = new Diamond_Details(Polish.Good, Symmetry.Good, Girdle.Medium, Fluorescence.None, Culet.None);
             Diamond_Measurement DefaultDiamondMeasurement = new Diamond_Measurement(1f, 1f, 1f, "1x1");
             Diamond DefaultDiamond = Diamond.Create(DefaultDiamondShape, DefaultDiamond4C, DefaultDiamondDetail, DefaultDiamondMeasurement, 0m);
