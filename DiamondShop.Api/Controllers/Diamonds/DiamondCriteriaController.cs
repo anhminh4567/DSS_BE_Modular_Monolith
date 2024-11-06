@@ -2,6 +2,7 @@
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.Create;
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromRange;
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.Delete;
+using DiamondShop.Application.Usecases.DiamondCriterias.Commands.DeleteRange;
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.UpdateRange;
 using DiamondShop.Application.Usecases.DiamondCriterias.Queries.GetAll;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Create;
@@ -67,6 +68,28 @@ namespace DiamondShop.Api.Controllers.Diamonds
             {
                 var mappedResult = _mapper.Map<DiamondCriteriaDto>(result);
                 return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpDelete("Range/MainDiamond")]
+        [Produces(typeof(DiamondCriteriaDto))]
+        public async Task<ActionResult> DeleteFromRange([FromBody] DeleteCriteriaByRangeCommand command)
+        {
+            var result = await _sender.Send(command with { isSideDiamond = false});
+            if (result.IsSuccess)
+            {
+                return Ok();
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpDelete("Range/SideDiamond")]
+        [Produces(typeof(DiamondCriteriaDto))]
+        public async Task<ActionResult> DeleteFromRangeSideDiamond([FromBody] DeleteCriteriaByRangeCommand command)
+        {
+            var result = await _sender.Send(command with { isSideDiamond = true });
+            if (result.IsSuccess)
+            {
+                return Ok();
             }
             return MatchError(result.Errors, ModelState);
         }
