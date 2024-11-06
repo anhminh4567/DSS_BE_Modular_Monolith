@@ -1,13 +1,9 @@
 ﻿using DiamondShop.Application.Dtos.Requests.JewelryModels;
-using DiamondShop.Application.Dtos.Responses.JewelryModels;
 using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
-using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
-using MapsterMapper;
 using MediatR;
 
 namespace DiamondShop.Application.Usecases.SizeMetals.Commands.Update

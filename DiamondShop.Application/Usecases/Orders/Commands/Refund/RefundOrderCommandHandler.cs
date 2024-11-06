@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Refund
 {
-    public record RefundOrderCommand(string orderId) : IRequest<Result<Order>>;
+    public record RefundOrderCommand(string OrderId) : IRequest<Result<Order>>;
     internal class RefundOrderCommandHandler : IRequestHandler<RefundOrderCommand, Result<Order>>
     {
         private readonly IOrderRepository _orderRepository;

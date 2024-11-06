@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll
 {
-    public record GetAllJewelryModelQuery(int CurrentPage = 0, int PageSize = 20, string? Name = "", string? Code = "", string? Category = null, bool? IsRhodiumFinished = null, bool? IsEngravable = null) : IRequest<PagingResponseDto<JewelryModel>>;
+    public record GetAllJewelryModelQuery(int CurrentPage = 1, int PageSize = 20, string? Name = "", string? Code = "", string? Category = null, bool? IsRhodiumFinished = null, bool? IsEngravable = null) : IRequest<PagingResponseDto<JewelryModel>>;
     internal class GetAllJewelryModelQueryHandler : IRequestHandler<GetAllJewelryModelQuery, PagingResponseDto<JewelryModel>>
     {
         private readonly IJewelryModelCategoryRepository _categoryRepository;
@@ -53,7 +53,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll
             }
             int maxPage = (int)Math.Ceiling((decimal)query.Count() / pageSize);
             var list = query.Skip(currentPage * pageSize).Take(pageSize).ToList();
-            return new PagingResponseDto<JewelryModel>(maxPage, currentPage+1, list);
+            return new PagingResponseDto<JewelryModel>(maxPage, currentPage, list);
         }
         private PagingResponseDto<JewelryModel> BlankPaging() => new PagingResponseDto<JewelryModel>(0, 0, []);
     }
