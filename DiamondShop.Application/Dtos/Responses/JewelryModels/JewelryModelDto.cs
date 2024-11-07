@@ -13,6 +13,7 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         public string Id { get; set; }
         public string Name { get; set; }
         public string ModelCode { get; set; }
+        public decimal CraftmanFee { get; set; }
         public string CategoryId { get; set; }
         public JewelryModelCategoryDto Category { get; set; }
         public float? Width { get; set; }

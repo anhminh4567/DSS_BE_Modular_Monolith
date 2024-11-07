@@ -13,7 +13,7 @@ using MediatR;
 
 namespace DiamondShop.Api.Controllers.Orders.Cancel
 {
-    public record CancelOrderCommand(string OrderId, string AccountId, string reason) : IRequest<Result<Order>>;
+    public record CancelOrderCommand(string OrderId, string AccountId, string Reason) : IRequest<Result<Order>>;
     public record CancelOrderCommandHandler : IRequestHandler<CancelOrderCommand, Result<Order>>
     {
         private readonly IOrderRepository _orderRepository;

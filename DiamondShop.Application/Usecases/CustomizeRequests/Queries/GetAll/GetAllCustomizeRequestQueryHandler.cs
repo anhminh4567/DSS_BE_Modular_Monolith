@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetAll
 {
-    public record GetAllCustomizeRequestQuery(int CurrentPage = 0, int PageSize = 20, string? Email = null, string? CreatedDate = null, string? ExpiredDate = null, CustomizeRequestStatus? Status = null) : IRequest<Result<PagingResponseDto<CustomizeRequest>>>;
+    public record GetAllCustomizeRequestQuery(int CurrentPage, int PageSize, string? Email, string? CreatedDate, string? ExpiredDate, CustomizeRequestStatus? Status) : IRequest<Result<PagingResponseDto<CustomizeRequest>>>;
     internal class GetAllCustomizeRequestQueryHandler : IRequestHandler<GetAllCustomizeRequestQuery, Result<PagingResponseDto<CustomizeRequest>>>
     {
         private readonly ICustomizeRequestRepository _customizeRequestRepository;
@@ -29,6 +29,8 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetAll
         public async Task<Result<PagingResponseDto<CustomizeRequest>>> Handle(GetAllCustomizeRequestQuery request, CancellationToken cancellationToken)
         {
             request.Deconstruct(out int currentPage, out int pageSize, out string? email, out string? createdDate, out string? expiredDate, out CustomizeRequestStatus? status);
+            currentPage = currentPage == 0 ? 1 : currentPage;
+            pageSize = pageSize == 0 ? 20 : pageSize;
             var query = _customizeRequestRepository.GetQuery();
             query = _customizeRequestRepository.QueryInclude(query, p => p.Account);
             query = _customizeRequestRepository.QueryInclude(query, p => p.DiamondRequests);
@@ -48,8 +50,8 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetAll
                 query = _customizeRequestRepository.QueryFilter(query, p => p.Status == status);
             //TODO: Add filter
             int maxPage = (int)Math.Ceiling((decimal)query.Count() / pageSize);
-            var list = query.Skip(currentPage * pageSize).Take(pageSize).ToList();
-            return new PagingResponseDto<CustomizeRequest>(maxPage, currentPage + 1, list);
+            var list = query.Skip((currentPage-1) * pageSize).Take(pageSize).ToList();
+            return new PagingResponseDto<CustomizeRequest>(maxPage, currentPage, list);
         }
     }
 }

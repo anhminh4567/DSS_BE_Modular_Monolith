@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Orders.Queries.GetPaymentLink
 {
-    public record GetOrderPaymentLink(string orderId) : IRequest<Result<PaymentLinkResponse>>;
+    public record GetOrderPaymentLink(string OrderId) : IRequest<Result<PaymentLinkResponse>>;
     internal class GetOrderPaymentLinkHandler : IRequestHandler<GetOrderPaymentLink, Result<PaymentLinkResponse>>
     {
         private readonly IPaymentService _paymentService;
@@ -36,7 +36,8 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetPaymentLink
 
         public async Task<Result<PaymentLinkResponse>> Handle(GetOrderPaymentLink request, CancellationToken cancellationToken)
         {
-            var parsedId = OrderId.Parse(request.orderId);
+            request.Deconstruct(out string orderId);
+            var parsedId = OrderId.Parse(orderId);
             var getOrder = await _orderRepository.GetById(parsedId);
             if(getOrder is null)
             {

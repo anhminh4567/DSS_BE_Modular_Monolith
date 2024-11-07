@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Commons.Responses;
+using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.JewelryModels;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetAll
 {
-    public record GetAllJewelryQuery(int page = 0, int take = 20, string? ModelName = "", string? SerialCode = "", string? MetalId = "", string? SizeId = "", bool? HasSideDiamond = null, ProductStatus? Status = null) : IRequest<PagingResponseDto<Jewelry>>;
+    public record GetAllJewelryQuery(int CurrentPage, int PageSize, string? ModelName, string? SerialCode, string? MetalId, string? SizeId, bool? HasSideDiamond, ProductStatus? Status) : IRequest<PagingResponseDto<Jewelry>>;
     internal class GetAllJewelryQueryHandler : IRequestHandler<GetAllJewelryQuery, PagingResponseDto<Jewelry>>
     {
         private readonly IJewelryRepository _jewelryRepository;
@@ -27,7 +28,9 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetAll
 
         public async Task<PagingResponseDto<Jewelry>> Handle(GetAllJewelryQuery request, CancellationToken cancellationToken)
         {
-            request.Deconstruct(out int page, out int take, out string? modelName, out string? serialCode, out string? metalId, out string? sizeId, out bool? hasSideDiamond, out ProductStatus? status);
+            request.Deconstruct(out int currentPage, out int pageSize, out string? modelName, out string? serialCode, out string? metalId, out string? sizeId, out bool? hasSideDiamond, out ProductStatus? status);
+            pageSize = pageSize == 0 ? JewelryRule.MinimumItemPerPaging : pageSize;
+            currentPage = currentPage == 0 ? 1 : currentPage;
             var query = _jewelryRepository.GetQuery();
             query = _jewelryRepository.QueryInclude(query, p => p.Model);
             query = _jewelryRepository.QueryInclude(query, p => p.Metal);
@@ -49,7 +52,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetAll
             {
                 query = _jewelryRepository.QueryFilter(query, p => p.SizeId == SizeId.Parse(sizeId));
             }
-            if(hasSideDiamond != null)
+            if (hasSideDiamond != null)
             {
                 query = _jewelryRepository.QueryFilter(query, p => p.SideDiamond != null == hasSideDiamond);
             }
@@ -60,9 +63,9 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetAll
             else
                 query = _jewelryRepository.QueryOrderBy(query, p => p.OrderBy(p => p.Status));
             query = _jewelryRepository.QuerySplit(query);
-            int maxPage = (int)Math.Ceiling((decimal)query.Count() / take);
-            var list = query.Skip(page * take).Take(take).ToList();
-            return new PagingResponseDto<Jewelry>(maxPage, page+1, list);
+            int maxPage = (int)Math.Ceiling((decimal)query.Count() / pageSize);
+            var list = query.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+            return new PagingResponseDto<Jewelry>(maxPage, currentPage, list);
         }
     }
 }

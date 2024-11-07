@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Commons.Responses;
+﻿using DiamondShop.Api.Controllers.JewelryModels.UpdateFee;
+using DiamondShop.Application.Commons.Responses;
 using DiamondShop.Application.Dtos.Responses.Jewelries;
 using DiamondShop.Application.Dtos.Responses.JewelryModels;
 using DiamondShop.Application.Usecases.JewelryModels.Commands.Create;
@@ -126,12 +127,23 @@ namespace DiamondShop.Api.Controllers.JewelryModels
         #endregion
         #region Update Component
         [HttpPut("Update/SizeMetal")]
-        public async Task<ActionResult> UpdateSizeMetal([FromForm] UpdateModelSizeMetalCommand updateModelSizeMetalCommand)
+        public async Task<ActionResult> UpdateSizeMetal([FromBody] UpdateModelSizeMetalCommand updateModelSizeMetalCommand)
         {
             var result = await _sender.Send(updateModelSizeMetalCommand);
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<List<SizeMetalDto>>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPut("Update/CraftmanFee")]
+        public async Task<ActionResult> UpdateCraftmanFee([FromBody] UpdateModelFeeCommand updateModelFeeCommand)
+        {
+            var result = await _sender.Send(updateModelFeeCommand);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<JewelryModelDto>(result.Value);
                 return Ok(mappedResult);
             }
             return MatchError(result.Errors, ModelState);
@@ -149,9 +161,9 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             return MatchError(result.Errors, ModelState);
         }
         [HttpDelete("Delete/SideDiamondOption")]
-        public async Task<ActionResult> DeleteSideDiamondOption([FromQuery] DeleteModelSizeMetalCommand deleteModelSizeMetalCommand)
+        public async Task<ActionResult> DeleteSideDiamondOption([FromQuery] DeleteModelSideDiamondCommand deleteModelSideDiamondCommand)
         {
-            var result = await _sender.Send(deleteModelSizeMetalCommand);
+            var result = await _sender.Send(deleteModelSideDiamondCommand);
             if (result.IsSuccess)
             {
                 return Ok("Delete metal options success");
