@@ -20,7 +20,7 @@ namespace DiamondShop.Domain.BusinessRules
     {
         public static DiamondRule Default = new DiamondRule();
         public static string Type = typeof(DiamondRule).AssemblyQualifiedName;
-        public static string key = "DiamondRule";
+        public static string key = "DiamondRule2";
 
         public static string GetDiamondSerialCode(Diamond diamond,DiamondShape shape)
         {
@@ -37,6 +37,7 @@ namespace DiamondShop.Domain.BusinessRules
         public decimal MaxPriceOffset { get; set; } = 1.9m;
         public float BiggestSideDiamondCarat { get; set; } = 0.2f;
         public float SmallestMainDiamondCarat { get; set; } = 0.17f;
+        public int MainDiamondMaxFractionalNumber { get; set; } = 2;
         public decimal AverageOffsetVeryGoodCutFromIdealCut { get; set; } = -0.11M;
         public decimal AverageOffsetGoodCutFromIdealCut { get; set; } = -0.15M;
 
