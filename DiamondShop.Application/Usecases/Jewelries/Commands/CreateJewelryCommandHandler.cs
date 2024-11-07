@@ -2,6 +2,8 @@
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Diamonds.Commands.AttachToJewelry;
 using DiamondShop.Commons;
+using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries;
@@ -14,6 +16,7 @@ using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
+using Microsoft.Extensions.Options;
 
 namespace DiamondShop.Application.Usecases.Jewelries.Commands
 {
@@ -30,23 +33,26 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
         private readonly ISender _sender;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IExcelService _excelService;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public CreateJewelryCommandHandler(IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, ISizeMetalRepository sizeMetalRepository, IDiamondRepository diamondRepository, ISender sender, IUnitOfWork unitOfWork, IJewelryService jewelryService, IMainDiamondService mainDiamondService, IMainDiamondRepository mainDiamondRepository, IExcelService excelService)
+        public CreateJewelryCommandHandler(IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, ISizeMetalRepository sizeMetalRepository, IJewelryService jewelryService, IMainDiamondRepository mainDiamondRepository, IDiamondRepository diamondRepository, IMainDiamondService mainDiamondService, ISender sender, IUnitOfWork unitOfWork, IExcelService excelService, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _jewelryRepository = jewelryRepository;
             _jewelryModelRepository = jewelryModelRepository;
             _sizeMetalRepository = sizeMetalRepository;
+            _jewelryService = jewelryService;
+            _mainDiamondRepository = mainDiamondRepository;
             _diamondRepository = diamondRepository;
+            _mainDiamondService = mainDiamondService;
             _sender = sender;
             _unitOfWork = unitOfWork;
-            _jewelryService = jewelryService;
-            _mainDiamondService = mainDiamondService;
-            _mainDiamondRepository = mainDiamondRepository;
             _excelService = excelService;
+            _optionsMonitor = optionsMonitor;
         }
 
         public async Task<Result<Jewelry>> Handle(CreateJewelryCommand request, CancellationToken token)
         {
+            DiamondRule diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
             request.Deconstruct(out JewelryRequestDto jewelryRequest, out string? sideDiamondOptId, out List<string>? attachedDiamondIds);
             var modelQuery = _jewelryModelRepository.GetQuery();
             modelQuery = _jewelryModelRepository.QueryInclude(modelQuery, p => p.SideDiamonds);
@@ -95,6 +101,9 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
                 var sideDiamond = model.SideDiamonds.FirstOrDefault(p => p.Id == SideDiamondOptId.Parse(sideDiamondOptId));
                 if (sideDiamond == null)
                     return Result.Fail(new ConflictError("This side diamond option doesn't exist"));
+                if (sideDiamond.AverageCarat > diamondRule.BiggestSideDiamondCarat)
+                    return Result.Fail(new ConflictError("The carat of side diamond is too big, the current app rules only allow " + diamondRule.BiggestSideDiamondCarat + " carat(s)"));
+                
                 var jewelrySideDiamond = JewelrySideDiamond.Create(sideDiamond);
                 jewelry.SideDiamond = jewelrySideDiamond;
             }

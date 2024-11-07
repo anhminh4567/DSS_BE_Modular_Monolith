@@ -1,13 +1,28 @@
-﻿using FluentValidation;
+﻿using DiamondShop.Domain.Common;
+using FluentValidation;
+using Microsoft.Extensions.Options;
 
 namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
 {
     public class CreateJewelryModelCommandValidator : AbstractValidator<CreateJewelryModelCommand>
     {
-        public CreateJewelryModelCommandValidator()
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
+        public CreateJewelryModelCommandValidator(IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
+            _optionsMonitor = optionsMonitor;
             RuleForEach(c => c.SideDiamondSpecs)
                 .NotEmpty()
+                .Must((req) => 
+                {
+                    var diamondRules = _optionsMonitor.CurrentValue.DiamondRule;
+                    var maxSideDiamond = diamondRules.BiggestSideDiamondCarat;
+                    var averageCarat  = req.CaratWeight / (float)req.Quantity;
+                    if (averageCarat > (float)maxSideDiamond)
+                    {
+                        return false;
+                    }
+                    return true;
+                })
                 .When(c => c.SideDiamondSpecs != null);
 
             RuleForEach(c => c.MainDiamondSpecs)

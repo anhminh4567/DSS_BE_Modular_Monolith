@@ -82,7 +82,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         [NotMapped]
         public decimal CutOffsetFounded { get; set; }
         public static Diamond Create(DiamondShape shape, Diamond_4C diamond_4C, Diamond_Details diamond_Details,
-           Diamond_Measurement diamond_Measurement,decimal priceOffset) 
+           Diamond_Measurement diamond_Measurement,decimal priceOffset, Certificate certificate = Certificate.GIA) 
         {
             var newdiamond =  new Diamond()
             {
@@ -105,6 +105,7 @@ namespace DiamondShop.Domain.Models.Diamonds
                 PriceOffset = Math.Clamp(priceOffset, DiamondRules.MinPriceOffset, DiamondRules.MaxPriceOffset),
                 SoldPrice = null,
                 DefaultPrice = null,
+                Certificate = certificate,
             };
             newdiamond.SerialCode = DiamondRule.GetDiamondSerialCode(newdiamond,shape);
             return newdiamond;

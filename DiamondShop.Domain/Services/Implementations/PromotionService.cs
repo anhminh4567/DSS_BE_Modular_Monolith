@@ -234,7 +234,12 @@ namespace DiamondShop.Domain.Services.Implementations
                 //UnitType.Free_Gift => throw new Exception("Major error, gift for order have a type of freeGift ??? major error, check back flow "),
                 _ => throw new Exception("Major error, gift for order have not unit type ")
             };
-            cartModel.OrderPrices.OrderAmountSaved += MoneyVndRoundUpRules.RoundAmountFromDecimal(promotionPriceSavedAmount);
+            decimal correctSavedAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(promotionPriceSavedAmount);
+            if(orderPriceNow - correctSavedAmount <= 0)
+            {
+                correctSavedAmount = orderPriceNow;
+            }
+            cartModel.OrderPrices.OrderAmountSaved += correctSavedAmount;//MoneyVndRoundUpRules.RoundAmountFromDecimal(correctSavedAmount);
             //cartModel.OrderPrices.PromotionAmountSaved += MoneyVndRoundUpRules.RoundAmountFromDecimal(promotionPriceSavedAmount);
         }
         /// <summary>
@@ -318,7 +323,10 @@ namespace DiamondShop.Domain.Services.Implementations
                 //UnitType.Free_Gift => product.ReviewPrice.DiscountPrice,
                 _ => throw new Exception("Major error, gift for product have not unit type ")
             };
-            product.ReviewPrice.PromotionAmountSaved = MoneyVndRoundUpRules.RoundAmountFromDecimal(savedAmount);
+            var trueSavedAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(savedAmount); //Math.Clamp(product.ReviewPrice.DiscountPrice - savedAmount,0,decimal.MaxValue);
+            if ((product.ReviewPrice.DiscountPrice - savedAmount) <= 0)
+                trueSavedAmount = product.ReviewPrice.DiscountPrice;
+            product.ReviewPrice.PromotionAmountSaved = MoneyVndRoundUpRules.RoundAmountFromDecimal(trueSavedAmount);
             cartModel.OrderPrices.PromotionAmountSaved += product.ReviewPrice.PromotionAmountSaved;  
         }
         public void SetOrderPrice(CartModel cartModel)
