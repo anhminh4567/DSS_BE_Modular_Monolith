@@ -1,5 +1,7 @@
 ﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common;
 using FluentValidation;
+using Microsoft.Extensions.Options;
 
 namespace DiamondShop.Application.Usecases.Jewelries.Commands
 {

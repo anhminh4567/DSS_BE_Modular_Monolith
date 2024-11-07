@@ -69,7 +69,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendReques
                 await _diamondServices.GetSideDiamondPrice(sideDiamondOpt);
             }
             CustomizeRequest customizedRequest = null;
-            if (sideDiamondOpt != null && sideDiamondOpt.Price == 0)
+            if (sideDiamondOpt != null && sideDiamondOpt.TotalPrice == 0)
                 customizedRequest = CustomizeRequest.CreatePending(AccountId.Parse(accountId), modelOpt.ModelId, modelOpt.SizeId, modelOpt.MetalId, sideDiamondOpt.Id, engravedText, engravedFont, note);
             else
                 customizedRequest = CustomizeRequest.CreateRequesting(AccountId.Parse(accountId), modelOpt.ModelId, modelOpt.SizeId, modelOpt.MetalId, sideDiamondOpt?.Id, engravedText, engravedFont, note);

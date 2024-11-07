@@ -10,7 +10,6 @@ using DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany;
 using DiamondShop.Application.Usecases.DiamondPrices.Queries.GetAllByShape;
 using DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPaging;
 using DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard;
-using DiamondShop.Application.Usecases.DiamondPrices.Queries.GetSidePriceBoard;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -39,15 +38,15 @@ namespace DiamondShop.Api.Controllers.Diamonds
                 return MatchError(result.Errors,ModelState);
             return Ok(result.Value);
         }
-        [HttpGet("PriceBoard/Side")]
-        [Produces(typeof(SideDiamondPriceBoardDto))]
-        public async Task<ActionResult> GetSideDiamondPriceBoard( )
-        {
-            var result = await _sender.Send(new GetSideDiamondPriceBoardQuery());
-            if (result.IsFailed)
-                return MatchError(result.Errors, ModelState);
-            return Ok(result.Value);
-        }
+        //[HttpGet("PriceBoard/Side")]
+        //[Produces(typeof(SideDiamondPriceBoardDto))]
+        //public async Task<ActionResult> GetSideDiamondPriceBoard( )
+        //{
+        //    var result = await _sender.Send(new GetSideDiamondPriceBoardQuery());
+        //    if (result.IsFailed)
+        //        return MatchError(result.Errors, ModelState);
+        //    return Ok(result.Value);
+        //}
         [HttpGet]
         [Produces(typeof(DiamondPriceDto))]
         public async Task<ActionResult> GetPaging([FromQuery] GetDiamondPricePagingQuery command)

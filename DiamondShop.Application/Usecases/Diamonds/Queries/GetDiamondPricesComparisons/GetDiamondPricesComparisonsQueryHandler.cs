@@ -62,18 +62,18 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDiamondPricesComp
                 return Result.Ok(result);
             
             var diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
-            if (DiamondShape.IsFancyShape(getPrice.ShapeId))
-                result.ShapeOffsetFound += diamondRule.AverageOffsetFancyShapeFromRoundShape;
+            //if (DiamondShape.IsFancyShape(getPrice.ShapeId))
+            //    result.ShapeOffsetFound += diamondRule.AverageOffsetFancyShapeFromRoundShape;
             
-            if(fakeDiamond.Cut!= null && fakeDiamond.Cut != Cut.Excelent)
+            if(fakeDiamond.Cut!= null && fakeDiamond.Cut != Cut.Ideal)
             {
                 switch (fakeDiamond.Cut)
                 {
                     case Cut.Very_Good:
-                        result.CutOffsetFound += diamondRule.AverageOffsetVeryGoodCutFromExcelentCut;
+                        result.CutOffsetFound += diamondRule.AverageOffsetVeryGoodCutFromIdealCut;
                         break;
                     case Cut.Good:
-                        result.CutOffsetFound += diamondRule.AverageOffsetGoodCutFromExcelentCut;
+                        result.CutOffsetFound += diamondRule.AverageOffsetGoodCutFromIdealCut;
                         break;
                     default:
                         break;

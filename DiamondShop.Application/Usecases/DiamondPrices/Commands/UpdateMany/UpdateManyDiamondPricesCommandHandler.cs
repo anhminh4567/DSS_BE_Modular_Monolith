@@ -18,8 +18,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
 {
-    public record UpdatedDiamondPrice(string diamondCriteriaId, decimal price); 
-    public record UpdateManyDiamondPricesCommand(List<UpdatedDiamondPrice> updatedDiamondPrices, bool? isFancyShapePrice, bool? isLabDiamond, bool IsSideDiamond) :  IRequest<Result<List<DiamondPrice>>>;
+    public record UpdatedDiamondPrice(string diamondCriteriaId, decimal price);
+    public record UpdateManyDiamondPricesCommand(List<UpdatedDiamondPrice> updatedDiamondPrices, bool isFancyShapePrice, bool isLabDiamond, bool IsSideDiamond) : IRequest<Result<List<DiamondPrice>>>;
     internal class UpdateManyDiamondPricesCommandHandler : IRequestHandler<UpdateManyDiamondPricesCommand, Result<List<DiamondPrice>>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
@@ -47,19 +47,19 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
             //    return Result.Fail("the shape for price can only be Round brilliant or Fancy, which is round and the rest of the shape");
             var getAllShape = await _diamondShapeRepository.GetAllIncludeSpecialShape();
             DiamondShape selectedShape;
-            if (request.IsSideDiamond == false )
-            {
-                if (request.isFancyShapePrice == null)
-                    return Result.Fail("main diamond must have is fancy shape");
-                if (request.isFancyShapePrice.Value)
-                    selectedShape = getAllShape.FirstOrDefault(x => x.Id == DiamondShape.FANCY_SHAPES.Id);
-                else
-                    selectedShape = getAllShape.FirstOrDefault(x => x.Id == DiamondShape.ROUND.Id);
-            }
+            //if (request.IsSideDiamond == false )
+            //{
+            if (request.isFancyShapePrice == null)
+                return Result.Fail("main diamond must have is fancy shape");
+            if (request.isFancyShapePrice)
+                selectedShape = getAllShape.FirstOrDefault(x => x.Id == DiamondShape.FANCY_SHAPES.Id);
             else
-            {
-                selectedShape = getAllShape.FirstOrDefault(x => x.Id == DiamondShape.ANY_SHAPES.Id);
-            }
+                selectedShape = getAllShape.FirstOrDefault(x => x.Id == DiamondShape.ROUND.Id);
+            //}
+            //else
+            //{
+            //selectedShape = getAllShape.FirstOrDefault(x => x.Id == DiamondShape.ANY_SHAPES.Id);
+            //}
 
             List<(DiamondCriteriaId criteriaId, decimal normalizedPrice)> parsedList =
                 request.updatedDiamondPrices
@@ -69,10 +69,10 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
             List<DiamondPrice> getPrices = new();
             bool isFancyShape = DiamondShape.IsFancyShape(selectedShape.Id);
 
-            if(request.IsSideDiamond is false)
+            if (request.IsSideDiamond is false)
                 getPrices = await _diamondPriceRepository.GetPriceIgnoreCache(isFancyShape, request.isLabDiamond, cancellationToken);
             else
-                getPrices = await _diamondPriceRepository.GetSideDiamondPrice(cancellationToken);
+                getPrices = await _diamondPriceRepository.GetSideDiamondPrice(request.isFancyShapePrice,request.isLabDiamond,cancellationToken);
             //if(request.IsSideDiamond is false)
             //    getPrices = await _diamondPriceRepository.GetPriceByShapes(selectedShape,request.islabDiamond,cancellationToken);
             //else

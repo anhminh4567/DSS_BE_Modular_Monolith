@@ -28,7 +28,7 @@ namespace DiamondShop.Application.Usecases.SideDiamonds.Commands.Create
         {
             await _unitOfWork.BeginTransactionAsync(token);
             request.Deconstruct(out string modelId, out SideDiamondRequestDto sideDiamondSpecs);
-            var sideDiamond = SideDiamondOpt.Create(JewelryModelId.Parse(modelId), DiamondShapeId.Parse(sideDiamondSpecs.ShapeId), sideDiamondSpecs.ColorMin, sideDiamondSpecs.ColorMax, sideDiamondSpecs.ClarityMin, sideDiamondSpecs.ClarityMax, sideDiamondSpecs.SettingType, sideDiamondSpecs.CaratWeight, sideDiamondSpecs.Quantity);
+            var sideDiamond = SideDiamondOpt.Create(JewelryModelId.Parse(modelId), DiamondShapeId.Parse(sideDiamondSpecs.ShapeId), sideDiamondSpecs.ColorMin, sideDiamondSpecs.ColorMax, sideDiamondSpecs.ClarityMin, sideDiamondSpecs.ClarityMax, sideDiamondSpecs.SettingType, sideDiamondSpecs.CaratWeight, sideDiamondSpecs.Quantity, sideDiamondSpecs.IsLabDiamond);
             await _sideDiamondRepository.Create(sideDiamond, token);
             await _unitOfWork.SaveChangesAsync(token);
             return sideDiamond;

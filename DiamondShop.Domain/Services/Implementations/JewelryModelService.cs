@@ -58,9 +58,9 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             if (sideDiamondOpt != null)
             {
-                if (sideDiamondOpt?.Price == null)
+                if (sideDiamondOpt?.TotalPrice == null)
                     await _diamondServices.GetSideDiamondPrice(sideDiamondOpt);
-                jewelry.SettingPrice = sizeMetal.Price + jewelry.CraftmanFee + sideDiamondOpt.Price;
+                jewelry.SettingPrice = sizeMetal.Price + jewelry.CraftmanFee + sideDiamondOpt.TotalPrice;
             }
             else
             {

@@ -37,7 +37,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
             //TODO: REplace diamond price with real price getter
             const decimal DiamondPrices = 10m;
             var sideDiamonds = model.SideDiamonds;
-            sideDiamonds.ForEach(d => d.Price = DiamondPrices);
+            //sideDiamonds.ForEach(d => d.TotalPrice = DiamondPrices);
 
             //SizeMetal
             var metalGroup = model.SizeMetals
@@ -50,14 +50,14 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
                 {
                     foreach(var side in sideDiamonds)
                     {
-                        side.Price = DiamondPrices;
+                        //side.TotalPrice = DiamondPrices;
                         var sizesInStock = _jewelryRepository.GetSizesInStock(model.Id, metals.Key.Id, side);
                         await _diamondServices.GetSideDiamondPrice(side);
                         metalGroups.Add(
                             SellingDetailMetal.CreateWithSide(
-                                model.Name, metals.Key, side.Price > 0, side, null,
+                                model.Name, metals.Key, side.TotalPrice > 0, side, null,
                                 metals.Select(k =>
-                                SellingDetailSize.Create(k.Size.Value,side.Price != null ? side.Price + model.CraftmanFee + k.Price : 0, sizesInStock.Contains(k.SizeId))).ToList()
+                                SellingDetailSize.Create(k.Size.Value,side.TotalPrice != null ? side.TotalPrice + model.CraftmanFee + k.Price : 0, sizesInStock.Contains(k.SizeId))).ToList()
                             ));
                     };
                 }

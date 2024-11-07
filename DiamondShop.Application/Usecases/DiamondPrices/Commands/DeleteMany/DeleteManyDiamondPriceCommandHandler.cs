@@ -36,16 +36,16 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.DeleteMany
         {
             var getAllShape = await _diamondShapeRepository.GetAllIncludeSpecialShape();
             DiamondShape selectedShape;
-            if (request.isSideDiamond is false)
-            {
-                selectedShape = request.isFancy
-                ? getAllShape.FirstOrDefault(x => x.Id == DiamondShape.FANCY_SHAPES.Id)
-                 : getAllShape.FirstOrDefault(x => x.Id == DiamondShape.ROUND.Id);
-            }
-            else 
-            {
-                selectedShape = getAllShape.FirstOrDefault(x => x.Id == DiamondShape.ANY_SHAPES.Id);
-            }
+            //if (request.isSideDiamond is false)
+            //{
+            selectedShape = request.isFancy
+            ? getAllShape.FirstOrDefault(x => x.Id == DiamondShape.FANCY_SHAPES.Id)
+             : getAllShape.FirstOrDefault(x => x.Id == DiamondShape.ROUND.Id);
+            //}
+            //else 
+            //{
+            //  selectedShape = getAllShape.FirstOrDefault(x => x.Id == DiamondShape.ANY_SHAPES.Id);
+            //}
 
             var parsedList = request.deleteList.Select(x => new DeleteManyParameter
             (

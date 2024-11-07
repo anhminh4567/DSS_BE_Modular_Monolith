@@ -52,7 +52,7 @@ namespace DiamondShop.Test.Domain
                 CartItem.CreateDiamond(DiamondId.Create(),null),
             };
             var shapesIds = _diamondShapes.Select(s => s.Id).ToList();
-            var discountRequirement = PromoReq.CreateDiamondRequirement("test discount", Operator.Equal_Or_Larger, false, null, 1, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excelent, Color.I, Color.D, _diamondShapes);
+            var discountRequirement = PromoReq.CreateDiamondRequirement("test discount", Operator.Equal_Or_Larger, false, null, 1, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Ideal, Color.I, Color.D, _diamondShapes);
             var discount = Discount.Create("test discount", DateTime.UtcNow, DateTime.UtcNow.AddDays(20),20,"whateveryouwant");
             discountRequirement.DiscountId = discount.Id;
             discount.SetRequirement(discountRequirement);

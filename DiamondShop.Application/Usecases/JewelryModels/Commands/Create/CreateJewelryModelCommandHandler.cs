@@ -74,7 +74,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
             }
             if (sideDiamondSpecs != null)
             {
-                var sideDiamonds = sideDiamondSpecs.Select(p => SideDiamondOpt.Create(newModel.Id, DiamondShapeId.Parse(p.ShapeId), p.ColorMin, p.ColorMax, p.ClarityMin, p.ClarityMax, p.SettingType, p.CaratWeight, p.Quantity)).ToList();
+                var sideDiamonds = sideDiamondSpecs.Select(p => SideDiamondOpt.Create(newModel.Id, DiamondShapeId.Parse(p.ShapeId), p.ColorMin, p.ColorMax, p.ClarityMin, p.ClarityMax, p.SettingType, p.CaratWeight, p.Quantity, p.IsLabDiamond)).ToList();
                 await _sideDiamondRepository.CreateRange(sideDiamonds, token);
                 await _unitOfWork.SaveChangesAsync(token);
             }

@@ -50,7 +50,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
                 if (sideDiamond.ModelId != customizeRequest.JewelryModelId)
                     return Result.Fail("The jewelry model doesn't support this side diamond option");
                 await _diamondServices.GetSideDiamondPrice(sideDiamond);
-                if (sideDiamond.Price == 0)
+                if (sideDiamond.TotalPrice == 0)
                     return Result.Fail("Please update the side diamond price first");
             }
             if (customizeRequest.DiamondRequests.Any())

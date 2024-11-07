@@ -23,7 +23,7 @@ namespace DiamondShop.Application.Dtos.Responses.Promotions
             IsApplicable = isApplicable;
         }
 
-        public decimal AmountSaved { get; set; } = 0;
+        public decimal AmountSaved { get; set; }
         public string PromoId { get; set; }
         public PromotionDto PromotionDto { get; set; }
         public bool IsApplicable { get; set; }

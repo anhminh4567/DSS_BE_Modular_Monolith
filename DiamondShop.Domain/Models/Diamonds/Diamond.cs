@@ -47,6 +47,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         public Girdle Girdle { get; set; }
         public Culet Culet { get; set; }
         public Fluorescence Fluorescence { get; set; }
+        public Certificate Certificate { get; set; } = Certificate.GIA;
         public string Measurement { get; set; }
         public Media? Thumbnail { get; set; }
         public List<Media>? Gallery { get; set; } = new();
@@ -78,8 +79,10 @@ namespace DiamondShop.Domain.Models.Diamonds
         
         [NotMapped]
         public string Title { get => GetTitle(this); }
+        [NotMapped]
+        public decimal CutOffsetFounded { get; set; }
         public static Diamond Create(DiamondShape shape, Diamond_4C diamond_4C, Diamond_Details diamond_Details,
-           Diamond_Measurement diamond_Measurement,decimal priceOffset) 
+           Diamond_Measurement diamond_Measurement,decimal priceOffset, Certificate certificate = Certificate.GIA) 
         {
             var newdiamond =  new Diamond()
             {
@@ -102,6 +105,7 @@ namespace DiamondShop.Domain.Models.Diamonds
                 PriceOffset = Math.Clamp(priceOffset, DiamondRules.MinPriceOffset, DiamondRules.MaxPriceOffset),
                 SoldPrice = null,
                 DefaultPrice = null,
+                Certificate = certificate,
             };
             newdiamond.SerialCode = DiamondRule.GetDiamondSerialCode(newdiamond,shape);
             return newdiamond;
@@ -149,13 +153,51 @@ namespace DiamondShop.Domain.Models.Diamonds
             DefaultPrice = null;
             ProductLock = null;
         }
-        public void SetCorrectPrice(decimal truePrice)
+        public void SetCorrectPrice(decimal truePrice, DiamondRule rulesToSetCutOffSet)
         {
             var priceAfterCarat = MoneyVndRoundUpRules.RoundAmountFromDecimal( truePrice * (decimal)Carat);
+            bool isFancy = DiamondShape.IsFancyShape(DiamondShapeId);
+            decimal getOffsetOfCut = 0;
+            if (isFancy)
+            {
+                switch (Cut)
+                {
+                    case Enums.Cut.Ideal:
+                        getOffsetOfCut = 1;
+                        break;
+                    case Enums.Cut.Very_Good:
+                        getOffsetOfCut = 1 + rulesToSetCutOffSet.AverageOffsetVeryGoodCutFromIdealCut_FANCY_SHAPE;
+                        break;
+                    case Enums.Cut.Good:
+                        getOffsetOfCut = 1 + rulesToSetCutOffSet.AverageOffsetGoodCutFromIdealCut_FANCY_SHAPE;
+                        break;
+                    default:
+                        throw new Exception("Unknown cut");
+                }
+            }
+            else
+            {
+                switch (Cut)
+                {
+                    case Enums.Cut.Ideal:
+                        getOffsetOfCut = 1;
+                        break;
+                    case Enums.Cut.Very_Good:
+                        getOffsetOfCut = 1 + rulesToSetCutOffSet.AverageOffsetVeryGoodCutFromIdealCut;
+                        break;
+                    case Enums.Cut.Good:
+                        getOffsetOfCut = 1 + rulesToSetCutOffSet.AverageOffsetGoodCutFromIdealCut;
+                        break;
+                    default:
+                        throw new Exception("Unknown cut");
+                }
+            }
+            CutOffsetFounded = getOffsetOfCut;
+            var priceAfterCut = MoneyVndRoundUpRules.RoundAmountFromDecimal(priceAfterCarat * getOffsetOfCut);
             if (TruePrice < 0)
                 throw new Exception();
             else
-                TruePrice = priceAfterCarat;
+                TruePrice = priceAfterCut;
         }
         public void SetLockForUser(Account userAccount , int lockHour)
         {

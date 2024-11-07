@@ -17,12 +17,12 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromRange
 {
-    public record CreateCriteriaFromRangeCommand(float caratFrom ,float caratTo, Cut? Cut = Cut.Excelent, bool IsSideDiamond = false) : IRequest<Result<List<DiamondCriteria>>>;
+    public record CreateCriteriaFromRangeCommand(float caratFrom, float caratTo, Cut? Cut = Cut.Ideal, bool IsSideDiamond = false) : IRequest<Result<List<DiamondCriteria>>>;
     internal class CreateCriteriaFromRangeCommandHandler : IRequestHandler<CreateCriteriaFromRangeCommand, Result<List<DiamondCriteria>>>
     {
         private readonly IDiamondCriteriaRepository _diamondCriteriaRepository;
         private readonly ISender _sender;
-        private const Cut DEFAULT_CUT = Cut.Excelent;
+        private const Cut DEFAULT_CUT = Cut.Ideal;
         public CreateCriteriaFromRangeCommandHandler(IDiamondCriteriaRepository diamondCriteriaRepository, ISender sender)
         {
             _diamondCriteriaRepository = diamondCriteriaRepository;
@@ -32,12 +32,12 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
         public async Task<Result<List<DiamondCriteria>>> Handle(CreateCriteriaFromRangeCommand request, CancellationToken cancellationToken)
         {
             List<(float CaratFrom, float CaratTo)> allAvailableCaratRange = new();
-            if(request.IsSideDiamond == false)
+            if (request.IsSideDiamond == false)
                 allAvailableCaratRange = await _diamondCriteriaRepository.GroupAllAvailableCaratRange(cancellationToken);
             else
                 allAvailableCaratRange = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCaratRange(cancellationToken);
             var orderedRange = allAvailableCaratRange.OrderBy(x => x.CaratFrom).ToList();
-            foreach(var range in orderedRange)
+            foreach (var range in orderedRange)
             {
                 if (request.caratFrom < range.CaratTo && request.caratTo > range.CaratFrom)
                 {
@@ -47,11 +47,13 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
             //when all is valid
 
             List<DiamondCriteriaRequestDto> requests = new();
-            if (request.IsSideDiamond == false)
+            //if (request.IsSideDiamond == false)
+            //{
+            foreach (var color in Enum.GetValues(typeof(Color)))
             {
-                foreach (var color in Enum.GetValues(typeof(Color)))
+                foreach (var clarity in Enum.GetValues(typeof(Clarity)))
                 {
-                    foreach (var clarity in Enum.GetValues(typeof(Clarity)))
+                    if (request.IsSideDiamond == false)
                     {
                         requests.Add(new DiamondCriteriaRequestDto()
                         {
@@ -62,20 +64,39 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
                             Cut = DEFAULT_CUT//request.Cut.Value,
                         });
                     }
+                    else
+                    {
+                        requests.Add(new DiamondCriteriaRequestDto()
+                        {
+                            CaratFrom = request.caratFrom,
+                            CaratTo = request.caratTo,
+                            Clarity = (Clarity)clarity,
+                            Color = (Color)color,
+                            Cut = null//request.Cut.Value,
+                        });
+                    }
+                    //requests.Add(new DiamondCriteriaRequestDto()
+                    //{
+                    //    CaratFrom = request.caratFrom,
+                    //    CaratTo = request.caratTo,
+                    //    Clarity = (Clarity)clarity,
+                    //    Color = (Color)color,
+                    //    Cut = DEFAULT_CUT//request.Cut.Value,
+                    //});
                 }
             }
-            else
-            {
-                requests.Add(new DiamondCriteriaRequestDto()
-                {
-                    CaratFrom = request.caratFrom,
-                    CaratTo = request.caratTo,
-                });
-            }
-            
+            //else
+            //{
+            //    requests.Add(new DiamondCriteriaRequestDto()
+            //    {
+            //        CaratFrom = request.caratFrom,
+            //        CaratTo = request.caratTo,
+            //    });
+            //}
             var command = new CreateManyDiamondCriteriasCommand(requests, request.IsSideDiamond);
             var result = await _sender.Send(command, cancellationToken);
             return result;
         }
     }
 }
+
