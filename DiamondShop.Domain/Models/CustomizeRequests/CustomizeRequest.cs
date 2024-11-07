@@ -73,6 +73,8 @@ namespace DiamondShop.Domain.Models.CustomizeRequests
                 EngravedFont = engravedFont,
                 Note = Note,
                 Status = CustomizeRequestStatus.Requesting,
+                CreatedDate = DateTime.UtcNow,
+                ExpiredDate = DateTime.UtcNow.AddDays(CustomizeRequestRule.ExpiredTime)
             };
         }
     }

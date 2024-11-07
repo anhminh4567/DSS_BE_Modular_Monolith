@@ -6,10 +6,20 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.BusinessRules
 {
-    public static class WarrantyRules
+    public class WarrantyRules
     {
-        public static int THREE_MONTHS = 3;
-        public static int ONE_YEAR = 12;
-        public static int FIVE_YEARS = 12 * 5;
+        public static WarrantyRules Default = new WarrantyRules();
+        public static string Type = typeof(WarrantyRules).AssemblyQualifiedName;
+        public static string key = "WarrantyRule";
+
+        public int THREE_MONTHS = 3;
+        public int ONE_YEAR = 12;
+        public int FIVE_YEARS = 12 * 5;
+        public List<string> DEFAULT_CODE = new List<string>()
+        {
+            nameof(THREE_MONTHS),
+            nameof(ONE_YEAR),
+            nameof(FIVE_YEARS),
+        };
     }
 }

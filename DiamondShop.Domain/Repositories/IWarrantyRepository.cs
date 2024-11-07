@@ -9,5 +9,7 @@ namespace DiamondShop.Domain.Repositories
 {
     public interface IWarrantyRepository : IBaseRepository<Warranty>
     {
+        bool IsCodeExist(string code);
+        bool IsNameExist(string name);
     }
 }
