@@ -16,16 +16,17 @@ namespace DiamondShop.Domain.Services.Implementations
     {
         public DeliveryFee? GetDeliveryFeeForDistance(decimal distanceKilometers, List<DeliveryFee> deliveryFeesWithLocation)
         {
-            foreach (var item in deliveryFeesWithLocation)
-            {
-                if (item.IsDistancePriceType is false)
-                    continue;
-                if(item.FromKm <= distanceKilometers && item.ToKm >= distanceKilometers)
-                {
-                    return item;
-                }
-            };
-            return null;
+            throw new NotImplementedException();
+            //foreach (var item in deliveryFeesWithLocation)
+            //{
+            //    if (item.IsDistancePriceType is false)
+            //        continue;
+            //    if(item.FromKm <= distanceKilometers && item.ToKm >= distanceKilometers)
+            //    {
+            //        return item;
+            //    }
+            //};
+            //return null;
         }
 
 
@@ -34,8 +35,8 @@ namespace DiamondShop.Domain.Services.Implementations
             var userCity = userAddress.Province;// null ToLocatoin is ignored, since the list pass here is expected to have all ToLocation values
             var shopCity = shopAddress.Province;
             var correctFee = deliveryFeesWithLocation
-                .Where(x => x.FromLocation != null && x.ToLocation != null)
-                .FirstOrDefault(x => x.ToLocation.ToUpper() == userCity.ToUpper() && x.FromLocation.ToUpper() == shopCity.ToUpper());
+                .Where(x =>  x.ToLocation != null)
+                .FirstOrDefault(x => x.ToLocation.ToUpper() == userCity.ToUpper() );
             return correctFee;
         }
     }

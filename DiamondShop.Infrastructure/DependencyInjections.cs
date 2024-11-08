@@ -12,6 +12,7 @@ using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Repositories.DeliveryRepo;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
+using DiamondShop.Domain.Repositories.LocationRepo;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Repositories.TransactionRepo;
@@ -22,6 +23,7 @@ using DiamondShop.Infrastructure.Databases.Repositories.CustomizeRequestRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.DeliveryRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo;
+using DiamondShop.Infrastructure.Databases.Repositories.LocationRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.OrderRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.TransactionRepo;
@@ -118,6 +120,7 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IWarrantyRepository, WarrantyRepository>();
 
             services.AddScoped<IPaymentService, ZalopayPaymentService>();
+            services.AddScoped<ILocationRepository,LocationRepository>();
 
             services.AddSingleton<ICartService, CartService>();
 

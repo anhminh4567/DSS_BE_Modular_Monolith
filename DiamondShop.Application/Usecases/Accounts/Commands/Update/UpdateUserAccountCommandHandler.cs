@@ -2,9 +2,11 @@
 using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Common.Addresses;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Repositories;
+using DiamondShop.Domain.Repositories.LocationRepo;
 using FluentResults;
 using FluentValidation;
 using MediatR;
@@ -20,19 +22,25 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.Update
         private readonly IAccountRepository _accountRepository;
         private readonly ILogger<UpdateUserAccountCommandHandler> _logger;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
-
-        public UpdateUserAccountCommandHandler(IUnitOfWork unitOfWork, IAccountRepository accountRepository, ILogger<UpdateUserAccountCommandHandler> logger, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
+        private readonly ILocationRepository _locationRepository;
+        private readonly ILocationService _locationService;
+        private List<Province> _provinces;
+        public UpdateUserAccountCommandHandler(IUnitOfWork unitOfWork, IAccountRepository accountRepository, ILogger<UpdateUserAccountCommandHandler> logger, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, ILocationRepository locationRepository, ILocationService locationService)
         {
             _unitOfWork = unitOfWork;
             _accountRepository = accountRepository;
             _logger = logger;
             _optionsMonitor = optionsMonitor;
+            _locationRepository = locationRepository;
+            _locationService = locationService;
+            _provinces = new List<Province>();
         }
 
         public async Task<Result<Account>> Handle(UpdateUserAccountCommand request, CancellationToken cancellationToken)
         {
             var userId = AccountId.Parse(request.userId);
             var getAccount = await _accountRepository.GetById(userId);
+            _provinces = await _locationRepository.GetAllProvince(cancellationToken);
             if (getAccount is null)
                 return Result.Fail(new NotFoundError());
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
@@ -45,6 +53,7 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.Update
                 RemoveAddress(getAccount, request.ChangedAddress);
                 UpdateAddress(getAccount, request.ChangedAddress);
                 AddAddress(getAccount, request.ChangedAddress);
+                ChangeDefaultAddress(getAccount, request.newDefaultAddressId);
             }
             await _accountRepository.Update(getAccount);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -73,7 +82,13 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.Update
                     .ForEach(ad =>
                     {
                         var address = parsedDict[ad.Id];
-                        ad.Update(address.Province, address.District, address.Ward, address.Street);
+                        var foundedProvince = _provinces.FirstOrDefault(x => x.Name.ToUpper() == address.Province.ToUpper());
+                        if(foundedProvince is null)
+                        {
+                            _logger.LogInformation("Cannot found province");
+                            return;
+                        }
+                        ad.Update(int.Parse(foundedProvince.Id), address.Province, address.District, address.Ward, address.Street);
                     });
             }
         }
@@ -91,9 +106,35 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.Update
                 {
                     if (account.Addresses.Count >= getRules.MaxAddress)
                         return;
-                    account.AddAddress(address.Province, address.District, address.Ward, address.Street);
+                    var foundedProvince = _provinces.FirstOrDefault(x => x.Name.ToUpper() == address.Province.ToUpper());
+                    if (foundedProvince is null)
+                    {
+                        _logger.LogInformation("Cannot found province");
+                        continue;
+                    }
+                    account.AddAddress(int.Parse(foundedProvince.Id),address.Province, address.District, address.Ward, address.Street);
                 }
             }
+        }
+        private async void ChangeDefaultAddress(Account account, string? addressId)
+        {
+            if (addressId == null)
+                return;
+            var parsedId = AddressId.Parse(addressId);
+            var getAddress = account.Addresses.FirstOrDefault(x => x.Id == parsedId);
+            if(getAddress is null)
+            {
+                _logger.LogInformation("cannot found user default address");
+                return;
+            }
+            var getUserCurrentDefaultAddressed = account.Addresses.Where(x => x.IsDefault).ToList();
+
+            foreach(var addDefault in getUserCurrentDefaultAddressed)
+            {
+                addDefault.ChangeDefault(false);
+            }
+            getAddress.ChangeDefault(true);
+
         }
     }
 }

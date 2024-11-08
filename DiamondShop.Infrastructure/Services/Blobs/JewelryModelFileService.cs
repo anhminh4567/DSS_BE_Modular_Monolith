@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using DiamondShop.Application.Commons.Models;
+using DiamondShop.Application.Dtos.Responses;
 using DiamondShop.Application.Services.Interfaces.JewelryModels;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
@@ -33,16 +34,15 @@ namespace DiamondShop.Infrastructure.Services.Blobs
         {
             _logger = _loggerSelf;
         }
-
         public Task<List<Media>> GetFolders(JewelryModel jewelryModel, CancellationToken cancellationToken = default)
         {
             var basePath = GetAzureFilePath(jewelryModel);
             return base.GetFolders(basePath, cancellationToken);
         }
 
-        public GalleryTemplate MapPathsToCorrectGallery(JewelryModel jewelryModel, List<Media> paths, CancellationToken cancellationToken = default)
+        public JewelryModelGalleryTemplate MapPathsToCorrectGallery(JewelryModel jewelryModel, List<Media> paths, CancellationToken cancellationToken = default)
         {
-            var gallery = new GalleryTemplate();
+            var gallery = new JewelryModelGalleryTemplate();
             gallery.GalleryFolder = GetAzureFilePath(jewelryModel);
             var basePath = GetAzureFilePath(jewelryModel);
             // init gallery dictionary and set keys 
@@ -58,7 +58,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
                 int lastSlashIndex = tobeComparedPath.LastIndexOf('/');
                 if (lastSlashIndex >= 0)
                 {
-                    var key = tobeComparedPath.Substring(0, lastSlashIndex);
+                    var key = tobeComparedPath.Substring(0, lastSlashIndex).Replace("/" + IMAGES_FOLDER + "/", "");
                     if (!galleries.ContainsKey(key))
                         galleries[key] = new List<Media>();
                     galleries[key].Add(originalMedia);
@@ -76,13 +76,13 @@ namespace DiamondShop.Infrastructure.Services.Blobs
                 else if (tobeComparedPath.StartsWith("/" + BASE_IMAGES_FOLDER))
                 {
                     if (tobeComparedPath.StartsWith("/" + BASE_METAL_IMAGES_FOLDER))
-                        AddToCategory(tobeComparedPath, path);
-
+                        gallery.BaseMetals.Add(path);
+                    
                     else if (tobeComparedPath.StartsWith("/" + BASE_MAIN_DIAMOND_IMAGES_FOLDER))
-                        AddToCategory(tobeComparedPath, path);
+                        gallery.BaseMainDiamonds.Add(path);
 
                     else if (tobeComparedPath.StartsWith("/" + BASE_SIDE_DIAMOND_IMAGES_FOLDER))
-                        AddToCategory(tobeComparedPath, path);
+                        gallery.BaseSideDiamonds.Add(path);
 
                     else
                         gallery.BaseImages.Add(path);
@@ -95,6 +95,8 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             gallery.Gallery = galleries;
             return gallery;
         }
+
+        
 
         public async Task<Result<string>> UploadThumbnail(JewelryModel jewelryModel, FileData thumb, CancellationToken cancellationToken = default)
         {
@@ -124,7 +126,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             return fromBaseString;
         }
 
-        private string GetCategoryIdentifierName(MetalId metalId, SideDiamondOpt sideDiamondOpt)
+        private string GetCategoryIdentifierName(MetalId metalId, SideDiamondOpt? sideDiamondOpt)
         {
             string basePath = $"{metalId.Value}";
             if (sideDiamondOpt != null)
@@ -227,8 +229,8 @@ namespace DiamondShop.Infrastructure.Services.Blobs
                 //var finalPath = $"{basePath}/{file.MainDiamond.MainDiamondReqId.Value}_{file.MainDiamond.ShapeId.Value}";
                 var pathOrderd = file.MainDiamondRequirements.Select(x => x.Id).OrderBy(x => x).ToArray();
                 string path = "";
-                pathOrderd.ForEach(x => path += $"/{x}");
-                path.Remove(0, 1);// remove the / from the first position
+                pathOrderd.ForEach(x => path += $"/{x.Value}");
+                path = path.Remove(0, 1);// remove the / from the first position
                 var finalPath = $"{basePath}/{path}";
                 uploadTasks.Add(UploadFromBasePath(finalPath, new List<FileData> { file.stream }.ToArray(), cancellationToken));
             }

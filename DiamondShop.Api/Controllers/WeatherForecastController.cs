@@ -157,7 +157,7 @@ namespace DiamondShopSystem.Controllers
             return Ok();
         }
         [HttpPost("/ThemTinhThanh")]
-        [ApiExplorerSettings(IgnoreApi = true)]
+        //[ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult> Insert63CityLocation()
         {
             var getCities = _locationService.GetProvinces();
@@ -169,7 +169,7 @@ namespace DiamondShopSystem.Controllers
             foreach (var city in getCities)
             {
                 baseCost += 5000.0m;
-                var comando = new CreateDeliveryFeeCommand(DeliveryFeeType.LocationToCity, city.Name, baseCost, new ToLocationCity(shopCity.Name, city.Name), null);
+                var comando = new CreateDeliveryFeeCommand( city.Name, baseCost, new ToLocationCity( city.Name));
                 commandData.Add(comando);
             }
             var result = await _sender.Send(new CreateManyDeliveryFeeCommand(commandData));

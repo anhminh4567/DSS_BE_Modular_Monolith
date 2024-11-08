@@ -36,8 +36,9 @@ namespace DiamondShop.Domain.Common.Carts
             ShippingPrice = shipping;
 
             //OrderPrices.DefaultPrice += shipping.FinalPrice; 
-
-            OrderPrices.TotalShippingPrice += shipping.FinalPrice;
+            if(shipping.IsValid && shipping.IsLocationActive)
+                OrderPrices.TotalShippingPrice += shipping.FinalPrice;
+            
         }
         public void SetWarrantyTotalPrice()
         {

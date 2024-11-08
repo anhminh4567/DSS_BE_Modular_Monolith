@@ -2,6 +2,7 @@
 using DiamondShop.Domain.Models.DeliveryFees.ValueObjects;
 using DiamondShop.Domain.Repositories.DeliveryRepo;
 using Microsoft.EntityFrameworkCore;
+using OpenQA.Selenium.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +29,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.DeliveryRepo
 
         public Task<List<DeliveryFee>> GetLocationType(CancellationToken cancellationToken = default)
         {
-            return _set.Where(d => d.FromLocation != null && d.ToLocation != null).ToListAsync(cancellationToken);
+            return _set.Where(d => d.ToLocation != null).ToListAsync(cancellationToken);
         }
 
         public Task<List<DeliveryFee>> GetRange(List<DeliveryFeeId> deliveryFeeIds, CancellationToken cancellationToken = default)
@@ -38,7 +39,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.DeliveryRepo
 
         public Task<DeliveryFee?> GetWithDistance(decimal distant, CancellationToken cancellationToken = default)
         {
-            return _set.Where(d => d.FromKm <= distant && d.ToKm >= distant).FirstOrDefaultAsync(cancellationToken);
+            return null;//_set.Where(d => d.FromKm <= distant && d.ToKm >= distant).FirstOrDefaultAsync(cancellationToken);
         }
     }
 }

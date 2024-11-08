@@ -12,6 +12,25 @@ namespace DiamondShop.Application.Commons.Validators
 {
     public static class CustomValidatorExtension
     {
+        public static IRuleBuilderOptions<T, decimal> ValidNumberFraction<T>(this IRuleBuilder<T, decimal> ruleBuilder)
+        {
+            return ruleBuilder.ValidNumberFractionBase(2);
+        }
+        public static IRuleBuilderOptions<T, decimal> ValidNumberFractionBase<T>(this IRuleBuilder<T, decimal> ruleBuilder, int maxFractionalNumber)
+        {
+            return ruleBuilder
+                .NotNull()
+                .Must((command, numberInput) =>
+                {
+                    var numToString = numberInput.ToString();
+                    var getFractional = numToString.Split('.')[1];
+                    if (getFractional.Length > maxFractionalNumber)
+                    {
+                        return false;
+                    }
+                    return true;
+                }).WithMessage("the number fractional part must only be "+ maxFractionalNumber + " number(s)");
+        }
         public static IRuleBuilderOptions<T, string> ValidDate<T>(this IRuleBuilder<T, string> ruleBuilder)
         {
             return ruleBuilder

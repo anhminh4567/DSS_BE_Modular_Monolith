@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Domain.Models.DeliveryFees;
 using DiamondShop.Domain.Models.DeliveryFees.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Models.Locations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -19,7 +20,13 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DeliveryFeeConfig
             .HasConversion(
                  Id => Id.Value,
                  dbValue => DeliveryFeeId.Parse(dbValue));
+            builder.HasOne<AppCities>()
+                .WithMany()
+                .HasForeignKey(x => x.ToLocationId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
             builder.HasKey(o => o.Id);
+            
         }
     }
 }

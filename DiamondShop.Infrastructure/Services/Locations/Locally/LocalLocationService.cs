@@ -2,6 +2,7 @@
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Models;
 using DiamondShop.Domain.Common.Addresses;
+using DiamondShop.Domain.Repositories.LocationRepo;
 using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services.Locations.OApi;
 using FluentResults;
@@ -21,12 +22,14 @@ namespace DiamondShop.Infrastructure.Services.Locations.Locally
         private readonly ILogger<LocalLocationService> _logger;
         private readonly IOptions<LocationOptions> _locationOptions;
         private readonly OApiLocationService _oApiLocationService;
-
-        public LocalLocationService(ILogger<LocalLocationService> logger, IOptions<LocationOptions> locationOptions, ILogger<OApiLocationService> logger1)
+        private readonly ILocationRepository _locationRepository;
+        
+        public LocalLocationService(ILogger<LocalLocationService> logger, IOptions<LocationOptions> locationOptions, ILocationRepository locationRepository, ILogger<OApiLocationService> logger1)
         {
             _logger = logger;
             _locationOptions = locationOptions;
-            _oApiLocationService = new OApiLocationService(_locationOptions,logger1) ;
+             _oApiLocationService = new OApiLocationService(_locationOptions,logger1) ;
+            _locationRepository = locationRepository;
         }
 
         public Task<Result<LocationDistantData>> GetDistant(string originPlaceId, string destinationPlaceId, CancellationToken cancellationToken = default)
@@ -52,7 +55,7 @@ namespace DiamondShop.Infrastructure.Services.Locations.Locally
         public List<Province> GetProvinces()
         {
             _logger.LogInformation("get all province is called");
-            return _allowedProvince.OrderBy(o => o.Id).ToList(); //JsonConvert.DeserializeObject<List<Province>>(_jsonAllowedProvince)!;
+            return  _locationRepository.GetAllProvince().Result;// _allowedProvince.OrderBy(o => o.Id).ToList(); //JsonConvert.DeserializeObject<List<Province>>(_jsonAllowedProvince)!;
         }
 
         public List<Ward> GetWards(string districtId)

@@ -16,8 +16,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.JewelryModels.Files.Queries
 {
-    public record GetAllModelImagesQuery(string jewelryModelId) : IRequest<GalleryTemplate>;
-    internal class GetAllModelImagesQueryHandler : IRequestHandler<GetAllModelImagesQuery, GalleryTemplate>
+    public record GetAllModelImagesQuery(string jewelryModelId) : IRequest<JewelryModelGalleryTemplate>;
+    internal class GetAllModelImagesQueryHandler : IRequestHandler<GetAllModelImagesQuery, JewelryModelGalleryTemplate>
     {
         private readonly IJewelryModelFileService _jewelryModelFileService;
         private readonly IJewelryModelRepository _jewelryModelRepository;
@@ -29,7 +29,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Files.Queries
             _logger = logger;
         }
 
-        public async Task<GalleryTemplate> Handle(GetAllModelImagesQuery request, CancellationToken cancellationToken)
+        public async Task<JewelryModelGalleryTemplate> Handle(GetAllModelImagesQuery request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Get all images of diamond is excecuted");
             var parsedResult = JewelryModelId.Parse(request.jewelryModelId);

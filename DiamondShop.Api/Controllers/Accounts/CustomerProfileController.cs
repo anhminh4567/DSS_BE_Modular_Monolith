@@ -24,7 +24,7 @@ namespace DiamondShop.Api.Controllers.Accounts
         [Produces(typeof(AccountDto))]
         public async Task<ActionResult> UpdateProfile([FromRoute] string accountid,[FromBody] UpdateUserAccountRequest updateUserAccountCommand)
         {
-            var command= new UpdateUserAccountCommand(accountid, updateUserAccountCommand.ChangedFullName, updateUserAccountCommand.ChangedAddress);
+            var command= new UpdateUserAccountCommand(accountid, updateUserAccountCommand.ChangedFullName, updateUserAccountCommand.ChangedAddress,updateUserAccountCommand.newDefaultAddressId);
             var result = await _sender.Send(command);
             if(result.IsSuccess)
             {

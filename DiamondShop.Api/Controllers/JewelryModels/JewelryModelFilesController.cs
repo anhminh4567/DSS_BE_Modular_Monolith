@@ -1,5 +1,7 @@
-﻿using DiamondShop.Application.Dtos.Responses;
+﻿using DiamondShop.Application.Commons.Models;
+using DiamondShop.Application.Dtos.Responses;
 using DiamondShop.Application.Usecases.JewelryModels.Files.Commands.AddBaseImages;
+using DiamondShop.Application.Usecases.JewelryModels.Files.Commands.AddCategoryImages;
 using DiamondShop.Application.Usecases.JewelryModels.Files.Commands.AddMainDiamondImages;
 using DiamondShop.Application.Usecases.JewelryModels.Files.Commands.AddMetalImages;
 using DiamondShop.Application.Usecases.JewelryModels.Files.Commands.AddSideDiamondImages;
@@ -30,7 +32,7 @@ namespace DiamondShop.Api.Controllers.JewelryModels
         public async Task<ActionResult> GetAllFiles([FromRoute] string jewelryModelId)
         {
             var result = await _sender.Send(new GetAllModelImagesQuery(jewelryModelId));
-            var mappedResult = _mapper.Map<GalleryTemplateDto>(result);
+            var mappedResult = _mapper.Map<JewelryModelGalleryTemplateDto>(result);
             return Ok(mappedResult);
         }
         [HttpPost("{jewelryModelId}/Files/Thumbnail")]
@@ -44,7 +46,7 @@ namespace DiamondShop.Api.Controllers.JewelryModels
         }
         
         [HttpPost("{jewelryModelId}/Files/Images/Base")]
-        public async Task<ActionResult> UploadBaseImages([FromRoute] string jewelryModelId,IFormFile[] formFiles)
+        public async Task<ActionResult> UploadBaseImages([FromRoute] string jewelryModelId, [FromForm] IFormFile[] formFiles)
         {
             var result = await _sender.Send(new AddModelBaseImagesCommand(jewelryModelId, formFiles));
             if (result.IsSuccess)
@@ -52,27 +54,36 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             return MatchError(result.Errors, ModelState);
         }
         [HttpPost("{jewelryModelId}/Files/Images/Metals/{metalId}")]
-        public async Task<ActionResult> UploadMetalImages([FromRoute] string jewelryModelId,[FromRoute] string metalId, IFormFile[] formFiles)
+        public async Task<ActionResult> UploadMetalImages([FromRoute] string jewelryModelId,[FromRoute] string metalId,[FromForm] IFormFile[] formFiles)
         {
             var result = await _sender.Send(new AddModelMetalImagesCommand(jewelryModelId,metalId, formFiles));
             if (result.IsSuccess)
                 return Ok(result.Value);
             return MatchError(result.Errors, ModelState);
         }
-        [HttpPost("{jewelryModelId}/Files/Images/MainDiamonds")]
+        [HttpPost("{jewelryModelId}/Files/Images/MainDiamonds")]  
         [Produces(typeof(string))]
-        public async Task<ActionResult> UploadMainDiamondImages([FromRoute] string jewelryModelId, [FromForm] AddModelMainDiamondImagesCommand addModel, CancellationToken cancellationToken = default)
+        public async Task<ActionResult> UploadMainDiamondImages([FromRoute] string jewelryModelId, [FromForm] IFormFile[]? MainDiamondImages, CancellationToken cancellationToken = default)
         {
-            var result = await _sender.Send(addModel with { jewelryModelId = jewelryModelId }, cancellationToken);
+            var result = await _sender.Send(new AddModelMainDiamondImagesCommand(jewelryModelId,MainDiamondImages.Select(x => new MainDiamondImagesRequest(x)).ToArray()), cancellationToken);
             if (result.IsSuccess)
                 return Ok(result.Value);
             return MatchError(result.Errors, ModelState);
         }
-        [HttpPost("{jewelryModelId}/Files/Images/SideDiamonds")]
+        [HttpPost("{jewelryModelId}/Files/Images/SideDiamonds/Single")] //List<SideDiamondImagesRequest>? sideDiamondImagesRequests
         [Produces(typeof(string))]
-        public async Task<ActionResult> UploadSideDiamondImages([FromRoute] string jewelryModelId, [FromForm] AddModelSideDiamondImagesCommand addModel, CancellationToken cancellationToken = default)
+        public async Task<ActionResult> UploadSideDiamondImagesSingle([FromRoute] string jewelryModelId, IFormFile image, [FromForm] string sideDiamondOptionId, CancellationToken cancellationToken = default)
         {
-            var result = await _sender.Send(addModel with { jewelryModelId = jewelryModelId }, cancellationToken);
+            var result = await _sender.Send(new AddModelSideDiamondImagesCommand(jewelryModelId,new List<SideDiamondImagesRequest>() { new SideDiamondImagesRequest(sideDiamondOptionId, image) }), cancellationToken);
+            if (result.IsSuccess)
+                return Ok(result.Value);
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPost("{jewelryModelId}/Files/Images/Categorize/Single")]//  [FromForm] AddModelCategoryImagesCommand addModel
+        [Produces(typeof(string))]
+        public async Task<ActionResult> UploadCategorizedSingle([FromRoute] string jewelryModelId, IFormFile imageFile, [FromForm] string? sideDiamondOptId, [FromForm] string metalId, CancellationToken cancellationToken = default)
+        {
+            var result = await _sender.Send(new AddModelCategoryImagesCommand(jewelryModelId,new List<CategoryImagesRequest>() { new CategoryImagesRequest(sideDiamondOptId,metalId,imageFile) }), cancellationToken);
             if (result.IsSuccess)
                 return Ok(result.Value);
             return MatchError(result.Errors, ModelState);

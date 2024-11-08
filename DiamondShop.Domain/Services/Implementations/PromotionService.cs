@@ -253,7 +253,7 @@ namespace DiamondShop.Domain.Services.Implementations
         /// <param name="giftProducts"></param>
         private static void HandleProductGift(CartModel cartModel, Gift gift,bool IsExcludeQualifierProduct, Dictionary<int, CartProduct> scopedGiftProducts)
         {
-            var productList = cartModel.Products;
+            var productList = cartModel.Products.OrderByDescending(x => x.ReviewPrice.DiscountPrice).ToList();
             //var promotionGift = promotion.Gifts;
             var amount = gift.Amount;
             for (int i = 0; i < productList.Count; i++)

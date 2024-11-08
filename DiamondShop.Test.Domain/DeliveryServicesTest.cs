@@ -17,10 +17,10 @@ namespace DiamondShop.Test.Domain
         {
             LocationRules = new LocationRules();
             ShopAddress = new Address(LocationRules.OriginalProvince,LocationRules.OrignalDistrict,LocationRules.OrignalWard,LocationRules.OrignalRoad,AccountId.Parse("Shop"));
-            DeliveryFees.Add(DeliveryFee.CreateDistanceType("from 0 - 100", 50_000 , 0 , 100));
-            DeliveryFees.Add(DeliveryFee.CreateDistanceType("from 100 - 200", 10_000, 100, 200));
-            DeliveryFees.Add(DeliveryFee.CreateLocationType(FirstDestination, 30_000, LocationRules.OriginalProvince, FirstDestination));
-            DeliveryFees.Add(DeliveryFee.CreateLocationType(SecondDestination, 30_000, LocationRules.OriginalProvince, SecondDestination));
+            //DeliveryFees.Add(DeliveryFee.CreateDistanceType("from 0 - 100", 50_000 , 0 , 100));
+            //DeliveryFees.Add(DeliveryFee.CreateDistanceType("from 100 - 200", 10_000, 100, 200));
+            DeliveryFees.Add(DeliveryFee.CreateLocationType(FirstDestination, 30_000,  FirstDestination,0));
+            DeliveryFees.Add(DeliveryFee.CreateLocationType(SecondDestination, 30_000, SecondDestination, 1));
         }
         public List<DeliveryFee> DeliveryFees { get; private set; } = new();
         private LocationRules LocationRules { get; set; }
@@ -53,7 +53,7 @@ namespace DiamondShop.Test.Domain
             Assert.NotNull(result);
             Assert.Equal(deliveryFeesWithLocation.First(x => x.Name == DeliveryFeeFixture.FirstDestination),result);
         }
-        [Fact]
+        [Fact(Skip = "this method is removed ")]
         public void GetDeliveryFeeForDistance_Correct_Should_Return_OneFee()
         {
             // Arrange
@@ -67,7 +67,7 @@ namespace DiamondShop.Test.Domain
             Assert.NotNull(result);
             Assert.Equal(deliveryFeesWithLocation.First(x => x.Name == DeliveryFeeFixture.FirstDistanceType), result);
         }
-        [Fact]
+        [Fact(Skip = "this method is removed ")]
         public void GetDeliveryFeeForDistance_OffRange_Should_Return_Null()
         {
             // Arrange

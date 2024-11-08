@@ -5,6 +5,6 @@ using MediatR;
 
 namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.CreateMany
 {
-    public record CreateDeliveryFeeCommand(DeliveryFeeType type, string name, decimal cost, ToLocationCity? ToLocationCity, ToDistance? ToDistance) : IRequest<Result<List<DeliveryFee>>>;
+    public record CreateDeliveryFeeCommand( string name, decimal cost, ToLocationCity? ToLocationCity) : IRequest<Result<List<DeliveryFee>>>;
     public record CreateManyDeliveryFeeCommand(List<CreateDeliveryFeeCommand> fees) : IRequest<Result<List<DeliveryFee>>>;
 }
