@@ -27,7 +27,9 @@ namespace DiamondShop.Application.Mappers
             config.NewConfig<Address, AddressDto>()
                 .Map(dest => dest.Id, src => src.Id.Value);
 
-
+            config.NewConfig<Account, AccountMinimalDto>()
+                .Map(dest => dest.FirstName, src => src.FullName.FirstName)
+                .Map(dest => dest.LastName, src => src.FullName.LastName);
         }
     }
 }

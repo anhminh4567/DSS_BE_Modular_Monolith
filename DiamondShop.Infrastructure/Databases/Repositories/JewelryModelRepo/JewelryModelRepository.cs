@@ -57,7 +57,8 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
             query = query.Include(p => p.Category);
             query = query.Include(p => p.SizeMetals).ThenInclude(p => p.Metal);
             query = query.Include(p => p.SizeMetals).ThenInclude(p => p.Size);
-            query = query.Include(p => p.SideDiamonds);
+            query = query.Include(p => p.SideDiamonds).ThenInclude(p => p.Shape);
+            query = query.Include(p => p.MainDiamonds).ThenInclude(p => p.Shapes).ThenInclude(p => p.Shape);
             return query.AsSplitQuery();
         }
         public IQueryable<JewelryModel> IncludeMainDiamondQuery(IQueryable<JewelryModel> query)

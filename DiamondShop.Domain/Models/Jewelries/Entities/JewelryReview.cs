@@ -16,6 +16,20 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
         public DateTime ModifiedDate { get; set; }
         public bool IsHidden { get; set; }
         public List<Media>? Images { get; set; } = new();
-        public JewelryReview() { }
+        private JewelryReview() { }
+        public static JewelryReview Create(JewelryId jewelryId, AccountId accountId, string content, int starRating, List<Media>? images)
+        {
+            return new JewelryReview
+            {
+                Id = jewelryId,
+                AccountId = accountId,
+                Content = content,
+                StarRating = starRating,
+                CreatedDate = DateTime.UtcNow,
+                ModifiedDate = DateTime.UtcNow,
+                IsHidden = false,
+                Images = images
+            };
+        }
     }
 }

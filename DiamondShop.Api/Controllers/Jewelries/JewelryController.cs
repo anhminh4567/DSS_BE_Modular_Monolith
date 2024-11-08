@@ -87,6 +87,5 @@ namespace DiamondShop.Api.Controllers.Jewelries
             }
             return MatchError(result.Errors, ModelState);
         }
-
     }
 }

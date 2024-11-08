@@ -29,7 +29,6 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryConfig
             {
                 childNavigation.ToJson();
             });
-           /* builder.HasMany(o => o.Medias).WithOne().HasForeignKey(p => p.JewelryReviewId);*/
             builder.HasKey(o => o.Id);
         }
     }
