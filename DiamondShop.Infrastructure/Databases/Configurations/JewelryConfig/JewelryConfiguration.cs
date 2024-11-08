@@ -34,10 +34,6 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryConfig
             .HasConversion(
                 Id => Id.Value,
                 dbValue => MetalId.Parse(dbValue));
-            builder.Property(o => o.ReviewId)
-            .HasConversion(
-                Id => Id.Value,
-                dbValue => JewelryReviewId.Parse(dbValue));
             builder.OwnsOne(o => o.SideDiamond,
               sideDiamond =>
               {
@@ -56,7 +52,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryConfig
             builder.HasOne(o => o.Model).WithMany().HasForeignKey(o => o.ModelId);
             builder.HasOne(o => o.Size).WithMany().HasForeignKey(o => o.SizeId);
             builder.HasOne(o => o.Metal).WithMany().HasForeignKey(o => o.MetalId);
-            builder.HasOne(o => o.Review).WithOne().HasForeignKey<JewelryReview>(o => o.Id).IsRequired(false);
+            builder.HasOne(o => o.Review).WithOne(p => p.Jewelry).HasForeignKey<JewelryReview>(o => o.Id).IsRequired(false);
             builder.OwnsOne(o => o.Thumbnail, childBuilder =>
             {
                 childBuilder.ToJson();

@@ -68,9 +68,7 @@ namespace DiamondShop.Domain.Models.Jewelries
 
         public List<Diamond> Diamonds { get; set; } = new();
         public JewelrySideDiamond? SideDiamond { get; set; }
-        public JewelryReviewId? ReviewId { get; set; }
         public JewelryReview? Review { get; set; }
-
         public Media? Thumbnail { get; set; }
 
         public decimal? ND_Price { get; set; }

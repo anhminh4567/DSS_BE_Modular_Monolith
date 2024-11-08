@@ -3,11 +3,13 @@ using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DiamondShop.Domain.Models.Jewelries.Entities
 {
     public class JewelryReview : Entity<JewelryId>
     {
+        public Jewelry Jewelry { get; set; }
         public AccountId AccountId { get; set; }
         public Account Account { get; set; }
         public string Content { get; set; }
@@ -15,9 +17,10 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
         public bool IsHidden { get; set; }
-        public List<Media>? Images { get; set; } = new();
+        [NotMapped]
+        public List<Media>? Medias { get; set; } = new();
         private JewelryReview() { }
-        public static JewelryReview Create(JewelryId jewelryId, AccountId accountId, string content, int starRating, List<Media>? images)
+        public static JewelryReview Create(JewelryId jewelryId, AccountId accountId, string content, int starRating)
         {
             return new JewelryReview
             {
@@ -28,7 +31,6 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
                 CreatedDate = DateTime.UtcNow,
                 ModifiedDate = DateTime.UtcNow,
                 IsHidden = false,
-                Images = images
             };
         }
     }

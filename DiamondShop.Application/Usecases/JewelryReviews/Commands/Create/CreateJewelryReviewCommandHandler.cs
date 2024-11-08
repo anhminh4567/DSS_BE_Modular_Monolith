@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Commons.Models;
 using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Application.Services.Interfaces.JewelryReview;
+using DiamondShop.Application.Services.Interfaces.JewelryReviews;
+using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
@@ -35,9 +36,10 @@ namespace DiamondShop.Application.Usecases.JewelryReviews.Commands.Create
             _jewelryReviewFileService = jewelryReviewFileService;
         }
 
-        public async Task<Result<JewelryReview>> Handle(CreateJewelryReviewCommand request, CancellationToken cancellationToken)
+        public async Task<Result<JewelryReview>> Handle(CreateJewelryReviewCommand request, CancellationToken token)
         {
             request.Deconstruct(out string accountId, out JewelryReviewRequestDto jewelryReviewRequestDto);
+            await _unitOfWork.BeginTransactionAsync(token);
             jewelryReviewRequestDto.Deconstruct(out string jewelryId, out string content, out int starRating, out IFormFile[] files);
             var account = await _accountRepository.GetById(AccountId.Parse(accountId));
             if (account == null)
@@ -53,14 +55,17 @@ namespace DiamondShop.Application.Usecases.JewelryReviews.Commands.Create
             var checkExist = await _jewelryReviewRepository.GetById(jewelry.Id);
             if (checkExist != null)
                 return Result.Fail("You have already created a review for this jewelry");
-
             //Add images
             FileData[] fileDatas = files.Select(f => new FileData(f.Name, f.ContentType, f.ContentType, f.OpenReadStream())).ToArray();
-            await _jewelryReviewFileService.UploadReview(jewelry, fileDatas);
-            
-
-            JewelryReview review = JewelryReview.Create(jewelry.Id, account.Id, content, starRating, null);
-            throw new NotImplementedException();
+            var result = await _jewelryReviewFileService.UploadReview(jewelry, fileDatas);
+            if (result.IsFailed)
+                return Result.Fail(result.Errors);
+            JewelryReview review = JewelryReview.Create(jewelry.Id, account.Id, content, starRating);
+            await _jewelryReviewRepository.Create(review);
+            await _unitOfWork.SaveChangesAsync(token);
+            await _unitOfWork.CommitAsync(token);
+            review.Medias.AddRange(result.Value.Select(p => Media.Create(p,"","")));
+            return review;
         }
     }
 }
