@@ -66,7 +66,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond
             var jewelryQuery = _jewelryService.GetJewelryQueryFromModel(model.Id, sizeMetal.MetalId, sizeMetal.SizeId, sideDiamond);
 
             int maxPage = (int)Math.Ceiling((decimal)jewelryQuery.Count() / pageSize);
-            var jewelries = jewelryQuery.Skip(pageSize * currentPage).Take(pageSize).ToList();
+            var jewelries = jewelryQuery.ToList();
             var addPriceFlag = _jewelryService.SetupUnmapped(jewelries, sizeMetal);
             if (!addPriceFlag)
                 return Result.Fail("Can't get jewelries' price");
@@ -78,7 +78,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond
                 if (maxPrice != null)
                     flag = flag && p.D_Price <= maxPrice;
                 return flag;
-            }).Skip(currentPage * pageSize).Take(pageSize).ToList();
+            }).Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
             return new PagingResponseDto<Jewelry>(maxPage, currentPage, jewelries);
         }
     }

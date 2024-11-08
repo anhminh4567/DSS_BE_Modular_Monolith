@@ -1,4 +1,6 @@
-﻿using DiamondShop.Domain.Models.Orders.Entities;
+﻿using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.Jewelries.ValueObjects;
+using DiamondShop.Domain.Models.Orders.Entities;
 using System;
 using System.Collections;
 using System.Collections.Generic;

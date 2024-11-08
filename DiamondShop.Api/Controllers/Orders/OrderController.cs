@@ -229,25 +229,5 @@ namespace DiamondShop.Api.Controllers.Orders
                 return MatchError(result.Errors, ModelState);
         }
 
-        //Unfinished
-        //[HttpPut("DeliverRefuse")]
-        //[Authorize(Roles = AccountRole.DelivererId)]
-        //public async Task<ActionResult> DeliverRefuse([FromQuery] OrderItemRefuseCommand orderItemRefuseCommand)
-        //{
-        //    var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
-        //    if (userId != null)
-        //    {
-
-        //        var result = await _sender.Send(new OrderDeliverRefuseCommand(userId.Value, orderItemRefuseCommand));
-        //        if (result.IsSuccess)
-        //        {
-        //            var mappedResult = _mapper.Map<OrderDto>(result.Value);
-        //            return Ok(mappedResult);
-        //        }
-        //        else
-        //            return MatchError(result.Errors, ModelState);
-        //    }
-        //    return Unauthorized();
-        //}
     }
 }

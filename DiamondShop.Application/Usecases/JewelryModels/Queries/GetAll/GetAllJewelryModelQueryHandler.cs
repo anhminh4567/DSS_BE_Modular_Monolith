@@ -26,8 +26,6 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll
             currentPage = currentPage == 0 ? 1 : currentPage;
             pageSize = pageSize == 0 ? 20 : pageSize;
             var query = _jewelryModelRepository.GetSellingModelQuery();
-            query = _jewelryModelRepository.QueryInclude(query, p => p.SideDiamonds);
-            query = _jewelryModelRepository.QueryInclude(query, p => p.MainDiamonds);
             if (!string.IsNullOrEmpty(categoryName))
             {
                 var category = await _categoryRepository.ContainsName(categoryName);

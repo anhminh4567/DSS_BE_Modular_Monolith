@@ -1,5 +1,7 @@
 ﻿using DiamondShop.Domain.Models.AccountAggregate;
+using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
@@ -23,6 +25,11 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
         public override Task<Order?> GetById(params object[] ids)
         {
             return _set.Include(o => o.Transactions).Include(x => x.Items).FirstOrDefaultAsync(o => o.Id == (OrderId)ids[0]);
+        }
+        public async Task<bool> IsOwner(AccountId accountId, JewelryId jewelryId)
+        {
+            var orders = await _set.Include(p => p.Items).Where(p => p.Status == OrderStatus.Success && p.AccountId == accountId).ToListAsync();
+            return orders.Any(p => p.Items.Any(p => p.JewelryId == jewelryId));
         }
 
         public Task<Order?> GetDelivererCurrentlyHandledOrder(Account delivererAccount, CancellationToken cancellationToken = default)
