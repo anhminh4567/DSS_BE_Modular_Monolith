@@ -194,7 +194,7 @@ namespace DiamondShop.Infrastructure
         }
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSingleton<ILocationService, LocalLocationService>();
+            services.AddScoped<ILocationService, LocalLocationService>();
             services.AddScoped<IDiamondFileService, DiamondFileService>();
             services.AddScoped<IExcelService, ExcelSyncfunctionService>();
             services.AddScoped<IDiamondExcelService,DiamondExcelService>();
