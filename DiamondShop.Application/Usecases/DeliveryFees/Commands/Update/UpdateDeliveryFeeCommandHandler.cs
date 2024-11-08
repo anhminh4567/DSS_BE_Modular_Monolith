@@ -33,12 +33,12 @@ namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.Update
             var tryGet = await _deliveryFeeRepository.GetById(parsedId);
             if (tryGet is null)
                 return Result.Fail(new NotFoundError());
-            if (request.updatedObject.type == DeliveryFeeType.Distance)
-                tryGet.ChangeFromToKm(request.updatedObject.ToDistance!.start, request.updatedObject.ToDistance!.end);
-            else if (request.updatedObject.type == DeliveryFeeType.LocationToCity)
-                tryGet.ChangeFromToCity(request.updatedObject.ToLocationCity!.sourceCity, request.updatedObject.ToLocationCity!.destinationCity);
-            else
-                return Result.Fail(new ConflictError("Undefined type"));
+            //if (request.updatedObject.type == DeliveryFeeType.Distance)
+            //    tryGet.ChangeFromToKm(request.updatedObject.ToDistance!.start, request.updatedObject.ToDistance!.end);
+            // else if (request.updatedObject.type == DeliveryFeeType.LocationToCity)
+            tryGet.ChangeFromToCity( request.updatedObject.ToLocationCity!.destinationCity);
+            //else
+            //   return Result.Fail(new ConflictError("Undefined type"));
             await _deliveryFeeRepository.Update(tryGet);
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(tryGet);

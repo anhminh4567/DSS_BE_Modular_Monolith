@@ -13,10 +13,12 @@ namespace DiamondShop.Application.Dtos.Responses.Deliveries
         public string DeliveryMethod { get; set; }
         public string Name { get; set; }
         public decimal Cost { get; set; }
-        public int? FromKm { get; set; }
-        public int? ToKm { get; set; }
+        //public int? FromKm { get; set; }
+        //public int? ToKm { get; set; }
         public string? FromLocation { get; set; }
         public string? ToLocation { get; set; }
-        public bool IsDistancePriceType { get; set; }
+        public int? ToLocationId { get; set; }
+
+        //public bool IsDistancePriceType { get; set; }
     }
 }

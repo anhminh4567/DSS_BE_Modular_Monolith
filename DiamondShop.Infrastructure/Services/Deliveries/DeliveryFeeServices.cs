@@ -32,7 +32,7 @@ namespace DiamondShop.Infrastructure.Services.Deliveries
         {
             var shipPrice = new ShippingPrice();
             var shopLocation = _locationService.GetShopLocation();
-            var createShopAddress = Address.Create(shopLocation.Province, shopLocation.District, shopLocation.Ward, shopLocation.Road, AccountId.Parse("0"), AddressId.Parse("0"));
+            var createShopAddress = Address.Create(0,shopLocation.Province, shopLocation.District, shopLocation.Ward, shopLocation.Road, AccountId.Parse("0"), AddressId.Parse("0"));
             shipPrice.From = createShopAddress;
             var city = addressRequestDto.Province;
             var getCityIfFound = _locationService.GetProvinces().FirstOrDefault(x => x.Name == city);
@@ -41,7 +41,7 @@ namespace DiamondShop.Infrastructure.Services.Deliveries
                 shipPrice.To = null;
                 return shipPrice;
             }
-            var createDestinationAddress = Address.Create(addressRequestDto.Province, addressRequestDto.District, addressRequestDto.Ward, addressRequestDto.Street, AccountId.Parse("1"), AddressId.Parse("1"));
+            var createDestinationAddress = Address.Create(0, addressRequestDto.Province, addressRequestDto.District, addressRequestDto.Ward, addressRequestDto.Street, AccountId.Parse("1"), AddressId.Parse("1"));
             shipPrice.To = createDestinationAddress;
             var getDeliveryLocationFees = await _deliveryFeeRepository.GetLocationType();
             var deliveryFee = _deliveryService.GetDeliveryFeeForLocation(shipPrice.To, shipPrice.From, getDeliveryLocationFees);

@@ -29,15 +29,15 @@ namespace DiamondShop.Application.Usecases.DeliveryFees.Queries.GetAll
             //var result = query.ToList();
             
             var getAll = await _deliveryFeeRepository.GetAll();
-            getAll = getAll.OrderBy(s => s.FromKm).ThenBy(s => s.Cost).ToList();
-            if (request.isLocation != null)
-            {
-                if(request.isLocation == true)
-                    getAll = getAll.Where(s => s.IsDistancePriceType == false).ToList();
-                else
-                    getAll = getAll.Where(s => s.IsDistancePriceType == true).ToList();
-            }
-            else { }
+            getAll = getAll.OrderByDescending(s => s.Cost).ToList();
+            //if (request.isLocation != null)
+            //{
+            //    if(request.isLocation == true)
+            //        getAll = getAll.Where(s => s.IsDistancePriceType == false).ToList();
+            //    else
+            //        getAll = getAll.Where(s => s.IsDistancePriceType == true).ToList();
+            //}
+            //else { }
             _logger.LogInformation("GetAll DeliveryFees is called with total " + getAll.Count + " items");
             return getAll;
         }

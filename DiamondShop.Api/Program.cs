@@ -49,7 +49,7 @@ public class Program
                     },
                     new string[]{}
                 }
-                    });
+            });
         });
         builder.Services.AddSingleton<ProblemDetailsFactory, DiamonShopProblemDetailsFactory>();
         builder.Services.AddScoped<CustomExeptionHandlerMiddleware>();

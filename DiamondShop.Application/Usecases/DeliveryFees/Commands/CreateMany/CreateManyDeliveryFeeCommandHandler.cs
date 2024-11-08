@@ -19,31 +19,41 @@ namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.CreateMany
     {
         private readonly IDeliveryFeeRepository _deliveryFeeRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILocationService _locationService;
 
-        public CreateManyDeliveryFeeCommandHandler(IDeliveryFeeRepository deliveryFeeRepository, IUnitOfWork unitOfWork)
+        public CreateManyDeliveryFeeCommandHandler(IDeliveryFeeRepository deliveryFeeRepository, IUnitOfWork unitOfWork, ILocationService locationService)
         {
             _deliveryFeeRepository = deliveryFeeRepository;
             _unitOfWork = unitOfWork;
+            _locationService = locationService;
         }
 
         public async Task<Result<List<DeliveryFee>>> Handle(CreateManyDeliveryFeeCommand request, CancellationToken cancellationToken)
         {
+            var getProvince = _locationService.GetProvinces();
             List<DeliveryFee> tobeAddedFees = new();
             foreach (var fee in request.fees)
             {
                 DeliveryFee newFee;
-                if (fee.type == DeliveryFeeType.LocationToCity)
+                //if (fee.type == LocationToCity)
+                //{
+                var province = getProvince.FirstOrDefault(x => x.Name.ToUpper() == fee.name.ToUpper());
+                if(province is null)
                 {
-                    newFee = DeliveryFee.CreateLocationType(fee.name, fee.cost, fee.ToLocationCity!.sourceCity, fee.ToLocationCity!.destinationCity);
+                    return Result.Fail(new NotFoundError($"The province with name: {fee.name} is not found"));
                 }
-                else if (fee.type == DeliveryFeeType.Distance)
-                {
-                    newFee = DeliveryFee.CreateDistanceType(fee.name, fee.cost, fee.ToDistance!.start, fee.ToDistance!.end);
-                }
-                else
-                {
-                    return Result.Fail(new ConflictError($"the fee with name: {fee.name} and cost: {fee.cost} has undefined type"));
-                }
+                newFee = DeliveryFee.CreateLocationType(fee.name, fee.cost, fee.ToLocationCity!.destinationCity, int.Parse(province.Id));
+                
+                
+                //}
+                //else if (fee.type == DeliveryFeeType.Distance)
+                //{
+                //    newFee = DeliveryFee.CreateDistanceType(fee.name, fee.cost, fee.ToDistance!.start, fee.ToDistance!.end);
+                //}
+                //else
+                //{
+                //    return Result.Fail(new ConflictError($"the fee with name: {fee.name} and cost: {fee.cost} has undefined type"));
+                //}
                 tobeAddedFees.Add(newFee);
             }
             if (tobeAddedFees.Count == 0)

@@ -1,4 +1,4 @@
 ﻿namespace DiamondShop.Application.Dtos.Requests.Deliveries
 {
-    public record ToLocationCity(string sourceCity, string destinationCity);
+    public record ToLocationCity(string destinationCity);//string sourceCity, 
 }

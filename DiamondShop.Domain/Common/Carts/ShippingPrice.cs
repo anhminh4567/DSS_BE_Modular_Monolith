@@ -12,6 +12,7 @@ namespace DiamondShop.Domain.Common.Carts
         public Address? From { get; set; }
         public DeliveryFee? DeliveryFeeFounded { get; set; }
         public bool IsValid { get => To != null && From != null && ( DeliveryFeeFounded !=null && DeliveryFeeFounded.Id.Value != DeliveryFee.UNKNONW_DELIVERY_ID); }
+        public bool IsLocationActive { get => DeliveryFeeFounded != null && DeliveryFeeFounded.IsEnabled; }
         public ShippingPrice()
         {
             Address? To = null;

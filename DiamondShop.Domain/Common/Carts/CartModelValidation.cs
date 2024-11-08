@@ -17,6 +17,11 @@
                 MainErrorMessage = MainErrorMessage.Append("Shipping address is invalid").ToArray();
                 IsShippingValid = false;
             }
+            if(shippingPrice.IsLocationActive == false)
+            {
+                MainErrorMessage = MainErrorMessage.Append("the location is not supported for delivery").ToArray();
+                IsShippingValid = false;
+            }
         }
     }
 

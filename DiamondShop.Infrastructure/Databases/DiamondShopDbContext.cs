@@ -60,7 +60,10 @@ namespace DiamondShop.Infrastructure.Databases
         //Roles Related//
         #region Dbset
         public DbSet<AccountRole> AccountRoles { get; set; }
-        public DbSet<AppProvince> AppProvinces { get; set; }
+        //public DbSet<AppProvince> AppProvinces { get; set; }
+        public DbSet<AppCities> AppCities { get; set; }
+        //public DbSet<AppDistrict> AppDistricts { get; set; }
+        //public DbSet<AppWard> AppWards { get; set; }
         //Roles Related//
 
         //Application//

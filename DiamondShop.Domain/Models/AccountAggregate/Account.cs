@@ -106,9 +106,9 @@ namespace DiamondShop.Domain.Models.AccountAggregate
             ArgumentNullException.ThrowIfNull(role);
             Roles.Remove(role);
         }
-        public void AddAddress(string province, string district, string ward, string street)
+        public void AddAddress(int provinceId,string province, string district, string ward, string street)
         {
-            Addresses.Add(new Address(province.Trim(), district.Trim(), ward.Trim(), street.Trim(),Id));
+            Addresses.Add(new Address(province.Trim(), district.Trim(), ward.Trim(), street.Trim(), Id) { ProvinceId = provinceId});
         }
         public void RemoveAddress(AddressId addressId)
         {
