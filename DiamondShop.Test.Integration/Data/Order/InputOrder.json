@@ -17,9 +17,9 @@
     },
     "orderItemRequestDtos": [
       {
-        "diamondId": "01JBKDAPKETXVDKMGQ500NE0P9",
-        "warrantyCode": "Default_Diamond_Warranty",
-        "warrantyType": 1
+        "jewelryId": "48d203d8-6f2a-4ba7-b80a-62a67797a410",
+        "warrantyCode": "THREE_MONTHS",
+        "warrantyType": 2
       }
     ]
   }

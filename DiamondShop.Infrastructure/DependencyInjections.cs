@@ -5,7 +5,7 @@ using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Deliveries;
 using DiamondShop.Application.Services.Interfaces.Diamonds;
 using DiamondShop.Application.Services.Interfaces.JewelryModels;
-using DiamondShop.Application.Services.Interfaces.JewelryReview;
+using DiamondShop.Application.Services.Interfaces.JewelryReviews;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Repositories;

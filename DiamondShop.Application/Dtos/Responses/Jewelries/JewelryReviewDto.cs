@@ -20,6 +20,6 @@ namespace DiamondShop.Application.Dtos.Responses.Jewelries
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
         public bool IsHidden { get; set; }
-        public List<Media>? Images { get; set; } = new();
+        public List<MediaDto> Medias { get; set; } = new();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryReviewRepo;
+using Microsoft.EntityFrameworkCore;
 
 namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo.JewelryReviewRepo
 {
@@ -9,8 +10,8 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo.JewelryR
         public JewelryReviewRepository(DiamondShopDbContext context) : base(context) { }
         public override async Task<JewelryReview?> GetById(params object[] ids)
         {
-            var id = (JewelryReviewId)ids[0];
-            return await base.GetById(id);
+            var id = (JewelryId)ids[0];
+            return await _set.Include(p => p.Jewelry).FirstOrDefaultAsync(p => p.Id == id);
         }
     }
 }
