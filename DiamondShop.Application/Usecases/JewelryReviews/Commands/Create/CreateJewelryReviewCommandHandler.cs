@@ -56,15 +56,18 @@ namespace DiamondShop.Application.Usecases.JewelryReviews.Commands.Create
             if (checkExist != null)
                 return Result.Fail("You have already created a review for this jewelry");
             //Add images
-            FileData[] fileDatas = files.Select(f => new FileData(f.Name, f.ContentType, f.ContentType, f.OpenReadStream())).ToArray();
-            var result = await _jewelryReviewFileService.UploadReview(jewelry, fileDatas);
-            if (result.IsFailed)
-                return Result.Fail(result.Errors);
             JewelryReview review = JewelryReview.Create(jewelry.Id, account.Id, content, starRating);
             await _jewelryReviewRepository.Create(review);
             await _unitOfWork.SaveChangesAsync(token);
+            if (files.Count() > 0)
+            {
+                FileData[] fileDatas = files.Select(f => new FileData(f.Name, f.ContentType, f.ContentType, f.OpenReadStream())).ToArray();
+                var result = await _jewelryReviewFileService.UploadReview(jewelry, fileDatas);
+                if (result.IsFailed)
+                    return Result.Fail(result.Errors);
+                review.Medias.AddRange(result.Value.Select(p => Media.Create(p, "", "")));
+            }
             await _unitOfWork.CommitAsync(token);
-            review.Medias.AddRange(result.Value.Select(p => Media.Create(p,"","")));
             return review;
         }
     }
