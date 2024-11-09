@@ -14,6 +14,7 @@ namespace DiamondShop.Domain.Common
         public PromotionRule PromotionRule { get; set; } = PromotionRule.Default;
         public DiamondPriceRules DiamondPriceRules { get; set; } = DiamondPriceRules.Default;
         public WarrantyRules WarrantyRules { get; set; } = WarrantyRules.Default;
+        public JewelryReviewRules JewelryReviewRules { get; set; } = JewelryReviewRules.Default;
         public TransactionRule TransactionRule { get; set; } = TransactionRule.Default;
         public static Dictionary<string, object> DEFAULTS = new Dictionary<string, object>
         {
@@ -22,7 +23,8 @@ namespace DiamondShop.Domain.Common
             { PromotionRule.key, PromotionRule.Default },
             { DiamondPriceRules.key, DiamondPriceRules.Default },
             { TransactionRule.key , TransactionRule.Default },
-            { WarrantyRules.key , WarrantyRules.Default }
+            { WarrantyRules.key , WarrantyRules.Default },
+            {JewelryReviewRules.key, JewelryReviewRules.Default}
         };
         public static List<string> RULE_KEYS = new List<string>
         {
@@ -31,7 +33,8 @@ namespace DiamondShop.Domain.Common
             PromotionRule.key,
             DiamondPriceRules.key,
             TransactionRule.key,
-            WarrantyRules.key
+            WarrantyRules.key,
+            JewelryReviewRules.key
         };
     }
 }

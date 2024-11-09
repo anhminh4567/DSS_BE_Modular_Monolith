@@ -6,8 +6,10 @@ using DiamondShop.Application.Usecases.Jewelries.Commands;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetAll;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetDetail;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond;
+using DiamondShop.Application.Usecases.JewelryReviews.Commands.ChangeVisibility;
 using DiamondShop.Application.Usecases.JewelryReviews.Commands.Create;
-using DiamondShop.Application.Usecases.JewelryReviews.Queries;
+using DiamondShop.Application.Usecases.JewelryReviews.Commands.Update;
+using DiamondShop.Application.Usecases.JewelryReviews.Queries.GetAll;
 using DiamondShop.Domain.Models.RoleAggregate;
 using MapsterMapper;
 using MediatR;
@@ -45,6 +47,65 @@ namespace DiamondShop.Api.Controllers.Jewelries
             if (userId != null)
             {
                 var result = await _sender.Send(new CreateJewelryReviewCommand(userId.Value, jewelryReviewRequestDto));
+                if (result.IsSuccess)
+                {
+                    var mappedResult = _mapper.Map<JewelryReviewDto>(result.Value);
+                    return Ok(mappedResult);
+                }
+                else
+                    return MatchError(result.Errors, ModelState);
+            }
+            else
+                return Unauthorized();
+        }
+
+        [HttpPut("Update")]
+        [Authorize(Roles = AccountRole.CustomerId)]
+        public async Task<ActionResult> UpdateJewelryReview([FromForm] UpdateJewelryReviewCommand updateJewelryReviewCommand)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(updateJewelryReviewCommand);
+                if (result.IsSuccess)
+                {
+                    var mappedResult = _mapper.Map<JewelryReviewDto>(result.Value);
+                    return Ok(mappedResult);
+                }
+                else
+                    return MatchError(result.Errors, ModelState);
+            }
+            else
+                return Unauthorized();
+        }
+        [HttpPut("Remove")]
+        [Authorize(Roles = AccountRole.CustomerId)]
+        public async Task<ActionResult> HideJewelryReview([FromQuery] string JewelryId)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(new ChangeVisibilityJewelryReviewCommand(userId.Value, AccountRole.CustomerId, JewelryId));
+                if (result.IsSuccess)
+                {
+                    var mappedResult = _mapper.Map<JewelryReviewDto>(result.Value);
+                    return Ok(mappedResult);
+                }
+                else
+                    return MatchError(result.Errors, ModelState);
+            }
+            else
+                return Unauthorized();
+        }
+        [HttpPut("ChangeVisibility")]
+        [Authorize(Roles = AccountRole.StaffId)]
+        public async Task<ActionResult> ChangeVisibilityJewelryReview([FromQuery] string JewelryId)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            var userRoles = User.FindAll(IJwtTokenProvider.ROLE_CLAIM_NAME);
+            if (userId != null && userRoles.Count() > 0)
+            {
+                var result = await _sender.Send(new ChangeVisibilityJewelryReviewCommand(userId.Value, AccountRole.StaffId, JewelryId));
                 if (result.IsSuccess)
                 {
                     var mappedResult = _mapper.Map<JewelryReviewDto>(result.Value);

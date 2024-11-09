@@ -16,6 +16,7 @@ namespace DiamondShop.Application.Services.Interfaces.JewelryReviews
     {
         Task<Result<string[]>> UploadReview(Jewelry jewelry, FileData[] streams, CancellationToken token = default);
         Task<List<Media>> GetFolders(JewelryModelId modelId, MetalId? metalId, CancellationToken token = default);
-
+        Task<List<Media>> GetFolders(Jewelry jewelry, CancellationToken token = default);
+        Task<Result> DeleteFiles(Jewelry jewelry, CancellationToken token = default);
     }
 }
