@@ -6,6 +6,7 @@ using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Transactions;
+using DiamondShop.Domain.Models.Transactions.Entities;
 using DiamondShop.Domain.Repositories.TransactionRepo;
 using DiamondShop.Domain.Services.Implementations;
 using DiamondShop.Domain.Services.interfaces;
@@ -47,7 +48,7 @@ namespace DiamondShop.Test.Domain
         {
             // Arrange
             var expected = 30_000_000m;
-            var order = Order.Create(AccountId.Create(), PaymentType.Payall,30_000_000m, 300_000m,"adsf");
+            var order = Order.Create(AccountId.Create(), PaymentType.Payall,PaymentMethod.BANK_TRANSFER.Id,30_000_000m, 300_000m,"adsf");
             // Act
             var amount = OrderTransactionService.GetCorrectAmountFromOrder(order);
             // Assert
@@ -60,7 +61,7 @@ namespace DiamondShop.Test.Domain
             // Arrange
             var amount = 30_000_000m;
             var expected = amount * ( decimal.Divide(OrderPaymentRules.CODPercent,100));
-            var order = Order.Create(AccountId.Create(), PaymentType.COD, amount, 300_000m, "adsf");
+            var order = Order.Create(AccountId.Create(), PaymentType.COD, PaymentMethod.BANK_TRANSFER.Id, amount, 300_000m, "adsf");
             // Act
             var result = OrderTransactionService.GetCorrectAmountFromOrder(order);
             // Assert
@@ -74,7 +75,7 @@ namespace DiamondShop.Test.Domain
             var transactionAmount = amount * (decimal.Divide(OrderPaymentRules.CODPercent, 100));
             var expected = amount - transactionAmount;
             //var expected = amount * (decimal.Divide(OrderPaymentRules.CODPercent, 100));
-            var order = Order.Create(AccountId.Create(), PaymentType.COD, amount, 300_000m, "adsf");
+            var order = Order.Create(AccountId.Create(), PaymentType.COD, PaymentMethod.BANK_TRANSFER.Id, amount, 300_000m, "adsf");
             var transaction = Transaction.CreateManualPayment(order.Id,"asdf", transactionAmount,DiamondShop.Domain.Models.Transactions.Enum.TransactionType.Pay);
             order.Transactions.Add(transaction);
             order.PaymentStatus = PaymentStatus.Deposited;
@@ -88,7 +89,7 @@ namespace DiamondShop.Test.Domain
         {
             // Arrange
             var expected = 30_000_000m;
-            var order = Order.Create(AccountId.Create(), PaymentType.Payall,30_000_000m, 300_000m,"adsf");
+            var order = Order.Create(AccountId.Create(), PaymentType.Payall, PaymentMethod.BANK_TRANSFER.Id, 30_000_000m, 300_000m,"adsf");
             order.CustomizeRequestId = CustomizeRequestId.Create();
             // Act
             var amount = OrderTransactionService.GetCorrectAmountFromOrder(order);
@@ -102,7 +103,7 @@ namespace DiamondShop.Test.Domain
             // Arrange
             var amount = 30_000_000m;
             var expected = amount * ( decimal.Divide(OrderPaymentRules.CODPercentCustom,100));
-            var order = Order.Create(AccountId.Create(), PaymentType.COD, amount, 300_000m, "adsf");
+            var order = Order.Create(AccountId.Create(), PaymentType.COD, PaymentMethod.BANK_TRANSFER.Id, amount, 300_000m, "adsf");
             order.CustomizeRequestId = CustomizeRequestId.Create();
             // Act
             var result = OrderTransactionService.GetCorrectAmountFromOrder(order);
@@ -117,7 +118,7 @@ namespace DiamondShop.Test.Domain
             var transactionAmount = amount * (decimal.Divide(OrderPaymentRules.CODPercentCustom, 100));
             var expected = amount - transactionAmount;
             //var expected = amount * (decimal.Divide(OrderPaymentRules.CODPercent, 100));
-            var order = Order.Create(AccountId.Create(), PaymentType.COD, amount, 300_000m, "adsf");
+            var order = Order.Create(AccountId.Create(), PaymentType.COD, PaymentMethod.BANK_TRANSFER.Id, amount, 300_000m, "adsf");
             order.CustomizeRequestId = CustomizeRequestId.Create();
             var transaction = Transaction.CreateManualPayment(order.Id,"asdf", transactionAmount,DiamondShop.Domain.Models.Transactions.Enum.TransactionType.Pay);
             order.Transactions.Add(transaction);
@@ -134,7 +135,7 @@ namespace DiamondShop.Test.Domain
             var amount = 30_000_000m;
             var transactionAmount = amount * (decimal.Divide(OrderPaymentRules.CODPercent, 100));
             var expected = amount - transactionAmount;
-            var order = Order.Create(AccountId.Create(), PaymentType.COD, amount, 300_000m, "adsf");
+            var order = Order.Create(AccountId.Create(), PaymentType.COD, PaymentMethod.BANK_TRANSFER.Id, amount, 300_000m, "adsf");
             var transaction = Transaction.CreateManualPayment(order.Id, "asdf", transactionAmount, DiamondShop.Domain.Models.Transactions.Enum.TransactionType.Pay);
             order.Transactions.Add(transaction);
             order.PaymentStatus = PaymentStatus.Deposited;

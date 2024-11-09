@@ -5,6 +5,7 @@ using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
+using DiamondShop.Domain.Models.Transactions.Entities;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -19,7 +20,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
     {
         public OrderRepository(DiamondShopDbContext dbContext) : base(dbContext)
         {
-
+            
         }
 
         public override Task<Order?> GetById(params object[] ids)

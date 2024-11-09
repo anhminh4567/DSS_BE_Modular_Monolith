@@ -10,7 +10,9 @@ using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Models.Transactions;
+using DiamondShop.Domain.Models.Transactions.Entities;
 using DiamondShop.Domain.Models.Transactions.Enum;
+using DiamondShop.Domain.Models.Transactions.ValueObjects;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DiamondShop.Domain.Models.Orders
@@ -33,6 +35,8 @@ namespace DiamondShop.Domain.Models.Orders
         public OrderStatus Status { get; set; }
         public PaymentType PaymentType { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
+        public PaymentMethodId? PaymentMethodId { get; set; }
+        public PaymentMethod? PaymentMethod { get; set; }
         public decimal ShippingFee { get; set; }
         public decimal TotalPrice { get; set; }
         public decimal TotalRefund { get; set; } = 0;
@@ -66,7 +70,7 @@ namespace DiamondShop.Domain.Models.Orders
         }
 
         public Order() { }
-        public static Order Create(AccountId accountId, PaymentType paymentType, 
+        public static Order Create(AccountId accountId, PaymentType paymentType, PaymentMethodId paymentMethodId,
             decimal totalPrice, decimal shippingFee, string shippingAddress, CustomizeRequestId? customizeRequestId = null,
             PromotionId promotionId = null, decimal orderSavedAmount = 0, OrderId givenId = null)
         {
@@ -83,7 +87,8 @@ namespace DiamondShop.Domain.Models.Orders
                 TotalPrice = totalPrice,
                 ShippingFee = shippingFee,
                 ShippingAddress = shippingAddress,
-                OrderSavedAmount = orderSavedAmount
+                OrderSavedAmount = orderSavedAmount,
+                PaymentMethodId = paymentMethodId
             };
         }
         public void Deposit(Transaction depositedTransaction)

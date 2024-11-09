@@ -15,6 +15,7 @@ using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.RoleAggregate;
+using DiamondShop.Domain.Models.Transactions.Entities;
 using DiamondShop.Domain.Repositories.DeliveryRepo;
 using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Options;
@@ -185,7 +186,7 @@ namespace DiamondShopSystem.Controllers
         public async Task<ActionResult> testzalopayservice()
         {
             Account falseAccount = Account.CreateBaseCustomer(FullName.Create("minh", "tran"), "abc@gmail.com", "asdf", new List<AccountRole> { AccountRole.Customer });
-            Order falseOrder = Order.Create(falseAccount.Id, PaymentType.Payall, 100000m, 10000m, "adfads");
+            Order falseOrder = Order.Create(falseAccount.Id, PaymentType.Payall,PaymentMethod.ZALOPAY.Id, 100000m, 10000m, "adfads");
             PaymentLinkRequest falseRequest = new PaymentLinkRequest()
             {
                 Account = falseAccount,

@@ -8,6 +8,7 @@ using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.Transactions;
+using DiamondShop.Domain.Models.Transactions.Entities;
 using DiamondShop.Domain.Models.Transactions.Enum;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Repositories.TransactionRepo;
@@ -47,6 +48,8 @@ namespace DiamondShop.Application.Usecases.Transactions.Commands.AddManualPaymen
         {
             var orderId = OrderId.Parse(request.orderId);
             var tryGetOrder = await _orderRepository.GetById(orderId);
+            var getAllPaymentMethod = await _paymentMethodRepository.GetAll();
+            var getManual = getAllPaymentMethod.FirstOrDefault(p => p.Id == PaymentMethod.BANK_TRANSFER.Id);
             if (tryGetOrder is null)
                 return Result.Fail(new NotFoundError("Order not found"));
             Transaction newTrans;

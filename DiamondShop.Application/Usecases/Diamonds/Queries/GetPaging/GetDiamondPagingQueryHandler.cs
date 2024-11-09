@@ -37,6 +37,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
         private List<Discount> ActiveDiscount = new();
         private List<DiamondShape> Shapes = new();
         private int Count = 0;
+        private bool IncludeJewelryDiamond = false;
         public GetDiamondPagingQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, IDiamondServices diamondService, IDiamondShapeRepository diamondShapeRepository, IDiscountService discountService, IDiscountRepository discountRepository, IHttpContextAccessor httpContextAccessor)
         {
             _diamondRepository = diamondRepository;
@@ -50,12 +51,12 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
 
         public async Task<Result<PagingResponseDto<Diamond>>> Handle(GetDiamondPagingQuery request, CancellationToken cancellationToken)
         {
-            request.Deconstruct(out int pageSize, out int start, out string shapeId, out decimal priceStart, out var priceEnd, out var diamond_4C, out var diamond_Details, out var isLab);
+            request.Deconstruct(out bool? includeJewelryDiamond , out int pageSize, out int start, out string shapeId, out decimal priceStart, out var priceEnd, out var diamond_4C, out var diamond_Details, out var isLab);
             var query = _diamondRepository.GetQuery();
             List<DiamondPrice> getRoundPrice = new();
             List<DiamondPrice> getFancyPrice = new();
             List<Diamond> diamondListResponse = new();
-
+            IncludeJewelryDiamond = includeJewelryDiamond.Value;
             getFancyPrice = await _diamondPriceRepository.GetPrice(true, request.isLab, cancellationToken);
             getRoundPrice = await _diamondPriceRepository.GetPrice(false, request.isLab, cancellationToken);
 
@@ -126,6 +127,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             if (AccountRole.ShopRoles.Any(x => _httpContextAccessor.HttpContext.User.IsInRole(x.Id.Value)) is false)//not in shop
             {
                 query = _diamondRepository.QueryFilter(query, d => d.Status == Domain.Common.Enums.ProductStatus.Active);
+                if(IncludeJewelryDiamond is false)
+                    query = _diamondRepository.QueryFilter(query, d => d.JewelryId == null);
             }
             query = query.Where(d => d.DiamondShapeId == parsedShape);
             if (request.diamond_4C is not null)

@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Commons.Models;
 using DiamondShop.Application.Dtos.Responses;
+using DiamondShop.Application.Dtos.Responses.Transactions;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.AccountRoleAggregate.ValueObjects;
@@ -11,6 +12,7 @@ using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
+using DiamondShop.Domain.Models.Transactions.Entities;
 using DiamondShop.Domain.Models.Transactions.ValueObjects;
 using DiamondShop.Domain.Models.Warranties.ValueObjects;
 using Mapster;
@@ -81,6 +83,10 @@ namespace DiamondShop.Application.Mappers
             config.NewConfig<WarrantyId,string>()
                 .MapWith(src => src.Value).Compile();
 
+            config.NewConfig<PaymentMethodId, string>()
+                .MapWith(src => src.Value).Compile();
+            config.NewConfig<PaymentMethod, PaymentMethodDto>()
+                .Map(dest => dest.MappedName, src => PaymentMethodHelper.GetMethodName(src));
         }
     }
 }

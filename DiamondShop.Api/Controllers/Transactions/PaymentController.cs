@@ -4,6 +4,7 @@ using DiamondShop.Application.Usecases.Transactions.Commands.AddManualPayments;
 using DiamondShop.Application.Usecases.Transactions.Commands.AddManualRefunds;
 using DiamondShop.Application.Usecases.Transactions.Commands.CreatePaymentLink;
 using DiamondShop.Application.Usecases.Transactions.Queries.GetAll;
+using DiamondShop.Application.Usecases.Transactions.Queries.GetAllMethods;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -15,7 +16,7 @@ namespace DiamondShop.Api.Controllers.Transactions
 {
     [Route("api/[controller]")]
     [ApiController]
-    [ApiExplorerSettings(IgnoreApi = true)]
+    //[ApiExplorerSettings(IgnoreApi = true)]
     public class PaymentController : ApiControllerBase
     {
         private readonly ISender _sender;
@@ -26,7 +27,12 @@ namespace DiamondShop.Api.Controllers.Transactions
             _sender = sender;
             _mapper = mapper;
         }
-
+        [HttpGet("All")]
+        public async Task<ActionResult> GetAllPaymentMethod()
+        {
+            var result = await _sender.Send(new GetAllPaymentMethodQuery());
+            return Ok(result);
+        }
        
     }
 }
