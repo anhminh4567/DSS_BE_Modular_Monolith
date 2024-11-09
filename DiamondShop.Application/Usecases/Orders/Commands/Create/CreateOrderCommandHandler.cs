@@ -10,6 +10,7 @@ using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
+using DiamondShop.Domain.Models.Transactions.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
@@ -22,7 +23,7 @@ using System.Collections.Generic;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 {
-    public record CreateOrderInfo(PaymentType PaymentType, string PaymentName, string? RequestId, string? PromotionId, string Address, List<OrderItemRequestDto> OrderItemRequestDtos);
+    public record CreateOrderInfo(PaymentType PaymentType, string methodId , string PaymentName, string? RequestId, string? PromotionId, string Address, List<OrderItemRequestDto> OrderItemRequestDtos);
     public record CreateOrderCommand(string AccountId, CreateOrderInfo CreateOrderInfo, Order? ParentOrder = null, List<OrderItem> ParentItems = null) : IRequest<Result<Order>>;
     internal class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Result<Order>>
     {
@@ -37,30 +38,37 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         private readonly IOrderService _orderService;
         private readonly IJewelryService _jewelryService;
         private readonly IOrderTransactionService _orderTransactionService;
+        private readonly IPaymentMethodRepository _paymentMethodRepository;
 
-        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IOrderTransactionService orderTransactionService, IJewelryService jewelryService, ISizeMetalRepository sizeMetalRepository)
+        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, ISizeMetalRepository sizeMetalRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IJewelryService jewelryService, IOrderTransactionService orderTransactionService, IPaymentMethodRepository paymentMethodRepository)
         {
             _accountRepository = accountRepository;
             _orderRepository = orderRepository;
             _orderItemRepository = orderItemRepository;
             _diamondRepository = diamondRepository;
+            _sizeMetalRepository = sizeMetalRepository;
             _jewelryRepository = jewelryRepository;
             _unitOfWork = unitOfWork;
             _sender = sender;
             _orderService = orderService;
-            _orderTransactionService = orderTransactionService;
             _jewelryService = jewelryService;
-            _sizeMetalRepository = sizeMetalRepository;
+            _orderTransactionService = orderTransactionService;
+            _paymentMethodRepository = paymentMethodRepository;
         }
 
         public async Task<Result<Order>> Handle(CreateOrderCommand request, CancellationToken token)
         {
             await _unitOfWork.BeginTransactionAsync(token);
             request.Deconstruct(out string accountId, out CreateOrderInfo createOrderInfo, out Order? parentOrder, out List<OrderItem> parentItems);
-            createOrderInfo.Deconstruct(out PaymentType paymentType, out string paymentName, out string? requestId, out string? promotionId, out string address, out List<OrderItemRequestDto> orderItemReqs);
+            createOrderInfo.Deconstruct(out PaymentType paymentType, out string methodId, out string paymentName, out string? requestId, out string? promotionId, out string address, out List<OrderItemRequestDto> orderItemReqs);
             var account = await _accountRepository.GetById(AccountId.Parse(accountId));
             if (account == null)
                 return Result.Fail("This account doesn't exist");
+            PaymentMethodId parrsedMethodId = PaymentMethodId.Parse(methodId);
+            var getAllPaymentMethod = await _paymentMethodRepository.GetAll();
+            var paymentMethod = getAllPaymentMethod.FirstOrDefault(p => p.Id == parrsedMethodId);
+            if(paymentMethod == null)
+                return Result.Fail("This payment method doesn't exist");
             //TODO: Validate account status
             List<IError> errors = new List<IError>();
             var items = orderItemReqs.Select((item) =>
@@ -111,7 +119,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             //    }
             var customizeRequestId = requestId == null ? null : CustomizeRequestId.Parse(requestId);
             var orderPromo = cartModel.Promotion.Promotion;
-            var order = Order.Create(account.Id, paymentType, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice,
+            var order = Order.Create(account.Id, paymentType, paymentMethod.Id, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice,
                 address, customizeRequestId, orderPromo?.Id);
             //if replacement order
             if (parentOrder != null)

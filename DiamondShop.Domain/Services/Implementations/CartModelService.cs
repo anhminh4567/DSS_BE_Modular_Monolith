@@ -163,6 +163,8 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 var jewelry = await _jewelryRepository.GetById(cartItem.JewelryId);
                 cartProduct.Jewelry = jewelry;
+                cartProduct.EngravedFont = cartItem.EngravedFont;
+                cartProduct.EngravedText = cartItem.EngravedText;
                 //return here, since the jewelry wont contain id for diamond or jewelry mode, 
                 // but jewelry model might have diamond attached to it, so diamond might have both jewelry and jewelry model id
                 return cartProduct;
@@ -171,6 +173,8 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 var jewelryModel = await _jewelryModelRepository.GetByIdMinimal(cartItem.JewelryModelId);
                 cartProduct.JewelryModel = jewelryModel;
+                cartProduct.EngravedFont = cartItem.EngravedFont;
+                cartProduct.EngravedText = cartItem.EngravedText;
             }
             if (cartItem.DiamondId is not null)
             {

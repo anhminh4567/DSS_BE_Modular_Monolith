@@ -28,8 +28,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
         private readonly IOrderTransactionService _orderTransactionService;
         private readonly ISender _sender;
         private readonly IPublisher _publisher;
+        private readonly IPaymentMethodRepository _paymentMethodRepository;
 
-        public ProceedOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, ISender sender, IPublisher publisher)
+        public ProceedOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, ISender sender, IPublisher publisher, IPaymentMethodRepository paymentMethodRepository)
         {
             _accountRepository = accountRepository;
             _orderRepository = orderRepository;
@@ -40,6 +41,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             _orderTransactionService = orderTransactionService;
             _sender = sender;
             _publisher = publisher;
+            _paymentMethodRepository = paymentMethodRepository;
         }
 
         public async Task<Result<Order>> Handle(ProceedOrderCommand request, CancellationToken token)
@@ -48,6 +50,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             await _unitOfWork.BeginTransactionAsync(token);
             var order = await _orderRepository.GetById(OrderId.Parse(orderId));
             var account = await _accountRepository.GetById(order.AccountId);
+            var paymentMethods = await _paymentMethodRepository.GetAll();
             if (order == null)
                 return Result.Fail("No order found!");
             if (account == null)

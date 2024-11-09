@@ -12,6 +12,7 @@ using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Transactions.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Models.Transactions.Entities;
 
 namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
 {
@@ -47,6 +48,13 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
             builder.HasOne(o => o.Deliverer).WithMany().HasForeignKey(o => o.DelivererId).IsRequired(false).OnDelete(DeleteBehavior.NoAction);
 
             builder.HasOne<CustomizeRequest>().WithOne().HasForeignKey<Order>(o => o.CustomizeRequestId).IsRequired(false);
+
+            builder.HasOne(x => x.PaymentMethod)
+                .WithMany()
+                .HasForeignKey(x => x.PaymentMethodId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.NoAction);
+            builder.Navigation(x => x.PaymentMethod).AutoInclude();
             builder.HasKey(o => o.Id);
         }
     }
