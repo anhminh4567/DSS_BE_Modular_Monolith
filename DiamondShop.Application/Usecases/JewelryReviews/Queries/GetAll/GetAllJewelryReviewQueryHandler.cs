@@ -6,7 +6,7 @@ using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.JewelryReviewRepo;
 using MediatR;
 
-namespace DiamondShop.Application.Usecases.JewelryReviews.Queries
+namespace DiamondShop.Application.Usecases.JewelryReviews.Queries.GetAll
 {
     public record GetAllJewelryReviewQuery(int CurrentPage, int PageSize, string ModelId, string? MetalId, bool OrderByOldest) : IRequest<PagingResponseDto<JewelryReview>>;
     internal class GetAllJewelryReviewQueryHandler : IRequestHandler<GetAllJewelryReviewQuery, PagingResponseDto<JewelryReview>>
@@ -37,7 +37,7 @@ namespace DiamondShop.Application.Usecases.JewelryReviews.Queries
             var maxPage = (int)Math.Ceiling(orderedQuery.Count() / (decimal)pageSize);
             var reviews = orderedQuery.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
             var medias = await _jewelryReviewFileService.GetFolders(JewelryModelId.Parse(modelId), MetalId.Parse(metalId));
-            foreach(var review in reviews)
+            foreach (var review in reviews)
             {
                 review.Medias.AddRange(medias.FindAll(p => p.MediaPath.Contains(review.Jewelry.SerialCode)));
             }

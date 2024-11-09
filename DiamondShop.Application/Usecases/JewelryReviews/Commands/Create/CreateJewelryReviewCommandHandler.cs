@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace DiamondShop.Application.Usecases.JewelryReviews.Commands.Create
 {
-    public record JewelryReviewRequestDto(string JewelryId, string Content, int starRating, IFormFile[] Files);
+    public record JewelryReviewRequestDto(string JewelryId, string Content, int StarRating, IFormFile[] Files);
     public record CreateJewelryReviewCommand(string AccountId, JewelryReviewRequestDto JewelryReviewRequestDto) : IRequest<Result<JewelryReview>>;
     internal class CreateJewelryReviewCommandHandler : IRequestHandler<CreateJewelryReviewCommand, Result<JewelryReview>>
     {
@@ -65,7 +65,7 @@ namespace DiamondShop.Application.Usecases.JewelryReviews.Commands.Create
                 var result = await _jewelryReviewFileService.UploadReview(jewelry, fileDatas);
                 if (result.IsFailed)
                     return Result.Fail(result.Errors);
-                review.Medias.AddRange(result.Value.Select(p => Media.Create(p, "", "")));
+                review.Medias.AddRange(result.Value.Select(p => Media.Create("", p, p.Split(".")[1])));
             }
             await _unitOfWork.CommitAsync(token);
             return review;

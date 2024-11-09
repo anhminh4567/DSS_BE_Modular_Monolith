@@ -30,6 +30,11 @@ namespace DiamondShop.Infrastructure.Services.Blobs
         {
             _logger = logger;
         }
+        public Task<List<Media>> GetFolders(Jewelry jewelry, CancellationToken token = default)
+        {
+            string basePath = $"{GetAzureFilePath(jewelry)}/{ReviewFileFolder(jewelry.SerialCode)}";
+            return base.GetFolders(basePath, token);
+        }
 
         public Task<List<Media>> GetFolders(JewelryModelId modelId, MetalId? metalId, CancellationToken token = default)
         {
@@ -46,7 +51,11 @@ namespace DiamondShop.Infrastructure.Services.Blobs
                 return base.GetFolders(basePath, token);
             }
         }
-
+        public Task<Result> DeleteFiles(Jewelry jewelry, CancellationToken token = default)
+        {
+            string basePath = $"{GetAzureFilePath(jewelry)}/{ReviewFileFolder(jewelry.SerialCode)}";
+            return base.DeleteFileAsync(basePath, token);
+        }
         public async Task<Result<string[]>> UploadReview(Jewelry jewelry, FileData[] streams, CancellationToken token = default)
         {
             string basePath = GetAzureFilePath(jewelry);
@@ -56,7 +65,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             {
                 uploadTasks.Add(Task.Run(async () =>
                 {
-                    var finalPath = $"{basePath}/{ReviewFileName(jewelry.SerialCode)}_{GetTimeStamp()}";
+                    var finalPath = $"{basePath}/{ReviewFileFolder(jewelry.SerialCode)}/{GetTimeStamp()}";
                     if (stream.FileExtension != null)
                         finalPath = $"{finalPath}.{GetExtensionName(stream.FileExtension)}";
                     var result = await UploadFileAsync(finalPath, stream.Stream, stream.contentType, token);
@@ -86,12 +95,13 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             "image/jpg" => "jpg",
             "image/gif" => "gif",
             "video/mp4" => "mp4",
-            "application/pdf" => "pdf",
             _ => fileExtension
         };
-        string ReviewFileName(string serialCode) => $"{serialCode}";
+        string ReviewFileFolder(string serialCode) => $"{serialCode}";
         string GetAzureFilePath(Jewelry jewelry) => $"{PARENT_FOLDER}/{jewelry.ModelId.Value}/{jewelry.MetalId.Value}";
         string GetAzureFilePath(JewelryModelId modelId) => $"{PARENT_FOLDER}/{modelId.Value}";
         string GetAzureFilePath(JewelryModelId modelId, MetalId metalId) => $"{PARENT_FOLDER}/{modelId.Value}/{metalId.Value}";
+
+        
     }
 }
