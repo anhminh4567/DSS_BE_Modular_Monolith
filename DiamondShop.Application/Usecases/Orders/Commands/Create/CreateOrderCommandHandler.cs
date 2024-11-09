@@ -2,6 +2,7 @@
 using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
@@ -10,6 +11,7 @@ using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
+using DiamondShop.Domain.Models.Transactions.Entities;
 using DiamondShop.Domain.Models.Transactions.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
@@ -19,6 +21,7 @@ using DiamondShop.Domain.Repositories.TransactionRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
+using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Create
@@ -39,8 +42,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         private readonly IJewelryService _jewelryService;
         private readonly IOrderTransactionService _orderTransactionService;
         private readonly IPaymentMethodRepository _paymentMethodRepository;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, ISizeMetalRepository sizeMetalRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IJewelryService jewelryService, IOrderTransactionService orderTransactionService, IPaymentMethodRepository paymentMethodRepository)
+        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, ISizeMetalRepository sizeMetalRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IJewelryService jewelryService, IOrderTransactionService orderTransactionService, IPaymentMethodRepository paymentMethodRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _accountRepository = accountRepository;
             _orderRepository = orderRepository;
@@ -54,10 +58,12 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             _jewelryService = jewelryService;
             _orderTransactionService = orderTransactionService;
             _paymentMethodRepository = paymentMethodRepository;
+            _optionsMonitor = optionsMonitor;
         }
 
         public async Task<Result<Order>> Handle(CreateOrderCommand request, CancellationToken token)
         {
+            var transactionRule = _optionsMonitor.CurrentValue.TransactionRule;
             await _unitOfWork.BeginTransactionAsync(token);
             request.Deconstruct(out string accountId, out CreateOrderInfo createOrderInfo, out Order? parentOrder, out List<OrderItem> parentItems);
             createOrderInfo.Deconstruct(out PaymentType paymentType, out string methodId, out string paymentName, out string? requestId, out string? promotionId, out string address, out List<OrderItemRequestDto> orderItemReqs);
@@ -117,6 +123,12 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             //        var invalidItem = cartModel.Products[index];
             //        var error = Result.Fail(cartModel);
             //    }
+            if(paymentMethod.Id == PaymentMethod.ZALOPAY.Id)
+            {
+                if (cartModelResult.Value.OrderPrices.FinalPrice > transactionRule.MaximumPerTransaction)
+                    return Result.Fail("Transaction value is too high for method "+ PaymentMethod.ZALOPAY.MethodName);
+            }
+
             var customizeRequestId = requestId == null ? null : CustomizeRequestId.Parse(requestId);
             var orderPromo = cartModel.Promotion.Promotion;
             var order = Order.Create(account.Id, paymentType, paymentMethod.Id, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice,
