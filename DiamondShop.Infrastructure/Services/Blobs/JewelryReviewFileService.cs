@@ -71,7 +71,6 @@ namespace DiamondShop.Infrastructure.Services.Blobs
                     var result = await UploadFileAsync(finalPath, stream.Stream, stream.contentType, token);
                     if (result.IsFailed)
                         _logger.LogError("Failed to upload file with name: {0}", stream.FileName);
-
                     else
                         _logger.LogInformation("uploaded file with name: {0}", stream.FileName);
                     return result;

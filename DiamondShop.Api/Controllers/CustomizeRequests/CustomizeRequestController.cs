@@ -8,6 +8,8 @@ using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Staff;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendRequest;
 using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetAll;
+using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomer;
+using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomerDetail;
 using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetDetail;
 using DiamondShop.Domain.Models.RoleAggregate;
 using MapsterMapper;
@@ -42,7 +44,7 @@ namespace DiamondShop.Api.Controllers.CustomRequest
             return MatchError(result.Errors, ModelState);
         }
         [HttpGet("Staff/Detail")]
-        public async Task<ActionResult> GetDetail([FromQuery] GetDetailCustomizeRequestQuery getDetailCustomizeRequestQuery)
+        public async Task<ActionResult> GetDetail([FromQuery] GetCustomerDetailCustomizeRequestQuery getDetailCustomizeRequestQuery)
         {
             var result = await _sender.Send(getDetailCustomizeRequestQuery);
             if (result.IsSuccess)
@@ -80,6 +82,34 @@ namespace DiamondShop.Api.Controllers.CustomRequest
         }
         #endregion
         #region Customer
+        [HttpGet("Customer/All")]
+        [Authorize(Roles = AccountRole.CustomerId)]
+        public async Task<ActionResult> GetCustomerRequest([FromQuery] GetCustomerRequestDto getCustomerRequestDto)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(new GetCustomerCustomizeRequestQuery(userId.Value, getCustomerRequestDto));
+                var mappedResult = _mapper.Map<CustomizeRequestDto>(result);
+                return Ok(mappedResult);
+            }
+            else
+                return Unauthorized();
+        }
+        [HttpGet("Customer/Detail")]
+        [Authorize(Roles = AccountRole.CustomerId)]
+        public async Task<ActionResult> GetCustomerRequest([FromQuery] string requestId)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(new GetCustomerDetailCustomizeRequestQuery(requestId, userId.Value));
+                var mappedResult = _mapper.Map<CustomizeRequestDto>(result);
+                return Ok(mappedResult);
+            }
+            else
+                return Unauthorized();
+        }
         [HttpPost("Send")]
         [Authorize(Roles = AccountRole.CustomerId)]
         public async Task<ActionResult> SendRequest([FromBody] CustomizeModelRequest customizeModelRequest)

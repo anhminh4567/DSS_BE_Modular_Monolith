@@ -24,6 +24,17 @@ namespace DiamondShop.Domain.Repositories.CustomizeRequestRepo
             return await _set.Include(x => x.Account).Include(x => x.DiamondRequests).FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<CustomizeRequest?> GetDetail(CustomizeRequestId requestId, AccountId accountId)
+        {
+            var query = _set.AsQueryable();
+            query = query.Include(p => p.JewelryModel.SizeMetals).ThenInclude(p => p.Metal);
+            query = query.Include(p => p.SideDiamond);
+            query = query.Include(p => p.DiamondRequests).ThenInclude(p => p.Diamond).ThenInclude(p => p.DiamondShape);
+            query = query.Include(p => p.Jewelry);
+            query = query.Include(p => p.Account);
+            query = query.AsSplitQuery();
+            return await query.FirstOrDefaultAsync(p => p.Id == requestId && p.AccountId == accountId);
+        }
         public async Task<CustomizeRequest?> GetDetail(CustomizeRequestId requestId)
         {
             var query = _set.AsQueryable();

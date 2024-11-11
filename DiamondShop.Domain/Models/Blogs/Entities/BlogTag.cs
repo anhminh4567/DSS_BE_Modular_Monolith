@@ -9,5 +9,9 @@ namespace DiamondShop.Domain.Models.Blogs.Entities
     public class BlogTag
     {
         public string Value { get; set; }
+        public BlogTag(string value)
+        {
+            Value = value;
+        }  
     }
 }

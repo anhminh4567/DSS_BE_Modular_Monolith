@@ -1,4 +1,4 @@
-﻿using DiamondShop.Application.Commons.Responses;
+﻿using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
@@ -8,16 +8,16 @@ using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
 
-namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetDetail
+namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomerDetail
 {
-    public record GetDetailCustomizeRequestQuery(string RequestId) : IRequest<Result<CustomizeRequest>>;
-    internal class GetDetailCustomizeRequestQueryHandler : IRequestHandler<GetDetailCustomizeRequestQuery, Result<CustomizeRequest>>
+    public record GetCustomerDetailCustomizeRequestQuery(string RequestId, string AccountId) : IRequest<Result<CustomizeRequest>>;
+    internal class GetCustomerDetailCustomizeRequestQueryHandler : IRequestHandler<GetCustomerDetailCustomizeRequestQuery, Result<CustomizeRequest>>
     {
         private readonly IDiscountRepository _discountRepository;
         private readonly ICustomizeRequestRepository _customizeRequestRepository;
         private readonly IJewelryService _jewelryService;
         private readonly IJewelryModelService _jewelryModelService;
-        public GetDetailCustomizeRequestQueryHandler(ICustomizeRequestRepository customizeRequestRepository, IJewelryModelService jewelryModelService, IJewelryService jewelryService, IDiscountRepository discountRepository)
+        public GetCustomerDetailCustomizeRequestQueryHandler(ICustomizeRequestRepository customizeRequestRepository, IJewelryModelService jewelryModelService, IJewelryService jewelryService, IDiscountRepository discountRepository)
         {
             _customizeRequestRepository = customizeRequestRepository;
             _jewelryModelService = jewelryModelService;
@@ -25,11 +25,11 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetDetail
             _discountRepository = discountRepository;
         }
 
-        public async Task<Result<CustomizeRequest>> Handle(GetDetailCustomizeRequestQuery request, CancellationToken cancellationToken)
+        public async Task<Result<CustomizeRequest>> Handle(GetCustomerDetailCustomizeRequestQuery request, CancellationToken cancellationToken)
         {
-            request.Deconstruct(out string requestId);
+            request.Deconstruct(out string requestId, out string accountId);
             var discounts = await _discountRepository.GetActiveDiscount();
-            var customizeRequest = await _customizeRequestRepository.GetDetail(CustomizeRequestId.Parse(requestId));
+            var customizeRequest = await _customizeRequestRepository.GetDetail(CustomizeRequestId.Parse(requestId), AccountId.Parse(accountId));
             var model = customizeRequest.JewelryModel;
             if (model == null)
                 return Result.Fail("Can't get the requested jewelry model");

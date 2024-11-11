@@ -4,24 +4,31 @@ using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Blogs.Entities;
 using DiamondShop.Domain.Models.Blogs.ValueObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DiamondShop.Domain.Models.Blogs
 {
-    public class Blog: Entity<BlogId>
+    public class Blog : Entity<BlogId>
     {
-        public List<BlogTag> Tags { get; set; } = new ();
+        public List<BlogTag> Tags { get; set; } = new();
         public AccountId AccountId { get; set; }
         public Account Account { get; set; }
         public Media? Thumbnail { get; set; }
         public string Title { get; set; }
-        public string Content { get; set; }
         public DateTime CreatedDate { get; set; }
-        public List<BlogMedia>? Medias { get; set; } = new ();
-        public Blog() { }
+        [NotMapped]
+        public List<Media>? Medias { get; set; } = new();
+        private Blog() { }
+        public static Blog Create(List<BlogTag> blogTags, AccountId accountId, string title)
+        {
+            return new Blog()
+            {
+                Id = BlogId.Create(),
+                Tags = blogTags,
+                AccountId = accountId,
+                Title = title,
+                CreatedDate = DateTime.UtcNow,
+            };
+        }
     }
 }
