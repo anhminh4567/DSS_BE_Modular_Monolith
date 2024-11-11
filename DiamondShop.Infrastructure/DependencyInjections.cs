@@ -53,6 +53,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Quartz;
+using DiamondShop.Domain.Repositories.BlogRepo;
+using DiamondShop.Infrastructure.Databases.Repositories.BlogRepo;
+using DiamondShop.Application.Services.Interfaces.Blogs;
 
 namespace DiamondShop.Infrastructure
 {
@@ -125,6 +128,8 @@ namespace DiamondShop.Infrastructure
 
             services.AddScoped<IPaymentService, ZalopayPaymentService>();
             services.AddScoped<ILocationRepository,LocationRepository>();
+
+            services.AddScoped<IBlogRepository, BlogRepository>();
 
             services.AddSingleton<ICartService, CartService>();
 
@@ -200,6 +205,7 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IDiamondExcelService,DiamondExcelService>();
             services.AddScoped<IJewelryModelFileService, JewelryModelFileService>();
             services.AddScoped<IJewelryReviewFileService, JewelryReviewFileService>();
+            services.AddScoped<IBlogFileService, BlogFileService>();
             services.AddScoped<IApplicationSettingService, ApplicationSettingService>();
             services.AddScoped<IDeliveryFeeServices, DeliveryFeeServices>();
 

@@ -4,6 +4,7 @@ using DiamondShop.Application.Dtos.Responses.Transactions;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.AccountRoleAggregate.ValueObjects;
+using DiamondShop.Domain.Models.Blogs.ValueObjects;
 using DiamondShop.Domain.Models.DeliveryFees.ValueObjects;
 using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
@@ -64,6 +65,9 @@ namespace DiamondShop.Application.Mappers
 
             config.NewConfig<MetalId, string>()
                .MapWith(src => src.Value).Compile();
+
+            config.NewConfig<BlogId, string>()
+                .MapWith(src => src.Value).Compile();
 
             config.NewConfig<OrderId, string>()
                 .MapWith(src => src.Value).Compile();

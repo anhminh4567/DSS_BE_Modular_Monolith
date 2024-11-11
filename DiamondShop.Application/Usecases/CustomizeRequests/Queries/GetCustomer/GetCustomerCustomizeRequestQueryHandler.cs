@@ -3,39 +3,31 @@ using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
-using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
-using DiamondShop.Domain.Services.interfaces;
-using FluentResults;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetAll
+namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomer
 {
-    public record GetAllCustomizeRequestQuery(int CurrentPage, int PageSize, string? Email, string? CreatedDate, string? ExpiredDate, CustomizeRequestStatus? Status) : IRequest<Result<PagingResponseDto<CustomizeRequest>>>;
-    internal class GetAllCustomizeRequestQueryHandler : IRequestHandler<GetAllCustomizeRequestQuery, Result<PagingResponseDto<CustomizeRequest>>>
+    public record GetCustomerRequestDto(int CurrentPage, int PageSize, string? CreatedDate, string? ExpiredDate, CustomizeRequestStatus? Status);
+    public record GetCustomerCustomizeRequestQuery(string AccountId, GetCustomerRequestDto GetCustomerRequestDto) : IRequest<PagingResponseDto<CustomizeRequest>>;
+    internal class GetCustomerCustomizeRequestQueryHandler : IRequestHandler<GetCustomerCustomizeRequestQuery, PagingResponseDto<CustomizeRequest>>
     {
         private readonly ICustomizeRequestRepository _customizeRequestRepository;
-        private readonly IJewelryModelService _jewelryModelService;
-        public GetAllCustomizeRequestQueryHandler(ICustomizeRequestRepository customizeRequestRepository)
+        public GetCustomerCustomizeRequestQueryHandler(ICustomizeRequestRepository customizeRequestRepository)
         {
             _customizeRequestRepository = customizeRequestRepository;
         }
 
-        public async Task<Result<PagingResponseDto<CustomizeRequest>>> Handle(GetAllCustomizeRequestQuery request, CancellationToken cancellationToken)
+        public async Task<PagingResponseDto<CustomizeRequest>> Handle(GetCustomerCustomizeRequestQuery request, CancellationToken cancellationToken)
         {
-            request.Deconstruct(out int currentPage, out int pageSize, out string? email, out string? createdDate, out string? expiredDate, out CustomizeRequestStatus? status);
+            request.Deconstruct(out string accountId, out GetCustomerRequestDto getCustomerRequestDto);
+            getCustomerRequestDto.Deconstruct(out int currentPage, out int pageSize, out string? createdDate, out string? expiredDate, out CustomizeRequestStatus? status);
             currentPage = currentPage == 0 ? 1 : currentPage;
             pageSize = pageSize == 0 ? 20 : pageSize;
             var query = _customizeRequestRepository.GetQuery();
             query = _customizeRequestRepository.QueryInclude(query, p => p.Account);
             query = _customizeRequestRepository.QueryInclude(query, p => p.DiamondRequests);
-            if (email != null)
-                query = _customizeRequestRepository.QueryFilter(query, p => p.Account.Email.ToUpper().Contains(email.ToUpper()));
+            query = _customizeRequestRepository.QueryFilter(query, p => p.AccountId == AccountId.Parse(accountId));
             if (createdDate != null)
             {
                 DateTime createdDateParsed = DateTime.ParseExact(createdDate, DateTimeFormatingRules.DateTimeFormat, null);

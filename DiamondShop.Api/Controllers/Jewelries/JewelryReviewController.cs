@@ -1,11 +1,6 @@
 ﻿using DiamondShop.Application.Commons.Responses;
-using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Application.Dtos.Responses.Jewelries;
 using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Application.Usecases.Jewelries.Commands;
-using DiamondShop.Application.Usecases.Jewelries.Queries.GetAll;
-using DiamondShop.Application.Usecases.Jewelries.Queries.GetDetail;
-using DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond;
 using DiamondShop.Application.Usecases.JewelryReviews.Commands.ChangeVisibility;
 using DiamondShop.Application.Usecases.JewelryReviews.Commands.Create;
 using DiamondShop.Application.Usecases.JewelryReviews.Commands.Update;

@@ -12,5 +12,6 @@ namespace DiamondShop.Domain.Repositories.CustomizeRequestRepo
     public interface ICustomizeRequestRepository : IBaseRepository<CustomizeRequest>
     {
         public Task<CustomizeRequest> GetDetail(CustomizeRequestId requestId);
+        public Task<CustomizeRequest> GetDetail(CustomizeRequestId requestId, AccountId accountId);
     }
 }

@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Domain.Models.Blogs.Entities
+namespace DiamondShop.Application.Usecases.Blogs.Commands.Remove
 {
-    public class BlogMedia
+    internal class RemoveBlogCommandHandler
     {
-        public string Path { get; set; }
     }
 }

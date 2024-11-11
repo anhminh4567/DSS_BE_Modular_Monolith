@@ -50,7 +50,6 @@ namespace DiamondShop.Domain.Models.Diamonds
         public Certificate Certificate { get; set; } = Certificate.GIA;
         public string Measurement { get; set; }
         public Media? Thumbnail { get; set; }
-        public List<Media>? Gallery { get; set; } = new();
         public ProductStatus Status { get; set; } = ProductStatus.Active;
         public ProductLock? ProductLock { get; set; }
         public decimal? SoldPrice { get; set; }

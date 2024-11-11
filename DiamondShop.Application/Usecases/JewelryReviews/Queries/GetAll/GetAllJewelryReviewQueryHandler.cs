@@ -30,6 +30,7 @@ namespace DiamondShop.Application.Usecases.JewelryReviews.Queries.GetAll
             var query = _jewelryReviewRepository.GetQuery();
             query = _jewelryReviewRepository.QueryInclude(query, p => p.Jewelry);
             query = _jewelryReviewRepository.QueryInclude(query, p => p.Account);
+            query = _jewelryReviewRepository.QueryFilter(query, p => !p.IsHidden);
             query = _jewelryReviewRepository.QueryFilter(query, p => p.Jewelry.ModelId == JewelryModelId.Parse(modelId));
             if (metalId != null)
                 query = _jewelryReviewRepository.QueryFilter(query, p => p.Jewelry.MetalId == MetalId.Parse(metalId));

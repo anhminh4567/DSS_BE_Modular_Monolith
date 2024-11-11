@@ -1,14 +1,8 @@
 ﻿using DiamondShop.Application.Commons.Models;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries;
-using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using FluentResults;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Services.Interfaces.JewelryReviews
 {

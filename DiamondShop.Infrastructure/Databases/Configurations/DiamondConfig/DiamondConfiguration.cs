@@ -46,10 +46,6 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondConfig
                     Id => Id.Value,
                     dbValue => AccountId.Parse(dbValue));
             });
-            builder.OwnsMany(o => o.Gallery, childBuilder =>
-            {
-                childBuilder.ToJson();
-            });
             builder.Property(o => o.JewelryId)
                 .HasConversion(
                     Id => Id.Value,
