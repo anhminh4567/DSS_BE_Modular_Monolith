@@ -1,5 +1,4 @@
 ﻿using DiamondShop.Application.Commons.Responses;
-using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Dtos.Responses.CustomizeRequest;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Checkout;
@@ -10,7 +9,6 @@ using DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendRequest;
 using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetAll;
 using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomer;
 using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomerDetail;
-using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetDetail;
 using DiamondShop.Domain.Models.RoleAggregate;
 using MapsterMapper;
 using MediatR;
@@ -90,7 +88,7 @@ namespace DiamondShop.Api.Controllers.CustomRequest
             if (userId != null)
             {
                 var result = await _sender.Send(new GetCustomerCustomizeRequestQuery(userId.Value, getCustomerRequestDto));
-                var mappedResult = _mapper.Map<CustomizeRequestDto>(result);
+                var mappedResult = _mapper.Map<PagingResponseDto<CustomizeRequestDto>>(result);
                 return Ok(mappedResult);
             }
             else

@@ -1,21 +1,19 @@
 ﻿using DiamondShop.Application.Commons.Models;
+using DiamondShop.Application.Dtos.Requests.Blogs;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Blogs;
-using DiamondShop.Application.Services.Interfaces.JewelryReviews;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Blogs;
 using DiamondShop.Domain.Models.Blogs.Entities;
-using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Repositories.BlogRepo;
 using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ViewEngines;
 
 namespace DiamondShop.Application.Usecases.Blogs.Commands.Create
 {
-    public record CreateBlogRequestDto(string Title, List<string> BlogTags, IFormFile? Thumbnail, IFormFile[] Contents);
+
     public record CreateBlogCommand(string AccountId, CreateBlogRequestDto CreateBlogRequestDto) : IRequest<Result<Blog>>;
     internal class CreateBlogCommandHandler : IRequestHandler<CreateBlogCommand, Result<Blog>>
     {
