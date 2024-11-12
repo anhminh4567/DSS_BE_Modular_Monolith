@@ -5,9 +5,12 @@ using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
+using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
+using System.Reflection.Metadata.Ecma335;
 
 namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
 {
@@ -21,23 +24,24 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
         private readonly IJewelryModelRepository _jewelryModelRepository;
         private readonly IJewelryModelCategoryRepository _categoryRepository;
         private readonly IUnitOfWork _unitOfWork;
-        public CreateJewelryModelCommandHandler(
-            ISender sender,
-            IJewelryModelCategoryRepository categoryRepository,
-            IJewelryModelRepository jewelryModelRepository,
-        IUnitOfWork unitOfWork,
-        ISizeMetalRepository sizeMetalRepository,
-        ISideDiamondRepository sideDiamondRepository,
-        IMainDiamondRepository mainDiamondRepository)
+        private readonly IDiamondCriteriaRepository _diamondCriteriaRepository;
+        private readonly IDiamondPriceRepository _diamondPriceRepository;
+        private readonly IDiamondServices _diamondServices;
+
+        public CreateJewelryModelCommandHandler(ISender sender, ISizeMetalRepository sizeMetalRepository, IMainDiamondRepository mainDiamondRepository, ISideDiamondRepository sideDiamondRepository, IJewelryModelRepository jewelryModelRepository, IJewelryModelCategoryRepository categoryRepository, IUnitOfWork unitOfWork, IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondPriceRepository diamondPriceRepository, IDiamondServices diamondServices)
         {
             _sender = sender;
+            _sizeMetalRepository = sizeMetalRepository;
+            _mainDiamondRepository = mainDiamondRepository;
+            _sideDiamondRepository = sideDiamondRepository;
             _jewelryModelRepository = jewelryModelRepository;
             _categoryRepository = categoryRepository;
             _unitOfWork = unitOfWork;
-            _sizeMetalRepository = sizeMetalRepository;
-            _sideDiamondRepository = sideDiamondRepository;
-            _mainDiamondRepository = mainDiamondRepository;
+            _diamondCriteriaRepository = diamondCriteriaRepository;
+            _diamondPriceRepository = diamondPriceRepository;
+            _diamondServices = diamondServices;
         }
+
         public async Task<Result<JewelryModel>> Handle(CreateJewelryModelCommand request, CancellationToken token)
         {
             await _unitOfWork.BeginTransactionAsync(token);
@@ -75,6 +79,16 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
             if (sideDiamondSpecs != null)
             {
                 var sideDiamonds = sideDiamondSpecs.Select(p => SideDiamondOpt.Create(newModel.Id, DiamondShapeId.Parse(p.ShapeId), p.ColorMin, p.ColorMax, p.ClarityMin, p.ClarityMax, p.SettingType, p.CaratWeight, p.Quantity, p.IsLabDiamond)).ToList();
+                
+                foreach(var sideDiamond in sideDiamonds)
+                {
+                    var isInAnyCriteria = await _diamondServices.IsSideDiamondFoundInCriteria(sideDiamond);
+                    if(isInAnyCriteria == false)
+                    {
+                        int index = sideDiamonds.IndexOf(sideDiamond);
+                        return Result.Fail(new ValidationError($"the side diamond at postion {index} is not valid, no criteria can be found for it"));
+                    }
+                }
                 await _sideDiamondRepository.CreateRange(sideDiamonds, token);
                 await _unitOfWork.SaveChangesAsync(token);
             }

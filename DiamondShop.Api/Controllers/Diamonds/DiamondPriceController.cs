@@ -4,7 +4,6 @@ using DiamondShop.Application.Usecases.DiamondCriterias.Commands.Delete;
 using DiamondShop.Application.Usecases.DiamondCriterias.Queries.GetAll;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.Create;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany;
-using DiamondShop.Application.Usecases.DiamondPrices.Commands.Delete;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.DeleteMany;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany;
 using DiamondShop.Application.Usecases.DiamondPrices.Queries.GetAllByShape;
@@ -75,14 +74,14 @@ namespace DiamondShop.Api.Controllers.Diamonds
             }
             return MatchError(result.Errors, ModelState);
         }
-        [HttpDelete("{shapeId}/{criteriaId}")]
-        public async Task<ActionResult> Delete(string criteriaId, string shapeId)
-        {
-            var result = await _sender.Send(new DeleteDiamondPriceCommand(shapeId, criteriaId));
-            if (result.IsSuccess)
-                return Ok();
-            return MatchError(result.Errors, ModelState);
-        }
+        //[HttpDelete("{shapeId}/{criteriaId}")]
+        //public async Task<ActionResult> Delete(string criteriaId, string shapeId)
+        //{
+        //    var result = await _sender.Send(new DeleteDiamondPriceCommand(shapeId, criteriaId));
+        //    if (result.IsSuccess)
+        //        return Ok();
+        //    return MatchError(result.Errors, ModelState);
+        //}
         [HttpPut]
         public async Task<ActionResult> Update([FromBody] UpdateManyDiamondPricesCommand updateManyDiamondPricesCommand)
         {

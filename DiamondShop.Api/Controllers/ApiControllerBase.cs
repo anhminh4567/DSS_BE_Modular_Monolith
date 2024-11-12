@@ -26,7 +26,7 @@ namespace DiamondShop.Api.Controllers
                         //modelState.AddModelError(errAtt.Key,(string)errAtt.Value);
                     }
                 }
-                return ValidationProblem(modelStateDictionary: modelState, detail: "Validation Error");
+                return ValidationProblem(modelStateDictionary: modelState, detail: errors.First(x => x is ValidationError).Message);
             }
             return Problem(errors.First());
         }

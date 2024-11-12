@@ -47,7 +47,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail
                 return Result.Fail(new NotFoundError());
             }
             bool isFancyShape = DiamondShape.IsFancyShape(getResult.DiamondShapeId);
-            var prices = await _diamondPriceRepository.GetPrice(isFancyShape, getResult.IsLabDiamond,cancellationToken);
+            var prices = await _diamondPriceRepository.GetPrice(getResult.Cut.Value,getResult.DiamondShape, getResult.IsLabDiamond,cancellationToken);
             var diamondPrice = await _diamondServices.GetDiamondPrice(getResult, prices);
             //getResult.DiamondPrice = diamondPrice;
             //var testingOnly = await _diamondRepository.GetByIdIncludeDiscountAndPromotion(parsedId);

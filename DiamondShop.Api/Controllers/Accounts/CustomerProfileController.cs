@@ -33,5 +33,18 @@ namespace DiamondShop.Api.Controllers.Accounts
             }
             return MatchError(result.Errors, ModelState);
         }
+        [HttpPut("{accountId}/Profile/SetAddressDefault")]
+        [Produces(typeof(AccountDto))]
+        public async Task<ActionResult> SetDefaultProfile([FromRoute] string accountId,[FromBody] string addressId )
+        {
+            var command = new UpdateUserAccountCommand(accountId,null,null,addressId);
+            var result = await _sender.Send(command);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<AccountDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
     }
 }

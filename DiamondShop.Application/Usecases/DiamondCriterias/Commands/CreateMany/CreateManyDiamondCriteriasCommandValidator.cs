@@ -29,7 +29,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
                     RuleFor(c => c.Cut).IsInEnum();
                 });
                 RuleFor(c => c.CaratFrom).NotEmpty().GreaterThan(0)
-                    .Must((command, crf) => crf <= command.CaratTo);
+                    .Must((command, crf) => crf < command.CaratTo);
                 RuleFor(c => c.CaratTo).NotEmpty().GreaterThan(0);
             }
         }

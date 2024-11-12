@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Commons;
 using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
@@ -15,8 +16,8 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.DeleteMany
 {
 
-    public record DeleteDiamondPriceParameter(string criteriaId);
-    public record DeleteManyDiamondPriceCommand(List<DeleteDiamondPriceParameter> deleteList, bool isFancy, bool isSideDiamond, bool isLab) : IRequest<Result>;
+    public record DeleteDiamondPriceParameter(string criteriaId);//, bool isFancy
+    public record DeleteManyDiamondPriceCommand(List<DeleteDiamondPriceParameter> deleteList, string? shapeId, bool isSideDiamond, bool isLab) : IRequest<Result>;
     internal class DeleteManyDiamondPriceCommandHandler : IRequestHandler<DeleteManyDiamondPriceCommand, Result>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -36,16 +37,15 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.DeleteMany
         {
             var getAllShape = await _diamondShapeRepository.GetAllIncludeSpecialShape();
             DiamondShape selectedShape;
-            //if (request.isSideDiamond is false)
-            //{
-            selectedShape = request.isFancy
-            ? getAllShape.FirstOrDefault(x => x.Id == DiamondShape.FANCY_SHAPES.Id)
-             : getAllShape.FirstOrDefault(x => x.Id == DiamondShape.ROUND.Id);
-            //}
-            //else 
-            //{
-            //  selectedShape = getAllShape.FirstOrDefault(x => x.Id == DiamondShape.ANY_SHAPES.Id);
-            //}
+            selectedShape = getAllShape.FirstOrDefault(x => x.Id == DiamondShapeId.Parse(request.shapeId));
+            if (request.isSideDiamond)
+                selectedShape = getAllShape.FirstOrDefault(s => s.Id == DiamondShape.ANY_SHAPES.Id);
+            if (selectedShape is null)
+                return Result.Fail(new NotFoundError("Shape not found"));
+            //selectedShape = request.isFancy
+            //? getAllShape.FirstOrDefault(x => x.Id == DiamondShape.FANCY_SHAPES.Id)
+            // : getAllShape.FirstOrDefault(x => x.Id == DiamondShape.ROUND.Id);
+
 
             var parsedList = request.deleteList.Select(x => new DeleteManyParameter
             (

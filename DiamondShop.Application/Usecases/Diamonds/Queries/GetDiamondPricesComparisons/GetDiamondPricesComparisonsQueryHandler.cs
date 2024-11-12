@@ -47,7 +47,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDiamondPricesComp
                 return Result.Fail("no shape found for this diamomd");
             }
             //, Diamond_Details Diamond_Details , Diamond_Measurement Diamond_Measurement
-            var getPrices = await _diamondServices.GetPrice(getShape,request.Diamond_4C.isLabDiamond,cancellationToken);
+            var getPrices = await _diamondServices.GetPrice(request.Diamond_4C.Cut.Value,getShape,request.Diamond_4C.isLabDiamond,cancellationToken);
             var fakeDiamond = Diamond.Create(getShape, request.Diamond_4C,
                 new Diamond_Details(Polish.Fair, Symmetry.Fair, Girdle.Thick, Fluorescence.Faint, Culet.Slightly_Large),
                 new Diamond_Measurement(0.1f,0.1f,0.1f,"asdf"),

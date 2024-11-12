@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.Common.Ultilities;
 using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -53,5 +54,11 @@ namespace DiamondShop.Domain.BusinessRules
         public decimal AsscherOffsetFromFancyShape { get; set; } = -0.2m;
         public decimal MarquiseOffsetFromFancyShape { get; set; } = -0.2m;
         public decimal HeartOffsetFromFancyShape { get; set; } = -0.2m;
+    }
+    public class OffsetByShapeAndCut
+    {
+        public decimal Offset { get; set; }
+        public DiamondShape Shape { get; set; }
+        public Cut Cut { get; set; }
     }
 }
