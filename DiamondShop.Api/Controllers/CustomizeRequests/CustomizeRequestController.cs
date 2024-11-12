@@ -102,8 +102,12 @@ namespace DiamondShop.Api.Controllers.CustomRequest
             if (userId != null)
             {
                 var result = await _sender.Send(new GetCustomerDetailCustomizeRequestQuery(requestId, userId.Value));
-                var mappedResult = _mapper.Map<CustomizeRequestDto>(result);
-                return Ok(mappedResult);
+                if (result.IsSuccess)
+                {
+                    var mappedResult = _mapper.Map<CustomizeRequestDto>(result.Value);
+                    return Ok(mappedResult);
+                }
+                return MatchError(result.Errors, ModelState);
             }
             else
                 return Unauthorized();
