@@ -84,7 +84,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
                         }
                         else
                         {
-                            var prices = await _diamondServices.GetPrice(diamond.DiamondShape, diamond.IsLabDiamond, token);
+                            var prices = await _diamondServices.GetPrice(diamond.Cut.Value, diamond.DiamondShape, diamond.IsLabDiamond, token);
                             var price = await _diamondServices.GetDiamondPrice(diamond, prices);
                             if (price == null)
                             {

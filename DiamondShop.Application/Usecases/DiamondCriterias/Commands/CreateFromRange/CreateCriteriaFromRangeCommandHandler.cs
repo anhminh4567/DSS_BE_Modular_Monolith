@@ -6,6 +6,7 @@ using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
+using FluentValidation;
 using FluentValidation.Results;
 using Mapster;
 using MediatR;
@@ -17,12 +18,11 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromRange
 {
-    public record CreateCriteriaFromRangeCommand(float caratFrom, float caratTo, Cut? Cut = Cut.Ideal, bool IsSideDiamond = false) : IRequest<Result<List<DiamondCriteria>>>;
+    public record CreateCriteriaFromRangeCommand(float caratFrom, float caratTo, bool IsSideDiamond = false) : IRequest<Result<List<DiamondCriteria>>>;
     internal class CreateCriteriaFromRangeCommandHandler : IRequestHandler<CreateCriteriaFromRangeCommand, Result<List<DiamondCriteria>>>
     {
         private readonly IDiamondCriteriaRepository _diamondCriteriaRepository;
         private readonly ISender _sender;
-        private const Cut DEFAULT_CUT = Cut.Ideal;
         public CreateCriteriaFromRangeCommandHandler(IDiamondCriteriaRepository diamondCriteriaRepository, ISender sender)
         {
             _diamondCriteriaRepository = diamondCriteriaRepository;
@@ -39,60 +39,73 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
             var orderedRange = allAvailableCaratRange.OrderBy(x => x.CaratFrom).ToList();
             foreach (var range in orderedRange)
             {
-                if (request.caratFrom < range.CaratTo && request.caratTo > range.CaratFrom)
+                if(request.IsSideDiamond == false)
                 {
-                    return Result.Fail("The given range already exists or overlaps with an existing range in the database");
+                    if (request.caratFrom <= range.CaratTo && request.caratTo >= range.CaratFrom)
+                    {
+                        return Result.Fail($"The given range already exists or overlaps with an existing range in the database, which is from {range.CaratFrom} to {range.CaratTo}");
+                    }
                 }
+                else
+                {
+                    if (request.caratFrom < range.CaratTo && request.caratTo > range.CaratFrom)
+                    {
+                        return Result.Fail("The given range already exists or overlaps with an existing range in the database");
+                    }
+                }
+
             }
             //when all is valid
 
             List<DiamondCriteriaRequestDto> requests = new();
             //if (request.IsSideDiamond == false)
             //{
-            foreach (var color in Enum.GetValues(typeof(Color)))
+            if (request.IsSideDiamond == false)
             {
-                foreach (var clarity in Enum.GetValues(typeof(Clarity)))
+                foreach (var cut in Enum.GetValues(typeof(Cut)))
                 {
-                    if (request.IsSideDiamond == false)
+                    foreach (var color in Enum.GetValues(typeof(Color)))
                     {
-                        requests.Add(new DiamondCriteriaRequestDto()
+                        foreach (var clarity in Enum.GetValues(typeof(Clarity)))
                         {
-                            CaratFrom = request.caratFrom,
-                            CaratTo = request.caratTo,
-                            Clarity = (Clarity)clarity,
-                            Color = (Color)color,
-                            Cut = DEFAULT_CUT//request.Cut.Value,
-                        });
+                            if (request.IsSideDiamond == false)
+                            {
+                                requests.Add(new DiamondCriteriaRequestDto()
+                                {
+                                    CaratFrom = request.caratFrom,
+                                    CaratTo = request.caratTo,
+                                    Clarity = (Clarity)clarity,
+                                    Color = (Color)color,
+                                    Cut = (Cut)cut//request.Cut.Value,
+                                });
+                            }
+
+                        }
                     }
-                    else
-                    {
-                        requests.Add(new DiamondCriteriaRequestDto()
-                        {
-                            CaratFrom = request.caratFrom,
-                            CaratTo = request.caratTo,
-                            Clarity = (Clarity)clarity,
-                            Color = (Color)color,
-                            Cut = null//request.Cut.Value,
-                        });
-                    }
-                    //requests.Add(new DiamondCriteriaRequestDto()
-                    //{
-                    //    CaratFrom = request.caratFrom,
-                    //    CaratTo = request.caratTo,
-                    //    Clarity = (Clarity)clarity,
-                    //    Color = (Color)color,
-                    //    Cut = DEFAULT_CUT//request.Cut.Value,
-                    //});
                 }
             }
-            //else
-            //{
-            //    requests.Add(new DiamondCriteriaRequestDto()
-            //    {
-            //        CaratFrom = request.caratFrom,
-            //        CaratTo = request.caratTo,
-            //    });
-            //}
+            else if (request.IsSideDiamond)
+            {
+                foreach (var color in Enum.GetValues(typeof(Color)))
+                {
+                    foreach (var clarity in Enum.GetValues(typeof(Clarity)))
+                    {
+                        if (request.IsSideDiamond == false)
+                        {
+                            requests.Add(new DiamondCriteriaRequestDto()
+                            {
+                                CaratFrom = request.caratFrom,
+                                CaratTo = request.caratTo,
+                                Clarity = (Clarity)clarity,
+                                Color = (Color)color,
+                                Cut = null//request.Cut.Value,
+                            });
+                        }
+                    }
+                }
+            }
+            else
+                return Result.Fail("Unknown whether it is side or main diamond criteria");
             var command = new CreateManyDiamondCriteriasCommand(requests, request.IsSideDiamond);
             var result = await _sender.Send(command, cancellationToken);
             return result;

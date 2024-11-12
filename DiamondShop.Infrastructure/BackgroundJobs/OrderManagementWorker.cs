@@ -47,7 +47,7 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
             _logger.LogInformation("Found {0} order(s) to be expired", result.Count);
             foreach (var order in result)
             {
-                order.ExpiredDate = utcNow;
+                order.SetExpired(utcNow);
                 _orderRepository.Update(order).Wait();
             }
             await _unitOfWork.SaveChangesAsync();

@@ -155,48 +155,49 @@ namespace DiamondShop.Domain.Models.Diamonds
         public void SetCorrectPrice(decimal truePrice, DiamondRule rulesToSetCutOffSet)
         {
             var priceAfterCarat = MoneyVndRoundUpRules.RoundAmountFromDecimal( truePrice * (decimal)Carat);
-            bool isFancy = DiamondShape.IsFancyShape(DiamondShapeId);
-            decimal getOffsetOfCut = 0;
-            if (isFancy)
-            {
-                switch (Cut)
-                {
-                    case Enums.Cut.Ideal:
-                        getOffsetOfCut = 1;
-                        break;
-                    case Enums.Cut.Very_Good:
-                        getOffsetOfCut = 1 + rulesToSetCutOffSet.AverageOffsetVeryGoodCutFromIdealCut_FANCY_SHAPE;
-                        break;
-                    case Enums.Cut.Good:
-                        getOffsetOfCut = 1 + rulesToSetCutOffSet.AverageOffsetGoodCutFromIdealCut_FANCY_SHAPE;
-                        break;
-                    default:
-                        throw new Exception("Unknown cut");
-                }
-            }
-            else
-            {
-                switch (Cut)
-                {
-                    case Enums.Cut.Ideal:
-                        getOffsetOfCut = 1;
-                        break;
-                    case Enums.Cut.Very_Good:
-                        getOffsetOfCut = 1 + rulesToSetCutOffSet.AverageOffsetVeryGoodCutFromIdealCut;
-                        break;
-                    case Enums.Cut.Good:
-                        getOffsetOfCut = 1 + rulesToSetCutOffSet.AverageOffsetGoodCutFromIdealCut;
-                        break;
-                    default:
-                        throw new Exception("Unknown cut");
-                }
-            }
-            CutOffsetFounded = getOffsetOfCut;
-            var priceAfterCut = MoneyVndRoundUpRules.RoundAmountFromDecimal(priceAfterCarat * getOffsetOfCut);
             if (TruePrice < 0)
                 throw new Exception();
             else
-                TruePrice = priceAfterCut;
+                TruePrice = priceAfterCarat;
+            //bool isFancy = DiamondShape.IsFancyShape(DiamondShapeId);
+            //decimal getOffsetOfCut = 0;
+            //if (isFancy)
+            //{
+            //    switch (Cut)
+            //    {
+            //        case Enums.Cut.Ideal:
+            //            getOffsetOfCut = 1;
+            //            break;
+            //        case Enums.Cut.Very_Good:
+            //            getOffsetOfCut = 1 + rulesToSetCutOffSet.AverageOffsetVeryGoodCutFromIdealCut_FANCY_SHAPE;
+            //            break;
+            //        case Enums.Cut.Good:
+            //            getOffsetOfCut = 1 + rulesToSetCutOffSet.AverageOffsetGoodCutFromIdealCut_FANCY_SHAPE;
+            //            break;
+            //        default:
+            //            throw new Exception("Unknown cut");
+            //    }
+            //}
+            //else
+            //{
+            //    switch (Cut)
+            //    {
+            //        case Enums.Cut.Ideal:
+            //            getOffsetOfCut = 1;
+            //            break;
+            //        case Enums.Cut.Very_Good:
+            //            getOffsetOfCut = 1 + rulesToSetCutOffSet.AverageOffsetVeryGoodCutFromIdealCut;
+            //            break;
+            //        case Enums.Cut.Good:
+            //            getOffsetOfCut = 1 + rulesToSetCutOffSet.AverageOffsetGoodCutFromIdealCut;
+            //            break;
+            //        default:
+            //            throw new Exception("Unknown cut");
+            //    }
+            //}
+            //CutOffsetFounded = getOffsetOfCut;
+            //var priceAfterCut = MoneyVndRoundUpRules.RoundAmountFromDecimal(priceAfterCarat * getOffsetOfCut);
+
         }
         public void SetLockForUser(Account userAccount , int lockHour)
         {

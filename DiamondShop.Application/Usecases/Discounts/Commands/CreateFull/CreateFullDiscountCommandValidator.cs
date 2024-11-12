@@ -8,8 +8,15 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.CreateFull
     {
         public CreateFullDiscountCommandValidator()
         {
+            ClassLevelCascadeMode = CascadeMode.Stop;
             RuleFor(x => x.CreateDiscount).NotNull();
             RuleFor(x => x.Requirements).NotNull();
+            When(x => x.Requirements != null, () =>
+            {
+                RuleForEach(x => x.Requirements)
+                    .Must(req => req.TargetType != Domain.Models.Promotions.Enum.TargetType.Order)
+                    .WithMessage("Requirement cannot be of targetType order, discount only accept diamond or jewelry as discount and only as percent");
+            });
             //When(x => x.Requirements != null, () =>
             //{
             //    RuleForEach(x => x.Requirements).SetValidator(new RequirementSpecValidator());

@@ -53,12 +53,12 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
         {
             request.Deconstruct(out bool? includeJewelryDiamond , out int pageSize, out int start, out string shapeId, out decimal priceStart, out var priceEnd, out var diamond_4C, out var diamond_Details, out var isLab);
             var query = _diamondRepository.GetQuery();
-            List<DiamondPrice> getRoundPrice = new();
-            List<DiamondPrice> getFancyPrice = new();
+            //List<DiamondPrice> getRoundPrice = new();
+            //List<DiamondPrice> getFancyPrice = new();
             List<Diamond> diamondListResponse = new();
             IncludeJewelryDiamond = includeJewelryDiamond.Value;
-            getFancyPrice = await _diamondPriceRepository.GetPrice(true, request.isLab, cancellationToken);
-            getRoundPrice = await _diamondPriceRepository.GetPrice(false, request.isLab, cancellationToken);
+            //getFancyPrice = await _diamondPriceRepository.GetPrice(true, request.isLab, cancellationToken);
+            //getRoundPrice = await _diamondPriceRepository.GetPrice(false, request.isLab, cancellationToken);
 
 
             if (AccountRole.ShopRoles.Any(x => _httpContextAccessor.HttpContext.User.IsInRole(x.Id.Value)) is false)//not in shop
@@ -67,7 +67,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             }
             var count = _diamondRepository.GetCount();
             Count = count;
-            var finalResult = await GetData(diamondListResponse, getRoundPrice, getFancyPrice, start, pageSize, request);
+            var finalResult = await GetData(diamondListResponse, start, pageSize, request);
             //var parsedShape = DiamondShapeId.Parse(shapeId);
             //query = query.Where(d => d.DiamondShapeId == parsedShape);
             ////query = _diamondRepository.QueryInclude(query, d => d.DiamondShape);
@@ -115,8 +115,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
                 Values: diamondListResponse
                 );
             return response;
-        }
-        private async Task<int> GetData(List<Diamond> responseList ,List<DiamondPrice> roundPrice, List<DiamondPrice> fancyPrice , int start, int size, GetDiamondPagingQuery request )
+        }//,List<DiamondPrice> roundPrice, List<DiamondPrice> fancyPrice
+        private async Task<int> GetData(List<Diamond> responseList  , int start, int size, GetDiamondPagingQuery request )
         {
             if(Count <= start * size) 
             {
@@ -144,11 +144,12 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             {
                 DiamondPrice diamondPrice;
                 diamond.DiamondShape = Shapes.FirstOrDefault(s => s.Id == diamond.DiamondShapeId);
-                if (DiamondShape.IsFancyShape(diamond.DiamondShapeId))
-                    diamondPrice = await _diamondService.GetDiamondPrice(diamond, fancyPrice);
-                else
-                    diamondPrice = await _diamondService.GetDiamondPrice(diamond, roundPrice);
-                //diamond.DiamondPrice = diamondPrice;
+                //if (DiamondShape.IsFancyShape(diamond.DiamondShapeId))
+                //    diamondPrice = await _diamondService.GetDiamondPrice(diamond, fancyPrice);
+                //else
+                //    diamondPrice = await _diamondService.GetDiamondPrice(diamond, roundPrice);
+                var diamondPriceBySHape =await _diamondPriceRepository.GetPrice(diamond.Cut.Value,diamond.DiamondShape, null);
+                diamondPrice = await _diamondService.GetDiamondPrice(diamond, diamondPriceBySHape);
                 _diamondService.AssignDiamondDiscount(diamond, ActiveDiscount).Wait();
             }
             var trueResult = FilteringPrice(result,request.priceStart, request.priceEnd);
@@ -160,7 +161,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             }
             else
             {//size - responseList.Count
-                return await GetData(responseList, roundPrice, fancyPrice, start + 1, size, request);
+                return await GetData(responseList, start + 1, size, request);
             }
         }
         private List<Diamond> FilteringPrice(List<Diamond> diamondWithPricesAssigned , decimal startPrice, decimal endPrice)

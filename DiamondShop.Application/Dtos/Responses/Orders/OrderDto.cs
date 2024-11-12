@@ -35,7 +35,8 @@ namespace DiamondShop.Application.Dtos.Responses.Orders
         public string OrderCode { get; set; }
         public string? ParentOrderId { get; set; } // for replacement order
         public string? DeliveryPackageId { get; set; }
-
+        public string? ExpiredDate { get; set; }
+        public string? ShipFailedDate { get; set; }
 
     }
 }

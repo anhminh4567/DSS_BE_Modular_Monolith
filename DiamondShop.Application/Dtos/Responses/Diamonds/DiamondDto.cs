@@ -50,6 +50,7 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         //public decimal? DiscountPrice { get; set; }
         public decimal DiscountReducedAmount { get; set; } 
         public decimal PromotionReducedAmount { get; set; } 
+        public string? SerialCode { get; set; }
         public decimal? SalePrice { get; set; }
         public string Title { get; set; }
         public decimal CutOffsetFounded { get; set; }

@@ -34,7 +34,9 @@ namespace DiamondShop.Commons
         {
             WithMetadata(validationErrors);
         }
-
+        public ValidationError(string message) : base(message)
+        {
+        }
     }
     /// <summary>
     /// Top 2

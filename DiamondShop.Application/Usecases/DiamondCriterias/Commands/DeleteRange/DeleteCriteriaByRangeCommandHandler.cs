@@ -1,5 +1,7 @@
-﻿using DiamondShop.Application.Services.Interfaces;
+﻿using Azure.Core;
+using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.DiamondPrices.Entities;
+using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
 using FluentValidation;
@@ -9,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.DeleteRange
@@ -41,22 +44,59 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.DeleteRange
         }
         public async Task<Result> Handle(DeleteCriteriaByRangeCommand request, CancellationToken cancellationToken)
         {
+            Dictionary<Cut, Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>>> groupedByCut = new();
             Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>> getGrooupedCriteria = new();
-            if (request.isSideDiamond == false)
-                getGrooupedCriteria = await _diamondCriteriaRepository.GroupAllAvailableCriteria(cancellationToken);
+
+            if(request.isSideDiamond)
+            {
+                return await DeleteSideDiamond();
+            }
             else
+            {
+                return await DeleteMainDiamond();
+            }
+            
+
+            async Task<Result> DeleteMainDiamond()
+            {
+                List<KeyValuePair<(float caratFrom, float carat), List<DiamondCriteria>>> listTobeRemoved = new();
+                foreach (var cut in CutHelper.GetCutList())
+                {
+                    getGrooupedCriteria = await _diamondCriteriaRepository.GroupAllAvailableCriteria(cut, cancellationToken);
+                    groupedByCut.Add(cut, getGrooupedCriteria);
+                    var criteriaInRange = getGrooupedCriteria.FirstOrDefault(x => x.Key.CaratFrom == request.caratFrom && x.Key.CaratTo == request.caratTo);
+                    listTobeRemoved.Add(criteriaInRange);
+                }
+                foreach (var criteriaFromCutGroup in listTobeRemoved)
+                {
+                    if (criteriaFromCutGroup.Value == null || criteriaFromCutGroup.Value.Count == 0)
+                    {
+                        return Result.Fail("Criteria not found");
+                    }
+                    foreach (var crit in criteriaFromCutGroup.Value)
+                    {
+                        _diamondCriteriaRepository.Delete(crit).Wait();
+                    }
+                }
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                return Result.Ok();
+            }
+            async Task<Result> DeleteSideDiamond()
+            {
                 getGrooupedCriteria = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCriteria(cancellationToken);
-            var anyCriteriaInRange = getGrooupedCriteria.FirstOrDefault(x => x.Key.CaratFrom == request.caratFrom && x.Key.CaratTo == request.caratTo);
-            if (anyCriteriaInRange.Value == null || anyCriteriaInRange.Value.Count == 0)
-            {
-                return Result.Fail("Criteria not found");
+                var anyCriteriaInRange = getGrooupedCriteria.FirstOrDefault(x => x.Key.CaratFrom == request.caratFrom && x.Key.CaratTo == request.caratTo);
+                if (anyCriteriaInRange.Value == null || anyCriteriaInRange.Value.Count == 0)
+                {
+                    return Result.Fail("Criteria not found");
+                }
+                foreach (var criteria in anyCriteriaInRange.Value)
+                {
+                    _diamondCriteriaRepository.Delete(criteria).Wait();
+                }
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                return Result.Ok();
             }
-            foreach (var criteria in anyCriteriaInRange.Value)
-            {
-                _diamondCriteriaRepository.Delete(criteria).Wait();
-            }
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-            return Result.Ok();
         }
+
     }
 }
