@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.DiamondPrices.Entities;
+using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -22,10 +23,11 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
 
         }
 
-        public async Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableCaratRange(CancellationToken cancellationToken = default)
+        public async Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableCaratRange( CancellationToken cancellationToken = default)
         {
+            //Cut tobeComparedCut = cut;
             var result = await _set
-                .Where(x => x.IsSideDiamond == false)
+                .Where(x => x.IsSideDiamond == false)//&& x.Cut == tobeComparedCut
                 .GroupBy(x => new { x.CaratFrom, x.CaratTo })
                 .Select(x => x.Key)
                 .ToListAsync();
@@ -41,10 +43,11 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             return result.Select(result => (result.CaratFrom, result.CaratTo)).ToList();
         }
 
-        public async Task<Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>>> GroupAllAvailableCriteria(CancellationToken cancellationToken)
+        public async Task<Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>>> GroupAllAvailableCriteria(Cut cut, CancellationToken cancellationToken)
         {
+            Cut tobeComparedCut = cut;
             var result = await _set
-            .Where(x => x.IsSideDiamond == false) // Filtering if necessary
+            .Where(x => x.IsSideDiamond == false && x.Cut == tobeComparedCut) // Filtering if necessary
             .GroupBy(x => new { x.CaratFrom, x.CaratTo }) // Group by CaratFrom
             .ToDictionaryAsync(
                 group => (group.Key.CaratFrom, group.Key.CaratTo), // Key is the CaratFrom value

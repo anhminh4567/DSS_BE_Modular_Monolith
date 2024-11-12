@@ -120,6 +120,12 @@ namespace DiamondShop.Domain.Models.Orders
             PaymentStatus = PaymentStatus.PaidAll;
             Items.ForEach(p => p.Status = OrderItemStatus.Done);
         }
-
+        public void SetExpired(DateTime expiredTime)
+        {
+            CancelledDate = expiredTime.ToUniversalTime();
+            ExpiredDate = CancelledDate;
+            Status = OrderStatus.Cancelled;
+            CancelledReason = "quá hạn thanh toán, vui lòng mua đơn mới ";
+        }
     }
 }

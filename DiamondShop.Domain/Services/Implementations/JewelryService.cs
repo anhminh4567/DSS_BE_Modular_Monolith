@@ -94,7 +94,7 @@ namespace DiamondShop.Domain.Services.Implementations
             decimal D_price = 0;
             foreach (var diamond in getJewelryDiamonds)
             {
-                var prices = await _diamondPriceRepository.GetPriceByShapes(diamond.DiamondShape, diamond.IsLabDiamond);
+                var prices = await _diamondPriceRepository.GetPrice(diamond.Cut.Value,diamond.DiamondShape, diamond.IsLabDiamond);
                 var diamondPrice = _diamondServices.GetDiamondPrice(diamond, prices).Result;
                 diamond.DiamondPrice = diamondPrice;
             }
@@ -106,7 +106,7 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             var sideDiamond = jewelry.SideDiamond;
             decimal totalDiamondPrice = 0;
-            var thisSidePrice = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamond.IsFancyShape,sideDiamond.IsLabGrown,sideDiamond.AverageCarat);
+            var thisSidePrice = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamond.IsLabGrown,sideDiamond.AverageCarat);
             var price = await _diamondServices.GetSideDiamondPrice(sideDiamond);
             jewelry.IsAllSideDiamondPriceKnown = true;
             return sideDiamond.TotalPrice;

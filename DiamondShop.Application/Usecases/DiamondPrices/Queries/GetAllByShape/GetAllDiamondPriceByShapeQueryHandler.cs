@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Models.DiamondPrices;
+using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using MediatR;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetAllByShape
 {
-    public record GetAllDiamondPriceByShapeQuery(string shapeId,bool isLabDiamond = true) : IRequest<List<DiamondPrice>>;
+    public record GetAllDiamondPriceByShapeQuery(Cut Cut,string shapeId,bool isLabDiamond = true) : IRequest<List<DiamondPrice>>;
     internal class GetAllDiamondPriceByShapeQueryHandler : IRequestHandler<GetAllDiamondPriceByShapeQuery, List<DiamondPrice>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
@@ -26,7 +27,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetAllByShape
         {
             var shapeId = DiamondShapeId.Parse(request.shapeId);
             var getShape = await _diamondShapeRepository.GetById(shapeId);
-            return await _diamondPriceRepository.GetPriceByShapes(getShape,request.isLabDiamond,cancellationToken);
+            return await _diamondPriceRepository.GetPrice(request.Cut,getShape,request.isLabDiamond,cancellationToken);
         }
     }
 }

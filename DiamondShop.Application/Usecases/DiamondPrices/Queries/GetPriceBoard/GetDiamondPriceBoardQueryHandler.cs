@@ -9,19 +9,23 @@ using DiamondShop.Domain.Repositories;
 using FluentResults;
 using MapsterMapper;
 using MediatR;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.Arm;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
 {
     // cut is not required, might leave it as it be
-    public record GetDiamondPriceBoardQuery(bool isFancyShapePrice, bool isLabDiamond, bool isSideDiamond) : IRequest<Result<DiamondPriceBoardDto>>;// bool IsSideDiamond = false
+    //
+    public record GetDiamondPriceBoardQuery(Cut cut, bool isLabDiamond, bool isSideDiamond, string? shapeId) : IRequest<Result<DiamondPriceBoardDto>>;// bool IsSideDiamond = false
     internal class GetDiamondPriceBoardQueryHandler : IRequestHandler<GetDiamondPriceBoardQuery, Result<DiamondPriceBoardDto>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
@@ -39,37 +43,50 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
 
         public async Task<Result<DiamondPriceBoardDto>> Handle(GetDiamondPriceBoardQuery request, CancellationToken cancellationToken)
         {
-            //var shapeId = DiamondShapeId.Parse(request.shapeId);
-            //var getShape = await _diamondShapeRepository.GetById(shapeId);
-            //if (getShape is null)
-            //    return Result.Fail(new NotFoundError("Shape not found"));
-            DiamondShape priceBoardMainShape;
-            if (request.isFancyShapePrice)
-            {
-                priceBoardMainShape = await _diamondShapeRepository.GetById(DiamondShape.FANCY_SHAPES.Id); //DiamondShape.FANCY_SHAPES;
-            }
-            else
-            {
-                priceBoardMainShape = await _diamondShapeRepository.GetById(DiamondShape.ROUND.Id);//DiamondShape.ROUND;
-            }
+            if (request.isSideDiamond == false && request.shapeId is null)
+                return Result.Fail(new ValidationError("shapeId is required for main diamond"));
+            var shapeId = DiamondShapeId.Parse(request.shapeId);
+            var getAllShape = await _diamondShapeRepository.GetAllIncludeSpecialShape();
+            DiamondShape getShape = getAllShape.FirstOrDefault(x => x.Id == shapeId);
+            if(request.isSideDiamond)
+                getShape = getAllShape.FirstOrDefault(s => s.Id == DiamondShape.ANY_SHAPES.Id);
+            if (getShape is null)
+                return Result.Fail(new NotFoundError("Shape not found"));
+
+            //DiamondShape priceBoardMainShape;
+            //if (request.isFancyShapePrice)
+            //{
+            //    priceBoardMainShape = await _diamondShapeRepository.GetById(DiamondShape.FANCY_SHAPES.Id); //DiamondShape.FANCY_SHAPES;
+            //}
+            //else
+            //{
+            //    priceBoardMainShape = await _diamondShapeRepository.GetById(DiamondShape.ROUND.Id);//DiamondShape.ROUND;
+            //}
             List<DiamondPrice> prices = new();
             Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>> criteriasByGrouping = new();
             DiamondPriceBoardDto priceBoard = DiamondPriceBoardDto.Create();
             priceBoard.MainCut = Cut.Ideal;
-            priceBoard.Shape = _mapper.Map<DiamondShapeDto>(priceBoardMainShape);
+            priceBoard.Shape = _mapper.Map<DiamondShapeDto>(getShape);
             priceBoard.IsLabDiamondBoardPrices = request.isLabDiamond;
             if (request.isSideDiamond == false)
             {
-                prices = await _diamondPriceRepository.GetPrice(request.isFancyShapePrice, request.isLabDiamond, cancellationToken);
+                prices = await _diamondPriceRepository.GetPrice(request.cut, getShape, request.isLabDiamond, cancellationToken);
                 priceBoard.IsSideDiamondBoardPrices = false;
+                string serlized = JsonConvert.SerializeObject(prices);
+                byte[] bytes = Encoding.UTF8.GetBytes(serlized);
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("size: "+ bytes.Length);
+                Console.ResetColor();
                 //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableCaratRange( cancellationToken);
-                criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableCriteria(cancellationToken));
+                priceBoard.MainCut = request.cut;
+                criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableCriteria(priceBoard.MainCut, cancellationToken));
             }
             else
             {
-                prices = await _diamondPriceRepository.GetSideDiamondPrice(request.isFancyShapePrice, request.isLabDiamond, cancellationToken);
+                var isFancy = DiamondShape.IsFancyShape(getShape.Id);
+                prices = await _diamondPriceRepository.GetSideDiamondPrice( request.isLabDiamond, cancellationToken);
                 priceBoard.IsSideDiamondBoardPrices = true;
-                //priceBoard.Shape = _mapper.Map<DiamondShapeDto>(DiamondShape.ANY_SHAPES);
+                priceBoard.Shape = _mapper.Map<DiamondShapeDto>(DiamondShape.ANY_SHAPES);
                 //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCaratRange(cancellationToken);
                 criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCriteria(cancellationToken));
             }

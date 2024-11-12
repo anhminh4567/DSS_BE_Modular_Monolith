@@ -41,10 +41,10 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetAllAdmin
             _logger.LogDebug("get all diamond admin");
             var result = (await _diamondRepository.GetAllAdmin());
             var getAllShape = await _diamondShapeRepository.GetAll();
-            var getRoundBrilliantPrice = await _diamondPriceRepository.GetPrice(false, true, cancellationToken);
-            var getFancyPrice = await _diamondPriceRepository.GetPrice(true, true, cancellationToken);
-            var getRoundBrilliantPriceNatural = await _diamondPriceRepository.GetPrice(false, false, cancellationToken);
-            var getFancyPriceNatural = await _diamondPriceRepository.GetPrice(true, false, cancellationToken);
+            //var getRoundBrilliantPrice = await _diamondPriceRepository.GetPrice(false, true, cancellationToken);
+            //var getFancyPrice = await _diamondPriceRepository.GetPrice(true, true, cancellationToken);
+            //var getRoundBrilliantPriceNatural = await _diamondPriceRepository.GetPrice(false, false, cancellationToken);
+            //var getFancyPriceNatural = await _diamondPriceRepository.GetPrice(true, false, cancellationToken);
             var getAllDiscount = await _discountRepository.GetActiveDiscount();
             foreach (var diamond in result)
             {
@@ -52,17 +52,18 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetAllAdmin
                 diamond.DiamondShape = getAllShape.FirstOrDefault(s => s.Id == diamond.DiamondShapeId);
                 if (diamond.IsLabDiamond)
                 {
-                    if (DiamondShape.IsFancyShape(diamond.DiamondShapeId))
-                        diamondPrice = await _diamondServices.GetDiamondPrice(diamond, getFancyPrice);
-                    else
-                        diamondPrice = await _diamondServices.GetDiamondPrice(diamond, getRoundBrilliantPrice);
+                    //if (DiamondShape.IsFancyShape(diamond.DiamondShapeId))
+                    //    diamondPrice = await _diamondServices.GetDiamondPrice(diamond, getFancyPrice);
+                    //else
+                    //    diamondPrice = await _diamondServices.GetDiamondPrice(diamond, getRoundBrilliantPrice);
+                    var priceByShape = await _diamondPriceRepository.GetPrice(diamond.Cut.Value, diamond.DiamondShape, true, cancellationToken);
+                    diamondPrice = await _diamondServices.GetDiamondPrice(diamond, priceByShape);
+
                 }
                 else
                 {
-                    if (DiamondShape.IsFancyShape(diamond.DiamondShapeId))
-                        diamondPrice = await _diamondServices.GetDiamondPrice(diamond, getFancyPriceNatural);
-                    else
-                        diamondPrice = await _diamondServices.GetDiamondPrice(diamond, getRoundBrilliantPriceNatural);
+                    var priceByShape = await _diamondPriceRepository.GetPrice(diamond.Cut.Value,diamond.DiamondShape, false, cancellationToken);
+                    diamondPrice = await _diamondServices.GetDiamondPrice(diamond, priceByShape);
                 }
                 _diamondServices.AssignDiamondDiscount(diamond, getAllDiscount).Wait();
             }

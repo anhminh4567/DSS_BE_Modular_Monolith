@@ -7,6 +7,8 @@ using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Repositories;
+using DiamondShop.Domain.Services.Implementations;
+using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Options;
@@ -25,13 +27,19 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
         private readonly IDiamondRepository _diamondRepository;
         private readonly IDiamondShapeRepository _diamondShapeRepository;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
+        private readonly IDiamondPriceRepository _diamondPriceRepository;
+        private readonly IDiamondCriteriaRepository _diamondCriteriaRepository;
+        private readonly IDiamondServices _diamondServices;
 
-        public CreateDiamondCommandHandler(IUnitOfWork unitOfWork, IDiamondRepository diamondRepository, IDiamondShapeRepository diamondShapeRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
+        public CreateDiamondCommandHandler(IUnitOfWork unitOfWork, IDiamondRepository diamondRepository, IDiamondShapeRepository diamondShapeRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IDiamondPriceRepository diamondPriceRepository, IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondServices diamondServices)
         {
             _unitOfWork = unitOfWork;
             _diamondRepository = diamondRepository;
             _diamondShapeRepository = diamondShapeRepository;
             _optionsMonitor = optionsMonitor;
+            _diamondPriceRepository = diamondPriceRepository;
+            _diamondCriteriaRepository = diamondCriteriaRepository;
+            _diamondServices = diamondServices;
         }
 
         public async Task<Result<Diamond>> Handle(CreateDiamondCommand request, CancellationToken cancellationToken)
@@ -42,7 +50,12 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
             DiamondShape getShape = await _diamondShapeRepository.GetById(shapeId);
             if (getShape is null)
                 return Result.Fail(new NotFoundError("no shape found"));
+            
             Diamond newDiamond = Diamond.Create(getShape, diamond4c, details, measurement, priceOffset, certificate.Value);
+            var isDiamondBelongToACriteraGroup = await _diamondServices.IsMainDiamondFoundInCriteria(newDiamond);
+            if (isDiamondBelongToACriteraGroup == false )
+                return Result.Fail(new ValidationError("Diamond is not belong to any criteria group"));
+
             await _diamondRepository.Create(newDiamond);
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(newDiamond);

@@ -102,5 +102,14 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public Clarity Clarity { get; set; }
         public decimal Price { get; set; } = -1;
         public bool IsPriceKnown => Price > 0;
+        public decimal OffsetFromExellentCut { get; set; } = +0m;
+        public void CalculateOffsetFromExellentPrice(decimal exellentPrice)
+        {
+            if (IsPriceKnown is false)
+                return;
+            var percentOffset = (Price / exellentPrice) - 1;
+            var roundedNumber = Math.Round(percentOffset, 2);
+            OffsetFromExellentCut = roundedNumber;
+        }
     }
 }
