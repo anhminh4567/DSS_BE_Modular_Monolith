@@ -26,7 +26,7 @@ namespace DiamondShop.Application.Usecases.JewelryReviews.Commands.Create
                 p.RuleForEach(k => k.Files)
                 .NotNull()
                 .Must(p => p.Length <= rule.MaxContentSize).WithMessage($"File must be under {rule.MaxContentSizeInMb} Mb")
-                .Must(p => rule.AllowedContentType.Contains(p.ContentType)).WithMessage($"App doens't support this type of file")
+                .Must(p => rule.AllowedContentType.Contains(p.ContentType)).WithMessage($"Content doens't support this type of file")
                 .When(k => k != null);
             });
         }
