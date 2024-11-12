@@ -12,6 +12,7 @@ namespace DiamondShop.Application.Dtos.Responses.CustomizeRequest
 {
     public class CustomizeRequestDto
     {
+        public string Id { get; set; }
         public string AccountId { get; set; }
         public AccountDto Account { get; set; }
         public string JewelryModelId { get; set; }
@@ -23,6 +24,8 @@ namespace DiamondShop.Application.Dtos.Responses.CustomizeRequest
         public string? EngravedText { get; set; }
         public string? EngravedFont { get; set; }
         public string? Note { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime ExpiredDate { get; set; }
         public CustomizeRequestStatus Status { get; set; }
         public List<DiamondRequestDto> DiamondRequests { get; set; } = new();
         public string? SideDiamondId { get; set; }

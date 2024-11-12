@@ -30,6 +30,8 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomer
             request.Deconstruct(out string requestId, out string accountId);
             var discounts = await _discountRepository.GetActiveDiscount();
             var customizeRequest = await _customizeRequestRepository.GetDetail(CustomizeRequestId.Parse(requestId), AccountId.Parse(accountId));
+            if (customizeRequest == null)
+                return Result.Fail("This customize request doesn't exist");
             var model = customizeRequest.JewelryModel;
             if (model == null)
                 return Result.Fail("Can't get the requested jewelry model");
@@ -49,8 +51,6 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomer
                 await _jewelryModelService.AddSettingPrice(model, sizeMetal, customizeRequest.SideDiamond);
                 await _jewelryModelService.AssignJewelryModelDiscount(model, discounts);
             }
-            if (customizeRequest == null)
-                return Result.Fail("This customize request doesn't exist");
             return customizeRequest;
         }
     }
