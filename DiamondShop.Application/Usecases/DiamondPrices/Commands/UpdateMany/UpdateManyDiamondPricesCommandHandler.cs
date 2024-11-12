@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
 {
     public record UpdatedDiamondPrice(string diamondCriteriaId, decimal price);//bool isFancyShapePrice
-    public record UpdateManyDiamondPricesCommand(List<UpdatedDiamondPrice> updatedDiamondPrices, string? diamondShapeId , bool isLabDiamond, bool IsSideDiamond) : IRequest<Result<List<DiamondPrice>>>;
+    public record UpdateManyDiamondPricesCommand(List<UpdatedDiamondPrice> updatedDiamondPrices, string? shapeId , bool isLabDiamond, bool IsSideDiamond) : IRequest<Result<List<DiamondPrice>>>;
     internal class UpdateManyDiamondPricesCommandHandler : IRequestHandler<UpdateManyDiamondPricesCommand, Result<List<DiamondPrice>>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
@@ -40,7 +40,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
         public async Task<Result<List<DiamondPrice>>> Handle(UpdateManyDiamondPricesCommand request, CancellationToken cancellationToken)
         {
             var getAllShape = await _diamondShapeRepository.GetAllIncludeSpecialShape();
-            var parsedId = DiamondShapeId.Parse(request.diamondShapeId);
+            var parsedId = DiamondShapeId.Parse(request.shapeId);
             DiamondShape selectedShape = getAllShape.FirstOrDefault(x => x.Id == parsedId);
             if (request.IsSideDiamond)
                 selectedShape = getAllShape.FirstOrDefault(s => s.Id == DiamondShape.ANY_SHAPES.Id);
