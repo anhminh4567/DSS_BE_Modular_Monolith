@@ -51,7 +51,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
 
         public async Task<Result<PagingResponseDto<Diamond>>> Handle(GetDiamondPagingQuery request, CancellationToken cancellationToken)
         {
-            request.Deconstruct(out bool? includeJewelryDiamond , out int pageSize, out int start, out string shapeId, out decimal priceStart, out var priceEnd, out var diamond_4C, out var diamond_Details, out var isLab);
+            request.Deconstruct(out bool isLab, out bool? includeJewelryDiamond , out int pageSize, out int start, out string shapeId, out decimal priceStart, out var priceEnd, out var diamond_4C, out var diamond_Details);
             var query = _diamondRepository.GetQuery();
             //List<DiamondPrice> getRoundPrice = new();
             //List<DiamondPrice> getFancyPrice = new();
@@ -59,7 +59,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             IncludeJewelryDiamond = includeJewelryDiamond.Value;
             //getFancyPrice = await _diamondPriceRepository.GetPrice(true, request.isLab, cancellationToken);
             //getRoundPrice = await _diamondPriceRepository.GetPrice(false, request.isLab, cancellationToken);
-
+            var getAllShape = await _diamondShapeRepository.GetAll();
+            Shapes = getAllShape;
 
             if (AccountRole.ShopRoles.Any(x => _httpContextAccessor.HttpContext.User.IsInRole(x.Id.Value)) is false)//not in shop
             {
@@ -87,8 +88,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             ////    var prices = await _diamondPriceRepository.GetPriceByShapes(shape,null, cancellationToken);
             ////    shapeDictPrice.Add(shape.Id.Value,prices);
             ////}
-            var getAllShape = await _diamondShapeRepository.GetAll();
-            Shapes = getAllShape;
+
             //var getAllDiscount = await _discountRepository.GetActiveDiscount();
             //foreach (var diamond in result)
             //{
