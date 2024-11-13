@@ -72,6 +72,8 @@ namespace DiamondShop.Application.Mappers
 
             config.NewConfig<CustomizeRequestId, string>()
                 .MapWith(src => src.Value).Compile();
+            config.NewConfig<DiamondRequestId, string>()
+               .MapWith(src => src.Value).Compile();
 
             config.NewConfig<OrderId, string>()
                 .MapWith(src => src.Value).Compile();

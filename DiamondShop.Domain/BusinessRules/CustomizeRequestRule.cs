@@ -3,5 +3,6 @@
     public static class CustomizeRequestRule
     {
         public static int ExpiredTime = 30;
+        public static int RequestCodeLength = 7;
     }
 }

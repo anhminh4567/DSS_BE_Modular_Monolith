@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.BusinessRules;
+﻿using DiamondShop.Commons;
+using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
@@ -10,18 +11,12 @@ using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.CustomizeRequests
 {
     public class CustomizeRequest : Entity<CustomizeRequestId>
     {
+        public string RequestCode { get; set; }
         public AccountId AccountId { get; set; }
         public Account Account { get; set; }
         public JewelryId? JewelryId { get; set; }
@@ -64,6 +59,7 @@ namespace DiamondShop.Domain.Models.CustomizeRequests
             return new CustomizeRequest()
             {
                 Id = CustomizeRequestId.Create(),
+                RequestCode = Utilities.GenerateRandomString(CustomizeRequestRule.RequestCodeLength),
                 AccountId = accountId,
                 JewelryModelId = jewelryModelId,
                 SizeId = sizeId,
