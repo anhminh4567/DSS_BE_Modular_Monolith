@@ -1,11 +1,6 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Accounts;
 using DiamondShop.Application.Dtos.Responses.JewelryModels;
-using DiamondShop.Domain.Models.AccountAggregate;
-using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
-using DiamondShop.Domain.Models.CustomizeRequests.Entities;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
-using DiamondShop.Domain.Models.JewelryModels;
-using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 
 namespace DiamondShop.Application.Dtos.Responses.CustomizeRequest
@@ -13,6 +8,7 @@ namespace DiamondShop.Application.Dtos.Responses.CustomizeRequest
     public class CustomizeRequestDto
     {
         public string Id { get; set; }
+        public string RequestCode { get; set; }
         public string AccountId { get; set; }
         public AccountDto Account { get; set; }
         public string JewelryModelId { get; set; }
