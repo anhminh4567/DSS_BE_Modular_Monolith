@@ -66,7 +66,9 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
                     var parsedMessage = JsonConvert.DeserializeObject(message.Content, messageType);
                     await _publisher.Publish(parsedMessage);
                     message.Exception = null;
+                    message.CompleteTime = _dateTimeProvider.UtcNow;
                     _context.OutboxMessages.Update(message);
+
                 }
                 catch (Exception ex)
                 {
@@ -75,7 +77,6 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
                     message.Exception = ex.Message;
                     message.ProcessTime += 1;
                 }
-                message.CompleteTime = _dateTimeProvider.UtcNow;
                 message.Exception = any?.ToString();
                 _context.OutboxMessages.Update(message);
                 
@@ -83,7 +84,7 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
             if(getUnprocessMessage.Count > 0)
-                _logger.LogInformation("Processed message completed");
+                _logger.LogInformation("Processed message completed, total {0}", getUnprocessMessage.Count);
             else
                 _logger.LogInformation("No message to process");
         }

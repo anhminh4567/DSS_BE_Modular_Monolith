@@ -30,16 +30,18 @@ namespace DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany
 
             When(x => x.TargetType == TargetType.Diamond, () =>
             {
-                RuleFor(x => x.DiamondRequirementSpec).NotNull();
+                ClassLevelCascadeMode = CascadeMode.Stop;
+                RuleFor(x => x.DiamondRequirementSpec).NotNull().WithMessage("diamond gift specification is null for target diamond")
+                .WithName((spec) => "DiamondRequirementSpec, named: " + spec.Name);
                 RuleFor(x => x.DiamondRequirementSpec.Origin).IsInEnum().WithMessage("not valid origin, can only be lab = 1, natural = 2, both = 3 ");
 
-                RuleFor(x => x.DiamondRequirementSpec.caratFrom).GreaterThanOrEqualTo(0);
-                RuleFor(x => x.DiamondRequirementSpec.caratTo).GreaterThanOrEqualTo(0);
-                RuleFor(x => x.DiamondRequirementSpec.caratFrom).LessThanOrEqualTo(x => x.DiamondRequirementSpec.caratTo);
+                RuleFor(x => x.DiamondRequirementSpec.caratFrom).GreaterThanOrEqualTo(0).WithMessage("carat must greater than 0");
+                RuleFor(x => x.DiamondRequirementSpec.caratTo).GreaterThanOrEqualTo(0).WithMessage("carat must greater than 0");
+                RuleFor(x => x.DiamondRequirementSpec.caratFrom).LessThanOrEqualTo(x => x.DiamondRequirementSpec.caratTo).WithMessage("carat from must be less than carat to"); ;
 
-                RuleFor(x => (int)x.DiamondRequirementSpec.cutFrom).LessThanOrEqualTo(x => (int)x.DiamondRequirementSpec.cutTo);
-                RuleFor(x => (int)x.DiamondRequirementSpec.clarityFrom).LessThanOrEqualTo(x => (int)x.DiamondRequirementSpec.clarityTo);
-                RuleFor(x => (int)x.DiamondRequirementSpec.colorFrom).LessThanOrEqualTo(x => (int)x.DiamondRequirementSpec.colorTo);
+                RuleFor(x => (int)x.DiamondRequirementSpec.cutFrom).LessThanOrEqualTo(x => (int)x.DiamondRequirementSpec.cutTo).WithMessage("cut from must be less than cut to");
+                RuleFor(x => (int)x.DiamondRequirementSpec.clarityFrom).LessThanOrEqualTo(x => (int)x.DiamondRequirementSpec.clarityTo).WithMessage("clarity from must be less than clarity to");
+                RuleFor(x => (int)x.DiamondRequirementSpec.colorFrom).LessThanOrEqualTo(x => (int)x.DiamondRequirementSpec.colorTo).WithMessage("color from must be less than color to");
             });
             When(x => x.TargetType == TargetType.Jewelry_Model, () =>
             {
