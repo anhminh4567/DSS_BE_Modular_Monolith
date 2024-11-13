@@ -11,6 +11,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Content Remove="RazorTemplate\EmailTemplate\ConfirmEmailTemplate.cshtml" />
+	  <Content Remove="RazorTemplate\InvoiceTemplate\OrderInvoiceTemplate.cshtml" />
+	  <Content Remove="wwwroot\EmailTemplate\ConfirmEmailTemplate.cshtml" />
+	  <Content Remove="wwwroot\InvoiceTemplate\OrderInvoiceTemplate.cshtml" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -30,18 +37,27 @@
 		<Content Update="appsettings.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Update="wwwroot\EmailTemplate\ConfirmEmailTemplate.cshtml">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
 		<Content Update="wwwroot\Images\ShopIcon.png">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Update="wwwroot\InvoiceTemplate\OrderInvoiceTemplate.cshtml">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
 
 	<ItemGroup>
 		<InternalsVisibleTo Include="DiamondShop.Test.Integration" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="RazorTemplate\EmailTemplate\ConfirmEmailTemplate.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="RazorTemplate\InvoiceTemplate\OrderInvoiceTemplate.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="wwwroot\EmailTemplate\ConfirmEmailTemplate.cshtml">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Include="wwwroot\InvoiceTemplate\OrderInvoiceTemplate.cshtml">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 </Project>
