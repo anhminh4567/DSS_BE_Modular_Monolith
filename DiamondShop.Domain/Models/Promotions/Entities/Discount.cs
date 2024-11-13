@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Common.Ultilities;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
@@ -105,7 +106,7 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         }
         private static string GetRandomCode()
         {
-            return DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+            return RandomGenerators.GetRandomString(PromotionRules.MinCode);
         }
         public Discount() { }
     }

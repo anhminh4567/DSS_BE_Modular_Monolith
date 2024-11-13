@@ -255,7 +255,7 @@ namespace DiamondShop.Infrastructure
             services.Configure<LocationOptions>(config => { });
             services.Configure<MailOptions>(configuration.GetSection(MailOptions.Section));
             services.Configure<FrontendOptions>(configuration.GetSection(FrontendOptions.Section));
-
+            services.Configure<PublicBlobOptions>(configuration.GetSection(PublicBlobOptions.Section));
             // this also exist throughout the app life, but it is configured at the end of dependency injection,
             // allow it to inject other or override settings , also more cleaner moduler code
             services.ConfigureOptions<JwtBearerOptionSetup>();

@@ -36,7 +36,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiamondShop.Test.Infrastruc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiamondShop.Test.Integration", "DiamondShop.Test.Integration\DiamondShop.Test.Integration.csproj", "{9CE03912-F7FD-44CB-9591-3EE5F01B3BB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiamondShop.Test.Application.Integrations", "DiamondShop.Test.Application.Integrations\DiamondShop.Test.Application.Integrations.csproj", "{9F734BD6-DC01-466C-8563-4F86E72CFCE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiamondShop.Test.Application.Integrations", "DiamondShop.Test.Application.Integrations\DiamondShop.Test.Application.Integrations.csproj", "{9F734BD6-DC01-466C-8563-4F86E72CFCE7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

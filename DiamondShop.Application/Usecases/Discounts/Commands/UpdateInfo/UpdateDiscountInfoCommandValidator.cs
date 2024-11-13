@@ -12,11 +12,27 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.UpdateInfo
             {
                 RuleFor(x => x.percent).InclusiveBetween(1, 100);
             });
+            //When(x => x.UpdateStartEndDate != null, () =>
+            //{
+            //    RuleFor(x => x.UpdateStartEndDate!.startDate).ValidDateGreaterThanUTCNow();
+            //    RuleFor(x => x.UpdateStartEndDate!.endDate).ValidDate();
+            //    RuleFor(x => x).ValidStartEndDate(x => x.UpdateStartEndDate!.startDate, x => x.UpdateStartEndDate!.endDate);
+            //});
             When(x => x.UpdateStartEndDate != null, () =>
             {
-                RuleFor(x => x.UpdateStartEndDate!.startDate).ValidDateGreaterThanUTCNow();
-                RuleFor(x => x.UpdateStartEndDate!.endDate).ValidDate();
-                RuleFor(x => x).ValidStartEndDate(x => x.UpdateStartEndDate!.startDate, x => x.UpdateStartEndDate!.endDate);
+                //
+                When(x => x.UpdateStartEndDate!.startDate != null, () =>
+                {
+                    RuleFor(x => x.UpdateStartEndDate!.startDate).ValidDateGreaterThanUTCNow();
+                });
+                When(x => x.UpdateStartEndDate!.endDate != null, () =>
+                {
+                    RuleFor(x => x.UpdateStartEndDate!.endDate).ValidDateGreaterThanUTCNow();
+                });
+                When(x => x.UpdateStartEndDate!.startDate != null && x.UpdateStartEndDate!.endDate != null, () =>
+                {
+                    RuleFor(x => x).ValidStartEndDate(x => x.UpdateStartEndDate!.startDate, x => x.UpdateStartEndDate!.endDate);
+                });
             });
         }
     }

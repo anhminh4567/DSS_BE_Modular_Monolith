@@ -39,6 +39,8 @@ namespace DiamondShop.Domain.Models.Orders
         public PaymentMethod? PaymentMethod { get; set; }
         public decimal ShippingFee { get; set; }
         public decimal TotalPrice { get; set; }
+        public decimal OrderAmountSaved { get; set; } = 0;
+        public decimal UserRankAmountSaved { get; set; } = 0;
         public decimal TotalRefund { get; set; } = 0;
         public decimal TotalFine { get; set; } = 0;
         public decimal OrderSavedAmount { get; set; } = 0;

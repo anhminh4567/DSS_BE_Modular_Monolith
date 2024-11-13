@@ -61,7 +61,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             //getRoundPrice = await _diamondPriceRepository.GetPrice(false, request.isLab, cancellationToken);
             var getAllShape = await _diamondShapeRepository.GetAll();
             Shapes = getAllShape;
-
+            var getActiveDiscount = await _discountRepository.GetActiveDiscount();
+            ActiveDiscount = getActiveDiscount;
             if (AccountRole.ShopRoles.Any(x => _httpContextAccessor.HttpContext.User.IsInRole(x.Id.Value)) is false)//not in shop
             {
                 query = _diamondRepository.QueryFilter(query, d => d.Status == Domain.Common.Enums.ProductStatus.Active);

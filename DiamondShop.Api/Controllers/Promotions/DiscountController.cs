@@ -92,6 +92,20 @@ namespace DiamondShop.Api.Controllers.Promotions
             }
             return MatchError(result.Errors, ModelState);
         }
+        [HttpPut("{discountId}/Full")]
+        [Produces(type: typeof(DiscountDto))]
+        public async Task<ActionResult> UpdateFull([FromRoute] string discountId, [FromBody] UpdateDiscountInfoCommand updateDiscountInfoCommand)
+        {
+            var command = updateDiscountInfoCommand with { discountId = discountId };
+            var result = await _sender.Send(command);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<DiscountDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+
         [HttpPut("{discountId}/Thumbnail")]
         [Produces(type: typeof(DiscountDto))]
         public async Task<ActionResult> SetThumbnail([FromRoute] string discountId, [FromForm] SetDiscountThumbnailCommand setDiscountThumbnailCommand)

@@ -12,11 +12,16 @@ using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.DeliveryFees;
 using DiamondShop.Domain.Models.Diamonds.Enums;
+using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Models.Transactions.Entities;
+using DiamondShop.Domain.Models.Transactions.ValueObjects;
 using DiamondShop.Domain.Repositories.DeliveryRepo;
 using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Options;
@@ -25,6 +30,7 @@ using DiamondShop.Infrastructure.Services.Locations.Locally;
 using DiamondShop.Infrastructure.Services.Payments.Paypals;
 using DiamondShop.Infrastructure.Services.Payments.Paypals.Models;
 using DiamondShop.Infrastructure.Services.Payments.Vnpays;
+using DiamondShop.Infrastructure.Services.Pdfs;
 using DiamondShop.Infrastructure.Services.Scrapers;
 using FluentResults;
 using MediatR;
@@ -344,6 +350,49 @@ namespace DiamondShopSystem.Controllers
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("Time to insert: " + stopwatch.ElapsedMilliseconds);
             Console.ResetColor();
+            return Ok();
+        }
+        [HttpGet("testpdf")]
+        public async Task<ActionResult> TestPdf()
+        {
+            var pdf = new GeneratePdfService();
+            var account = Account.Create(FullName.Create("a","b"),"testing@gmail");
+            var order = Order.Create(account.Id,PaymentType.Payall,PaymentMethodId.Parse("1"),50_000_000,20_000,"abc",null,null,40_000,OrderId.Parse("1"));
+            order.Items.Add(OrderItem.Create(order.Id,null,DiamondId.Parse("1"), 25_000_000,null,null,null,null,0));
+            order.Items.Add(OrderItem.Create(order.Id, JewelryId.Parse("2"),null, 25_000_000, null, null, null, null, 0));
+
+
+            string result = pdf.GetTemplateHtmlStringFromOrder(order, account);
+            //HttpContext.Response.Headers.ContentType = "text/html; charset=utf-8";
+            return Ok(result);
+        }
+        [HttpGet("testpdf/download")]
+        public async Task<ActionResult> TestPdfDownload()
+        {
+            var pdf = new GeneratePdfService();
+            var account = Account.Create(FullName.Create("a", "b"), "testing@gmail");
+            var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, "abc", null, null, 40_000, OrderId.Parse("1"));
+            order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, null, null, null, null, 0));
+            order.Items.Add(OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, null, null, null, null, 0));
+
+
+            string result = pdf.GetTemplateHtmlStringFromOrder(order, account);
+            var stream = pdf.ParseHtmlToPdf(result);
+            //HttpContext.Response.Headers.ContentType = "text/html; charset=utf-8";
+            return File(stream,"application/pdf","billing_"+order.OrderCode+".pdf");
+        }
+        [HttpGet("testinvoiceEmail")]
+        public async Task<ActionResult> TestEmailInvoice()
+        {
+            var pdf = new GeneratePdfService();
+            var account = Account.Create(FullName.Create("a", "b"), "testingwebandstuff@gmail.com");
+            var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, "abc", null, null, 40_000, OrderId.Parse("1"));
+            order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, null, null, null, null, 0));
+            order.Items.Add(OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, null, null, null, null, 0));
+
+            await _emailService.SendInvoiceEmail(order,account);
+
+            //HttpContext.Response.Headers.ContentType = "text/html; charset=utf-8";
             return Ok();
         }
     }

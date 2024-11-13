@@ -15,7 +15,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.CreateFull
             {
                 RuleForEach(x => x.Requirements)
                     .Must(req => req.TargetType != Domain.Models.Promotions.Enum.TargetType.Order)
-                    .WithMessage("Requirement cannot be of targetType order, discount only accept diamond or jewelry as discount and only as percent");
+                    .WithMessage((command,req) => "Requirement cannot be of targetType order, discount only accept diamond or jewelry as discount and only as percent, the error is at requirement named: " + req.Name);
             });
             //When(x => x.Requirements != null, () =>
             //{
