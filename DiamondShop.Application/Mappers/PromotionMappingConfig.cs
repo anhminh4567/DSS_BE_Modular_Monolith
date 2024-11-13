@@ -28,7 +28,20 @@ namespace DiamondShop.Application.Mappers
                 .Map(dest => dest.Id, src => src.Id.Value)
                 .Map(dest => dest.PromotionId, src => (src.PromotionId == null) ? null : src.PromotionId.Value)
                 .Map(dest => dest.DiscountId, src => (src.DiscountId == null) ? null : src.DiscountId.Value)
-                .Map(dest => dest.ModelId, src => (src.ModelId == null) ? null : src.ModelId.Value);
+                .Map(dest => dest.ModelId, src => (src.ModelId == null) ? null : src.ModelId.Value)
+                .Map(dest => dest.DiamondRequirementSpec, src => new DiamondSpecDto
+                {
+                    CaratFrom = src.CaratFrom.Value,
+                    CaratTo = src.CaratTo.Value,
+                    ClarityFrom = src.ClarityFrom.Value,
+                    ClarityTo = src.ClarityTo.Value,
+                    ColorFrom = src.ColorFrom.Value,
+                    ColorTo = src.ColorTo.Value,
+                    CutFrom = src.CutFrom.Value,
+                    CutTo = src.CutTo.Value,
+                    Origin = src.DiamondOrigin.Value,
+                    ShapesIDs = src.PromoReqShapes.Select(x => x.ShapeId.Value).ToArray()
+                }, src => src.TargetType == TargetType.Diamond);
 
             config.NewConfig<PromoReqShape, RequirementShapeDto>()
                 .Map(dest => dest.PromoReqId, src => src.PromoReqId.Value)
@@ -37,7 +50,20 @@ namespace DiamondShop.Application.Mappers
             config.NewConfig<Gift, GiftDto>()
                 .Map(dest => dest.Id, src => src.Id.Value)
                 .Map(dest => dest.PromotionId, src => (src.PromotionId == null) ? null : src.PromotionId.Value)
-                .Map(dest => dest.DiamondGiftShapes, src => src.DiamondGiftShapes.Select(x => x.Value));
+                //.Map(dest => dest.DiamondGiftShapes, src => src.DiamondGiftShapes.Select(x => x.Value))
+                .Map(dest => dest.DiamondRequirementSpec, src => new DiamondSpecDto
+                {
+                    CaratFrom = src.CaratFrom.Value,
+                    CaratTo = src.CaratTo.Value,
+                    ClarityFrom = src.ClarityFrom.Value,
+                    ClarityTo = src.ClarityTo.Value,
+                    ColorFrom = src.ColorFrom.Value,
+                    ColorTo = src.ColorTo.Value,
+                    CutFrom = src.CutFrom.Value,
+                    CutTo = src.CutTo.Value,
+                    Origin = src.DiamondOrigin.Value,
+                    ShapesIDs = src.DiamondGiftShapes.Select(x => x.Value).ToArray()
+                }, src => src.TargetType == TargetType.Diamond);
 
             config.NewConfig<Discount, DiscountDto>()
                 .Map(dest => dest.Id, src => src.Id.Value)

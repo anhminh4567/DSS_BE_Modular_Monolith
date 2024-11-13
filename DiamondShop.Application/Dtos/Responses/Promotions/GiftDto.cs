@@ -19,15 +19,16 @@ namespace DiamondShop.Application.Dtos.Responses.Promotions
         public decimal UnitValue { get; set; }
         public int Amount { get; set; }
         //diamond config
-        public List<string>? DiamondGiftShapes { get; set; } = new();
-        public DiamondOrigin? DiamondOrigin { get; set; }
-        public float? CaratFrom { get; set; }
-        public float? CaratTo { get; set; }
-        public Clarity? ClarityFrom { get; set; }
-        public Clarity? ClarityTo { get; set; }
-        public Cut? CutFrom { get; set; }
-        public Cut? CutTo { get; set; }
-        public Color? ColorFrom { get; set; }
-        public Color? ColorTo { get; set; }
+        //public List<string>? DiamondGiftShapes { get; set; } = new();
+        //public DiamondOrigin? DiamondOrigin { get; set; }
+        //public float? CaratFrom { get; set; }
+        //public float? CaratTo { get; set; }
+        //public Clarity? ClarityFrom { get; set; }
+        //public Clarity? ClarityTo { get; set; }
+        //public Cut? CutFrom { get; set; }
+        //public Cut? CutTo { get; set; }
+        //public Color? ColorFrom { get; set; }
+        //public Color? ColorTo { get; set; }
+        public DiamondSpecDto? DiamondRequirementSpec { get; set; }
     }
 }

@@ -49,7 +49,7 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
                     var colorIndex = (int)color - 1;
                     var clarityIndex = (int)clarity - 1;
                     var getCriteria = GroupedCriteria.First(x => x.Color == color && x.Clarity == clarity);
-                    CellMatrix[colorIndex,clarityIndex] = new DiamondPriceCellDataDto
+                    CellMatrix[colorIndex, clarityIndex] = new DiamondPriceCellDataDto
                     {
                         CriteriaId = getCriteria.Id.Value,
                         Color = color,
@@ -73,7 +73,7 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         {
             foreach (var discount in activeDiscount)
             {
-                if(discount.DiscountReq.Any(x => x.TargetType == Domain.Models.Promotions.Enum.TargetType.Diamond) is false)
+                if (discount.DiscountReq.Any(x => x.TargetType == Domain.Models.Promotions.Enum.TargetType.Diamond) is false)
                     continue;
                 var diamondReq = discount.DiscountReq.Where(x => x.TargetType == Domain.Models.Promotions.Enum.TargetType.Diamond).ToList();
                 foreach (var criteria in diamondReq)
@@ -81,13 +81,13 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
                     var foundedShape = criteria.PromoReqShapes.FirstOrDefault(x => x.ShapeId == shape.Id);
                     if (foundedShape == null)
                         continue;
-                    if ( (criteria.CaratFrom <= CaratTo && criteria.CaratTo >= CaratFrom) is false )
+                    if ((criteria.CaratFrom <= CaratTo && criteria.CaratTo >= CaratFrom) is false)
                         continue;
-                    if(criteria.CutFrom > mainCut || criteria.CutTo < mainCut)
+                    if (criteria.CutFrom > mainCut || criteria.CutTo < mainCut)
                         continue;
                     if (DiamondServices.ValidateOrigin(criteria.DiamondOrigin.Value, isLabDiamond) == false)
                         continue;
-                    MapToCells(criteria,discount);
+                    MapToCells(criteria, discount);
                     DiscountFounded.Add(new DiscountDto
                     {
                         Id = discount.Id.Value,
@@ -99,20 +99,21 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
                             new RequirementDto
                             {
                                 Id = criteria.Id.Value,
-                                CaratFrom = criteria.CaratFrom,
-                                CaratTo = criteria.CaratTo,
-                                CutFrom = criteria.CutFrom,
-                                CutTo = criteria.CutTo,
-                                ColorFrom = criteria.ColorFrom,
-                                ColorTo = criteria.ColorTo,
-                                ClarityFrom = criteria.ClarityFrom,
-                                ClarityTo = criteria.ClarityTo,
-                                DiscountId = discount.Id.Value,
-                                PromoReqShapes = criteria.PromoReqShapes.Select(x => new RequirementShapeDto
+                                DiamondRequirementSpec = new DiamondSpecDto
                                 {
-                                    PromoReqId = x.PromoReqId.Value,
-                                    ShapeId = x.ShapeId.Value
-                                }).ToList()
+                                    CaratFrom = criteria.CaratFrom.Value,
+                                    CaratTo = criteria.CaratTo.Value,
+                                    CutFrom = criteria.CutFrom.Value,
+                                    CutTo = criteria.CutTo.Value,
+                                    ColorFrom = criteria.ColorFrom.Value,
+                                    ColorTo = criteria.ColorTo.Value,
+                                    ClarityFrom = criteria.ClarityFrom.Value,
+                                    ClarityTo = criteria.ClarityTo.Value,
+                                    ShapesIDs = criteria.PromoReqShapes.Select(x => x.ShapeId.Value).ToArray(),
+                                },
+                                DiscountId = discount.Id.Value,
+
+                                
                             }
                         }
                     });
@@ -150,7 +151,7 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
             }
 
         }
-        
+
     }
     public class DiamondPriceRowDto
     {
