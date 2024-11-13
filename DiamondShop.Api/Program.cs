@@ -73,7 +73,7 @@ public class Program
             }
         }
         var app = builder.Build();
-
+        app.UseStaticFiles();
         // Configure the HTTP request pipeline.
         if (app.Environment.EnvironmentName != "Production")
         {
