@@ -19,6 +19,7 @@ using DiamondShop.Application.Usecases.Promotions.Commands.UpdateRequirements;
 using DiamondShop.Application.Usecases.Promotions.Commands.UpdateStatus;
 using DiamondShop.Application.Usecases.Promotions.Queries.GetAll;
 using DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromotions;
+using DiamondShop.Application.Usecases.Promotions.Queries.GetDetail;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -46,6 +47,14 @@ namespace DiamondShop.Api.Controllers.Promotions
         {
             var result = await _sender.Send(new GetAllPromotionQuery());
             var mappedResult = _mapper.Map<List<PromotionDto>>(result);
+            return Ok(mappedResult);
+        }
+        [HttpGet("{promotionId}")]
+        [ProducesResponseType(typeof(PromotionDto), 200)]
+        public async Task<ActionResult> Get([FromRoute] string promotionId)
+        {
+            var result = await _sender.Send(new GetPromotionDetailQuery(promotionId));
+            var mappedResult = _mapper.Map<PromotionDto>(result.Value);
             return Ok(mappedResult);
         }
         [HttpPost("GetApplicable")]
