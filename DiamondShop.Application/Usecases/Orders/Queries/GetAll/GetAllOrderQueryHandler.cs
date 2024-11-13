@@ -1,5 +1,4 @@
 ﻿using DiamondShop.Application.Commons.Responses;
-using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Orders.Queries.GetOrderFilter;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Orders;

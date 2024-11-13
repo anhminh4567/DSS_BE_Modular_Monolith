@@ -131,6 +131,25 @@ namespace DiamondShop.Api.Controllers.CustomRequest
             else
                 return Unauthorized();
         }
+        [HttpPost("Checkout")]
+        [Authorize(Roles = AccountRole.CustomerId)]
+        public async Task<ActionResult> CheckoutCustomizeRequest([FromBody] CheckoutCustomizeRequestDto checkoutCustomizeRequestDto)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(new CheckoutRequestCommand(userId.Value, checkoutCustomizeRequestDto));
+                if (result.IsSuccess)
+                {
+                    var mappedResult = _mapper.Map<CustomizeRequestDto>(result.Value);
+                    return Ok(mappedResult);
+                }
+                else
+                    return MatchError(result.Errors, ModelState);
+            }
+            else
+                return Unauthorized();
+        }
         [HttpPut("Proceed")]
         [Authorize(Roles = AccountRole.CustomerId)]
         public async Task<ActionResult> CustomerProceedCustomizeRequest([FromQuery] string CustomizeRequestId)
@@ -158,25 +177,6 @@ namespace DiamondShop.Api.Controllers.CustomRequest
             if (userId != null)
             {
                 var result = await _sender.Send(new CustomerRejectRequestCommand(CustomizeRequestId, userId.Value));
-                if (result.IsSuccess)
-                {
-                    var mappedResult = _mapper.Map<CustomizeRequestDto>(result.Value);
-                    return Ok(mappedResult);
-                }
-                else
-                    return MatchError(result.Errors, ModelState);
-            }
-            else
-                return Unauthorized();
-        }
-        [HttpPut("Checkout")]
-        [Authorize(Roles = AccountRole.CustomerId)]
-        public async Task<ActionResult> CheckoutCustomizeRequest([FromBody] CheckoutCustomizeRequestDto checkoutCustomizeRequestDto)
-        {
-            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
-            if (userId != null)
-            {
-                var result = await _sender.Send(new CheckoutRequestCommand(userId.Value, checkoutCustomizeRequestDto));
                 if (result.IsSuccess)
                 {
                     var mappedResult = _mapper.Map<CustomizeRequestDto>(result.Value);
