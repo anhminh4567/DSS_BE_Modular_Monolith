@@ -2,6 +2,7 @@
 using DiamondShop.Application.Usecases.DeliveryFees.Commands.CalculateFee;
 using DiamondShop.Application.Usecases.DeliveryFees.Commands.CreateMany;
 using DiamondShop.Application.Usecases.DeliveryFees.Commands.DeleteMany;
+using DiamondShop.Application.Usecases.DeliveryFees.Commands.EnableDeliveryLocation;
 using DiamondShop.Application.Usecases.DeliveryFees.Commands.Update;
 using DiamondShop.Application.Usecases.DeliveryFees.Queries.GetAll;
 using MapsterMapper;
@@ -77,6 +78,16 @@ namespace DiamondShop.Api.Controllers.Deliveries
             {
                 var mappedResult = _mapper.Map<List<DeliveryFeeDto>>(result.Value);
                 return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPut("SetActive")]
+        public async Task<ActionResult> UpdateStatus([FromBody] SetStatusDeliveryLocation setCommand)
+        {
+            var result = await _mediator.Send(setCommand);
+            if (result.IsSuccess)
+            {
+                return Ok();
             }
             return MatchError(result.Errors, ModelState);
         }

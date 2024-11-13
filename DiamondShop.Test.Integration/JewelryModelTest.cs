@@ -35,7 +35,7 @@ namespace DiamondShop.Test.Integration
 
             var sideDiamondSpec = new List<SideDiamondRequestDto>()
             {
-                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.05f, 5)
+                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.05f, 5,true)
             };
 
             var metalSizeSpec = new List<ModelMetalSizeRequestDto>()
@@ -86,7 +86,7 @@ namespace DiamondShop.Test.Integration
 
             var sideDiamondSpec = new List<SideDiamondRequestDto>()
             {
-                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.05f, 5)
+                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.05f, 5, true)
             };
 
             var metalSizeSpec = new List<ModelMetalSizeRequestDto>()
@@ -126,9 +126,9 @@ namespace DiamondShop.Test.Integration
 
             var sideDiamondSpec = new List<SideDiamondRequestDto>()
             {
-                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.05f, 20),
-                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.25f, 15),
-                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 1f, 5),
+                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.05f, 20, true),
+                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.25f, 15, true),
+                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 1f, 5, true),
             };
 
             var metalSizeSpec = new List<ModelMetalSizeRequestDto>()
@@ -151,8 +151,8 @@ namespace DiamondShop.Test.Integration
             var modelSpec = new JewelryModelRequestDto("Test_Model", "TM", TestData.DefaultCategoryId.Value, 0, 1f, null, false, false, null, null, null);
             var sideDiamondSpec = new List<SideDiamondRequestDto>()
             {
-                      new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.05f, 20),
-                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.25f, 15),
+                      new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.05f, 20, true),
+                new ("1",Color.K, Color.D,Clarity.VS2,Clarity.VS1,SettingType.Prong, 0.25f, 15,true),
             };
 
             var metalSizeSpec = new List<ModelMetalSizeRequestDto>()

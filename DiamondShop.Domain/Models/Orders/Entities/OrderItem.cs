@@ -38,7 +38,7 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public OrderItemWarrantyId? WarrantyId { get; set; }
         public OrderItemWarranty? Warranty { get; set; }
         public OrderItem() { }
-        public static OrderItem Create(OrderId orderId, JewelryId? jewelryId, DiamondId? diamondId, decimal? finalPrice = 0, decimal? purchasedPrice = 0, DiscountId? discountId = null,  int? discountPercent = 0, UnitType? promoType = UnitType.Percent, decimal? promoValue = 0, decimal warrantyPrice = 0, OrderItemId? givenId = null)
+        public static OrderItem Create(OrderId orderId, JewelryId? jewelryId, DiamondId? diamondId, decimal? purchasedPrice = 0, DiscountId? discountId = null,  int? discountPercent = 0, UnitType? promoType = UnitType.Percent, decimal? promoValue = 0, decimal warrantyPrice = 0, OrderItemId? givenId = null)
         {
             return new OrderItem()
             {

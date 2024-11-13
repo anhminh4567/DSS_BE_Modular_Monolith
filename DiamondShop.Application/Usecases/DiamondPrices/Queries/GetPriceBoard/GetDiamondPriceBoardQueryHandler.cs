@@ -6,6 +6,7 @@ using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Repositories;
+using DiamondShop.Domain.Repositories.PromotionsRepo;
 using FluentResults;
 using MapsterMapper;
 using MediatR;
@@ -31,18 +32,21 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
         private readonly IDiamondPriceRepository _diamondPriceRepository;
         private readonly IDiamondCriteriaRepository _diamondCriteriaRepository;
         private readonly IDiamondShapeRepository _diamondShapeRepository;
+        private readonly IDiscountRepository _discountRepository;
         private readonly IMapper _mapper;
 
-        public GetDiamondPriceBoardQueryHandler(IDiamondPriceRepository diamondPriceRepository, IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondShapeRepository diamondShapeRepository, IMapper mapper)
+        public GetDiamondPriceBoardQueryHandler(IDiamondPriceRepository diamondPriceRepository, IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondShapeRepository diamondShapeRepository, IDiscountRepository discountRepository, IMapper mapper)
         {
             _diamondPriceRepository = diamondPriceRepository;
             _diamondCriteriaRepository = diamondCriteriaRepository;
             _diamondShapeRepository = diamondShapeRepository;
+            _discountRepository = discountRepository;
             _mapper = mapper;
         }
 
         public async Task<Result<DiamondPriceBoardDto>> Handle(GetDiamondPriceBoardQuery request, CancellationToken cancellationToken)
         {
+            var activeDiscount = await _discountRepository.GetActiveDiscount();
             if (request.isSideDiamond == false && request.shapeId is null)
                 return Result.Fail(new ValidationError("shapeId is required for main diamond"));
             var shapeId = DiamondShapeId.Parse(request.shapeId);
@@ -72,7 +76,10 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             {
                 prices = await _diamondPriceRepository.GetPrice(request.cut, getShape, request.isLabDiamond, cancellationToken);
                 priceBoard.IsSideDiamondBoardPrices = false;
-                string serlized = JsonConvert.SerializeObject(prices);
+                string serlized = JsonConvert.SerializeObject(prices,new JsonSerializerSettings() 
+                {
+                    ReferenceLoopHandling  = ReferenceLoopHandling.Ignore
+                });
                 byte[] bytes = Encoding.UTF8.GetBytes(serlized);
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("size: "+ bytes.Length);
@@ -149,6 +156,11 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             });
 
             priceBoard.PriceTables = createTable;
+            //assign discount on table
+            priceBoard.PriceTables
+                .AsParallel()
+                .ForAll(x => x.MapDiscounts(activeDiscount, priceBoard.MainCut,getShape,priceBoard.IsLabDiamondBoardPrices));
+            //
             stopwatch.Stop();
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("execution time measured in miliseconds: " + stopwatch.ElapsedMilliseconds);

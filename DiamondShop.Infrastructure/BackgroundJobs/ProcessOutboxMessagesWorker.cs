@@ -82,7 +82,10 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
             }
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
-            _logger.LogInformation("Processed message completed");
+            if(getUnprocessMessage.Count > 0)
+                _logger.LogInformation("Processed message completed");
+            else
+                _logger.LogInformation("No message to process");
         }
     }
 }

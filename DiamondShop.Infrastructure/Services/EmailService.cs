@@ -1,11 +1,15 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.AccountAggregate;
+using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Securities;
+using DiamondShop.Infrastructure.Services.Pdfs;
+using DiamondShop.Infrastructure.Services.Pdfs.Models;
 using FluentEmail.Core;
 using FluentEmail.Core.Models;
 using FluentResults;
+using HtmlAgilityPack.CssSelectors.NetCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using System;
@@ -21,15 +25,20 @@ namespace DiamondShop.Infrastructure.Services
         private readonly IFluentEmail _fluentEmailServices;
         private readonly IOptions<MailOptions> _mailOptions;
         private readonly IOptions<UrlOptions> _urlOptions;
+        private readonly IOptions<PublicBlobOptions> _publicBlobOptions;
+        private readonly IOptions<ExternalUrlsOptions> _externalUrlsOptions;
         private readonly CustomUserManager _userManager;
         private const string ConfirmEmailFileName = "ConfirmEmailTemplate.cshtml";
+        private const string InvoiceEmailFileName = "OrderInvoiceTemplate.cshtml";
         private const string IconFileName = "ShopIcon.png";
 
-        public EmailService(IFluentEmail fluentEmailServices, IOptions<MailOptions> mailOptions, IOptions<UrlOptions> urlOptions, CustomUserManager userManager)
+        public EmailService(IFluentEmail fluentEmailServices, IOptions<MailOptions> mailOptions, IOptions<UrlOptions> urlOptions, IOptions<PublicBlobOptions> publicBlobOptions, IOptions<ExternalUrlsOptions> externalUrlsOptions, CustomUserManager userManager)
         {
             _fluentEmailServices = fluentEmailServices;
             _mailOptions = mailOptions;
             _urlOptions = urlOptions;
+            _publicBlobOptions = publicBlobOptions;
+            _externalUrlsOptions = externalUrlsOptions;
             _userManager = userManager;
         }
 
@@ -69,6 +78,33 @@ namespace DiamondShop.Infrastructure.Services
                 Filename = IconFileName,
             });
             var sendResult = await emailSendingConfig.SendAsync(cancellation);
+            if (sendResult.Successful is false)
+                return Result.Fail("cant send email");
+            return Result.Ok();
+        }
+
+        public async Task<Result> SendInvoiceEmail(Order order, Account account, CancellationToken cancellationToken = default)
+        {
+            var invoiceEmail = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "InvoiceTemplate", ConfirmEmailFileName);
+            var mailString = GeneratePdfService.GetTemplateHtmlStringFromOrderGlobal(order,account);
+            var metadata = new EmailMetaData()
+            {
+                ToEmail = account.Email,
+                Subject = "invoice for order email",
+            };
+            var emailSendingConfig = _fluentEmailServices
+              .To(metadata.ToEmail)
+              .Subject(metadata.Subject)
+              .Body(mailString, isHtml: true);
+            emailSendingConfig.Attach(new Attachment()
+            {
+                ContentId = "invoice",
+                ContentType = "application/pdf",
+                Data = GeneratePdfService.GeneratePdfDoc(mailString),
+                IsInline = false,
+                Filename = $"invoice_{order.OrderCode}.pdf",
+            });
+            var sendResult = await emailSendingConfig.SendAsync();
             if (sendResult.Successful is false)
                 return Result.Fail("cant send email");
             return Result.Ok();

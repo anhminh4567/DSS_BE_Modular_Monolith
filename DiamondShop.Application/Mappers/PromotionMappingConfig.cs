@@ -5,6 +5,7 @@ using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.Enum;
 using Mapster;
 using System;
 using System.Collections.Generic;
@@ -54,10 +55,11 @@ namespace DiamondShop.Application.Mappers
                 .Map(dest => dest.DiamondRequirementSpec.clarityTo, src => src.DiamondRequirementSpec.clarityTo, src => src.DiamondRequirementSpec != null)
                 .Map(dest => dest.DiamondRequirementSpec.caratFrom, src => src.DiamondRequirementSpec.caratFrom, src => src.DiamondRequirementSpec != null)
                 .Map(dest => dest.DiamondRequirementSpec.caratTo, src => src.DiamondRequirementSpec.caratTo, src => src.DiamondRequirementSpec != null)
-                .Map(dest => dest.MoneyAmount, src=> 10000.0m)
+                .Map(dest => dest.MoneyAmount, src=> 0.0m)
                 .Map(dest => dest.Quantity, src=> 1)
                 .Map(dest => dest.JewelryModelID, src => src.JewelryModelID)
-                .Map(dest => dest.isPromotion, src => false);
+                .Map(dest => dest.isPromotion, src => false)
+                .Map(dest => dest.Operator , src => Operator.Equal_Or_Larger);
 
         }
     }

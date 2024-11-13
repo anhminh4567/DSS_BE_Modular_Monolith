@@ -151,9 +151,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 //If shop replacement, then bought price should be 0
                 //TODO: Add final price
                 orderItems.Add(OrderItem.Create(order.Id, product.Jewelry?.Id, product.Diamond?.Id,
-                    0, product.ReviewPrice.FinalPrice,
+                     product.ReviewPrice.FinalPrice,
                 product.DiscountId, product.DiscountPercent,
-                gift?.UnitType, gift?.UnitValue));
+                gift?.UnitType, gift?.UnitValue,product.CurrentWarrantyPrice));
                 if (product.Jewelry != null)
                 {
                     _jewelryService.AddPrice(product.Jewelry, _sizeMetalRepository);
@@ -170,7 +170,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             {
                 foreach (var item in parentItems)
                 {
-                    orderItems.Add(OrderItem.Create(order.Id, item.JewelryId, item.DiamondId, 0, item.PurchasedPrice,
+                    orderItems.Add(OrderItem.Create(order.Id, item.JewelryId, item.DiamondId,  item.PurchasedPrice,
                         item.DiscountId, item.DiscountPercent, item.PromoType, item.PromoValue));
                 }
             }

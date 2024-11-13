@@ -11,6 +11,7 @@ using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Services.interfaces;
@@ -55,6 +56,13 @@ namespace DiamondShop.Domain.Services.Implementations
                         continue;
                     if (ValidateDiamond4CGlobal(diamond, req.CaratFrom.Value, req.CaratTo.Value, req.ColorFrom.Value, req.ColorTo.Value, req.ClarityFrom.Value, req.ClarityTo.Value, req.CutFrom.Value, req.CutTo.Value))
                     {
+                        if(req.PromoReqShapes.Any(x => x.ShapeId == diamond.DiamondShapeId) is false)
+                        {
+                            continue;
+                        }
+                        if (ValidateDiamondOrigin(req.DiamondOrigin.Value, diamond) == false)
+                            continue;
+
                         var discountValue = discount.DiscountPercent;
                         if (diamond.Discount != null && discountValue > diamond.Discount.DiscountPercent)
                         {
@@ -128,6 +136,21 @@ namespace DiamondShop.Domain.Services.Implementations
                 }
             }
             return false;
+        }
+        public static bool ValidateDiamondOrigin(DiamondOrigin origin , Diamond diamond)
+        {
+            return ValidateOrigin(origin,diamond.IsLabDiamond);
+        }
+        public static bool ValidateOrigin(DiamondOrigin origin, bool isLabDiamond)
+        {
+            var result = origin switch
+            {
+                DiamondOrigin.Natural => isLabDiamond == false,
+                DiamondOrigin.Lab => isLabDiamond == true,
+                DiamondOrigin.Both => true,
+                _ => false,
+            };
+            return result;
         }
         public bool ValidateDiamond4C(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo, Cut cutFrom, Cut cutTo)
         {

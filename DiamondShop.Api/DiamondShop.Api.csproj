@@ -36,6 +36,9 @@
 		<Content Update="wwwroot\Images\ShopIcon.png">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
+		<Content Update="wwwroot\InvoiceTemplate\OrderInvoiceTemplate.cshtml">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 
 	<ItemGroup>

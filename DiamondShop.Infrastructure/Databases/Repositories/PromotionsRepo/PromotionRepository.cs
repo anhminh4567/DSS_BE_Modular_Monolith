@@ -20,7 +20,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo
         public override Task<Promotion?> GetById(params object[] ids)
         {
             //var parsedId = PromotionId.Parse((string)ids[0]);
-            return _set.Include(p => p.PromoReqs).Include(p => p.Gifts)
+            return _set.Include(p => p.PromoReqs).ThenInclude(x => x.PromoReqShapes).Include(p => p.Gifts)
                 .FirstOrDefaultAsync(p => p.Id == ids[0]);
         }
         public Task<List<Promotion>> GetActivePromotion(bool isDateComparisonRequired = false, CancellationToken cancellationToken = default)
@@ -28,12 +28,12 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo
             if(isDateComparisonRequired) 
             {
                 var now = DateTime.UtcNow;
-                return _set.Include(p => p.PromoReqs).Include(p => p.Gifts)
+                return _set.Include(p => p.PromoReqs).ThenInclude(x => x.PromoReqShapes).Include(p => p.Gifts)
                     .Where(p => p.Status == Domain.Models.Promotions.Enum.Status.Active && p.StartDate < now && p.EndDate > now)
                     .OrderBy(p => p.Priority)
                     .ToListAsync();
             }
-            return _set.Include(p => p.PromoReqs).Include(p => p.Gifts)
+            return _set.Include(p => p.PromoReqs).ThenInclude(x => x.PromoReqShapes).Include(p => p.Gifts)
                 .Where(p => p.Status == Domain.Models.Promotions.Enum.Status.Active)
                 .OrderBy(p => p.Priority)
                 .ToListAsync();
