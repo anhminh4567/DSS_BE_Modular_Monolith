@@ -16,6 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DiamondShop.Domain.Services.interfaces;
 using DiamondShop.Domain.Services.Implementations;
+using DiamondShop.Domain.Models.Orders.Entities;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverFail
 {
@@ -29,14 +30,18 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverFail
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderService _orderService;
         private readonly IOrderTransactionService _orderTransactionService;
-        public OrderDeliverFailCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IOrderItemRepository orderItemRepository)
+        private readonly IOrderLogRepository _orderLogRepository;
+
+        public OrderDeliverFailCommandHandler(IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IOrderItemRepository orderItemRepository, IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository)
         {
-            _orderRepository = orderRepository;
-            _unitOfWork = unitOfWork;
-            _orderService = orderService;
             _diamondRepository = diamondRepository;
             _jewelryRepository = jewelryRepository;
             _orderItemRepository = orderItemRepository;
+            _orderRepository = orderRepository;
+            _unitOfWork = unitOfWork;
+            _orderService = orderService;
+            _orderTransactionService = orderTransactionService;
+            _orderLogRepository = orderLogRepository;
         }
 
         public async Task<Result<Order>> Handle(OrderDeliverFailCommand request, CancellationToken token)
@@ -57,11 +62,15 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverFail
                 _orderTransactionService.AddRefundUserCancel(order);
                 //Return to selling
                 await _orderService.CancelItems(order, _orderRepository, _orderItemRepository, _jewelryRepository, _diamondRepository);
+                var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Cancelled);
+                await _orderLogRepository.Create(log);
             }
             else
             {
                 order.ShipFailedCount++;
                 order.Status = OrderStatus.Delivery_Failed;
+                var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Delivery_Failed);
+                await _orderLogRepository.Create(log);
             }
             await _orderRepository.Update(order);
             await _unitOfWork.SaveChangesAsync(token);

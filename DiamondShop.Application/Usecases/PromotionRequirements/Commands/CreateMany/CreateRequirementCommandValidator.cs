@@ -20,7 +20,9 @@ namespace DiamondShop.Application.Usecases.PromotionRequirements.Commands.Create
             RuleFor(x => x.TargetType).IsInEnum().WithMessage("TargetType is not valid.");
             RuleFor(x => x.Operator).IsInEnum().WithMessage("Operator is not valid.");
             RuleFor(x => x.MoneyAmount).GreaterThan(1000)
-                .When(x => x.MoneyAmount.HasValue).WithMessage("MoneyAmount should be greater than 1000.");
+                .When(x => x.MoneyAmount.HasValue && x.isPromotion == true)
+                .WithMessage("MoneyAmount should be greater than 1000.")
+                .WithName((spec ) => "requirement named "+ spec.Name);
             When(x => x.TargetType == TargetType.Diamond, () =>
             {
                 ClassLevelCascadeMode = CascadeMode.Stop;

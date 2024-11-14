@@ -177,7 +177,7 @@ namespace DiamondShopSystem.Controllers
             foreach (var city in getCities)
             {
                 baseCost += 5000.0m;
-                var comando = new CreateDeliveryFeeCommand(city.Name, baseCost, new ToLocationCity(city.Name));
+                var comando = new CreateDeliveryFeeCommand(city.Name, baseCost, city.Id);
                 commandData.Add(comando);
             }
             var result = await _sender.Send(new CreateManyDeliveryFeeCommand(commandData));

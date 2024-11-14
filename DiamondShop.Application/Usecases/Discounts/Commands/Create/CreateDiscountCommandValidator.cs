@@ -10,7 +10,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Create
         public CreateDiscountCommandValidator()
         {
             RuleFor(c => c.name).NotEmpty().MinimumLength(2);
-            RuleFor(c => c.percent).NotEmpty().GreaterThanOrEqualTo(1).LessThan(100);
+            RuleFor(c => c.discountPercent).NotEmpty().GreaterThanOrEqualTo(1).LessThan(100);
             RuleFor(x => x.startDate).NotEmpty()
                 .Must(DateTimeUtil.BeAValidDate).WithMessage("Invalid Start Date format.");
 
@@ -31,7 +31,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Create
                 }
                 return false;
             }).WithName("Date Time Things");
-            RuleFor(x => x.code).Must(code =>
+            RuleFor(x => x.discountCode).Must(code =>
             {
                 if (code is null)
                     return true;

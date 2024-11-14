@@ -38,6 +38,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
         private List<DiamondShape> Shapes = new();
         private int Count = 0;
         private bool IncludeJewelryDiamond = false;
+        private int TotalTake = 0;
         public GetDiamondPagingQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, IDiamondServices diamondService, IDiamondShapeRepository diamondShapeRepository, IDiscountService discountService, IDiscountRepository discountRepository, IHttpContextAccessor httpContextAccessor)
         {
             _diamondRepository = diamondRepository;
@@ -69,7 +70,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             }
             var count = _diamondRepository.GetCount();
             Count = count;
-            var finalResult = await GetData(diamondListResponse, start, pageSize, request);
+            TotalTake = (start + 1) * pageSize;
+            var finalResult = await GetData(diamondListResponse, 0, pageSize, request);
             //var parsedShape = DiamondShapeId.Parse(shapeId);
             //query = query.Where(d => d.DiamondShapeId == parsedShape);
             ////query = _diamondRepository.QueryInclude(query, d => d.DiamondShape);
@@ -119,7 +121,15 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
         }//,List<DiamondPrice> roundPrice, List<DiamondPrice> fancyPrice
         private async Task<int> GetData(List<Diamond> responseList  , int start, int size, GetDiamondPagingQuery request )
         {
-            if(Count <= start * size) 
+            var currentStart = start * size;
+            if (responseList.Count >= TotalTake)
+            {
+                var countNow = responseList.Count;
+                var currentResult = responseList.Skip(currentStart).Take(size).ToList();
+                responseList = currentResult;
+                return currentStart;
+            }
+            if (Count <= start * size) 
             {
                 return -1;
             }
@@ -128,15 +138,17 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             if (AccountRole.ShopRoles.Any(x => _httpContextAccessor.HttpContext.User.IsInRole(x.Id.Value)) is false)//not in shop
             {
                 query = _diamondRepository.QueryFilter(query, d => d.Status == Domain.Common.Enums.ProductStatus.Active);
-                if(IncludeJewelryDiamond is false)
-                    query = _diamondRepository.QueryFilter(query, d => d.JewelryId == null);
+                //if(IncludeJewelryDiamond is false)
+                //    query = _diamondRepository.QueryFilter(query, d => d.JewelryId == null);
             }
+            if (IncludeJewelryDiamond is false)
+                query = _diamondRepository.QueryFilter(query, d => d.JewelryId == null);
+            query = _diamondRepository.QueryFilter(query, d => d.IsLabDiamond == request.isLab);
             query = query.Where(d => d.DiamondShapeId == parsedShape);
             if (request.diamond_4C is not null)
                 query = Filtering4C(query, request.diamond_4C);
             if (request.diamond_Details is not null)
                 query = FilteringDetail(query, request.diamond_Details);
-            var currentStart = start * size;
             query.Skip(currentStart);
             query.Take(size);
             var result = query.ToList();

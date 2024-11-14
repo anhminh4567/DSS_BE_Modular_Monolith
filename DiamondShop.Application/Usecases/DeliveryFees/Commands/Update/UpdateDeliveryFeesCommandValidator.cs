@@ -8,8 +8,7 @@ namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.Update
         public UpdateDeliveryFeesCommandValidator()
         {
             RuleFor(x => x.feeId).NotEmpty();
-            RuleFor(x => x.updatedObject).NotNull()
-                .SetValidator(new CreateDeliveryFeeCommandValidator());
+            
         }
     }
 }

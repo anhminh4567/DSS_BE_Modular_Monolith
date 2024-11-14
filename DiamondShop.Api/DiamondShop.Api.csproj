@@ -10,12 +10,12 @@
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 	</PropertyGroup>
 
-	<ItemGroup>
+	<!--<ItemGroup>
 	  <Content Remove="RazorTemplate\EmailTemplate\ConfirmEmailTemplate.cshtml" />
 	  <Content Remove="RazorTemplate\InvoiceTemplate\OrderInvoiceTemplate.cshtml" />
 	  <Content Remove="wwwroot\EmailTemplate\ConfirmEmailTemplate.cshtml" />
 	  <Content Remove="wwwroot\InvoiceTemplate\OrderInvoiceTemplate.cshtml" />
-	</ItemGroup>
+	</ItemGroup>-->
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">

@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.UpdateMany
 {
-    public record DeliveryFeeUpdateDto (string deliveryFeeId, decimal newPrice); 
+    public record DeliveryFeeUpdateDto (string deliveryFeeId, decimal? newPrice, string? newName, bool? setActive); 
     public record UpdateManyDeliveryFeeCommand(List<DeliveryFeeUpdateDto> deliveryFeeUpdateDtos) : IRequest<Result<List<DeliveryFee>>>;
     internal class UpdateManyDeliveryFeeCommandHandler : IRequestHandler<UpdateManyDeliveryFeeCommand, Result<List<DeliveryFee>>>
     {
@@ -30,7 +30,7 @@ namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.UpdateMany
 
         public async Task<Result<List<DeliveryFee>>> Handle(UpdateManyDeliveryFeeCommand request, CancellationToken cancellationToken)
         {
-            var mappedDeliveryFees = request.deliveryFeeUpdateDtos.Select(x => new { FeeId = DeliveryFeeId.Parse(x.deliveryFeeId), Price = x.newPrice }).ToList();
+            var mappedDeliveryFees = request.deliveryFeeUpdateDtos.Select(x => new { FeeId = DeliveryFeeId.Parse(x.deliveryFeeId), Price = x.newPrice , Name = x.newName, SetActive = x.setActive }).ToList();
             var getDeliveryFees = await _deliveryFeeRepository.GetRange(mappedDeliveryFees.Select(x => x.FeeId).ToList(), cancellationToken);
             await _unitOfWork.BeginTransactionAsync();
             foreach (var deliveryFee in getDeliveryFees)
@@ -38,7 +38,12 @@ namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.UpdateMany
                 var newPrice = mappedDeliveryFees.FirstOrDefault(x => x.FeeId == deliveryFee.Id);
                 if (newPrice == null)
                     continue;
-                deliveryFee.ChangeCost(newPrice.Price);
+                if(newPrice.Price != null)
+                    deliveryFee.ChangeCost(newPrice.Price.Value);
+                if (newPrice.Name != null)
+                    deliveryFee.ChangeName(newPrice.Name);
+                if (newPrice.SetActive != null)
+                    deliveryFee.SetEnable(newPrice.SetActive.Value);
             }
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);

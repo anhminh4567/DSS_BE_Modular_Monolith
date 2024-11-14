@@ -8,9 +8,9 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.UpdateInfo
         public UpdateDiscountInfoCommandValidator()
         {
             RuleFor(x => x.discountId).NotEmpty();
-            When(x => x.percent != null,() =>
+            When(x => x.discountPercent != null,() =>
             {
-                RuleFor(x => x.percent).InclusiveBetween(1, 100);
+                RuleFor(x => x.discountPercent).InclusiveBetween(1, 100);
             });
             //When(x => x.UpdateStartEndDate != null, () =>
             //{
