@@ -20,12 +20,14 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Refund
         private readonly IOrderRepository _orderRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderTransactionService _orderTransactionService;
+        private readonly IOrderLogRepository _orderLogRepository;
 
-        public RefundOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderTransactionService orderTransactionService)
+        public RefundOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository)
         {
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
             _orderTransactionService = orderTransactionService;
+            _orderLogRepository = orderLogRepository;
         }
 
         public async Task<Result<Order>> Handle(RefundOrderCommand request, CancellationToken token)

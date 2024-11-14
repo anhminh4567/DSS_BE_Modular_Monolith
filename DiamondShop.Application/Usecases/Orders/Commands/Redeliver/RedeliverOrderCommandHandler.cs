@@ -2,6 +2,7 @@
 using DiamondShop.Application.Usecases.Deliveries.Commands.Create;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
@@ -25,13 +26,15 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Redeliver
         private readonly IOrderRepository _orderRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderService _orderService;
+        private readonly IOrderLogRepository _orderLogRepository;
 
-        public RedeliverOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IAccountRepository accountRepository, IOrderService orderSerivce)
+        public RedeliverOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderLogRepository orderLogRepository)
         {
+            _accountRepository = accountRepository;
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
-            _accountRepository = accountRepository;
-            _orderService = orderSerivce;
+            _orderService = orderService;
+            _orderLogRepository = orderLogRepository;
         }
 
         public async Task<Result<Order>> Handle(RedeliverOrderCommand request, CancellationToken token)
@@ -47,6 +50,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Redeliver
             await _orderService.AssignDeliverer(order, delivererId, _accountRepository, _orderRepository);
             order.ShipFailedDate = null;
             order.Status = OrderStatus.Prepared;
+            var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Delivery_Failed);
+            await _orderLogRepository.Create(log);
             await _orderRepository.Update(order);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);

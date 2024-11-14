@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.Orders.Entities;
+﻿using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,5 +10,6 @@ namespace DiamondShop.Domain.Repositories.OrderRepo
 {
     public interface IOrderLogRepository : IBaseRepository<OrderLog>
     {
+        Task<List<OrderLog>> GetOrderLogs(Order order,CancellationToken cancellationToken = default);
     }
 }

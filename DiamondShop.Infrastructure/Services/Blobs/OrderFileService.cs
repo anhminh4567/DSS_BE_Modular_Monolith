@@ -31,24 +31,24 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             return MapPathsToCorrectGallery(order, getFolders, cancellationToken);
         }
 
-        public async Task<Result<string[]>> GetOrderLogImages(Order order, OrderLog orderLog, CancellationToken cancellationToken = default)
+        public async Task<Result<List<Media>>> GetOrderLogImages(Order order, OrderLog orderLog, CancellationToken cancellationToken = default)
         {
             var gallery = GetCachedGalleryTemplate(order, cancellationToken);
             var key = $"{ORDERLOG_FOLDER}/{GetOrderLogNameIdentifier(orderLog)}";
             var getMedia = gallery.Gallery[key];
-            if(getMedia != null)
-                return Result.Ok(getMedia.Select(x => x.MediaPath).ToArray());
-            return new string[] { };
+            if (getMedia == null)
+                return new List<Media>();
+            return getMedia;
         }
 
-        public async Task<Result<string[]>> GetOrderTransactionImages(Order order, Transaction transaction, CancellationToken cancellationToken = default)
+        public async Task<Result<List<Media>>> GetOrderTransactionImages(Order order, Transaction transaction, CancellationToken cancellationToken = default)
         {
             var gallery = GetCachedGalleryTemplate(order, cancellationToken);
             var key = $"{TRANSACTION_FOLDER}/{GetTransactionNameIdentifier(transaction)}";
             var getMedia = gallery.Gallery[key];
-            if (getMedia != null)
-                return Result.Ok(getMedia.Select(x => x.MediaPath).ToArray());
-            return new string[] { };
+            if (getMedia == null)
+                return new List<Media>();
+            return getMedia;
         }
 
         public async Task<Result<string[]>> UploadOrderLogImage(Order order, OrderLog log, FileData[] images, CancellationToken cancellationToken = default)
@@ -116,7 +116,10 @@ namespace DiamondShop.Infrastructure.Services.Blobs
         }
         private string GetOrderLogNameIdentifier(OrderLog log)
         {
-            return $"{log.Id.Value}";
+            var logTypeIdentifier = log.Status.ToString();
+            var isParent = log.PreviousLogId is null;
+            var parentIdentifider = isParent ? "Parent" : "Child";
+            return $"{logTypeIdentifier}_{parentIdentifider}_{log.Id.Value}";
         }
         private string GetTransactionNameIdentifier(Transaction transaction)
         {

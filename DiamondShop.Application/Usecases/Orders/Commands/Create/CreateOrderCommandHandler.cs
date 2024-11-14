@@ -43,8 +43,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         private readonly IOrderTransactionService _orderTransactionService;
         private readonly IPaymentMethodRepository _paymentMethodRepository;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
+        private readonly IOrderLogRepository _orderLogRepository;
 
-        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, ISizeMetalRepository sizeMetalRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IJewelryService jewelryService, IOrderTransactionService orderTransactionService, IPaymentMethodRepository paymentMethodRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
+        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, ISizeMetalRepository sizeMetalRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IJewelryService jewelryService, IOrderTransactionService orderTransactionService, IPaymentMethodRepository paymentMethodRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderLogRepository orderLogRepository)
         {
             _accountRepository = accountRepository;
             _orderRepository = orderRepository;
@@ -59,11 +60,13 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             _orderTransactionService = orderTransactionService;
             _paymentMethodRepository = paymentMethodRepository;
             _optionsMonitor = optionsMonitor;
+            _orderLogRepository = orderLogRepository;
         }
 
         public async Task<Result<Order>> Handle(CreateOrderCommand request, CancellationToken token)
         {
             var transactionRule = _optionsMonitor.CurrentValue.TransactionRule;
+            var logRule = _optionsMonitor.CurrentValue.LoggingRules;
             await _unitOfWork.BeginTransactionAsync(token);
             request.Deconstruct(out string accountId, out CreateOrderInfo createOrderInfo, out Order? parentOrder, out List<OrderItem> parentItems);
             createOrderInfo.Deconstruct(out PaymentType paymentType, out string methodId, out string paymentName, out string? requestId, out string? promotionId, out string address, out List<OrderItemRequestDto> orderItemReqs);
@@ -133,6 +136,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             var orderPromo = cartModel.Promotion.Promotion;
             var order = Order.Create(account.Id, paymentType, paymentMethod.Id, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice,
                 address, customizeRequestId, orderPromo?.Id);
+            //create log
+            var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Pending);
             //if replacement order
             if (parentOrder != null)
             {
@@ -141,6 +146,12 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 order.Status = OrderStatus.Processing;
             }
             await _orderRepository.Create(order, token);
+            await _orderLogRepository.Create(log, token);
+            if(order.ParentOrderId != null)
+            {
+                var continueLog = OrderLog.CreateByChangeStatus(order, OrderStatus.Processing);
+                await _orderLogRepository.Create(continueLog, token);
+            }
             List<OrderItem> orderItems = new();
             List<Jewelry> jewelries = new();
             List<Diamond> diamonds = new();
@@ -177,6 +188,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             await _orderItemRepository.CreateRange(orderItems);
             _jewelryRepository.UpdateRange(jewelries);
             _diamondRepository.UpdateRange(diamonds);
+
+
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
             order.Account = account;
