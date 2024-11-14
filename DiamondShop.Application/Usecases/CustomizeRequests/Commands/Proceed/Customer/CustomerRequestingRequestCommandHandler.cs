@@ -33,6 +33,10 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Cu
             var customizeRequest = await _customizeRequestRepository.GetById(CustomizeRequestId.Parse(customizeRequestId));
             if (customizeRequest == null)
                 return Result.Fail("This request doens't exist");
+            if (customizeRequest.ExpiredDate < DateTime.UtcNow)
+            {
+                return Result.Fail("This customize request has already been expired");
+            }
             if (customizeRequest.AccountId.Value != accountId)
                 return Result.Fail("Only the owner of this request can change status to Requesting");
             if (customizeRequest.Status != CustomizeRequestStatus.Priced)

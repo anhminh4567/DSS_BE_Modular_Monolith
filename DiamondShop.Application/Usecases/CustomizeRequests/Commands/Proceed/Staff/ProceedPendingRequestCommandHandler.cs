@@ -95,6 +95,8 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
                             {
                                 diamondRequest.DiamondId = diamond.Id;
                                 await _diamondRequestRepository.Update(diamondRequest);
+                                diamond.SetDeactivate();
+                                await _diamondRepository.Update(diamond);
                                 await _unitOfWork.SaveChangesAsync(token);
                             }
                         }
