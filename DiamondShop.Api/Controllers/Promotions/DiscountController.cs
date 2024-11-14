@@ -5,6 +5,7 @@ using DiamondShop.Application.Usecases.Discounts.Commands.CreateFull;
 using DiamondShop.Application.Usecases.Discounts.Commands.Delete;
 using DiamondShop.Application.Usecases.Discounts.Commands.Pause;
 using DiamondShop.Application.Usecases.Discounts.Commands.SetThumbnail;
+using DiamondShop.Application.Usecases.Discounts.Commands.Update;
 using DiamondShop.Application.Usecases.Discounts.Commands.UpdateInfo;
 using DiamondShop.Application.Usecases.Discounts.Commands.UpdateRequirements;
 using DiamondShop.Application.Usecases.Discounts.Queries.GetAll;
@@ -94,9 +95,9 @@ namespace DiamondShop.Api.Controllers.Promotions
         }
         [HttpPut("{discountId}/Full")]
         [Produces(type: typeof(DiscountDto))]
-        public async Task<ActionResult> UpdateFull([FromRoute] string discountId, [FromBody] UpdateDiscountInfoCommand updateDiscountInfoCommand)
+        public async Task<ActionResult> UpdateFull([FromRoute] string discountId, [FromBody] UpdateDiscountCommand updateDiscountCommand)
         {
-            var command = updateDiscountInfoCommand with { discountId = discountId };
+            var command = updateDiscountCommand with { discountId = discountId };
             var result = await _sender.Send(command);
             if (result.IsSuccess)
             {

@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Discounts.Commands.UpdateInfo
 {
-    public record UpdateDiscountInfoCommand(string? discountId, string? name, int? percent, UpdateStartEndDate? UpdateStartEndDate) : IRequest<Result<Discount>>;
+    public record UpdateDiscountInfoCommand(string? discountId, string? name, int? discountPercent, UpdateStartEndDate? UpdateStartEndDate) : IRequest<Result<Discount>>;
     internal class UpdateDiscountInfoCommandHandler : IRequestHandler<UpdateDiscountInfoCommand, Result<Discount>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -39,16 +39,23 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.UpdateInfo
             if (request.name != null)
                 getDiscount.Name = request.name;
 
-            if (request.percent != null)
-                getDiscount.SetPercentDiscount(request.percent.Value);
+            if (request.discountPercent != null)
+                getDiscount.SetPercentDiscount(request.discountPercent.Value);
 
             if (request.UpdateStartEndDate != null)
             {
-                DateTime startParsed = DateTime.ParseExact(request.UpdateStartEndDate.startDate, DateTimeFormatingRules.DateTimeFormat, null);
-                DateTime endParsed = DateTime.ParseExact(request.UpdateStartEndDate.endDate, DateTimeFormatingRules.DateTimeFormat, null);
-                getDiscount.ChangeActiveDate(startParsed, endParsed);
+                var parsedStartResults = DateTime.TryParseExact(request.UpdateStartEndDate.startDate, DateTimeFormatingRules.DateTimeFormat, null, System.Globalization.DateTimeStyles.None, out DateTime startParsed);
+                var parsedEndResults = DateTime.TryParseExact(request.UpdateStartEndDate.endDate, DateTimeFormatingRules.DateTimeFormat, null, System.Globalization.DateTimeStyles.None, out DateTime endParsed);
+                if (parsedStartResults == true && parsedEndResults == true)
+                    getDiscount.ChangeActiveDate(startParsed, endParsed);
+
+                else if (parsedStartResults == true && parsedEndResults == false)
+                    getDiscount.ChangeStartDate(startParsed);
+
+                else if (parsedEndResults == true && parsedStartResults == false)
+                    getDiscount.ChangeEndDate(endParsed);
             }
-            await _discountRepository.Update(getDiscount);
+                await _discountRepository.Update(getDiscount);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return getDiscount;
         }

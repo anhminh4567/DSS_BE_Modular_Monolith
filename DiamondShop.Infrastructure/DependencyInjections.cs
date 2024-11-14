@@ -56,7 +56,6 @@ using Quartz;
 using DiamondShop.Domain.Repositories.BlogRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.BlogRepo;
 using DiamondShop.Application.Services.Interfaces.Blogs;
-
 namespace DiamondShop.Infrastructure
 {
     public static class DependencyInjections

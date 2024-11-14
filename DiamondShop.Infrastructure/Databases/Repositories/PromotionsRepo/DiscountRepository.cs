@@ -35,7 +35,9 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo
 
         public override Task<Discount?> GetById(params object[] ids)
         {
-            return _set.Include(d => d.DiscountReq).ThenInclude(x => x.PromoReqShapes).FirstOrDefaultAsync(d => d.Id == (DiscountId)ids[0]);
+            return _set.Include(d => d.DiscountReq)
+                .ThenInclude(x => x.PromoReqShapes)
+                .FirstOrDefaultAsync(d => d.Id == (DiscountId)ids[0]);
         }
     }
 }
