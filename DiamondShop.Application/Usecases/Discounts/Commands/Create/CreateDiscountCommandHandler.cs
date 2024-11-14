@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Discounts.Commands.Create
 {
-    public record CreateDiscountCommand(string name, string startDate, string endDate, int percent, string? code) : IRequest<Result<Discount>>;
+    public record CreateDiscountCommand(string name, string startDate, string endDate, int discountPercent, string discountCode) : IRequest<Result<Discount>>;
     internal class CreateDiscountCommandHandler : IRequestHandler<CreateDiscountCommand, Result<Discount>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -30,7 +30,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Create
         {
             var startDate = DateTime.ParseExact(request.startDate, DateTimeFormatingRules.DateTimeFormat, null);
             var endDate = DateTime.ParseExact(request.endDate, DateTimeFormatingRules.DateTimeFormat, null);
-            var newDiscount = Discount.Create(request.name, startDate, endDate, request.percent, request.code);
+            var newDiscount = Discount.Create(request.name, startDate, endDate, request.discountPercent, request.discountCode);
             await _discountRepository.Create(newDiscount);
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(newDiscount);

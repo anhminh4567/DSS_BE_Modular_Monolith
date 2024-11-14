@@ -28,9 +28,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Queries.GetDetail
         public async Task<Result<Discount>> Handle(GetDiscountDetailQuery request, CancellationToken cancellationToken)
         {
             var reqId = DiscountId.Parse(request.discountId);
-            var query = _discountRepository.GetQuery();
-            query = _discountRepository.QueryInclude(query, r => r.DiscountReq);
-            var result = query.FirstOrDefault(r => r.Id == reqId);
+            var result = await _discountRepository.GetById(reqId);
             if (result == null)
                 return Result.Fail(new NotFoundError());
             return result;
