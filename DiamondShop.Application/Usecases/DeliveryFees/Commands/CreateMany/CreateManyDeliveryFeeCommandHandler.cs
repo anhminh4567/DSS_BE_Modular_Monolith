@@ -31,29 +31,21 @@ namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.CreateMany
         public async Task<Result<List<DeliveryFee>>> Handle(CreateManyDeliveryFeeCommand request, CancellationToken cancellationToken)
         {
             var getProvince = _locationService.GetProvinces();
+            var getAllDeliveryFee = await _deliveryFeeRepository.GetAll(cancellationToken);
             List<DeliveryFee> tobeAddedFees = new();
             foreach (var fee in request.fees)
             {
                 DeliveryFee newFee;
-                //if (fee.type == LocationToCity)
-                //{
-                var province = getProvince.FirstOrDefault(x => x.Name.ToUpper() == fee.name.ToUpper());
+                var province = getProvince.FirstOrDefault(x => x.Id == fee.provinceId);
                 if(province is null)
                 {
                     return Result.Fail(new NotFoundError($"The province with name: {fee.name} is not found"));
                 }
-                newFee = DeliveryFee.CreateLocationType(fee.name, fee.cost, fee.ToLocationCity!.destinationCity, int.Parse(province.Id));
-                
-                
-                //}
-                //else if (fee.type == DeliveryFeeType.Distance)
-                //{
-                //    newFee = DeliveryFee.CreateDistanceType(fee.name, fee.cost, fee.ToDistance!.start, fee.ToDistance!.end);
-                //}
-                //else
-                //{
-                //    return Result.Fail(new ConflictError($"the fee with name: {fee.name} and cost: {fee.cost} has undefined type"));
-                //}
+                if(getAllDeliveryFee.Any(x => x.ToLocationId == int.Parse(fee.provinceId)))
+                {
+                    return Result.Fail(new ConflictError($"The fee with name: {fee.name} already exists as destination founded "));
+                }
+                newFee = DeliveryFee.CreateLocationType(fee.name, fee.cost, province.Name, int.Parse(province.Id));
                 tobeAddedFees.Add(newFee);
             }
             if (tobeAddedFees.Count == 0)

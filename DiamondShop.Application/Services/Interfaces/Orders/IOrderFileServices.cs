@@ -19,8 +19,8 @@ namespace DiamondShop.Application.Services.Interfaces.Orders
         Task<Result<string[]>> UploadOrderLogImage(Order order, OrderLog log, FileData[] images, CancellationToken cancellationToken = default);
         Task<Result<string[]>> UploadOrderTransactionImage(Order order, Transaction transaction, FileData[] images, CancellationToken cancellationToken = default);
         Task<GalleryTemplate> GetAllOrderImages(Order order, CancellationToken cancellationToken = default);
-        Task<Result<string[]>> GetOrderLogImages(Order order, OrderLog orderLog, CancellationToken cancellationToken = default);
-        Task<Result<string[]>> GetOrderTransactionImages(Order order, Transaction transaction, CancellationToken cancellationToken = default);
+        Task<Result<List<Media>>> GetOrderLogImages(Order order, OrderLog orderLog, CancellationToken cancellationToken = default);
+        Task<Result<List<Media>>> GetOrderTransactionImages(Order order, Transaction transaction, CancellationToken cancellationToken = default);
 
     }
 }

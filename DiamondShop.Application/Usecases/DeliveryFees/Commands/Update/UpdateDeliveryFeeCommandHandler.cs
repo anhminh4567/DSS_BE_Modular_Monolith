@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.Update
 {
-    public record UpdateDeliveryFeesCommand(string feeId, CreateDeliveryFeeCommand updatedObject) : IRequest<Result<DeliveryFee>>;
+    public record UpdateDeliveryFeesCommand(string feeId, string? name, decimal? cost, bool? setActive) : IRequest<Result<DeliveryFee>>;
     internal class UpdateDeliveryFeeCommandHandler : IRequestHandler<UpdateDeliveryFeesCommand, Result<DeliveryFee>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -33,12 +33,12 @@ namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.Update
             var tryGet = await _deliveryFeeRepository.GetById(parsedId);
             if (tryGet is null)
                 return Result.Fail(new NotFoundError());
-            //if (request.updatedObject.type == DeliveryFeeType.Distance)
-            //    tryGet.ChangeFromToKm(request.updatedObject.ToDistance!.start, request.updatedObject.ToDistance!.end);
-            // else if (request.updatedObject.type == DeliveryFeeType.LocationToCity)
-            tryGet.ChangeFromToCity( request.updatedObject.ToLocationCity!.destinationCity);
-            //else
-            //   return Result.Fail(new ConflictError("Undefined type"));
+            if(request.name != null)
+                tryGet.ChangeName(request.name);
+            if (request.cost != null)
+                tryGet.ChangeCost(request.cost.Value);
+            if (request.setActive != null)
+                tryGet.SetEnable(request.setActive.Value);
             await _deliveryFeeRepository.Update(tryGet);
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(tryGet);

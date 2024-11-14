@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.Events;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
@@ -29,8 +30,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
         private readonly ISender _sender;
         private readonly IPublisher _publisher;
         private readonly IPaymentMethodRepository _paymentMethodRepository;
+        private readonly IOrderLogRepository _orderLogRepository;
 
-        public ProceedOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, ISender sender, IPublisher publisher, IPaymentMethodRepository paymentMethodRepository)
+        public ProceedOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, ISender sender, IPublisher publisher, IPaymentMethodRepository paymentMethodRepository, IOrderLogRepository orderLogRepository)
         {
             _accountRepository = accountRepository;
             _orderRepository = orderRepository;
@@ -42,6 +44,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             _sender = sender;
             _publisher = publisher;
             _paymentMethodRepository = paymentMethodRepository;
+            _orderLogRepository = orderLogRepository;
         }
 
         public async Task<Result<Order>> Handle(ProceedOrderCommand request, CancellationToken token)
@@ -71,16 +74,22 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                 await _orderRepository.Update(order);
                 orderItems.ForEach(p => p.Status = OrderItemStatus.Prepared);
                 _orderItemRepository.UpdateRange(orderItems);
+                var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Processing);
+                await _orderLogRepository.Create(log);
             }
             else if (order.Status == OrderStatus.Processing)
             {
                 order.Status = OrderStatus.Prepared;
+                var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Prepared);
+                await _orderLogRepository.Create(log);
             }
             else if (order.Status == OrderStatus.Prepared)
             {
                 if (order.DelivererId == null)
                     return Result.Fail("No deliverer has been assigned to this order. Please assign immediately!");
                 order.Status = OrderStatus.Delivering;
+                var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Delivering);
+                await _orderLogRepository.Create(log);
             }
             else if (order.Status == OrderStatus.Delivering)
             {
@@ -92,6 +101,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                     //TODO: Add payment here
                     _orderTransactionService.AddCODPayment(order);
                 order.Status = OrderStatus.Success;
+                var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Success);
+                await _orderLogRepository.Create(log);
                 //order.Raise(new OrderCompleteEvent(account.Id,order.Id, DateTime.UtcNow));
                 await _publisher.Publish(new OrderCompleteEvent(account.Id, order.Id, DateTime.UtcNow));
             }
