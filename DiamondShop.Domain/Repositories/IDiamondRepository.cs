@@ -15,5 +15,6 @@ namespace DiamondShop.Domain.Repositories
         Task<List<Diamond>> GetDiamondsJewelry (JewelryId jewelryId, CancellationToken cancellationToken = default);
         Task<List<Diamond>> GetAllAdmin(CancellationToken cancellationToken = default);
         Task<List<Diamond>> GetUserLockDiamonds(AccountId accountId, CancellationToken cancellationToken = default);
+        Task<List<Diamond>> GetLockDiamonds(CancellationToken cancellationToken = default);
     }
 }
