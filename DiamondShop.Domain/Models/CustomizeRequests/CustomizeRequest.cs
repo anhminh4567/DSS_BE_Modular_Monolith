@@ -41,6 +41,7 @@ namespace DiamondShop.Domain.Models.CustomizeRequests
             return new CustomizeRequest()
             {
                 Id = CustomizeRequestId.Create(),
+                RequestCode = Utilities.GenerateRandomString(CustomizeRequestRule.RequestCodeLength),
                 AccountId = accountId,
                 JewelryModelId = jewelryModelId,
                 SizeId = sizeId,
