@@ -21,9 +21,12 @@ namespace DiamondShop.Application.Dtos.Responses.CustomizeRequest
         public DiamondShapeDto? DiamondShape { get; set; }
         public string? DiamondId { get; set; }
         public DiamondDto? Diamond { get; set; }
-        public Clarity? Clarity { get; set; }
-        public Color? Color { get; set; }
-        public Cut? Cut { get; set; }
+        public Clarity? ClarityFrom { get; set; }
+        public Clarity? ClarityTo { get; set; }
+        public Color? ColorFrom { get; set; }
+        public Color? ColorTo { get; set; }
+        public Cut? CutFrom { get; set; }
+        public Cut? CutTo { get; set; }
         public float? CaratFrom { get; set; }
         public float? CaratTo { get; set; }
         public bool? IsLabGrown { get; set; }
