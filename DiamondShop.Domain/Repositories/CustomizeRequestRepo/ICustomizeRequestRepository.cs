@@ -13,5 +13,6 @@ namespace DiamondShop.Domain.Repositories.CustomizeRequestRepo
     {
         public Task<CustomizeRequest> GetDetail(CustomizeRequestId requestId);
         public Task<CustomizeRequest> GetDetail(CustomizeRequestId requestId, AccountId accountId);
+        public void UpdateRange(List<CustomizeRequest> customizeRequests);
     }
 }

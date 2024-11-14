@@ -10,15 +10,13 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             if (request.DiamondShapeId != null && request.DiamondShapeId != diamond.DiamondShapeId)
                 return false;
-            if (request.Clarity != null && request.Clarity != diamond.Clarity)
+            if (request.ClarityFrom <= diamond.Clarity && request.ClarityTo >= diamond.Clarity)
                 return false;
-            if (request.Color != null && request.Color != diamond.Color)
+            if (request.CutFrom <= diamond.Cut && request.CutTo >= diamond.Cut)
                 return false;
-            if (request.Cut != null && request.Cut != diamond.Cut)
+            if (request.ColorFrom <= diamond.Color && request.ColorTo >= diamond.Color)
                 return false;
-            if (request.CaratFrom != null && request.CaratFrom > diamond.Carat)
-                return false;
-            if (request.CaratTo != null && request.CaratTo < diamond.Carat)
+            if (request.CaratFrom <= diamond.Carat && request.CaratTo >= diamond.Carat)
                 return false;
             if (request.IsLabGrown != null && request.IsLabGrown != diamond.IsLabDiamond)
                 return false;

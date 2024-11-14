@@ -46,5 +46,10 @@ namespace DiamondShop.Domain.Repositories.CustomizeRequestRepo
             query = query.AsSplitQuery();
             return await query.FirstOrDefaultAsync(p => p.Id == requestId);
         }
+        public void UpdateRange(List<CustomizeRequest> customizeRequests)
+        {
+            _set.UpdateRange(customizeRequests);
+        }
+
     }
 }
