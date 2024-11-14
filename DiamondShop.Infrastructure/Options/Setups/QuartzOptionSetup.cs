@@ -62,7 +62,10 @@ namespace DiamondShop.Infrastructure.Options.Setups
                         .WithIntervalInMinutes(5)
                         .RepeatForever()));
 
-
+            string customizeRequestJobName = nameof (CustomizeRequestWorker);
+            options.AddJob<CustomizeRequestWorker>(config => config.WithIdentity(customizeRequestJobName))
+                .AddTrigger(config => config.ForJob(customizeRequestJobName)
+                .WithSimpleSchedule(schedule => schedule.WithIntervalInMinutes(40).RepeatForever()));
         }
     }
 }

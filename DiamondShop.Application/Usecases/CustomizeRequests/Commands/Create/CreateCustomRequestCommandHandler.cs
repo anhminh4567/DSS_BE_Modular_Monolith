@@ -79,7 +79,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendReques
             {
                 customizedRequest.Status = CustomizeRequestStatus.Pending;
                 await _customizeRequestRepository.Update(customizedRequest);
-                var diamonds = diamondRequests.Select(p => DiamondRequest.Create(customizedRequest.Id, DiamondShapeId.Parse(p.DiamondShapeId), p.clarity, p.color, p.cut, p.caratFrom, p.caratTo, p.isLabGrown, p.polish, p.symmetry, p.girdle, p.culet)).ToList();
+                var diamonds = diamondRequests.Select(p => DiamondRequest.Create(customizedRequest.Id, DiamondShapeId.Parse(p.DiamondShapeId), p.clarityFrom, p.clarityTo, p.colorFrom, p.colorTo, p.cutFrom, p.cutTo, p.caratFrom, p.caratTo, p.isLabGrown, p.polish, p.symmetry, p.girdle, p.culet)).ToList();
                 var flagMainDiamond = await _mainDiamondService.CheckMatchingDiamond(modelOpt.ModelId, diamonds, _mainDiamondRepository);
                 if (flagMainDiamond.IsFailed)
                     return Result.Fail(flagMainDiamond.Errors);

@@ -27,7 +27,6 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject
 
         public async Task<Result<CustomizeRequest>> Handle(StaffRejectRequestCommand request, CancellationToken token)
         {
-
             request.Deconstruct(out string customizeRequestId);
             await _unitOfWork.BeginTransactionAsync(token);
             var customizeRequest = await _customizeRequestRepository.GetById(CustomizeRequestId.Parse(customizeRequestId));

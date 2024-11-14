@@ -51,7 +51,7 @@ namespace DiamondShop.Domain.Models.CustomizeRequests
                 Note = Note,
                 Status = CustomizeRequestStatus.Pending,
                 CreatedDate = DateTime.UtcNow,
-                ExpiredDate = DateTime.UtcNow.AddDays(CustomizeRequestRule.ExpiredTime)
+                ExpiredDate = DateTime.UtcNow.AddMonths(CustomizeRequestRule.ExpiredMonthDuration)
             };
         }
         public static CustomizeRequest CreateRequesting(AccountId accountId, JewelryModelId jewelryModelId, SizeId sizeId, MetalId metalId, SideDiamondOptId? sideDiamondOptId, string? engravedText, string? engravedFont, string? Note)
@@ -70,8 +70,13 @@ namespace DiamondShop.Domain.Models.CustomizeRequests
                 Note = Note,
                 Status = CustomizeRequestStatus.Requesting,
                 CreatedDate = DateTime.UtcNow,
-                ExpiredDate = DateTime.UtcNow.AddDays(CustomizeRequestRule.ExpiredTime)
+                ExpiredDate = DateTime.UtcNow.AddMonths(CustomizeRequestRule.ExpiredMonthDuration)
             };
+        }
+
+        public void ResetExpiredDate()
+        {
+            ExpiredDate = DateTime.UtcNow.AddMonths(CustomizeRequestRule.AcceptedExpiredMonthDuration);
         }
     }
 }

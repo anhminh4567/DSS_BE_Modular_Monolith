@@ -38,6 +38,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
                 return Result.Fail(jewelryResult.Errors);
             customizeRequest.JewelryId = jewelryResult.Value.Id;
             customizeRequest.Status = CustomizeRequestStatus.Accepted;
+            customizeRequest.ResetExpiredDate();
             await _customizeRequestRepository.Update(customizeRequest);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
