@@ -28,7 +28,7 @@ namespace DiamondShop.Application.Mappers
                 .Map(dest => dest.Id, src => src.Id.Value)
                 .Map(dest => dest.PromotionId, src => (src.PromotionId == null) ? null : src.PromotionId.Value)
                 .Map(dest => dest.DiscountId, src => (src.DiscountId == null) ? null : src.DiscountId.Value)
-                .Map(dest => dest.ModelId, src => (src.ModelId == null) ? null : src.ModelId.Value)
+                .Map(dest => dest.JewelryModelId, src => (src.ModelId == null) ? null : src.ModelId.Value)
                 .Map(dest => dest.DiamondRequirementSpec, src => new DiamondSpecDto
                 {
                     CaratFrom = src.CaratFrom.Value,

@@ -23,7 +23,7 @@ namespace DiamondShop.Application.Dtos.Responses.Promotions
         public Operator Operator { get; set; }
         public decimal? Amount { get; set; }
         public int? Quantity { get; set; }
-        public string? ModelId { get; set; }
+        public string? JewelryModelId { get; set; }
         //public DiamondOrigin? DiamondOrigin { get; set; }
         //public float? CaratFrom { get; set; }
         //public float? CaratTo { get; set; }
