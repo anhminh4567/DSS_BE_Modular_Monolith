@@ -21,7 +21,7 @@ namespace DiamondShop.Domain.Repositories.CustomizeRequestRepo
         public override async Task<CustomizeRequest?> GetById(params object[] ids)
         {
             var id = (CustomizeRequestId)ids[0];
-            return await _set.Include(x => x.Account).Include(x => x.DiamondRequests).FirstOrDefaultAsync(x => x.Id == id);
+            return await _set.Include(x => x.Account).Include(x => x.DiamondRequests).ThenInclude(x => x.Diamond).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<CustomizeRequest?> GetDetail(CustomizeRequestId requestId, AccountId accountId)

@@ -3,24 +3,27 @@ using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
 using FluentResults;
 using MediatR;
 
-namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject
+namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Customer
 {
     public record CustomerRejectRequestCommand(string CustomizeRequestId, string AccountId) : IRequest<Result<CustomizeRequest>>;
     internal class CustomerRejectRequestCommandHandler : IRequestHandler<CustomerRejectRequestCommand, Result<CustomizeRequest>>
     {
         private readonly IJewelryRepository _jewelryRepository;
         private readonly ICustomizeRequestRepository _customizeRequestRepository;
+        private readonly IDiamondRepository _diamondRepository;
         private readonly IUnitOfWork _unitOfWork;
-        public CustomerRejectRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, IJewelryRepository jewelryRepository)
+        public CustomerRejectRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository)
         {
             _customizeRequestRepository = customizeRequestRepository;
             _unitOfWork = unitOfWork;
             _jewelryRepository = jewelryRepository;
+            _diamondRepository = diamondRepository;
         }
 
         public async Task<Result<CustomizeRequest>> Handle(CustomerRejectRequestCommand request, CancellationToken token)
@@ -47,6 +50,18 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject
             customizeRequest.Status = CustomizeRequestStatus.Customer_Rejected;
             await _customizeRequestRepository.Update(customizeRequest);
             await _unitOfWork.SaveChangesAsync(token);
+            if (customizeRequest.DiamondRequests.Count() > 0)
+            {
+                foreach (var diamondReq in customizeRequest.DiamondRequests)
+                {
+                    if (diamondReq.Diamond != null)
+                    {
+                        diamondReq.Diamond.SetSell();
+                        await _diamondRepository.Update(diamondReq.Diamond);
+                        await _unitOfWork.SaveChangesAsync(token);
+                    }
+                }
+            }
             await _unitOfWork.CommitAsync(token);
             return customizeRequest;
         }
