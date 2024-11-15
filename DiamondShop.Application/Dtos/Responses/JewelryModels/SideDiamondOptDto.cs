@@ -22,5 +22,7 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         public string SettingType { get; set; }
         public float CaratWeight { get; set; }
         public int Quantity { get; set; }
+        public int AveragePricePerCarat { get; set; }
+        public int TotalPrice { get; set; }
     }
 }
