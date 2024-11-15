@@ -10,6 +10,7 @@ using DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendRequest;
 using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetAll;
 using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomer;
 using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomerDetail;
+using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetDetail;
 using DiamondShop.Domain.Models.RoleAggregate;
 using MapsterMapper;
 using MediatR;
@@ -43,7 +44,7 @@ namespace DiamondShop.Api.Controllers.CustomRequest
             return MatchError(result.Errors, ModelState);
         }
         [HttpGet("Staff/Detail")]
-        public async Task<ActionResult> GetDetail([FromQuery] GetCustomerDetailCustomizeRequestQuery getDetailCustomizeRequestQuery)
+        public async Task<ActionResult> GetDetail([FromQuery] GetDetailCustomizeRequestQuery getDetailCustomizeRequestQuery)
         {
             var result = await _sender.Send(getDetailCustomizeRequestQuery);
             if (result.IsSuccess)

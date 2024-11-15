@@ -109,7 +109,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             correctShape = DiamondShape.ANY_SHAPES;
             string diamondKey = GetSidePriceKey(correctShape.Id.Value,isLabDiamond);
             var tryGet = _cache.Get<List<DiamondPrice>>(diamondKey);
-            if (tryGet == null)
+            if (tryGet == null || tryGet.Count() == 0)
             {
                 var result = await _set.Where(d => d.ShapeId == correctShape.Id && d.IsLabDiamond == isLabDiamond && d.IsSideDiamond == true)
                 .Include(p => p.Criteria)

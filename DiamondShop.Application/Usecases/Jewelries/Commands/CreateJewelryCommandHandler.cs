@@ -96,7 +96,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
                );
             if (sideDiamondOptId is not null)
             {
-                if (model.SideDiamonds.Count > 0)
+                if (model.SideDiamonds.Count == 0)
                     return Result.Fail(new ConflictError("This model doesn't have side diamond"));
                 var sideDiamond = model.SideDiamonds.FirstOrDefault(p => p.Id == SideDiamondOptId.Parse(sideDiamondOptId));
                 if (sideDiamond == null)
@@ -116,6 +116,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
             }
             jewelry = _jewelryService.AddPrice(jewelry, sizeMetal);
             await _unitOfWork.CommitAsync(token);
+            jewelry.Model = model;
             return jewelry;
         }
 

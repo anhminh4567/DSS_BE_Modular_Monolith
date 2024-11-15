@@ -29,10 +29,10 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
             {
                 if (SizeMetals.Count > 0)
                 {
-                    var metal = SizeMetals.FirstOrDefault();
-                    if (metal != null && metal.Metal != null)
+                    var metals = SizeMetals.Where(p => p.Metal != null).ToList();
+                    if (metals.Count() > 0)
                     {
-                        return SizeMetals.GroupBy(p => p.Metal.Name).Select(p => p.Key).ToList();
+                        return metals.GroupBy(p => p.Metal.Name).Select(p => p.Key).ToList();
                     }
                 }
                 return null;
