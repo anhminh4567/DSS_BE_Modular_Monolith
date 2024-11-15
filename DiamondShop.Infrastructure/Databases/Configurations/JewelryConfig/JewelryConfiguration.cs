@@ -42,7 +42,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryConfig
                   sideDiamond.Property(n => n.Quantity).HasColumnName("Quantity");
                   sideDiamond.Property(n => n.SettingType).HasColumnName("SettingType").HasConversion<string>();
                   sideDiamond.Property(n => n.DiamondShapeId).HasColumnName("DiamondShapeId");
-                  sideDiamond.HasOne(n => n.DiamondShape).WithOne().HasForeignKey<JewelrySideDiamond>(p => p.DiamondShapeId);
+                  sideDiamond.HasOne(n => n.DiamondShape).WithMany().HasForeignKey(p => p.DiamondShapeId);
                   sideDiamond.Property(n => n.ColorMin).HasColumnName("ColorMin").HasConversion<string>();
                   sideDiamond.Property(n => n.ColorMax).HasColumnName("ColorMax").HasConversion<string>();
                   sideDiamond.Property(n => n.ClarityMin).HasColumnName("ClarityMin").HasConversion<string>();
