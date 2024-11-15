@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using DiamondShop.Application.Commons.Models;
+using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Orders;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
@@ -19,9 +20,16 @@ namespace DiamondShop.Infrastructure.Services.Blobs
         internal const string TRANSACTION_FOLDER = IMAGES_FOLDER + "/" + "Transaction";
         internal const string ORDERLOG_FOLDER = IMAGES_FOLDER + "/" + "OrderLog";
         internal const string DELIMITER = "/";
+        internal const string INVOICE_FOLDER = "Invoices";
         private GalleryTemplate _cachedGalleryTemplate;
-        public OrderFileService(BlobServiceClient blobServiceClient, ILogger<AzureBlobContainerService> logger, IOptions<ExternalUrlsOptions> externalUrlsOptions) : base(blobServiceClient, logger, externalUrlsOptions)
+        private readonly IPdfService _pdfService;
+        private readonly IOptions<ExternalUrlsOptions> _externalUrlsOptions;
+        private readonly IOptions<PublicBlobOptions> _publicBlobOptions;
+        public OrderFileService(BlobServiceClient blobServiceClient, ILogger<AzureBlobContainerService> logger, IOptions<ExternalUrlsOptions> externalUrlsOptions,IOptions<PublicBlobOptions> publicBlobOptions, IPdfService pdfService) : base(blobServiceClient, logger, externalUrlsOptions)
         {
+            _externalUrlsOptions = externalUrlsOptions;
+            _publicBlobOptions = publicBlobOptions;
+            _pdfService = pdfService;
         }
 
         public async Task<GalleryTemplate> GetAllOrderImages(Order order, CancellationToken cancellationToken = default)
@@ -137,6 +145,32 @@ namespace DiamondShop.Infrastructure.Services.Blobs
         private string GetAzureFilePath(Order order)
         {
             return $"{PARENT_FOLDER}/{order.Id.Value}";
+        }
+
+        public async Task<Result<Media>> CreateOrderInvoice(Order fullDetailOrder, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                ArgumentNullException.ThrowIfNull(fullDetailOrder.Account);
+                ArgumentNullException.ThrowIfNull(fullDetailOrder.Items);
+                ArgumentNullException.ThrowIfNull(fullDetailOrder.Transactions);
+            }
+            catch 
+            {
+                return Result.Fail("some field are null");
+            }
+            string htmlString = _pdfService.GetTemplateHtmlStringFromOrder(fullDetailOrder,fullDetailOrder.Account);
+            var uploadStream = _pdfService.ParseHtmlToPdf(htmlString);
+            string basePath = GetAzureFilePath(fullDetailOrder);
+            basePath = $"{basePath}/{INVOICE_FOLDER}";
+            string fileName = fullDetailOrder.OrderCode;
+            var uploadResult = await UploadFromBasePath(basePath, new FileData[] { new FileData(fileName,"application/pdf", ".pdf",uploadStream) }, cancellationToken);
+            return new Media
+            {
+                ContentType = "application/pdf",
+                MediaName = fileName,
+                MediaPath = ToRelativePath(uploadResult.Value.First()),
+            };
         }
     }
 }

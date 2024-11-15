@@ -25,11 +25,18 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
 
         public override Task<Order?> GetById(params object[] ids)
         {
-            return _set.Include(o => o.Transactions).Include(x => x.Items).FirstOrDefaultAsync(o => o.Id == (OrderId)ids[0]);
+            return _set.Include(o => o.Transactions)
+                .Include(x => x.Account)
+                .Include(x => x.Items)
+                    .ThenInclude(x => x.Jewelry)
+                .Include(o => o.Items) // Include OrderItems again
+                    .ThenInclude(oi => oi.Diamond)
+                .FirstOrDefaultAsync(o => o.Id == (OrderId)ids[0]);
         }
         public async Task<bool> IsOwner(AccountId accountId, JewelryId jewelryId)
         {
-            var orders = await _set.Include(p => p.Items).Where(p => p.Status == OrderStatus.Success && p.AccountId == accountId).ToListAsync();
+            var orders = await _set.Include(p => p.Items).Where(p => p.Status == OrderStatus.Success && p.AccountId == accountId)
+                .ToListAsync();
             return orders.Any(p => p.Items.Any(p => p.JewelryId == jewelryId));
         }
 
@@ -43,6 +50,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
         {
             query = query
                 .Include(p => p.Account);
+            query = query.Include(p => p.Transactions);
             if (isIncludeJewelry)
                 query = query
                 .Include(p => p.Items)

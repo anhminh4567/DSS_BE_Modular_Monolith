@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.AccountAggregate;
+﻿using DiamondShop.Application.Services.Models;
+using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.Blogs;
 using DiamondShop.Domain.Models.DiamondPrices;
@@ -57,11 +58,13 @@ namespace DiamondShop.Infrastructure.Databases
         // Outbox Related //
         internal DbSet<OutboxMessages> OutboxMessages { get; set; }
         internal DbSet<ApplicationSettings> ApplicationSettings{ get; set; }
+        public DbSet<DbCacheModel> DbCacheModels { get; set; }
         //Roles Related//
         #region Dbset
         public DbSet<AccountRole> AccountRoles { get; set; }
         //public DbSet<AppProvince> AppProvinces { get; set; }
         public DbSet<AppCities> AppCities { get; set; }
+
         //public DbSet<AppDistrict> AppDistricts { get; set; }
         //public DbSet<AppWard> AppWards { get; set; }
         //Roles Related//

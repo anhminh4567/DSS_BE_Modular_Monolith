@@ -46,9 +46,9 @@ namespace DiamondShop.Api.Controllers.Diamonds
         }
         [HttpPost("{diamondId}/Files/Certificates")]
         [Produces(typeof(string))]
-        public async Task<ActionResult> UploadCertificate([FromRoute] string diamondId, IFormFile formFile, CancellationToken cancellationToken = default)
+        public async Task<ActionResult> UploadCertificate([FromRoute] string diamondId, [FromForm] string certificateCode, IFormFile formFile, CancellationToken cancellationToken = default)
         {
-            var result = await _sender.Send(new AddDiamondCertificateCommand(diamondId, formFile), cancellationToken);
+            var result = await _sender.Send(new AddDiamondCertificateCommand(diamondId, certificateCode, formFile), cancellationToken);
             if (result.IsSuccess)
                 return Ok(result.Value);
             return MatchError(result.Errors, ModelState);

@@ -123,7 +123,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
                 {
                     foreach (var clarity in Enum.GetValues(typeof(Clarity)))
                     {
-                        if (request.IsSideDiamond == false)
+                        if (request.IsSideDiamond)
                         {
                             requests.Add(new DiamondCriteriaRequestDto()
                             {

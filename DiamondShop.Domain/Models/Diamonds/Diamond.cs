@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -48,8 +49,8 @@ namespace DiamondShop.Domain.Models.Diamonds
         public Culet Culet { get; set; }
         public Fluorescence Fluorescence { get; set; }
         public Certificate Certificate { get; set; } = Certificate.GIA;
-        //public string? CertificateCode { get; set; }
-        //public Media? CertificateFile { get; set; }
+        public string? CertificateCode { get; set; }
+        public Media? CertificateFilePath { get; set; }
         public string Measurement { get; set; }
         public Media? Thumbnail { get; set; }
         public ProductStatus Status { get; set; } = ProductStatus.Active;
@@ -195,6 +196,11 @@ namespace DiamondShop.Domain.Models.Diamonds
             //Promotion = promotion;
             DiscountReducedAmount = reducedAmount;
             Discount = discount;
+        }
+        public void SetCertificate(string certificateCode, Media certificateFile)
+        {
+            CertificateCode = certificateCode;
+            CertificateFilePath = certificateFile;
         }
         private Diamond() { }
     }

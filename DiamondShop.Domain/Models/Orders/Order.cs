@@ -74,7 +74,7 @@ namespace DiamondShop.Domain.Models.Orders
         public Order() { }
         public static Order Create(AccountId accountId, PaymentType paymentType, PaymentMethodId paymentMethodId,
             decimal totalPrice, decimal shippingFee, string shippingAddress, CustomizeRequestId? customizeRequestId = null,
-            PromotionId promotionId = null, decimal orderSavedAmount = 0, OrderId givenId = null)
+            PromotionId promotionId = null, decimal orderSavedAmount = 0 , decimal UserRankAmountSaved = 0, OrderId givenId = null)
         {
             return new Order()
             {
@@ -90,7 +90,9 @@ namespace DiamondShop.Domain.Models.Orders
                 ShippingFee = shippingFee,
                 ShippingAddress = shippingAddress,
                 OrderSavedAmount = orderSavedAmount,
-                PaymentMethodId = paymentMethodId
+                UserRankAmountSaved = UserRankAmountSaved,
+                PaymentMethodId = paymentMethodId,
+                
             };
         }
         public void Deposit(Transaction depositedTransaction)

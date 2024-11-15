@@ -23,7 +23,7 @@ namespace DiamondShop.Domain.Common.Carts
         public decimal TotalShippingPrice { get; set; } = 0;
         public decimal FinalPrice { get => Math.Clamp(
                 MoneyVndRoundUpRules
-                .RoundAmountFromDecimal(DefaultPrice - DiscountAmountSaved - PromotionAmountSaved - OrderAmountSaved + TotalShippingPrice + TotalWarrantyPrice)
+                .RoundAmountFromDecimal(DefaultPrice - DiscountAmountSaved - PromotionAmountSaved - OrderAmountSaved - UserRankDiscountAmount + TotalShippingPrice + TotalWarrantyPrice)
             ,0m, decimal.MaxValue); }
         
         

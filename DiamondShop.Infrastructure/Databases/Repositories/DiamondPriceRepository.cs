@@ -135,7 +135,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             {
                 string diamondKey = GetPriceKey(getShape.Id, isLabDiamond.Value, tobeComparedCut);
                 var tryGet = _cache.Get<List<DiamondPrice>>(diamondKey);
-                if (tryGet == null)
+                if (tryGet == null || tryGet.Count == 0)
                 {
                     var get = await _set.Include(p => p.Criteria)
                         .Where(p => p.ShapeId == getShape.Id && p.IsLabDiamond == isLabDiamond && p.IsSideDiamond == false && p.Criteria.Cut == tobeComparedCut)
