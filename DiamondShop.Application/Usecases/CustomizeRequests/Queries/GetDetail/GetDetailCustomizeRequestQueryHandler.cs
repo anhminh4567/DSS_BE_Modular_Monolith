@@ -30,10 +30,14 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetDetail
             request.Deconstruct(out string requestId);
             var discounts = await _discountRepository.GetActiveDiscount();
             var customizeRequest = await _customizeRequestRepository.GetDetail(CustomizeRequestId.Parse(requestId));
+            if (customizeRequest == null)
+                return Result.Fail("This customize request doesn't exist");
             var model = customizeRequest.JewelryModel;
             if (model == null)
                 return Result.Fail("Can't get the requested jewelry model");
             var sizeMetal = customizeRequest.JewelryModel.SizeMetals.FirstOrDefault(p => p.SizeId == customizeRequest.SizeId && p.MetalId == customizeRequest.MetalId);
+            await _jewelryModelService.AddSettingPrice(model, sizeMetal, customizeRequest.SideDiamond);
+            await _jewelryModelService.AssignJewelryModelDiscount(model, discounts);
             if (customizeRequest.Status == CustomizeRequestStatus.Accepted)
             {
                 var jewelry = customizeRequest.Jewelry;
@@ -44,13 +48,6 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetDetail
                 _jewelryService.AddPrice(jewelry, sizeMetal);
                 await _jewelryService.AssignJewelryDiscount(jewelry, discounts);
             }
-            if (customizeRequest.Status == CustomizeRequestStatus.Priced || customizeRequest.Status == CustomizeRequestStatus.Requesting)
-            {
-                await _jewelryModelService.AddSettingPrice(model, sizeMetal, customizeRequest.SideDiamond);
-                await _jewelryModelService.AssignJewelryModelDiscount(model, discounts);
-            }
-            if (customizeRequest == null)
-                return Result.Fail("This customize request doesn't exist");
             return customizeRequest;
         }
     }
