@@ -2,6 +2,7 @@
 using DiamondShop.Application.Services.Models;
 using DiamondShop.Application.Usecases.Orders.Commands.Checkout;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
+using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Models.Warranties.Enum;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Repositories.OrderRepo;
@@ -29,7 +30,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Checkout
         {
             request.Deconstruct(out string accountId, out CheckoutCustomizeRequestDto checkoutRequestDto);
             checkoutRequestDto.Deconstruct(out string customizeRequestId, out BillingDetail billingDetail, out OrderRequestDto orderRequestDto, out string warrantyCode, out WarrantyType warrantyType);
-            var customizeRequest = await _customizeRequestRepository.GetById(customizeRequestId);
+            var customizeRequest = await _customizeRequestRepository.GetById(CustomizeRequestId.Parse(customizeRequestId));
             if (customizeRequest == null)
                 return Result.Fail("This request doesn't exist");
             if (customizeRequest.AccountId.Value != accountId)
