@@ -68,9 +68,9 @@ namespace DiamondShop.Api.Controllers.Orders
         }
         [HttpGet("PaymentLink/{orderId}")]
         [AllowAnonymous]
-        public async Task<ActionResult> GetPaymentLink([FromRoute] GetOrderPaymentLink getOrderPaymentLink)
+        public async Task<ActionResult> GetPaymentLink(string orderId)
         {
-            var result = await _sender.Send(getOrderPaymentLink);
+            var result = await _sender.Send(new GetOrderPaymentLink(orderId));
             if (result.IsFailed)
                 return MatchError(result.Errors, ModelState);
             return Ok(result.Value);

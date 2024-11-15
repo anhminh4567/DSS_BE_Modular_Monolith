@@ -9,12 +9,12 @@ namespace DiamondShop.Application.Dtos.Requests.ApplicationConfigurations.Diamon
         public DiamondRuleValidator()
         {
             RuleFor(x => x.MinPriceOffset)
-                .GreaterThanOrEqualTo(0.1m)
-                .WithMessage("MinPriceOffset must be greater than or equal to 0.1");
+                .ValidNumberFraction()
+                .WithMessage("MinPriceOffset only contain max 2 fractional number");
 
             RuleFor(x => x.MaxPriceOffset)
-                .LessThanOrEqualTo(10m)
-                .WithMessage("MaxPriceOffset must be less than or equal to 10");
+                .ValidNumberFraction()
+                .WithMessage("MaxPriceOffset only contain max 2 fractional number");
 
             RuleFor(x => x.BiggestSideDiamondCarat)
                 .GreaterThan(0)

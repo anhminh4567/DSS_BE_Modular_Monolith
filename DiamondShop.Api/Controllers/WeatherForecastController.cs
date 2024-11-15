@@ -65,8 +65,9 @@ namespace DiamondShopSystem.Controllers
         private readonly IDeliveryFeeRepository _deliveryFeeRepository;
         private readonly IEmailService _emailService;
         private readonly IPaymentService _paymentService;
+        private readonly IPdfService _pdfService;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IDateTimeProvider dateTimeProvider, IBlobFileServices blobFileServices, IOptions<PaypalOption> paypal, IOptions<VnpayOption> vnpayOption, IHttpContextAccessor httpContextAccessor, ISender sender, IOptions<LocationOptions> locationOptions, DiamondShopDbContext context, ILocationService locationService, IDeliveryFeeRepository deliveryFeeRepository, IEmailService emailService, IPaymentService paymentService)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IDateTimeProvider dateTimeProvider, IBlobFileServices blobFileServices, IOptions<PaypalOption> paypal, IOptions<VnpayOption> vnpayOption, IHttpContextAccessor httpContextAccessor, ISender sender, IOptions<LocationOptions> locationOptions, DiamondShopDbContext dbContext, ILocationService locationService, IDeliveryFeeRepository deliveryFeeRepository, IEmailService emailService, IPaymentService paymentService, IPdfService pdfService)
         {
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
@@ -76,11 +77,12 @@ namespace DiamondShopSystem.Controllers
             _httpContextAccessor = httpContextAccessor;
             _sender = sender;
             _locationOptions = locationOptions;
-            _dbContext = context;
+            _dbContext = dbContext;
             _locationService = locationService;
             _deliveryFeeRepository = deliveryFeeRepository;
             _emailService = emailService;
             _paymentService = paymentService;
+            _pdfService = pdfService;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -375,7 +377,7 @@ namespace DiamondShopSystem.Controllers
         [HttpGet("testpdf")]
         public async Task<ActionResult> TestPdf()
         {
-            var pdf = new GeneratePdfService();
+            var pdf = _pdfService;
             var account = Account.Create(FullName.Create("a", "b"), "testing@gmail");
             var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, "abc", null, null, 40_000, OrderId.Parse("1"));
             order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, null, null, null, null, 0));
@@ -389,7 +391,7 @@ namespace DiamondShopSystem.Controllers
         [HttpGet("testpdf/download")]
         public async Task<ActionResult> TestPdfDownload()
         {
-            var pdf = new GeneratePdfService();
+            var pdf = _pdfService;
             var account = Account.Create(FullName.Create("a", "b"), "testing@gmail");
             var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, "abc", null, null, 40_000, OrderId.Parse("1"));
             order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, null, null, null, null, 0));
@@ -404,7 +406,7 @@ namespace DiamondShopSystem.Controllers
         [HttpGet("testinvoiceEmail")]
         public async Task<ActionResult> TestEmailInvoice()
         {
-            var pdf = new GeneratePdfService();
+            var pdf = _pdfService;
             var account = Account.Create(FullName.Create("a", "b"), "testingwebandstuff@gmail.com");
             var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, "abc", null, null, 40_000, OrderId.Parse("1"));
             order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, null, null, null, null, 0));

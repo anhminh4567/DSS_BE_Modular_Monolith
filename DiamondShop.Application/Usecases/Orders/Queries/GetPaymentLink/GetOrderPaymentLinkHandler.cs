@@ -36,8 +36,8 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetPaymentLink
 
         public async Task<Result<PaymentLinkResponse>> Handle(GetOrderPaymentLink request, CancellationToken cancellationToken)
         {
-            request.Deconstruct(out string orderId);
-            var parsedId = OrderId.Parse(orderId);
+            //request.Deconstruct(out string orderId);
+            var parsedId = OrderId.Parse(request.OrderId);
             var getOrder = await _orderRepository.GetById(parsedId);
             if(getOrder is null)
             {

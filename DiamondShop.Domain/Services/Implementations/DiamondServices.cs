@@ -325,7 +325,7 @@ namespace DiamondShop.Domain.Services.Implementations
             bool foundedCriteria = false;
             foreach (var group in caratGroup)
             {
-                if (group.CaratFrom <= diamondCarat && group.CaratTo > diamondCarat)
+                if (group.CaratFrom <= diamondCarat && group.CaratTo >= diamondCarat)
                 {
                     var criteria = groupedCritera[group];
                     if (criteria is not null)

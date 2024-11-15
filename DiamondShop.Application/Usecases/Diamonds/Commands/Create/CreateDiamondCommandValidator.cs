@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Common;
+﻿using DiamondShop.Application.Commons.Validators;
+using DiamondShop.Domain.Common;
 using FluentValidation;
 using Microsoft.Extensions.Options;
 
@@ -30,7 +31,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
             RuleFor(c => c.measurement.withLenghtRatio).NotEmpty().GreaterThan(0);
             RuleFor(c => c.measurement.table).NotEmpty().GreaterThan(0) ;
             RuleFor(c => c.measurement.Measurement).NotEmpty().MinimumLength(3);
-
+          
             RuleFor(c => c.details.Symmetry).NotEmpty().IsInEnum();
             RuleFor(c => c.details.Culet).NotEmpty().IsInEnum();
             RuleFor(c => c.details.Polish).NotEmpty().IsInEnum();
@@ -38,7 +39,9 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
             RuleFor(c => c.details.Fluorescence).NotEmpty().IsInEnum();
             RuleFor(c => c.Certificate).IsInEnum()
                 .When(x => x.Certificate != null);
-
+            RuleFor(c => c.priceOffset).ValidNumberFraction()
+                .Must(c => c >= diamondRule.MinPriceOffset && c <= diamondRule.MaxPriceOffset)
+                .WithMessage($"Price offset must be within range of {diamondRule.MinPriceOffset} and {diamondRule.MaxPriceOffset}, this is business rules or limit opposed on app");
         }
     }
 }

@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDiamondPricesComparisons
 {
-    public record GetDiamondPricesComparisonsQuery(string shapeId,Diamond_4C Diamond_4C) : IRequest<Result<DiamondPricingFormatDto>>;
+    public record GetDiamondPricesComparisonsQuery(string shapeId,decimal priceOffset,Diamond_4C Diamond_4C) : IRequest<Result<DiamondPricingFormatDto>>;
     internal class GetDiamondPricesComparisonsQueryHandler : IRequestHandler<GetDiamondPricesComparisonsQuery, Result<DiamondPricingFormatDto>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
@@ -50,36 +50,24 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDiamondPricesComp
             var getPrices = await _diamondServices.GetPrice(request.Diamond_4C.Cut.Value,getShape,request.Diamond_4C.isLabDiamond,cancellationToken);
             var fakeDiamond = Diamond.Create(getShape, request.Diamond_4C,
                 new Diamond_Details(Polish.Fair, Symmetry.Fair, Girdle.Thick, Fluorescence.Faint, Culet.Slightly_Large),
-                new Diamond_Measurement(0.1f,0.1f,0.1f,"asdf"),
-                1)  ;
+                new Diamond_Measurement(0.1f,0.1f,0.1f,"asdf"),request.priceOffset);
             var getPrice = await _diamondServices.GetDiamondPrice(fakeDiamond, getPrices);
-            fakeDiamond.DiamondPrice = null;
+            //fakeDiamond.DiamondPrice = null;
             fakeDiamond.DiamondShape = getShape;
             DiamondPricingFormatDto result = new();
             result.PriceFound = _mapper.Map<DiamondPriceDto>(getPrice);
             //result.Diamond = _mapper.Map<DiamondDto>(fakeDiamond);
-            if(getPrice.ForUnknownPrice != null)//price is known
-                return Result.Ok(result);
-            
-            var diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
-
             result.CorrectPrice = fakeDiamond.TruePrice;
-            //if(fakeDiamond.Cut!= null && fakeDiamond.Cut != Cut.Ideal)
-            //{
-            //    switch (fakeDiamond.Cut)
-            //    {
-            //        case Cut.Very_Good:
-            //            result.CutOffsetFound += diamondRule.AverageOffsetVeryGoodCutFromIdealCut;
-            //            break;
-            //        case Cut.Good:
-            //            result.CutOffsetFound += diamondRule.AverageOffsetGoodCutFromIdealCut;
-            //            break;
-            //        default:
-            //            break;
-            //    }
-            //}
-            //result.SuggestedOffsetForDiamond = result.ShapeOffsetFound * result.CutOffsetFound;
-            //result.SuggestedPrice = getPrice.Price * result.SuggestedOffsetForDiamond;
+            result.CurrentGivenOffset = request.priceOffset;
+            if (getPrice.ForUnknownPrice != null)//price is known{
+            {
+                result.IsPriceKnown = true;
+                result.Message = "Đã biết rõ giá, có thể so sánh với giá hiện tại";
+                return Result.Ok(result);
+            }
+            result.IsPriceKnown = false;
+            result.Message = "chưa rõ giá, bạn có muốn thêm vào ?";
+            var diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
             return result;
         }
     }

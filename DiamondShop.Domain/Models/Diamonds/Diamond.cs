@@ -48,6 +48,8 @@ namespace DiamondShop.Domain.Models.Diamonds
         public Culet Culet { get; set; }
         public Fluorescence Fluorescence { get; set; }
         public Certificate Certificate { get; set; } = Certificate.GIA;
+        //public string? CertificateCode { get; set; }
+        //public Media? CertificateFile { get; set; }
         public string Measurement { get; set; }
         public Media? Thumbnail { get; set; }
         public ProductStatus Status { get; set; } = ProductStatus.Active;

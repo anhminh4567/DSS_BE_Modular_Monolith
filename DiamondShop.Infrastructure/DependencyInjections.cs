@@ -57,6 +57,7 @@ using DiamondShop.Domain.Repositories.BlogRepo;
 using DiamondShop.Infrastructure.Databases.Repositories.BlogRepo;
 using DiamondShop.Application.Services.Interfaces.Blogs;
 using DiamondShop.Application.Services.Interfaces.Orders;
+using DiamondShop.Infrastructure.Services.Pdfs;
 namespace DiamondShop.Infrastructure
 {
     public static class DependencyInjections
@@ -209,6 +210,7 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IApplicationSettingService, ApplicationSettingService>();
             services.AddScoped<IDeliveryFeeServices, DeliveryFeeServices>();
             services.AddScoped<IOrderFileServices, OrderFileService>();
+            services.AddScoped<IPdfService, GeneratePdfService>();
             var serviceProviderInstrance = services.BuildServiceProvider();
             var mailOptions = serviceProviderInstrance.GetRequiredService<IOptions<MailOptions>>().Value;
             var fluentEmailBuilder = services.AddFluentEmail(mailOptions.SenderEmail);
