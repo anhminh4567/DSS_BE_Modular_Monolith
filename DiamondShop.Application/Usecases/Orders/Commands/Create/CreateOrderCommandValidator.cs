@@ -29,7 +29,6 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                     });
                 });
 
-
         }
     }
 }

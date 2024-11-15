@@ -69,7 +69,7 @@ namespace DiamondShop.Domain.Common.Carts
         {
             OrderPrices.UserRankDiscountPercent = discountPercent;
             OrderPrices.UserRankDiscountAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(OrderPrices.OrderPriceExcludeShipAndWarranty * ((decimal)discountPercent / 100m)) ;
-            OrderPrices.OrderAmountSaved += OrderPrices.UserRankDiscountAmount;
+            //OrderPrices.OrderAmountSaved += OrderPrices.UserRankDiscountAmount;
         }
         public static CartModel? CloneCart(CartModel cartModelTobeCloned)
         {

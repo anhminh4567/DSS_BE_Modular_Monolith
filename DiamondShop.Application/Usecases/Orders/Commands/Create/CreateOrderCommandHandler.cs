@@ -44,8 +44,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         private readonly IPaymentMethodRepository _paymentMethodRepository;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
         private readonly IOrderLogRepository _orderLogRepository;
+        private readonly IEmailService _emailService;
 
-        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, ISizeMetalRepository sizeMetalRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IJewelryService jewelryService, IOrderTransactionService orderTransactionService, IPaymentMethodRepository paymentMethodRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderLogRepository orderLogRepository)
+        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, ISizeMetalRepository sizeMetalRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IJewelryService jewelryService, IOrderTransactionService orderTransactionService, IPaymentMethodRepository paymentMethodRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderLogRepository orderLogRepository, IEmailService emailService)
         {
             _accountRepository = accountRepository;
             _orderRepository = orderRepository;
@@ -61,6 +62,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             _paymentMethodRepository = paymentMethodRepository;
             _optionsMonitor = optionsMonitor;
             _orderLogRepository = orderLogRepository;
+            _emailService = emailService;
         }
 
         public async Task<Result<Order>> Handle(CreateOrderCommand request, CancellationToken token)
@@ -135,7 +137,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             var customizeRequestId = requestId == null ? null : CustomizeRequestId.Parse(requestId);
             var orderPromo = cartModel.Promotion.Promotion;
             var order = Order.Create(account.Id, paymentType, paymentMethod.Id, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice,
-                address, customizeRequestId, orderPromo?.Id);
+                address, customizeRequestId, orderPromo?.Id, cartModel.OrderPrices.OrderAmountSaved, cartModel.OrderPrices.UserRankDiscountAmount);
             //create log
             var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Pending);
             //if replacement order
@@ -161,7 +163,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 var gift = giftedId is null ? null : orderPromo?.Gifts.FirstOrDefault(k => k.ItemId == giftedId);
                 //If shop replacement, then bought price should be 0
                 //TODO: Add final price
-                orderItems.Add(OrderItem.Create(order.Id, product.Jewelry?.Id, product.Diamond?.Id,
+                orderItems.Add(OrderItem.Create(order.Id, product.Jewelry?.Id, product.Diamond?.Id,product.ReviewPrice.DefaultPrice,
                      product.ReviewPrice.FinalPrice,
                 product.DiscountId, product.DiscountPercent,
                 gift?.UnitType, gift?.UnitValue,product.CurrentWarrantyPrice));
@@ -181,7 +183,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             {
                 foreach (var item in parentItems)
                 {
-                    orderItems.Add(OrderItem.Create(order.Id, item.JewelryId, item.DiamondId,  item.PurchasedPrice,
+                    orderItems.Add(OrderItem.Create(order.Id, item.JewelryId, item.DiamondId,  item.PurchasedPrice,item.OriginalPrice,
                         item.DiscountId, item.DiscountPercent, item.PromoType, item.PromoValue));
                 }
             }
@@ -193,6 +195,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
             order.Account = account;
+            //no wait to send email
+            _emailService.SendInvoiceEmail(order,account);
             return order;
         }
 

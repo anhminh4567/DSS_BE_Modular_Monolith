@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddCertficate
 {
-    public record class AddDiamondCertificateCommand(string diamondId, IFormFile pdfFile) : IRequest<Result<Media>>;
+    public record class AddDiamondCertificateCommand(string diamondId, string certificateCode, IFormFile pdfFile) : IRequest<Result<Media>>;
     internal class AddDiamondCertificateCommandHandler : IRequestHandler<AddDiamondCertificateCommand, Result<Media>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -50,7 +50,10 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddCertficate
             var uploadResult = await _diamondFileService.UploadCertificatePdf(getDiamond, pdfObject, cancellationToken);
             if (uploadResult.IsSuccess) 
             {
-                return Result.Ok(Media.Create(fileName, uploadResult.Value, request.pdfFile.ContentType));
+                var certificate = Media.Create(fileName, uploadResult.Value, request.pdfFile.ContentType);
+                getDiamond.SetCertificate(request.certificateCode, certificate);
+                await _unitOfWork.SaveChangesAsync();
+                return Result.Ok();
             }
             return Result.Fail(uploadResult.Errors);
         }

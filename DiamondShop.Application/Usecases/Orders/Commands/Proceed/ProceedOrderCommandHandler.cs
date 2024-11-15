@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Application.Services.Interfaces.Orders;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
@@ -31,8 +32,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
         private readonly IPublisher _publisher;
         private readonly IPaymentMethodRepository _paymentMethodRepository;
         private readonly IOrderLogRepository _orderLogRepository;
+        private readonly IOrderFileServices _orderFileServices;
 
-        public ProceedOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, ISender sender, IPublisher publisher, IPaymentMethodRepository paymentMethodRepository, IOrderLogRepository orderLogRepository)
+        public ProceedOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, ISender sender, IPublisher publisher, IPaymentMethodRepository paymentMethodRepository, IOrderLogRepository orderLogRepository, IOrderFileServices orderFileServices)
         {
             _accountRepository = accountRepository;
             _orderRepository = orderRepository;
@@ -45,6 +47,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             _publisher = publisher;
             _paymentMethodRepository = paymentMethodRepository;
             _orderLogRepository = orderLogRepository;
+            _orderFileServices = orderFileServices;
         }
 
         public async Task<Result<Order>> Handle(ProceedOrderCommand request, CancellationToken token)

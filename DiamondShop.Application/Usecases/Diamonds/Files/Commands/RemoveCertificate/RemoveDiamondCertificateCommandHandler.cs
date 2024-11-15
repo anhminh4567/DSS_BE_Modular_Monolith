@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Services.Interfaces.Diamonds;
+﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Application.Services.Interfaces.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
@@ -16,12 +17,15 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.RemoveCertifi
     {
         private readonly IDiamondFileService _diamondFileService;
         private readonly IDiamondRepository _diamondRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public RemoveDiamondCertificateCommandHandler(IDiamondFileService diamondFileService, IDiamondRepository diamondRepository)
+        public RemoveDiamondCertificateCommandHandler(IDiamondFileService diamondFileService, IDiamondRepository diamondRepository, IUnitOfWork unitOfWork)
         {
             _diamondFileService = diamondFileService;
             _diamondRepository = diamondRepository;
+            _unitOfWork = unitOfWork;
         }
+
         public async Task<Result> Handle(RemoveDiamondCertificateCommand request, CancellationToken cancellationToken)
         {
             var parsedId = DiamondId.Parse(request.DiamondId);
@@ -32,6 +36,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.RemoveCertifi
             }
             string relativePath =  _diamondFileService.ToRelativePath(request.certificateAbsolutePath);
             var removeResult = await _diamondFileService.DeleteFileAsync(relativePath, cancellationToken);
+            getDiamond.SetCertificate(null,null);
             return removeResult;
         }
     }

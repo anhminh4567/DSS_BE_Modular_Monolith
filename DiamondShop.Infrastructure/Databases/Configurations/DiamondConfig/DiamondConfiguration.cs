@@ -39,6 +39,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondConfig
             {
                 childBuilder.ToJson();
             });
+            builder.OwnsOne(o => o.CertificateFilePath, childBuilder =>
+            {
+                
+            });
             builder.OwnsOne(o => o.ProductLock, childBuilder =>
             {
                 childBuilder.Property(o => o.AccountId)
@@ -50,18 +54,8 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondConfig
                 .HasConversion(
                     Id => Id.Value,
                     dbValue => JewelryId.Parse(dbValue)).IsRequired(false);
-            //builder.Property(o => o.Clarity).HasConversion<string>();
-            //builder.Property(o => o.Color).HasConversion<string>();
-            //builder.Property(o => o.Cut).HasConversion<string>();
-            //builder.Property(o => o.Polish).HasConversion<string>();
-            //builder.Property(o => o.Symmetry).HasConversion<string>();
-            //builder.Property(o => o.Girdle).HasConversion<string>();
-            //builder.Property(o => o.Culet).HasConversion<string>();
-            //builder.Property(o => o.Fluorescence).HasConversion<string>();
             builder.HasKey(o => o.Id);
             builder.HasIndex(o => new { o.Carat, o.Color, o.Clarity, o.Cut, o.IsLabDiamond, o.JewelryId });
-            //builder.HasQueryFilter(x => x.Status == Domain.Common.Enums.ProductStatus.Active);
-            //builder.HasIndex(o => o.Id);
         }
     }
 }

@@ -22,5 +22,6 @@ namespace DiamondShop.Application.Services.Interfaces.Orders
         Task<Result<List<Media>>> GetOrderLogImages(Order order, OrderLog orderLog, CancellationToken cancellationToken = default);
         Task<Result<List<Media>>> GetOrderTransactionImages(Order order, Transaction transaction, CancellationToken cancellationToken = default);
 
+        Task<Result<Media>> CreateOrderInvoice(Order fullDetailOrder, CancellationToken cancellationToken = default); 
     }
 }

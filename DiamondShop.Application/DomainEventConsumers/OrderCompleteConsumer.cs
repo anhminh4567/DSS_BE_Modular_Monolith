@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Application.Services.Interfaces.Orders;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.Orders.Events;
@@ -26,14 +27,16 @@ namespace DiamondShop.Application.DomainEventConsumers
         private readonly IAccountRepository _accountRepository;
         private readonly IAccountRoleRepository _accountRoleRepository;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
+        private readonly IOrderFileServices _orderFileServices;
 
-        public OrderCompleteConsumer(IUnitOfWork unitOfWork, IOrderRepository orderRepository, IAccountRepository accountRepository, IAccountRoleRepository accountRoleRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
+        public OrderCompleteConsumer(IUnitOfWork unitOfWork, IOrderRepository orderRepository, IAccountRepository accountRepository, IAccountRoleRepository accountRoleRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderFileServices orderFileServices)
         {
             _unitOfWork = unitOfWork;
             _orderRepository = orderRepository;
             _accountRepository = accountRepository;
             _accountRoleRepository = accountRoleRepository;
             _optionsMonitor = optionsMonitor;
+            _orderFileServices = orderFileServices;
         }
 
         public async Task Handle(OrderCompleteEvent notification, CancellationToken cancellationToken)
@@ -57,6 +60,8 @@ namespace DiamondShop.Application.DomainEventConsumers
             var option = _optionsMonitor.CurrentValue.AccountRules;
             await AccountServices.CheckAndUpdateUserRankIfQualifiedGlobal(new List<Account>() { getAccount }, getAllUserRoles.ToList(), option);
             await _unitOfWork.SaveChangesAsync();
+            //dont care about it, just run
+            _orderFileServices.CreateOrderInvoice(GetOrder);
         }
     }
 }
