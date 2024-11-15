@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.Jewelries;
+﻿using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
@@ -21,5 +22,7 @@ namespace DiamondShop.Domain.Repositories.JewelryRepo
         public Task<bool> Existing(JewelryModelId modelId, SideDiamondOpt sideDiamondOpt);
         public Task<bool> CheckDuplicatedSerial(string serialNumber);
         public Task<bool> IsHavingDiamond(Jewelry jewelry, CancellationToken cancellationToken = default);
+        Task<List<Jewelry>> GetLockJewelry(CancellationToken cancellationToken = default);
+
     }
 }

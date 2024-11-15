@@ -210,7 +210,7 @@ namespace DiamondShop.Test.Integration.Data
         public static async Task<Diamond> SeedDefaultDiamond(DiamondShopDbContext _context, JewelryId? jewelryId = null)
         {
             DiamondShape DefaultDiamondShape = DiamondShape.Create("Round", DiamondShapeId.Parse("1"));
-            Diamond_4C DefaultDiamond4C = new Diamond_4C(Cut.Ideal, Color.K, Clarity.FL, 1, false);
+            Diamond_4C DefaultDiamond4C = new Diamond_4C(Cut.Excellent, Color.K, Clarity.FL, 1, false);
             Diamond_Details DefaultDiamondDetail = new Diamond_Details(Polish.Good, Symmetry.Good, Girdle.Medium, Fluorescence.None, Culet.None);
             Diamond_Measurement DefaultDiamondMeasurement = new Diamond_Measurement(1f, 1f, 1f, "1x1");
             Diamond DefaultDiamond = Diamond.Create(DefaultDiamondShape, DefaultDiamond4C, DefaultDiamondDetail, DefaultDiamondMeasurement, 0m);

@@ -30,12 +30,12 @@ namespace DiamondShop.Domain.Models.Diamonds
         public JewelryId? JewelryId { get;  set; }
         public DiamondShapeId DiamondShapeId { get; set;}
         public DiamondShape DiamondShape { get; set;}
-      //  public DiamondWarranty? Warranty { get; set;}
+        //public DiamondWarranty? Warranty { get; set;}
         /*public List<DiamondMedia> Medias { get; set;} = new();*/
         public Clarity Clarity { get; set;}
         public Color Color { get; set;}
         public Cut? Cut { get; set;}
-        public decimal PriceOffset { get; set; } = 1;
+        public decimal PriceOffset { get; set; } = 0;
         public float Carat { get; set; } 
         public bool IsLabDiamond { get; set;}
         public float WidthLengthRatio { get; set; }
@@ -48,6 +48,8 @@ namespace DiamondShop.Domain.Models.Diamonds
         public Culet Culet { get; set; }
         public Fluorescence Fluorescence { get; set; }
         public Certificate Certificate { get; set; } = Certificate.GIA;
+        //public string? CertificateCode { get; set; }
+        //public Media? CertificateFile { get; set; }
         public string Measurement { get; set; }
         public Media? Thumbnail { get; set; }
         public ProductStatus Status { get; set; } = ProductStatus.Active;
@@ -101,7 +103,7 @@ namespace DiamondShop.Domain.Models.Diamonds
                 Culet = diamond_Details.Culet,
                 Fluorescence = diamond_Details.Fluorescence,
                 Measurement = diamond_Measurement.Measurement,
-                PriceOffset = Math.Clamp(priceOffset, DiamondRules.MinPriceOffset, DiamondRules.MaxPriceOffset),
+                PriceOffset = priceOffset,
                 SoldPrice = null,
                 DefaultPrice = null,
                 Certificate = certificate,
@@ -111,7 +113,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         }
         public void UpdatePriceOffset(decimal priceOffset)
         {
-            PriceOffset = Math.Clamp(priceOffset, DiamondRules.MinPriceOffset, DiamondRules.MaxPriceOffset);
+            PriceOffset = priceOffset;
         }
         public void SetForJewelry (Jewelry jewelry, bool isRemove = false) 
         {
@@ -154,55 +156,27 @@ namespace DiamondShop.Domain.Models.Diamonds
         }
         public void SetCorrectPrice(decimal truePrice, DiamondRule rulesToSetCutOffSet)
         {
-            var priceAfterCarat = MoneyVndRoundUpRules.RoundAmountFromDecimal( truePrice * (decimal)Carat);
+            var priceAfterCarat = truePrice * (decimal)Carat;
+            decimal correctOffset = 1 + PriceOffset;
+            var priceAfterOffset = MoneyVndRoundUpRules.RoundAmountFromDecimal(priceAfterCarat * correctOffset);
             if (TruePrice < 0)
                 throw new Exception();
             else
-                TruePrice = priceAfterCarat;
-            //bool isFancy = DiamondShape.IsFancyShape(DiamondShapeId);
-            //decimal getOffsetOfCut = 0;
-            //if (isFancy)
-            //{
-            //    switch (Cut)
-            //    {
-            //        case Enums.Cut.Ideal:
-            //            getOffsetOfCut = 1;
-            //            break;
-            //        case Enums.Cut.Very_Good:
-            //            getOffsetOfCut = 1 + rulesToSetCutOffSet.AverageOffsetVeryGoodCutFromIdealCut_FANCY_SHAPE;
-            //            break;
-            //        case Enums.Cut.Good:
-            //            getOffsetOfCut = 1 + rulesToSetCutOffSet.AverageOffsetGoodCutFromIdealCut_FANCY_SHAPE;
-            //            break;
-            //        default:
-            //            throw new Exception("Unknown cut");
-            //    }
-            //}
-            //else
-            //{
-            //    switch (Cut)
-            //    {
-            //        case Enums.Cut.Ideal:
-            //            getOffsetOfCut = 1;
-            //            break;
-            //        case Enums.Cut.Very_Good:
-            //            getOffsetOfCut = 1 + rulesToSetCutOffSet.AverageOffsetVeryGoodCutFromIdealCut;
-            //            break;
-            //        case Enums.Cut.Good:
-            //            getOffsetOfCut = 1 + rulesToSetCutOffSet.AverageOffsetGoodCutFromIdealCut;
-            //            break;
-            //        default:
-            //            throw new Exception("Unknown cut");
-            //    }
-            //}
-            //CutOffsetFounded = getOffsetOfCut;
-            //var priceAfterCut = MoneyVndRoundUpRules.RoundAmountFromDecimal(priceAfterCarat * getOffsetOfCut);
-
+                TruePrice = priceAfterOffset;
         }
         public void SetLockForUser(Account userAccount , int lockHour)
         {
+            if (Status == ProductStatus.Sold)
+                throw new Exception("cannot lock an already sold item");
             Status = ProductStatus.Locked;
             ProductLock = ProductLock.CreateLockForUser(userAccount.Id, TimeSpan.FromHours(lockHour));
+        }
+        public void RemoveLock()
+        {
+            if (Status == ProductStatus.Sold)
+                throw new Exception("cannot unlock an already sold item");
+            Status = ProductStatus.Active;
+            ProductLock = null;
         }
         public void ChangeThumbnail(Media? thumbnail) => Thumbnail = thumbnail;
         public void ChangeOffset(decimal newOffset)

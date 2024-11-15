@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
 {
-    public record CreateManyDiamondCriteriasCommand(List<DiamondCriteriaRequestDto> listCriteria, bool IsSideDiamondCriteria = false) : IRequest<Result<List<DiamondCriteria>>>;
+    public record CreateManyDiamondCriteriasCommand(List<DiamondCriteriaRequestDto> listCriteria, bool IsSideDiamondCriteria = false, bool isFancyShapeCriteria = false) : IRequest<Result<List<DiamondCriteria>>>;
     internal class CreateManyDiamondCriteriasCommandhandler : IRequestHandler<CreateManyDiamondCriteriasCommand, Result<List<DiamondCriteria>>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -28,9 +28,15 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
         {
             List<DiamondCriteria> mappedItems = new();
             if (request.IsSideDiamondCriteria)
-                mappedItems = request.listCriteria.Select(c => DiamondCriteria.CreateSideDiamondCriteria(c.CaratFrom, c.CaratTo,c.Clarity.Value,c.Color.Value)).ToList();
+                mappedItems = request.listCriteria.Select(c => DiamondCriteria.CreateSideDiamondCriteria(c.CaratFrom, c.CaratTo,c.Clarity,c.Color)).ToList();
             else
-                mappedItems = request.listCriteria.Select(c => DiamondCriteria.Create(c.Cut.Value, c.Clarity.Value, c.Color.Value, c.CaratFrom, c.CaratTo)).ToList();
+            {
+                if(request.isFancyShapeCriteria)
+                    mappedItems = request.listCriteria.Select(c => DiamondCriteria.Create(null, c.Clarity, c.Color, c.CaratFrom, c.CaratTo)).ToList();
+                else
+                    mappedItems = request.listCriteria.Select(c => DiamondCriteria.Create(c.Cut, c.Clarity, c.Color, c.CaratFrom, c.CaratTo)).ToList();
+            }
+
             await _unitOfWork.BeginTransactionAsync();
             await _diamondCriteriaRepository.CreateMany(mappedItems);
             await _unitOfWork.SaveChangesAsync();

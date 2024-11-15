@@ -8,7 +8,7 @@ namespace DiamondShop.Domain.Models.Diamonds.Enums
 {
     public enum Cut
     {
-        Good = 1, Very_Good = 2 , Ideal = 3
+        Good = 1, Very_Good = 2 , Excellent = 3
     }
     public static class CutHelper
     {
@@ -18,7 +18,7 @@ namespace DiamondShop.Domain.Models.Diamonds.Enums
             {
                 Cut.Good => "Good",
                 Cut.Very_Good => "Very Good",
-                Cut.Ideal => "Ideal",
+                Cut.Excellent => "Excellent",
                 _ => throw new ArgumentOutOfRangeException(nameof(cut), cut, null)
             };
         }

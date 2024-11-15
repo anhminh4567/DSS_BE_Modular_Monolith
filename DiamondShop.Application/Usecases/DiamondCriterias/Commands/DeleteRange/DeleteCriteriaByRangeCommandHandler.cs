@@ -2,6 +2,8 @@
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Models.Diamonds.Enums;
+using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
 using FluentValidation;
@@ -29,25 +31,37 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.DeleteRange
             });
         }
     }
-    public record DeleteCriteriaByRangeCommand(bool isSideDiamond, float caratFrom, float caratTo) : IRequest<Result>;
+    public record DeleteCriteriaByRangeCommand(bool isSideDiamond, float caratFrom, float caratTo, string diamondShapeId) : IRequest<Result>;
     internal class DeleteCriteriaByRangeCommandHandler : IRequestHandler<DeleteCriteriaByRangeCommand, Result>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDiamondCriteriaRepository _diamondCriteriaRepository;
         private readonly IDiamondPriceRepository _diamondPriceRepository;
+        private readonly IDiamondShapeRepository _diamondShapeRepository;
 
-        public DeleteCriteriaByRangeCommandHandler(IUnitOfWork unitOfWork, IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondPriceRepository diamondPriceRepository)
+        public DeleteCriteriaByRangeCommandHandler(IUnitOfWork unitOfWork, IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondPriceRepository diamondPriceRepository, IDiamondShapeRepository diamondShapeRepository)
         {
             _unitOfWork = unitOfWork;
             _diamondCriteriaRepository = diamondCriteriaRepository;
             _diamondPriceRepository = diamondPriceRepository;
+            _diamondShapeRepository = diamondShapeRepository;
         }
+
         public async Task<Result> Handle(DeleteCriteriaByRangeCommand request, CancellationToken cancellationToken)
         {
+            var pareseShapeId = DiamondShapeId.Parse(request.diamondShapeId);
+            var getAllShape = await _diamondShapeRepository.GetAllIncludeSpecialShape();
+            var getShape = getAllShape.FirstOrDefault(x => x.Id == pareseShapeId);
+            bool isFancyShape = DiamondShape.IsFancyShape(pareseShapeId);
+            if (getAllShape is null)
+            {
+                return Result.Fail("Shape not found");
+            }
+
             Dictionary<Cut, Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>>> groupedByCut = new();
             Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>> getGrooupedCriteria = new();
 
-            if(request.isSideDiamond)
+            if (request.isSideDiamond)
             {
                 return await DeleteSideDiamond();
             }
@@ -55,18 +69,30 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.DeleteRange
             {
                 return await DeleteMainDiamond();
             }
-            
+
 
             async Task<Result> DeleteMainDiamond()
             {
                 List<KeyValuePair<(float caratFrom, float carat), List<DiamondCriteria>>> listTobeRemoved = new();
-                foreach (var cut in CutHelper.GetCutList())
+                if (isFancyShape)
                 {
-                    getGrooupedCriteria = await _diamondCriteriaRepository.GroupAllAvailableCriteria(cut, cancellationToken);
-                    groupedByCut.Add(cut, getGrooupedCriteria);
+                    getGrooupedCriteria = await _diamondCriteriaRepository.GroupAllAvailableCriteria(true,null, cancellationToken);
+                    Cut anyCut = Cut.Excellent;
+                    groupedByCut.Add(anyCut, getGrooupedCriteria);
                     var criteriaInRange = getGrooupedCriteria.FirstOrDefault(x => x.Key.CaratFrom == request.caratFrom && x.Key.CaratTo == request.caratTo);
                     listTobeRemoved.Add(criteriaInRange);
                 }
+                else
+                {
+                    foreach (var cut in CutHelper.GetCutList())
+                    {
+                        getGrooupedCriteria = await _diamondCriteriaRepository.GroupAllAvailableCriteria(false, cut, cancellationToken);
+                        groupedByCut.Add(cut, getGrooupedCriteria);
+                        var criteriaInRange = getGrooupedCriteria.FirstOrDefault(x => x.Key.CaratFrom == request.caratFrom && x.Key.CaratTo == request.caratTo);
+                        listTobeRemoved.Add(criteriaInRange);
+                    }
+                }
+
                 foreach (var criteriaFromCutGroup in listTobeRemoved)
                 {
                     if (criteriaFromCutGroup.Value == null || criteriaFromCutGroup.Value.Count == 0)

@@ -11,17 +11,11 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.BusinessRules
 {
-    public  class DiamondRules
-    {
-        public static decimal MinPriceOffset { get; set; } = 0.1M;
-        public static decimal MaxPriceOffset{ get; set; } = 10M;
-        public static decimal BiggestSideDiamondCarat { get; set; } = 0.2M;
-    }
     public class DiamondRule
     {
         public static DiamondRule Default = new DiamondRule();
         public static string Type = typeof(DiamondRule).AssemblyQualifiedName;
-        public static string key = "DiamondRule2";
+        public static string key = "DiamondRule3";
 
         public static string GetDiamondSerialCode(Diamond diamond,DiamondShape shape)
         {
@@ -34,8 +28,11 @@ namespace DiamondShop.Domain.BusinessRules
             var format = $"D{origin}{getshapechars}_{caratString}{cut}{color}{clarity}_{RandomGenerators.GetRandomString(5)}";
             return format;
         }
-        public decimal MinPriceOffset{ get; set; } = 0.1m;
-        public decimal MaxPriceOffset { get; set; } = 1.9m;
+        public decimal MinPriceOffset{ get; set; } = -2.00m;
+        public decimal MaxPriceOffset { get; set; } = +2.00m;
+        public decimal MinCaratRange { get; set; } = 0.15m;
+        public decimal MaxCaratRange { get; set; } =30m;
+
         public float BiggestSideDiamondCarat { get; set; } = 0.2f;
         public float SmallestMainDiamondCarat { get; set; } = 0.17f;
         public int MainDiamondMaxFractionalNumber { get; set; } = 2;

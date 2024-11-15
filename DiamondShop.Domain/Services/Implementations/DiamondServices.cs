@@ -16,6 +16,8 @@ using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -105,7 +107,6 @@ namespace DiamondShop.Domain.Services.Implementations
                 var isCorrectPrice = IsCorrectPrice(diamond, price);
                 if (isCorrectPrice)
                 {
-                    decimal correctOffsetPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(price.Price * diamond.PriceOffset);
                     diamond.DiamondPrice = price;
                     // day moi la cach tinh gia dung, sua la roi uncomment
                     diamond.SetCorrectPrice(price.Price, diamondRule);
@@ -128,10 +129,14 @@ namespace DiamondShop.Domain.Services.Implementations
                 {
                     if (clarityFrom <= diamond.Clarity && clarityTo >= diamond.Clarity)
                     {
-                        if (cutFrom <= diamond.Cut && cutTo >= diamond.Cut)
+                        if(diamond.Cut != null)
                         {
-                            return true;
+                            if (cutFrom <= diamond.Cut && cutTo >= diamond.Cut)
+                            {
+                                return true;
+                            }
                         }
+                        return true;
                     }
                 }
             }
@@ -211,26 +216,35 @@ namespace DiamondShop.Domain.Services.Implementations
         }
         private static bool IsCorrectPrice(Diamond diamond, DiamondPrice price)
         {
+            bool isFancyShapeDiamond = DiamondShape.IsFancyShape(diamond.DiamondShapeId);
+            bool isFancyShapePrice = DiamondShape.IsFancyShape(price.ShapeId);
             if (diamond.DiamondShape.Id != price.ShapeId)
             {
                 return false;
             }
-            //var isPriceFancyShape = DiamondShape.IsFancyShape(price.ShapeId);
-            //var isDiamondFancyShape = DiamondShape.IsFancyShape(diamond.DiamondShapeId);
-            //if (isPriceFancyShape != isDiamondFancyShape)
-            //{
-            //    return false;
-            //}
             var criteria = price.Criteria;
-            if (
-                 diamond.Cut == criteria.Cut &&
-                 diamond.Color == criteria.Color
+            if (isFancyShapeDiamond)
+            {
+                if (diamond.Color == criteria.Color
                 && diamond.Clarity == criteria.Clarity
                 && diamond.Carat < criteria.CaratTo
                 && diamond.Carat >= criteria.CaratFrom
                 && diamond.IsLabDiamond == price.IsLabDiamond)
+                {
+                    return true;
+                }
+            }
+            else
             {
-                return true;
+                if (diamond.Cut == criteria.Cut
+                && diamond.Color == criteria.Color
+                && diamond.Clarity == criteria.Clarity
+                && diamond.Carat < criteria.CaratTo
+                && diamond.Carat >= criteria.CaratFrom
+                && diamond.IsLabDiamond == price.IsLabDiamond)
+                {
+                    return true;
+                }
             }
             return false;
         }
@@ -304,13 +318,14 @@ namespace DiamondShop.Domain.Services.Implementations
 
         public async Task<bool> IsMainDiamondFoundInCriteria(Diamond diamond)
         {
-            var groupedCritera = await _diamondCriteriaRepository.GroupAllAvailableCriteria(diamond.Cut.Value);
+            bool isFancyShapeDiamond = DiamondShape.IsFancyShape(diamond.DiamondShapeId);
+            var groupedCritera = await _diamondCriteriaRepository.GroupAllAvailableCriteria(isFancyShapeDiamond, diamond.Cut);
             var diamondCarat = diamond.Carat;
             var caratGroup = groupedCritera.Keys.ToList();
             bool foundedCriteria = false;
             foreach (var group in caratGroup)
             {
-                if (group.CaratFrom <= diamondCarat && group.CaratTo > diamondCarat)
+                if (group.CaratFrom <= diamondCarat && group.CaratTo >= diamondCarat)
                 {
                     var criteria = groupedCritera[group];
                     if (criteria is not null)

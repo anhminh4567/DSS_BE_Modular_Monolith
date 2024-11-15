@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services.Pdfs.Models;
 using Microsoft.Extensions.Options;
 using Razor.Templating.Core;
@@ -17,6 +18,15 @@ namespace DiamondShop.Infrastructure.Services.Pdfs
     public class GeneratePdfService : IPdfService
     {
         private const string OrderInvoiceTemplateFileName = "OrderInvoiceTemplate.cshtml";
+        private readonly IOptions<PublicBlobOptions> _publicBlobOptions;
+        private readonly IOptions<ExternalUrlsOptions> _externalUrlsOptions;
+
+        public GeneratePdfService(IOptions<PublicBlobOptions> publicBlobOptions, IOptions<ExternalUrlsOptions> externalUrlsOptions)
+        {
+            _publicBlobOptions = publicBlobOptions;
+            _externalUrlsOptions = externalUrlsOptions;
+        }
+
         public static Stream GeneratePdfDoc(string htmlString)
         {
             Stream returnStream = new MemoryStream();
@@ -30,7 +40,20 @@ namespace DiamondShop.Infrastructure.Services.Pdfs
 
         public string GetTemplateHtmlStringFromOrder(Order order, Account customerAccount)
         {
-            return GetTemplateHtmlStringFromOrderGlobal(order, customerAccount);
+            var publicOption = _publicBlobOptions.Value;
+            var externalOption = _externalUrlsOptions.Value;
+            var iconPath = _publicBlobOptions.Value.GetPath(externalOption, publicOption.ShopIcon);
+            var diamondRingIconPath = _publicBlobOptions.Value.GetPath(externalOption,publicOption.DiamondRingIcon);
+            var diamondIconPath = _publicBlobOptions.Value.GetPath(externalOption,publicOption.DiamondIcon);
+            string htmlString = RazorTemplateEngine.RenderAsync($"/wwwroot/InvoiceTemplate/{OrderInvoiceTemplateFileName}", new OrderInvoiceModels
+            {
+                Account = customerAccount,
+                Order = order,
+                DiamondIconPath = diamondIconPath,
+                DiamondRingIconPath = diamondRingIconPath,
+                IconPath = iconPath
+            }).Result;
+            return htmlString;
         }
 
         public static string GetTemplateHtmlStringFromOrderGlobal(Order order, Account customerAccount)

@@ -8,6 +8,6 @@ namespace DiamondShop.Domain.Common.Enums
 {
     public enum ProductStatus
     {
-        Active = 1, Sold = 2, Locked = 3,
+        Active = 1, Sold = 2, Locked = 3, Inactive = 4,
     }
 }

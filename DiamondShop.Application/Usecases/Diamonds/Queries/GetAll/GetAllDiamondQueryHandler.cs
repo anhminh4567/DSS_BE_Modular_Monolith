@@ -52,7 +52,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetAll
                 diamond.DiamondShape = getAllShape.FirstOrDefault(s => s.Id == diamond.DiamondShapeId);
                 if (diamond.IsLabDiamond)
                 {
-                    var prices = await _diamondPriceRepository.GetPrice(diamond.Cut.Value,diamond.DiamondShape, true, cancellationToken);
+                    var prices = await _diamondPriceRepository.GetPrice(diamond.Cut,diamond.DiamondShape, true, cancellationToken);
                     diamondPrice = await _diamondServices.GetDiamondPrice(diamond, prices);
                     //if (DiamondShape.IsFancyShape(diamond.DiamondShapeId))
                     //    diamondPrice = await _diamondServices.GetDiamondPrice(diamond, getFancyPrice);
@@ -61,7 +61,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetAll
                 }
                 else
                 {
-                    var prices = await _diamondPriceRepository.GetPrice(diamond.Cut.Value, diamond.DiamondShape, false, cancellationToken);
+                    var prices = await _diamondPriceRepository.GetPrice(diamond.Cut, diamond.DiamondShape, false, cancellationToken);
                     diamondPrice = await _diamondServices.GetDiamondPrice(diamond, prices);
                 }
                 _diamondServices.AssignDiamondDiscount(diamond, getAllDiscount).Wait();

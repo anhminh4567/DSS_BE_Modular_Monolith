@@ -10,8 +10,8 @@ namespace DiamondShop.Application.Dtos.Requests.Diamonds
     public record DiamondCriteriaRequestDto
     {
         public Cut? Cut { get; set; }
-        public Clarity? Clarity { get; set; }
-        public Color? Color { get; set; }
+        public Clarity Clarity { get; set; }
+        public Color Color { get; set; }
         public float CaratFrom { get; set; }
         public float CaratTo { get; set; }
         //public bool? isLabGrown { get; set; }

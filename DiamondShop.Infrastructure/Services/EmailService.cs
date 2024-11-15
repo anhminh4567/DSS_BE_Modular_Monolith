@@ -31,8 +31,9 @@ namespace DiamondShop.Infrastructure.Services
         private const string ConfirmEmailFileName = "ConfirmEmailTemplate.cshtml";
         private const string InvoiceEmailFileName = "OrderInvoiceTemplate.cshtml";
         private const string IconFileName = "ShopIcon.png";
+        private readonly IPdfService _pdfService;
 
-        public EmailService(IFluentEmail fluentEmailServices, IOptions<MailOptions> mailOptions, IOptions<UrlOptions> urlOptions, IOptions<PublicBlobOptions> publicBlobOptions, IOptions<ExternalUrlsOptions> externalUrlsOptions, CustomUserManager userManager)
+        public EmailService(IFluentEmail fluentEmailServices, IOptions<MailOptions> mailOptions, IOptions<UrlOptions> urlOptions, IOptions<PublicBlobOptions> publicBlobOptions, IOptions<ExternalUrlsOptions> externalUrlsOptions, CustomUserManager userManager, IPdfService pdfService)
         {
             _fluentEmailServices = fluentEmailServices;
             _mailOptions = mailOptions;
@@ -40,6 +41,7 @@ namespace DiamondShop.Infrastructure.Services
             _publicBlobOptions = publicBlobOptions;
             _externalUrlsOptions = externalUrlsOptions;
             _userManager = userManager;
+            _pdfService = pdfService;
         }
 
         public Task<Result> Send(string toEmail, string title, string description, string bodyContentHtml, CancellationToken cancellationToken = default)
@@ -86,7 +88,7 @@ namespace DiamondShop.Infrastructure.Services
         public async Task<Result> SendInvoiceEmail(Order order, Account account, CancellationToken cancellationToken = default)
         {
             var invoiceEmail = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "InvoiceTemplate", ConfirmEmailFileName);
-            var mailString = GeneratePdfService.GetTemplateHtmlStringFromOrderGlobal(order,account);
+            var mailString = _pdfService.GetTemplateHtmlStringFromOrder(order,account);
             var metadata = new EmailMetaData()
             {
                 ToEmail = account.Email,
@@ -96,14 +98,14 @@ namespace DiamondShop.Infrastructure.Services
               .To(metadata.ToEmail)
               .Subject(metadata.Subject)
               .Body(mailString, isHtml: true);
-            emailSendingConfig.Attach(new Attachment()
-            {
-                ContentId = "invoice",
-                ContentType = "application/pdf",
-                Data = GeneratePdfService.GeneratePdfDoc(mailString),
-                IsInline = false,
-                Filename = $"invoice_{order.OrderCode}.pdf",
-            });
+            //emailSendingConfig.Attach(new Attachment()
+            //{
+            //    ContentId = "invoice",
+            //    ContentType = "application/pdf",
+            //    Data = GeneratePdfService.GeneratePdfDoc(mailString),
+            //    IsInline = false,
+            //    Filename = $"invoice_{order.OrderCode}.pdf",
+            //});
             var sendResult = await emailSendingConfig.SendAsync();
             if (sendResult.Successful is false)
                 return Result.Fail("cant send email");

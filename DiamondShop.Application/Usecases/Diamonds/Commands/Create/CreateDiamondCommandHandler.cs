@@ -47,7 +47,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
             DiamondRule diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
             request.Deconstruct(out var diamond4c, out var details, out var measurement, out string shapeGivenId, out var certificate, out var priceOffset);
             DiamondShapeId shapeId = DiamondShapeId.Parse(shapeGivenId);
-            DiamondShape getShape = await _diamondShapeRepository.GetById(shapeId);
+            var getShapes = await _diamondShapeRepository.GetAll();
+            DiamondShape? getShape = getShapes.FirstOrDefault(x => x.Id == shapeId);
             if (getShape is null)
                 return Result.Fail(new NotFoundError("no shape found"));
             
