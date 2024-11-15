@@ -19,9 +19,8 @@ namespace DiamondShop.Domain.Models.DiamondPrices.Entities
         public float CaratTo { get; set; }
         public bool? IsLabGrown { get; set; }
         public bool? IsSideDiamond { get; set; } = false;
-        public static DiamondCriteria Create(Cut cut, Clarity clarity, Color color, float fromCarat ,float toCarat)
+        public static DiamondCriteria Create(Cut? cut, Clarity clarity, Color color, float fromCarat ,float toCarat)
         {
-            ArgumentNullException.ThrowIfNull(cut);
             ArgumentNullException.ThrowIfNull(clarity);
             ArgumentNullException.ThrowIfNull(color);
             if (fromCarat > toCarat)

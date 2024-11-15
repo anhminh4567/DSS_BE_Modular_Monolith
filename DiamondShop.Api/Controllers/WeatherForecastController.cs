@@ -242,17 +242,15 @@ namespace DiamondShopSystem.Controllers
             var rowIncrementPrice = 10_000;
             var columnIncrementPrice = 5_000;
             var caratIncrementPrice = 10_000;
+            // create round price
+            var round = getShapes.FirstOrDefault(x => x.Id == DiamondShape.ROUND.Id);
             foreach (Cut cut in cutEnums)
             {
-                //var cut = (Cut)cutEnums.GetValue(k);
-                //var cutPrice = basePrice + basePrice
-
                 foreach (var carat in caratRange)
                 {
                     List<DiamondCriteriaRequestDto> diamondCriteriaRequestDtos = new();
                     List<decimal> prices = new();
                     var basePrice = (decimal)(carat.caratFrom * 100) * (startPrice * (decimal)(carat.caratTo * 100));
-
                     for (int i = 0; i < colorEnums.Length; i++)
                     {
                         var color = (Color)colorEnums.GetValue(i);
@@ -272,20 +270,48 @@ namespace DiamondShopSystem.Controllers
                             prices.Add(columnPrice);
                         }
                     }
-                    var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(diamondCriteriaRequestDtos));
-
-                    //var result = await _sender.Send(new CreateCriteriaFromRangeCommand(c));
-                    foreach (var shape in getShapes)
-                    {
-                        var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
-                        var mappedListNatural = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
-
-                        var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, shape.Id.Value, true, false));
-                        var resultNatural = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, shape.Id.Value, false, false));
-                    }
+                    var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(diamondCriteriaRequestDtos,false, false));
+                    var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
+                    var mappedListNatural = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
+                    var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, round.Id.Value, true, false));
+                    var resultNatural = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, round.Id.Value, false, false));
                 }
             }
-
+            // create fancy price
+            var allFancyShape = getShapes.Where(x => x.Id != DiamondShape.ROUND.Id).ToList();
+            foreach (var carat in caratRange)
+            {
+                List<DiamondCriteriaRequestDto> diamondCriteriaRequestDtos = new();
+                List<decimal> prices = new();
+                var basePrice = (decimal)(carat.caratFrom * 100) * (startPrice * (decimal)(carat.caratTo * 100));
+                for (int i = 0; i < colorEnums.Length; i++)
+                {
+                    var color = (Color)colorEnums.GetValue(i);
+                    var rowPrice = basePrice + rowIncrementPrice * i;
+                    for (int j = 0; j < clarityEnums.Length; j++)
+                    {
+                        var clarity = (Clarity)clarityEnums.GetValue(j);
+                        var columnPrice = rowPrice + columnIncrementPrice * j;
+                        diamondCriteriaRequestDtos.Add(new DiamondCriteriaRequestDto()
+                        {
+                            CaratFrom = ((float)carat.caratFrom),
+                            CaratTo = (float)carat.caratTo,
+                            Clarity = clarity,
+                            Color = color,
+                            Cut = null,
+                        });
+                        prices.Add(columnPrice);
+                    }
+                }
+                var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(diamondCriteriaRequestDtos,false,true));
+                foreach(var fancyShape in allFancyShape)
+                {
+                    var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
+                    var mappedListNatural = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
+                    var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, fancyShape.Id.Value, true, false));
+                    var resultNatural = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, fancyShape.Id.Value, false, false));
+                }
+            }
             return Ok();
         }
         [HttpPost("seedsideDiamond")]
@@ -293,7 +319,7 @@ namespace DiamondShopSystem.Controllers
         {
             var colorEnums = Enum.GetValues(typeof(Color));
             var clarityEnums = Enum.GetValues(typeof(Clarity));
-            Cut defaultCut = Cut.Ideal;
+            Cut defaultCut = Cut.Excellent;
             decimal startPrice = 20_000;//vnd
             List<DiamondShape> getShapes = _dbContext.DiamondShapes.IgnoreQueryFilters().ToList(); //await _sender.Send(new GetAllDiamondShapeQuery());
             List<(float caratFrom, float caratTo)> caratRange = new()
@@ -339,12 +365,6 @@ namespace DiamondShopSystem.Controllers
                 var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
                 var resultAnyLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, null, true, true));
                 var resultAnyNatural = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, null, false, true));
-
-                //var resultRoundNatural = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, false, false, true));
-                //var resultFancyNatural = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, true, false, true));
-                //var resultRoundLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, false, true, true));
-                //var resultFancyLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, true, true, true));
-
             }
             stopwatch.Stop();
             Console.ForegroundColor = ConsoleColor.Red;
@@ -356,10 +376,10 @@ namespace DiamondShopSystem.Controllers
         public async Task<ActionResult> TestPdf()
         {
             var pdf = new GeneratePdfService();
-            var account = Account.Create(FullName.Create("a","b"),"testing@gmail");
-            var order = Order.Create(account.Id,PaymentType.Payall,PaymentMethodId.Parse("1"),50_000_000,20_000,"abc",null,null,40_000,OrderId.Parse("1"));
-            order.Items.Add(OrderItem.Create(order.Id,null,DiamondId.Parse("1"), 25_000_000,null,null,null,null,0));
-            order.Items.Add(OrderItem.Create(order.Id, JewelryId.Parse("2"),null, 25_000_000, null, null, null, null, 0));
+            var account = Account.Create(FullName.Create("a", "b"), "testing@gmail");
+            var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, "abc", null, null, 40_000, OrderId.Parse("1"));
+            order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, null, null, null, null, 0));
+            order.Items.Add(OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, null, null, null, null, 0));
 
 
             string result = pdf.GetTemplateHtmlStringFromOrder(order, account);
@@ -379,7 +399,7 @@ namespace DiamondShopSystem.Controllers
             string result = pdf.GetTemplateHtmlStringFromOrder(order, account);
             var stream = pdf.ParseHtmlToPdf(result);
             //HttpContext.Response.Headers.ContentType = "text/html; charset=utf-8";
-            return File(stream,"application/pdf","billing_"+order.OrderCode+".pdf");
+            return File(stream, "application/pdf", "billing_" + order.OrderCode + ".pdf");
         }
         [HttpGet("testinvoiceEmail")]
         public async Task<ActionResult> TestEmailInvoice()
@@ -390,7 +410,7 @@ namespace DiamondShopSystem.Controllers
             order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, null, null, null, null, 0));
             order.Items.Add(OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, null, null, null, null, 0));
 
-            await _emailService.SendInvoiceEmail(order,account);
+            await _emailService.SendInvoiceEmail(order, account);
 
             //HttpContext.Response.Headers.ContentType = "text/html; charset=utf-8";
             return Ok();

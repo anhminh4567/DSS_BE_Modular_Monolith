@@ -1,6 +1,4 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Diamonds;
-using DiamondShop.Application.Usecases.DiamondCriterias.Commands.Create;
-using DiamondShop.Application.Usecases.DiamondCriterias.Commands.Delete;
 using DiamondShop.Application.Usecases.DiamondCriterias.Queries.GetAll;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.Create;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany;

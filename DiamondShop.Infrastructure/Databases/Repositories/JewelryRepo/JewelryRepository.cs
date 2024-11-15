@@ -75,5 +75,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
         {
             return _set.Where(p => p.ModelId == jewelryModelId &&  p.MetalId == metalId && p.SizeId ==  sizeId).Count();
         }
+
+        public Task<List<Jewelry>> GetLockJewelry(CancellationToken cancellationToken = default)
+        {
+            return _set.Where(p => p.ProductLock != null && p.Status == ProductStatus.Locked).ToListAsync(cancellationToken);
+        }
     }
 }

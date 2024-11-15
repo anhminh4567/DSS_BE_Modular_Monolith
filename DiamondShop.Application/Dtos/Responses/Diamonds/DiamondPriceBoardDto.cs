@@ -112,8 +112,6 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
                                     ShapesIDs = criteria.PromoReqShapes.Select(x => x.ShapeId.Value).ToArray(),
                                 },
                                 DiscountId = discount.Id.Value,
-
-                                
                             }
                         }
                     });
@@ -151,7 +149,6 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
             }
 
         }
-
     }
     public class DiamondPriceRowDto
     {

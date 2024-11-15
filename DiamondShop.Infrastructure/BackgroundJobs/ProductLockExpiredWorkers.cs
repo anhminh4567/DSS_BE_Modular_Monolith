@@ -30,11 +30,36 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
 
         public async Task Execute(IJobExecutionContext context)
         {
-            throw new NotImplementedException();
+            await ExpireDiamond(context);
+            await ExpireJewelry(context);
         }
         private async Task ExpireDiamond(IJobExecutionContext context)
         {
             var expiredLockDiamonds = await _diamondRepository.GetLockDiamonds();
+            var timeNow = DateTime.UtcNow;
+            foreach(var expiredDiamond in expiredLockDiamonds)
+            {
+                if(expiredDiamond.ProductLock?.LockEndDate <= timeNow)
+                {
+                    expiredDiamond.RemoveLock();
+                    _diamondRepository.Update(expiredDiamond).Wait();
+                }
+            }
+            await _unitOfWork.SaveChangesAsync();
+        }
+        private async Task ExpireJewelry(IJobExecutionContext context)
+        {
+            var expiredLockJewelry = await _jewelryRepository.GetLockJewelry();
+            var timeNow = DateTime.UtcNow;
+            foreach (var jewelry in expiredLockJewelry)
+            {
+                if (jewelry.ProductLock?.LockEndDate <= timeNow)
+                {
+                    jewelry.RemoveLock();
+                    _jewelryRepository.Update(jewelry).Wait();
+                }
+            }
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

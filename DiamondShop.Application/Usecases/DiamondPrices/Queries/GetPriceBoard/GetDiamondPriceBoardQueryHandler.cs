@@ -69,11 +69,13 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             List<DiamondPrice> prices = new();
             Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>> criteriasByGrouping = new();
             DiamondPriceBoardDto priceBoard = DiamondPriceBoardDto.Create();
-            priceBoard.MainCut = Cut.Ideal;
+            priceBoard.MainCut = Cut.Excellent;
             priceBoard.Shape = _mapper.Map<DiamondShapeDto>(getShape);
             priceBoard.IsLabDiamondBoardPrices = request.isLabDiamond;
             if (request.isSideDiamond == false)
             {
+                bool isFancyShape = DiamondShape.IsFancyShape(getShape.Id);
+
                 prices = await _diamondPriceRepository.GetPrice(request.cut, getShape, request.isLabDiamond, cancellationToken);
                 priceBoard.IsSideDiamondBoardPrices = false;
                 string serlized = JsonConvert.SerializeObject(prices,new JsonSerializerSettings() 
@@ -86,7 +88,10 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
                 Console.ResetColor();
                 //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableCaratRange( cancellationToken);
                 priceBoard.MainCut = request.cut;
-                criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableCriteria(priceBoard.MainCut, cancellationToken));
+                if(isFancyShape)
+                    criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableCriteria(isFancyShape, null, cancellationToken));
+                else
+                    criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableCriteria(isFancyShape,priceBoard.MainCut, cancellationToken));
             }
             else
             {

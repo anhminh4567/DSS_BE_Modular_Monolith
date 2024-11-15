@@ -9,6 +9,7 @@ using DiamondShop.Domain.Repositories;
 using DiamondShop.Infrastructure.Databases.Configurations.DiamondShapeConfig;
 using FluentEmail.Core;
 using FluentResults;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System;
@@ -57,7 +58,6 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             RemoveAllKey(entity.ShapeId);
         }
 
-       
         public async Task CreateMany(List<DiamondPrice> prices)
         {
             await _set.AddRangeAsync(prices);
@@ -77,8 +77,8 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         {
             foreach(var cut in Enum.GetValues(typeof(Cut)))
             {
-                string diamondKey = GetPriceKey(diamondShapeId.Value, true, (Cut)cut);
-                string diamondKeyNatural = GetPriceKey(diamondShapeId.Value, false, (Cut)cut);
+                string diamondKey = GetPriceKey(diamondShapeId, true, (Cut)cut);
+                string diamondKeyNatural = GetPriceKey(diamondShapeId, false, (Cut)cut);
                 _cache.Remove(diamondKey);
                 _cache.Remove(diamondKeyNatural);
             }
@@ -122,13 +122,18 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                 return tryGet;
         }
 
-        public async Task<List<DiamondPrice>> GetPrice(Cut cut, DiamondShape shape, bool? isLabDiamond = null, CancellationToken token = default)
+        public async Task<List<DiamondPrice>> GetPrice(Cut? cut, DiamondShape shape, bool? isLabDiamond = null, CancellationToken token = default)
         {
-            Cut tobeComparedCut = cut;
+            Cut? tobeComparedCut = cut;
             DiamondShape getShape = shape;
+            bool isFancyShape = DiamondShape.IsFancyShape(getShape.Id);
+            if (isFancyShape == false && tobeComparedCut == null)
+                throw new Exception("round cut need to include cut");
+            if (isFancyShape)
+                tobeComparedCut = null;
             if (isLabDiamond != null)
             {
-                string diamondKey = GetPriceKey(getShape.Id.Value, isLabDiamond.Value, tobeComparedCut);
+                string diamondKey = GetPriceKey(getShape.Id, isLabDiamond.Value, tobeComparedCut);
                 var tryGet = _cache.Get<List<DiamondPrice>>(diamondKey);
                 if (tryGet == null)
                 {
@@ -142,8 +147,8 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             }
             else
             {
-                string diamondKey = GetPriceKey(getShape.Id.Value, true, tobeComparedCut);
-                string diamondKeyNatural = GetPriceKey(getShape.Id.Value, false, tobeComparedCut);
+                string diamondKey = GetPriceKey(getShape.Id, true, tobeComparedCut);
+                string diamondKeyNatural = GetPriceKey(getShape.Id, false, tobeComparedCut);
                 List<DiamondPrice> results = new();
                 var tryGet = _cache.Get<List<DiamondPrice>>(diamondKey);
                 var tryGetNatural = _cache.Get<List<DiamondPrice>>(diamondKeyNatural);
@@ -236,9 +241,14 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             //RemoveAllKey(fancyShape);
             //RemoveAllKey(anyShape);
         }
-        private string GetPriceKey(string shapeId, bool IsLabDiamond, Cut cut)
+        private string GetPriceKey(DiamondShapeId shapeId, bool IsLabDiamond, Cut? cut)
         {
-            var key = $"DP_{shapeId}_{(int)cut}";
+            bool isFancyShape = DiamondShape.IsFancyShape(shapeId);
+            string key;
+            if(isFancyShape)
+                key  = $"DP_{shapeId}";
+            else 
+                key = $"DP_{shapeId}_{(int)cut}";
             if (IsLabDiamond)
                 key += "_Lab";
             else

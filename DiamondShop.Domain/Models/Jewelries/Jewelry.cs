@@ -146,8 +146,17 @@ namespace DiamondShop.Domain.Models.Jewelries
         }
         public void SetLockForUser(Account userAccount, int lockHour)
         {
+            if(Status == ProductStatus.Sold)
+                throw new Exception("Can not lock a sold product");
             Status = ProductStatus.Locked;
             ProductLock = ProductLock.CreateLockForUser(userAccount.Id, TimeSpan.FromHours(lockHour));
+        }
+        public void RemoveLock()
+        {
+            if (ProductLock is null)
+                throw new Exception("This product is not locked");
+            Status = ProductStatus.Active;
+            ProductLock = null;
         }
         public void SetTotalDiamondPrice(decimal totalAllDiamondPrice)
         {

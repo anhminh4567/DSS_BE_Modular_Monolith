@@ -58,7 +58,7 @@ namespace DiamondShop.Infrastructure.Services.Scrapers
                             CaratTo = caratRange.Value.caratTo,
                             Clarity = clarity,
                             Color = color,
-                            Cut = Cut.Ideal,
+                            Cut = Cut.Excellent,
                             Price = price,
                         };
                         caohungPrices.Add(priceObj);
@@ -176,7 +176,7 @@ namespace DiamondShop.Infrastructure.Services.Scrapers
             {
                 >= 3.0 and < 4.0  =>  Cut.Good ,
                 >= 4.0 and < 6.0 => Cut.Very_Good,
-                >= 6.0 and < 8.0 => Cut.Ideal,
+                >= 6.0 and < 8.0 => Cut.Excellent,
                 _ => null
             };
             return correctCutFromScore;
