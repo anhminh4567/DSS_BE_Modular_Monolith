@@ -1,4 +1,6 @@
-﻿using DiamondShop.Domain.Models.CustomizeRequests.Entities;
+﻿using DiamondShop.Domain.Models.CustomizeRequests;
+using DiamondShop.Domain.Models.CustomizeRequests.Entities;
+using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Services.interfaces;
 
@@ -29,6 +31,18 @@ namespace DiamondShop.Domain.Services.Implementations
             if (request.Culet != null && request.Culet != diamond.Culet)
                 return false;
             return true;
+        }
+        public void SetStage(CustomizeRequest req, bool isPriced)
+        {
+            req.Stage = req.Status switch
+            {
+                CustomizeRequestStatus.Pending => 1,
+                CustomizeRequestStatus.Priced => 3,
+                CustomizeRequestStatus.Requesting => 5,
+                CustomizeRequestStatus.Accepted => 7,
+                CustomizeRequestStatus.Shop_Rejected => !isPriced ? 2 : 6,
+                CustomizeRequestStatus.Customer_Rejected => req.Jewelry == null ? 4 : 8,
+            };
         }
     }
 }

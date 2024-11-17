@@ -11,6 +11,7 @@ using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DiamondShop.Domain.Models.CustomizeRequests
 {
@@ -36,6 +37,8 @@ namespace DiamondShop.Domain.Models.CustomizeRequests
         public List<DiamondRequest> DiamondRequests { get; set; } = new();
         public SideDiamondOptId? SideDiamondId { get; set; }
         public SideDiamondOpt? SideDiamond { get; set; }
+        [NotMapped]
+        public int Stage { get; set; } = 0;
         public static CustomizeRequest CreatePending(AccountId accountId, JewelryModelId jewelryModelId, SizeId sizeId, MetalId metalId, SideDiamondOptId? sideDiamondOptId, string? engravedText, string? engravedFont, string? Note)
         {
             return new CustomizeRequest()
