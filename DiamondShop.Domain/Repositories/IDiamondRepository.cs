@@ -5,6 +5,8 @@ using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Common.Enums;
+using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 
 namespace DiamondShop.Domain.Repositories
 {
@@ -12,9 +14,17 @@ namespace DiamondShop.Domain.Repositories
     {
         Task<(Diamond diamond,List<Discount> discounts, List<Promotion> promotion)> GetByIdIncludeDiscountAndPromotion(DiamondId id, CancellationToken cancellationToken = default);
         public void UpdateRange(List<Diamond> diamonds);
+        Task<int> GetCountByStatus(List<ProductStatus> diamondStatusesToLookFor, bool includeAttachingToJewelry = true);
+        Task<int> GetCountByShapeAndStatus(List<ProductStatus> diamondStatusesToLookFor, List<DiamondShapeId> shapesToLookFor, bool includeAttachingToJewelry = true);
+        IQueryable<Diamond> QueryStatus(IQueryable<Diamond> query ,List<ProductStatus> diamondStatusesToLookFor);
         Task<List<Diamond>> GetDiamondsJewelry (JewelryId jewelryId, CancellationToken cancellationToken = default);
         Task<List<Diamond>> GetAllAdmin(CancellationToken cancellationToken = default);
         Task<List<Diamond>> GetUserLockDiamonds(AccountId accountId, CancellationToken cancellationToken = default);
         Task<List<Diamond>> GetLockDiamonds(CancellationToken cancellationToken = default);
+        Task<List<Diamond>> GetBySkus(string[] skus, CancellationToken cancellationToken = default);
+        Task<List<Diamond>> GetRange(List<DiamondId> diamondIds, CancellationToken cancellationToken = default);
+        Task<List<Diamond>> GetTotalSoldDiamonds(DateTime? startDate = null, DateTime? endDate = null, CancellationToken cancellationToken = default);
+        Task<List<Diamond>> GetTotalSoldDiamondsByShape(DiamondShape shape,DateTime? startDate = null, DateTime? endDate = null, CancellationToken cancellationToken = default);
+
     }
 }

@@ -83,5 +83,13 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
             //TotalPrice = price;
             //AveragePricePerCarat = price;
         }
+        public bool IsInRange(float caratFrom, float caratTo)
+        {
+            if (caratFrom <= AverageCarat && caratTo> AverageCarat)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

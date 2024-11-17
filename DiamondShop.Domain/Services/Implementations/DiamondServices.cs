@@ -35,12 +35,14 @@ namespace DiamondShop.Domain.Services.Implementations
         private readonly IDiamondPriceRepository _diamondPriceRepository;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
         private readonly IDiamondCriteriaRepository _diamondCriteriaRepository;
+        private readonly IDiamondRepository _diamondRepository;
 
-        public DiamondServices(IDiamondPriceRepository diamondPriceRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IDiamondCriteriaRepository diamondCriteriaRepository)
+        public DiamondServices(IDiamondPriceRepository diamondPriceRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondRepository diamondRepository)
         {
             _diamondPriceRepository = diamondPriceRepository;
             _optionsMonitor = optionsMonitor;
             _diamondCriteriaRepository = diamondCriteriaRepository;
+            _diamondRepository = diamondRepository;
         }
 
         public static Discount? AssignDiamondDiscountGlobal(Diamond diamond, List<Discount> discounts)
@@ -102,6 +104,11 @@ namespace DiamondShop.Domain.Services.Implementations
         }
         public static async Task<DiamondPrice> GetDiamondPriceGlobal(Diamond diamond, List<DiamondPrice> diamondPrices, DiamondRule diamondRule)
         {
+            // if diamond is locked for user, and price is seted
+            if(diamond.Status == Common.Enums.ProductStatus.LockForUser)
+            {
+
+            }
             foreach (var price in diamondPrices)
             {
                 var isCorrectPrice = IsCorrectPrice(diamond, price);
@@ -252,7 +259,7 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             bool isColorInRange = price.Criteria.Color >= sideDiamond.ColorMin && price.Criteria.Color <= sideDiamond.ColorMax;
             bool isClarityInRange = price.Criteria.Clarity >= sideDiamond.ClarityMin && price.Criteria.Clarity <= sideDiamond.ClarityMax;
-            bool isCaratInRange = price.Criteria.CaratTo > sideDiamond.AverageCarat && price.Criteria.CaratFrom <= sideDiamond.AverageCarat;
+            bool isCaratInRange = sideDiamond.IsInRange(price.Criteria.CaratFrom,price.Criteria.CaratTo);  // price.Criteria.CaratTo > sideDiamond.AverageCarat && price.Criteria.CaratFrom <= sideDiamond.AverageCarat;
             //bool isPriceForFancyShape = price.IsFancyShape && sideDiamond.IsFancyShape;
             // all side diamond should be lab diamond
             //&& price.IsLabDiamond
@@ -349,7 +356,8 @@ namespace DiamondShop.Domain.Services.Implementations
             bool foundedCriteria = false;
             foreach (var group in caratGroup)
             {
-                if (group.CaratFrom <= sideDiamondAvgCarat && group.CaratTo > sideDiamondAvgCarat)
+                if(sideDiamond.IsInRange(group.CaratFrom,group.CaratTo))
+                //if (group.CaratFrom <= sideDiamondAvgCarat && group.CaratTo > sideDiamondAvgCarat)
                 {
                     var criteria = groupCriteria[group];
                     if (criteria is not null)

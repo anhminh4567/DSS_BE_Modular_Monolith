@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Diamonds.Commands.LockForUser
 {
-    public record LockDiamondForUserCommand(bool isUnlock,string customerId, string diamondId, int lockHour) : IRequest<Result<Diamond>>;
+    public record LockDiamondForUserCommand(bool isUnlock,string customerId, string diamondId, int lockHour, decimal? LockedPriceForCustomer) : IRequest<Result<Diamond>>;
     internal class LockDiamondForUserCommandHandler : IRequestHandler<LockDiamondForUserCommand, Result<Diamond>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -50,7 +50,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.LockForUser
                 getDiamond.SetSell();
             
             else
-                getDiamond.SetLockForUser(getCustomer, request.lockHour);
+                getDiamond.SetLockForUser(getCustomer, request.lockHour,request.LockedPriceForCustomer);
             
             await _unitOfWork.SaveChangesAsync();
             return getDiamond;

@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using Microsoft.EntityFrameworkCore;
@@ -33,11 +34,23 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo
    
         }
 
+        public Task<Discount?> GetByCode(string discountCode, CancellationToken cancellationToken = default)
+        {
+            return _set.Include(d => d.DiscountReq)
+                .ThenInclude(x => x.PromoReqShapes)
+                .FirstOrDefaultAsync(d => d.DiscountCode == discountCode, cancellationToken);
+        }
+
         public override Task<Discount?> GetById(params object[] ids)
         {
             return _set.Include(d => d.DiscountReq)
                 .ThenInclude(x => x.PromoReqShapes)
                 .FirstOrDefaultAsync(d => d.Id == (DiscountId)ids[0]);
+        }
+
+        public IQueryable<Discount> QueryByStatuses(IQueryable<Discount> query, List<Status> statuses)
+        {
+            return query.Where(d => statuses.Contains(d.Status));
         }
     }
 }

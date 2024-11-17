@@ -50,7 +50,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDiamondPricesComp
             var getPrices = await _diamondServices.GetPrice(request.Diamond_4C.Cut.Value,getShape,request.Diamond_4C.isLabDiamond,cancellationToken);
             var fakeDiamond = Diamond.Create(getShape, request.Diamond_4C,
                 new Diamond_Details(Polish.Fair, Symmetry.Fair, Girdle.Thick, Fluorescence.Faint, Culet.Slightly_Large),
-                new Diamond_Measurement(0.1f,0.1f,0.1f,"asdf"),request.priceOffset);
+                new Diamond_Measurement(0.1f,0.1f,0.1f,"asdf"),request.priceOffset,null);
             var getPrice = await _diamondServices.GetDiamondPrice(fakeDiamond, getPrices);
             //fakeDiamond.DiamondPrice = null;
             fakeDiamond.DiamondShape = getShape;

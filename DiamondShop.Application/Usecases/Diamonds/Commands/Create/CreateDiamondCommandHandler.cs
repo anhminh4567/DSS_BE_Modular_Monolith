@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
 {
-    public record CreateDiamondCommand(Diamond_4C diamond4c, Diamond_Details details, Diamond_Measurement measurement, string shapeId,Certificate? Certificate = Certificate.GIA, decimal priceOffset = 1) :IRequest<Result<Diamond>>;
+    public record CreateDiamondCommand(Diamond_4C diamond4c, Diamond_Details details, Diamond_Measurement measurement, string shapeId, string? sku,Certificate? Certificate = Certificate.GIA, decimal priceOffset = 1) :IRequest<Result<Diamond>>;
     internal class CreateDiamondCommandHandler : IRequestHandler<CreateDiamondCommand, Result<Diamond>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -45,14 +45,18 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
         public async Task<Result<Diamond>> Handle(CreateDiamondCommand request, CancellationToken cancellationToken)
         {
             DiamondRule diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
-            request.Deconstruct(out var diamond4c, out var details, out var measurement, out string shapeGivenId, out var certificate, out var priceOffset);
+            request.Deconstruct(out var diamond4c, out var details, out var measurement, out string shapeGivenId, out string? sku, out var certificate, out var priceOffset);
             DiamondShapeId shapeId = DiamondShapeId.Parse(shapeGivenId);
             var getShapes = await _diamondShapeRepository.GetAll();
             DiamondShape? getShape = getShapes.FirstOrDefault(x => x.Id == shapeId);
             if (getShape is null)
                 return Result.Fail(new NotFoundError("no shape found"));
             
-            Diamond newDiamond = Diamond.Create(getShape, diamond4c, details, measurement, priceOffset, certificate.Value);
+            List<Diamond> diamondFromSku = await _diamondRepository.GetBySkus(new string[] { sku });
+            if (diamondFromSku.Count > 0)
+                return Result.Fail(new ValidationError("Diamond with this sku already exist"));
+
+            Diamond newDiamond = Diamond.Create(getShape, diamond4c, details, measurement, priceOffset,sku, certificate.Value);
             var isDiamondBelongToACriteraGroup = await _diamondServices.IsMainDiamondFoundInCriteria(newDiamond);
             if (isDiamondBelongToACriteraGroup == false )
                 return Result.Fail(new ValidationError("Diamond is not belong to any criteria group"));

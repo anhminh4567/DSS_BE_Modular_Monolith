@@ -43,6 +43,7 @@ namespace DiamondShop.Domain.Models.Orders
         public decimal UserRankAmountSaved { get; set; } = 0;
         public decimal TotalRefund { get; set; } = 0;
         public decimal TotalFine { get; set; } = 0;
+        //tobe removed
         public decimal OrderSavedAmount { get; set; } = 0;
         public string ShippingAddress { get; set; }
         public List<OrderItem> Items { get; set; } = new();
@@ -89,7 +90,7 @@ namespace DiamondShop.Domain.Models.Orders
                 TotalPrice = totalPrice,
                 ShippingFee = shippingFee,
                 ShippingAddress = shippingAddress,
-                OrderSavedAmount = orderSavedAmount,
+                OrderAmountSaved = orderSavedAmount,
                 UserRankAmountSaved = UserRankAmountSaved,
                 PaymentMethodId = paymentMethodId,
                 
@@ -130,6 +131,15 @@ namespace DiamondShop.Domain.Models.Orders
             ExpiredDate = CancelledDate;
             Status = OrderStatus.Cancelled;
             CancelledReason = "quá hạn thanh toán, vui lòng mua đơn mới ";
+        }
+
+        public decimal GetOrderItemPriceOnly()
+        {
+            return TotalPrice - ShippingFee + OrderAmountSaved + UserRankAmountSaved;
+        }
+        public decimal GetOrderExcludeShipping()
+        {
+            return TotalPrice - ShippingFee;
         }
     }
 }

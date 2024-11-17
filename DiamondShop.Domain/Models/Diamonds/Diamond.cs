@@ -84,7 +84,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         [NotMapped]
         public decimal CutOffsetFounded { get; set; }
         public static Diamond Create(DiamondShape shape, Diamond_4C diamond_4C, Diamond_Details diamond_Details,
-           Diamond_Measurement diamond_Measurement,decimal priceOffset, Certificate certificate = Certificate.GIA) 
+           Diamond_Measurement diamond_Measurement,decimal priceOffset,string? sku, Certificate certificate = Certificate.GIA) 
         {
             var newdiamond =  new Diamond()
             {
@@ -109,7 +109,10 @@ namespace DiamondShop.Domain.Models.Diamonds
                 DefaultPrice = null,
                 Certificate = certificate,
             };
-            newdiamond.SerialCode = DiamondRule.GetDiamondSerialCode(newdiamond,shape);
+            if(sku!= null)
+                newdiamond.SerialCode = sku;
+            else
+                newdiamond.SerialCode = DiamondRule.GetDiamondSerialCode(newdiamond,shape);
             return newdiamond;
         }
         public void UpdatePriceOffset(decimal priceOffset)
@@ -118,10 +121,15 @@ namespace DiamondShop.Domain.Models.Diamonds
         }
         public void SetForJewelry (Jewelry jewelry, bool isRemove = false) 
         {
-            if(isRemove)
-                JewelryId = null;
-            else 
-                JewelryId = jewelry.Id; 
+            if (isRemove)
+            {
+                JewelryId = null;//if remove a diamond from jewelry it will go to inactive 
+                SetInActive();
+            }
+            else
+            {
+                JewelryId = jewelry.Id;
+            } 
         }
         public static string GetTitle(Diamond diamond)
         {
@@ -142,6 +150,10 @@ namespace DiamondShop.Domain.Models.Diamonds
         }
         public void SetSell()
         {
+            if (Status == ProductStatus.Sold)
+                throw new Exception("Cannot change status of a sold item");
+            if (JewelryId != null)
+                throw new Exception("Cannot change status of this diamond, since it is attached to a jewelry already");
             Status = ProductStatus.Active;
             ProductLock = null;
             SoldPrice = null;
@@ -155,6 +167,17 @@ namespace DiamondShop.Domain.Models.Diamonds
             DefaultPrice = null;
             ProductLock = null;
         }
+        public void SetInActive()
+        {
+            if(Status == ProductStatus.Sold)
+                throw new Exception("Cannot change status of a sold item");
+            if (JewelryId != null)
+                throw new Exception("Cannot change status of this diamond, since it is attached to a jewelry already");
+            Status = ProductStatus.Inactive;
+            SoldPrice = null;
+            DefaultPrice = null;
+            ProductLock = null;
+        }   
         public void SetCorrectPrice(decimal truePrice, DiamondRule rulesToSetCutOffSet)
         {
             var priceAfterCarat = truePrice * (decimal)Carat;
@@ -165,12 +188,17 @@ namespace DiamondShop.Domain.Models.Diamonds
             else
                 TruePrice = priceAfterOffset;
         }
-        public void SetLockForUser(Account userAccount , int lockHour)
+        public void SetLockForUser(Account userAccount , int lockHour, decimal? LockedPriceForCustomer)
         {
             if (Status == ProductStatus.Sold)
                 throw new Exception("cannot lock an already sold item");
-            Status = ProductStatus.Locked;
+            Status = ProductStatus.LockForUser;
             ProductLock = ProductLock.CreateLockForUser(userAccount.Id, TimeSpan.FromHours(lockHour));
+            if(LockedPriceForCustomer != null)
+            {
+                DefaultPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(LockedPriceForCustomer.Value);
+            }
+                
         }
         public void RemoveLock()
         {
@@ -201,6 +229,17 @@ namespace DiamondShop.Domain.Models.Diamonds
         {
             CertificateCode = certificateCode;
             CertificateFilePath = certificateFile;
+        }
+        public void SetActive(bool isActive)
+        {
+            if(Status == ProductStatus.Sold)
+                throw new Exception("Cannot change status of a sold item");
+            if(Status == ProductStatus.Locked)
+                throw new Exception("Cannot change status of a locked item");
+            if(isActive)
+                Status = ProductStatus.Active;
+            else
+                Status = ProductStatus.Inactive;
         }
         private Diamond() { }
     }

@@ -53,14 +53,12 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
 
         public async Task<Result<PagingResponseDto<Diamond>>> Handle(GetDiamondPagingQuery request, CancellationToken cancellationToken)
         {
-            request.Deconstruct(out bool isLab, out bool? includeJewelryDiamond , out int pageSize, out int start, out string shapeId, out decimal priceStart, out var priceEnd, out var diamond_4C, out var diamond_Details);
+            request.Deconstruct(out bool isLab, out bool? includeJewelryDiamond, out int pageSize, out int start, out string shapeId, out decimal priceStart, out var priceEnd, out var diamond_4C, out var diamond_Details, out var getDiamond_ManagerQuery);
             var query = _diamondRepository.GetQuery();
-            //List<DiamondPrice> getRoundPrice = new();
-            //List<DiamondPrice> getFancyPrice = new();
+
             List<Diamond> diamondListResponse = new();
             IncludeJewelryDiamond = includeJewelryDiamond.Value;
-            //getFancyPrice = await _diamondPriceRepository.GetPrice(true, request.isLab, cancellationToken);
-            //getRoundPrice = await _diamondPriceRepository.GetPrice(false, request.isLab, cancellationToken);
+
             var getAllShape = await _diamondShapeRepository.GetAll();
             Shapes = getAllShape;
             var getActiveDiscount = await _discountRepository.GetActiveDiscount();
@@ -73,46 +71,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             //Count = count;
             TotalTake = (start + 1) * pageSize;
             MaxInDb = _diamondRepository.GetCount();
-            var finalResult = await GetData(diamondListResponse, 0, pageSize, 0 , request);
-            //var parsedShape = DiamondShapeId.Parse(shapeId);
-            //query = query.Where(d => d.DiamondShapeId == parsedShape);
-            ////query = _diamondRepository.QueryInclude(query, d => d.DiamondShape);
-            //if (diamond_4C is not null)
-            //    query = Filtering4C(query, diamond_4C);
-            //if (diamond_Details is not null)
-            //    query = FilteringDetail(query, diamond_Details);
-            //query.Skip(start * pageSize);
-            //query.Take(pageSize);
-            //var result = query.ToList();
-            
+            var finalResult = await GetData(diamondListResponse, 0, pageSize, 0, request);
 
-            ////var getAllShape = await _diamondShapeRepository.GetAll();
-            ////Dictionary<string, List<DiamondPrice>> shapeDictPrice = new();
-            ////foreach (var shape in getAllShape)
-            ////{
-            ////    var prices = await _diamondPriceRepository.GetPriceByShapes(shape,null, cancellationToken);
-            ////    shapeDictPrice.Add(shape.Id.Value,prices);
-            ////}
-
-            //var getAllDiscount = await _discountRepository.GetActiveDiscount();
-            //foreach (var diamond in result)
-            //{
-            //    DiamondPrice diamondPrice;
-            //    diamond.DiamondShape = getAllShape.FirstOrDefault(s => s.Id == diamond.DiamondShapeId);
-            //    if (DiamondShape.IsFancyShape(diamond.DiamondShapeId))
-            //        diamondPrice = await _diamondService.GetDiamondPrice(diamond, getFancyPrice);
-            //    else
-            //        diamondPrice = await _diamondService.GetDiamondPrice(diamond, getRoundPrice);
-            //    //diamond.DiamondPrice = diamondPrice;
-            //    _diamondService.AssignDiamondDiscount(diamond, getAllDiscount).Wait();
-            //}
-
-            //var totalPage = (int)Math.Ceiling((decimal)count / (decimal)pageSize);
-            //var response = new PagingResponseDto<Diamond>(
-            //    TotalPage: totalPage,
-            //    CurrentPage: start,
-            //    Values: result
-            //    );
             var totalPage = (int)Math.Ceiling((decimal)Count / (decimal)pageSize);
             var response = new PagingResponseDto<Diamond>(
                 TotalPage: totalPage,
@@ -121,7 +81,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
                 );
             return response;
         }//,List<DiamondPrice> roundPrice, List<DiamondPrice> fancyPrice
-        private async Task<int> GetData(List<Diamond> responseList  , int start, int size, int responseSkip, GetDiamondPagingQuery request )
+        private async Task<int> GetData(List<Diamond> responseList, int start, int size, int responseSkip, GetDiamondPagingQuery request)
         {
             var trueSkip = request.start * request.pageSize;
             var currentStart = start * size;
@@ -131,7 +91,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             //    Count = responseList.Count;
             //    var currentResult = responseList.Skip(trueSkip).Take(size).ToList();
             //    responseList = currentResult;
-                
+
             //    return currentStart;
             //}
             if (MaxInDb <= start * size)
@@ -146,6 +106,15 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             if (AccountRole.ShopRoles.Any(x => _httpContextAccessor.HttpContext.User.IsInRole(x.Id.Value)) is false)//not in shop
             {
                 query = _diamondRepository.QueryFilter(query, d => d.Status == Domain.Common.Enums.ProductStatus.Active);
+            }
+            else
+            {
+                var managerQuery = request.GetDiamond_ManagerQuery;
+                if (managerQuery != null)
+                {
+                    if(managerQuery.diamondStatuses is not null)
+                        query = _diamondRepository.QueryStatus(query, managerQuery.diamondStatuses);
+                }
             }
             if (IncludeJewelryDiamond is false)
                 query = _diamondRepository.QueryFilter(query, d => d.JewelryId == null);
@@ -163,12 +132,12 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             {
                 DiamondPrice diamondPrice;
                 diamond.DiamondShape = Shapes.FirstOrDefault(s => s.Id == diamond.DiamondShapeId);
-                var diamondPriceBySHape =await _diamondPriceRepository.GetPrice(diamond.Cut.Value,diamond.DiamondShape, null);
+                var diamondPriceBySHape = await _diamondPriceRepository.GetPrice(diamond.Cut.Value, diamond.DiamondShape, null);
                 diamondPrice = await _diamondService.GetDiamondPrice(diamond, diamondPriceBySHape);
                 _diamondService.AssignDiamondDiscount(diamond, ActiveDiscount).Wait();
             }
-            var trueResult = FilteringPrice(result,request.priceStart, request.priceEnd);
-             responseList.AddRange(trueResult);
+            var trueResult = FilteringPrice(result, request.priceStart, request.priceEnd);
+            responseList.AddRange(trueResult);
             //if(responseList.Count >= size)
             //{
             //    responseList = responseList.OrderByDescending(x => x.TruePrice).Take(size).ToList();
@@ -176,14 +145,14 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             //}
             //else
             //{
-                var responseTrueSkip = responseSkip + result.Count;
-                return await GetData(responseList, start + 1, size, responseTrueSkip, request);
+            var responseTrueSkip = responseSkip + result.Count;
+            return await GetData(responseList, start + 1, size, responseTrueSkip, request);
             //}
         }
-        private List<Diamond> FilteringPrice(List<Diamond> diamondWithPricesAssigned , decimal startPrice, decimal endPrice)
+        private List<Diamond> FilteringPrice(List<Diamond> diamondWithPricesAssigned, decimal startPrice, decimal endPrice)
         {
-            var result =  new List<Diamond>();
-            foreach(var diamond in diamondWithPricesAssigned)
+            var result = new List<Diamond>();
+            foreach (var diamond in diamondWithPricesAssigned)
             {
                 if (diamond.TruePrice >= startPrice && diamond.TruePrice <= endPrice)
                     result.Add(diamond);
