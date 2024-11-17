@@ -10,7 +10,6 @@ using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
-using System.Reflection.Metadata.Ecma335;
 
 namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
 {

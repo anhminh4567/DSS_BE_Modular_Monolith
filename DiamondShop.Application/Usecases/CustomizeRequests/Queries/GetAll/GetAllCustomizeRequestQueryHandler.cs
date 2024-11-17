@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetAll
 {
-    public record GetAllCustomizeRequestQuery(int CurrentPage, int PageSize, string? Email, DateTime? CreatedDate, DateTime? ExpiredDate, CustomizeRequestStatus? Status) : IRequest<Result<PagingResponseDto<CustomizeRequest>>>;
+    public record GetAllCustomizeRequestQuery(int CurrentPage, int PageSize, string? Code, string? Email, DateTime? CreatedDate, DateTime? ExpiredDate, CustomizeRequestStatus? Status) : IRequest<Result<PagingResponseDto<CustomizeRequest>>>;
     internal class GetAllCustomizeRequestQueryHandler : IRequestHandler<GetAllCustomizeRequestQuery, Result<PagingResponseDto<CustomizeRequest>>>
     {
         private readonly ICustomizeRequestRepository _customizeRequestRepository;
@@ -28,13 +28,15 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetAll
 
         public async Task<Result<PagingResponseDto<CustomizeRequest>>> Handle(GetAllCustomizeRequestQuery request, CancellationToken cancellationToken)
         {
-            request.Deconstruct(out int currentPage, out int pageSize, out string? email, out DateTime? createdDate, out DateTime? expiredDate, out CustomizeRequestStatus? status);
+            request.Deconstruct(out int currentPage, out int pageSize, out string? code, out string? email, out DateTime? createdDate, out DateTime? expiredDate, out CustomizeRequestStatus? status);
             currentPage = currentPage == 0 ? 1 : currentPage;
             pageSize = pageSize == 0 ? 20 : pageSize;
             var query = _customizeRequestRepository.GetQuery();
             query = _customizeRequestRepository.QueryInclude(query, p => p.Account);
             query = _customizeRequestRepository.QueryInclude(query, p => p.DiamondRequests);
-            if (email != null)
+            if (!String.IsNullOrEmpty(code))
+                query = _customizeRequestRepository.QueryFilter(query, p => p.RequestCode.ToUpper().Contains(code.ToUpper()));
+            if (!String.IsNullOrEmpty(email))
                 query = _customizeRequestRepository.QueryFilter(query, p => p.Account.Email.ToUpper().Contains(email.ToUpper()));
             if (createdDate != null)
             {
