@@ -29,5 +29,6 @@ namespace DiamondShop.Application.Dtos.Responses.CustomizeRequest
         public List<DiamondRequestDto> DiamondRequests { get; set; } = new();
         public string? SideDiamondId { get; set; }
         public SideDiamondOptDto? SideDiamond { get; set; }
+        public int Stage { get; set; }
     }
 }

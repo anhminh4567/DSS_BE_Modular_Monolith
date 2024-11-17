@@ -2,8 +2,10 @@
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
+using DiamondShop.Domain.Services.Implementations;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
@@ -17,12 +19,18 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomer
         private readonly ICustomizeRequestRepository _customizeRequestRepository;
         private readonly IJewelryService _jewelryService;
         private readonly IJewelryModelService _jewelryModelService;
-        public GetCustomerDetailCustomizeRequestQueryHandler(ICustomizeRequestRepository customizeRequestRepository, IJewelryModelService jewelryModelService, IJewelryService jewelryService, IDiscountRepository discountRepository)
+        private readonly ICustomizeRequestService _customizeRequestService;
+        private readonly IDiamondServices _diamondServices;
+        private readonly IDiamondPriceRepository _diamondPriceRepository;
+        public GetCustomerDetailCustomizeRequestQueryHandler(ICustomizeRequestRepository customizeRequestRepository, IJewelryModelService jewelryModelService, IJewelryService jewelryService, IDiscountRepository discountRepository, ICustomizeRequestService customizeRequestService, IDiamondPriceRepository diamondPriceRepository, IDiamondServices diamondServices)
         {
             _customizeRequestRepository = customizeRequestRepository;
             _jewelryModelService = jewelryModelService;
             _jewelryService = jewelryService;
             _discountRepository = discountRepository;
+            _customizeRequestService = customizeRequestService;
+            _diamondPriceRepository = diamondPriceRepository;
+            _diamondServices = diamondServices;
         }
 
         public async Task<Result<CustomizeRequest>> Handle(GetCustomerDetailCustomizeRequestQuery request, CancellationToken cancellationToken)
@@ -32,12 +40,34 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomer
             var customizeRequest = await _customizeRequestRepository.GetDetail(CustomizeRequestId.Parse(requestId));
             if (customizeRequest == null)
                 return Result.Fail("This customize request doesn't exist");
+            if (customizeRequest.AccountId != AccountId.Parse(accountId))
+                return Result.Fail("You don't have permission to view this request");
             var model = customizeRequest.JewelryModel;
             if (model == null)
                 return Result.Fail("Can't get the requested jewelry model");
             var sizeMetal = customizeRequest.JewelryModel.SizeMetals.FirstOrDefault(p => p.SizeId == customizeRequest.SizeId && p.MetalId == customizeRequest.MetalId);
             await _jewelryModelService.AddSettingPrice(model, sizeMetal, customizeRequest.SideDiamond);
+            bool isPriced = false;
+            if (customizeRequest.SideDiamond != null && customizeRequest.SideDiamond.TotalPrice != 0)
+                isPriced = true;
             await _jewelryModelService.AssignJewelryModelDiscount(model, discounts);
+            var diamondRequests = customizeRequest.DiamondRequests;
+            foreach (var diamondRequest in diamondRequests)
+            {
+                var diamond = diamondRequest.Diamond;
+                if (diamond == null)
+                {
+                    isPriced = false;
+                    break;
+                }
+                var prices = await _diamondPriceRepository.GetPrice(diamond.Cut, diamond.DiamondShape, false, cancellationToken);
+                var diamondPrice = await _diamondServices.GetDiamondPrice(diamond, prices);
+                if (diamondPrice.Price != 0)
+                {
+                    isPriced = isPriced && true;
+                }
+                await _diamondServices.AssignDiamondDiscount(diamond, discounts);
+            }
             if (customizeRequest.Status == CustomizeRequestStatus.Accepted)
             {
                 var jewelry = customizeRequest.Jewelry;
@@ -48,6 +78,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomer
                 _jewelryService.AddPrice(jewelry, sizeMetal);
                 await _jewelryService.AssignJewelryDiscount(jewelry, discounts);
             }
+            _customizeRequestService.SetStage(customizeRequest, isPriced);
             return customizeRequest;
         }
     }
