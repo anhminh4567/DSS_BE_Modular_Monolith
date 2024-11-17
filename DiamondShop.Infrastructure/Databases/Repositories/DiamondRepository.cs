@@ -13,6 +13,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Common.Enums;
+using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace DiamondShop.Infrastructure.Databases.Repositories
 {
@@ -60,12 +66,96 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
 
         public Task<List<Diamond>> GetUserLockDiamonds(AccountId accountId, CancellationToken cancellationToken = default)
         {
-            return _set.IgnoreQueryFilters().Where(x => x.ProductLock != null && x.ProductLock.AccountId == accountId).ToListAsync(cancellationToken);
+            return _set.IgnoreQueryFilters().Where(x => x.ProductLock != null 
+            && x.ProductLock.AccountId == accountId 
+            && x.IsLabDiamond 
+            && x.Status == ProductStatus.LockForUser)
+                .ToListAsync(cancellationToken);
         }
 
         public Task<List<Diamond>> GetLockDiamonds(CancellationToken cancellationToken = default)
         {
             return _set.IgnoreQueryFilters().Where(x => x.ProductLock != null).ToListAsync();
+        }
+
+        public Task<List<Diamond>> GetBySkus(string[] skus, CancellationToken cancellationToken = default)
+        {
+            return _set.IgnoreQueryFilters().Where(x => skus.Contains(x.SerialCode)).ToListAsync(cancellationToken);
+        }
+
+        public Task<List<Diamond>> GetRange(List<DiamondId> diamondIds, CancellationToken cancellationToken = default)
+        {
+            return _set.Where(x => diamondIds.Contains(x.Id)).ToListAsync(cancellationToken);
+        }
+
+        public IQueryable<Diamond> QueryStatus(IQueryable<Diamond> query, List<ProductStatus> diamondStatusesToLookFor)
+        {
+            query = query.Where(x => diamondStatusesToLookFor.Contains(x.Status));
+            return query;
+        }
+
+        public async Task<List<Diamond>> GetTotalSoldDiamonds(DateTime? startDate = null, DateTime? endDate = null, CancellationToken cancellationToken = default)
+        {
+            List<Order> orders = new List<Order>();
+            var orderQuery = _dbContext.Orders.AsQueryable()
+                .Where(x => x.Status != OrderStatus.Cancelled
+                && x.Status != OrderStatus.Rejected
+                && x.CancelledDate == null);
+            if(startDate != null)
+                orderQuery = orderQuery.Where(x => x.CreatedDate >= startDate);
+            if(endDate != null)
+                orderQuery = orderQuery.Where(x => x.CreatedDate <= endDate);
+            var soldDiamonds = await orderQuery.Include(x => x.Items)
+                .SelectMany(x => x.Items)
+                .Where(x => x.DiamondId != null)
+                    .Include(x => x.Diamond)
+                    .Select(x => x.Diamond)
+                    .AsSplitQuery()
+                .ToListAsync();
+            return soldDiamonds;
+        }
+
+        public async Task<List<Diamond>> GetTotalSoldDiamondsByShape(DiamondShape shape, DateTime? startDate = null, DateTime? endDate = null, CancellationToken cancellationToken = default)
+        {
+            var orderQuery = _dbContext.Orders.AsQueryable()
+                .Where(x => x.Status != OrderStatus.Cancelled
+                && x.Status != OrderStatus.Rejected
+                && x.CancelledDate == null);
+            if (startDate != null)
+                orderQuery = orderQuery.Where(x => x.CreatedDate >= startDate);
+            if (endDate != null)
+                orderQuery = orderQuery.Where(x => x.CreatedDate <= endDate);
+            var soldDiamonds = await orderQuery.Include(x => x.Items)
+                .SelectMany(x => x.Items)
+                .Where(x => x.DiamondId != null)
+                    .Include(x => x.Diamond)
+                    .Select(x => x.Diamond)
+                        .Where(x => x.DiamondShapeId == shape.Id)
+                        .AsSplitQuery()
+                .ToListAsync();
+            return soldDiamonds;
+        }
+
+        public Task<int> GetCountByStatus(List<ProductStatus> diamondStatusesToLookFor, bool includeAttachingToJewelry = true)
+        {
+            var query = _set.IgnoreQueryFilters()
+                .Where(x => diamondStatusesToLookFor.Contains(x.Status));
+            if (includeAttachingToJewelry == false)
+            {
+                query = query.Where(x => x.JewelryId == null);
+            }
+            return query.CountAsync();
+        }
+
+        public Task<int> GetCountByShapeAndStatus(List<ProductStatus> diamondStatusesToLookFor, List<DiamondShapeId> shapesToLookFor, bool includeAttachingToJewelry = true)
+        {
+            var query = _set.IgnoreQueryFilters()
+                .Where(x => diamondStatusesToLookFor.Contains(x.Status) && shapesToLookFor.Contains(x.DiamondShapeId));
+            if (includeAttachingToJewelry == false)
+            {
+                query = query.Where(x => x.JewelryId == null);
+            }
+            return query.CountAsync();
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Promotions;
+using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +43,20 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo
         public Task<List<Order>> GetUserOrderThatUsedThisPromotion(Promotion promotion, Account userAccount, CancellationToken cancellationToken = default)
         {
             return _dbContext.Orders.Where(o => o.AccountId == userAccount.Id && o.PromotionId == promotion.Id).ToListAsync(cancellationToken);
+        }
+
+        public Task<Promotion?> GetByCode(string promotionCode, CancellationToken cancellationToken = default)
+        {
+            return _set.Where(x => x.PromoCode == promotionCode)
+                .Include(x => x.PromoReqs)
+                    .ThenInclude(x => x.PromoReqShapes)
+                .Include(x => x.Gifts)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public IQueryable<Promotion> QueryByStatuses(IQueryable<Promotion> query, List<Status> statuses)
+        {
+           return query.Where(p => statuses.Contains(p.Status));
         }
     }
 }

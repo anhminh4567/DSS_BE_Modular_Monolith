@@ -39,9 +39,9 @@ namespace DiamondShop.Api.Controllers.Promotions
 
         [HttpGet("{discountId}")]
         [Produces(type: typeof(DiscountDto))]
-        public async Task<ActionResult> Get([FromRoute] string discountId)
+        public async Task<ActionResult> Get([FromRoute] string? discountId, [FromQuery] string? discountCode)
         {
-            var response = await _sender.Send(new GetDiscountDetailQuery(discountId));
+            var response = await _sender.Send(new GetDiscountDetailQuery(discountId,discountCode));
             var mappedResult = _mapper.Map<DiscountDto>(response.Value);
             return Ok(mappedResult);
         }

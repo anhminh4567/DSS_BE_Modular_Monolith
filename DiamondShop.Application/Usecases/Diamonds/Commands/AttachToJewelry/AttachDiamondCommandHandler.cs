@@ -4,6 +4,7 @@ using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
+using DiamondShop.Domain.Repositories.JewelryRepo;
 using FluentResults;
 using MediatR;
 using System;
@@ -19,18 +20,23 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.AttachToJewelry
     {
         private readonly IDiamondRepository _diamondRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IJewelryRepository _jewelryRepository;
 
-        public AttachDiamondCommandHandler(IDiamondRepository diamondRepository, IUnitOfWork unitOfWork)
+        public AttachDiamondCommandHandler(IDiamondRepository diamondRepository, IUnitOfWork unitOfWork, IJewelryRepository jewelryRepository)
         {
             _diamondRepository = diamondRepository;
             _unitOfWork = unitOfWork;
+            _jewelryRepository = jewelryRepository;
         }
 
         public async Task<Result> Handle(AttachDiamondCommand request, CancellationToken token)
         {
             await _unitOfWork.BeginTransactionAsync(token);
             request.Deconstruct(out JewelryId jewelryId, out List<Diamond> diamonds);
-            diamonds.ForEach(d => d.JewelryId = jewelryId);
+            var jewelry = await _jewelryRepository.GetById(jewelryId);
+            if(jewelry.Id == null)
+                return Result.Fail("This jewelry doesn't exist");
+            diamonds.ForEach(d => d.SetForJewelry(jewelry));
             _diamondRepository.UpdateRange(diamonds);
             await _unitOfWork.SaveChangesAsync(token);
             return Result.Ok();            

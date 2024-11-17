@@ -57,6 +57,10 @@ namespace DiamondShop.Domain.Models.DiamondShapes
             }
             return All_Fancy_Shape.Any(x => x.Id == shapeId);
         }
+        public bool IsFancy()
+        {
+            return IsFancyShape(Id);
+        }
         public void Update(string shape)
         {
             Shape = shape;

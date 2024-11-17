@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Discounts.Queries.GetDetail
 {
-    public record GetDiscountDetailQuery(string discountId) : IRequest<Result<Discount>>;
+    public record GetDiscountDetailQuery(string? discountId, string? discountCode) : IRequest<Result<Discount>>;
     internal class GetDiscountDetailQueryHandler : IRequestHandler<GetDiscountDetailQuery, Result<Discount>>
     {
         private readonly IDiscountRepository _discountRepository;
@@ -27,11 +27,33 @@ namespace DiamondShop.Application.Usecases.Discounts.Queries.GetDetail
 
         public async Task<Result<Discount>> Handle(GetDiscountDetailQuery request, CancellationToken cancellationToken)
         {
-            var reqId = DiscountId.Parse(request.discountId);
-            var result = await _discountRepository.GetById(reqId);
-            if (result == null)
-                return Result.Fail(new NotFoundError());
-            return result;
+            if(request.discountId is null && request.discountCode is null)
+            {
+                _logger.LogError("id or discountCode is required");
+                return Result.Fail(new Error("id or discountCode is required"));
+            }
+            if(request.discountCode is not null)
+            {
+                var result = await _discountRepository.GetByCode(request.discountCode);
+                if (result is null)
+                {
+                    _logger.LogError("no discount found");
+                    return Result.Fail(new NotFoundError());
+                }
+                return result;
+            }
+            else if (request.discountId is not null)
+            {
+                var reqId = DiscountId.Parse(request.discountId);
+                var result = await _discountRepository.GetById(reqId);
+                if (result is null)
+                {
+                    _logger.LogError("no discount found");
+                    return Result.Fail(new NotFoundError());
+                }
+                return result;
+            }
+            return Result.Fail("Unknown error") ;
         }
     }
 }

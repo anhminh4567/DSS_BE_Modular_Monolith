@@ -2,6 +2,7 @@
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using System;
 using System.Collections.Generic;
@@ -15,5 +16,7 @@ namespace DiamondShop.Domain.Repositories.PromotionsRepo
     {
         Task<List<Promotion>> GetActivePromotion(bool isDateComparisonRequired = false, CancellationToken cancellationToken = default);
         Task<List<Order>> GetUserOrderThatUsedThisPromotion(Promotion promotion, Account userAccount, CancellationToken cancellationToken = default);
+        Task<Promotion?> GetByCode(string promotionCode, CancellationToken cancellationToken = default);
+        IQueryable<Promotion> QueryByStatuses(IQueryable<Promotion> query, List<Status> statuses);
     }
 }

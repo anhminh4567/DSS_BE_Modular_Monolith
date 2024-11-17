@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Transactions;
 using DiamondShop.Domain.Models.Transactions.Events;
@@ -22,14 +23,16 @@ namespace DiamondShop.Application.DomainEventConsumers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderTransactionService _orderTransactionService;
         private readonly IOrderService _orderService;
+        private readonly IOrderLogRepository _orderLogRepository;
 
-        public TransactionCreatedEventConsumer(IOrderRepository orderRepository, ITransactionRepository transactionRepository, IUnitOfWork unitOfWork, IOrderTransactionService orderTransactionService, IOrderService orderService)
+        public TransactionCreatedEventConsumer(IOrderRepository orderRepository, ITransactionRepository transactionRepository, IUnitOfWork unitOfWork, IOrderTransactionService orderTransactionService, IOrderService orderService, IOrderLogRepository orderLogRepository)
         {
             _orderRepository = orderRepository;
             _transactionRepository = transactionRepository;
             _unitOfWork = unitOfWork;
             _orderTransactionService = orderTransactionService;
             _orderService = orderService;
+            _orderLogRepository = orderLogRepository;
         }
 
         public async Task Handle(TransactionCreatedEvent notification, CancellationToken cancellationToken)
@@ -65,12 +68,15 @@ namespace DiamondShop.Application.DomainEventConsumers
             if (order.PaymentType == PaymentType.COD)// means it is Depositing transaction
             {
                 order.Deposit(transaction);
+                var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Processing);
+                _orderLogRepository.Create(log);
             }
             else if (order.PaymentType == PaymentType.Payall)// means it is Full payment transaction{
             {
                 order.PayAll(transaction);
+                var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Processing);
+                _orderLogRepository.Create(log);
             }
-            
             else
                 throw new Exception("Unknown payment type");
         }
@@ -79,6 +85,8 @@ namespace DiamondShop.Application.DomainEventConsumers
             if (order.PaymentType == PaymentType.COD)// means it is Depositing transaction{
             {
                 order.PayRemainingForDepositOrder(transaction);
+                var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Processing);
+                _orderLogRepository.Create(log);
             }
             else
                 throw new Exception("Unknown payment type");
