@@ -150,10 +150,10 @@ namespace DiamondShop.Domain.Models.Diamonds
         }
         public void SetSell()
         {
-            if (Status == ProductStatus.Sold)
-                throw new Exception("Cannot change status of a sold item");
-            if (JewelryId != null)
-                throw new Exception("Cannot change status of this diamond, since it is attached to a jewelry already");
+            //if (Status == ProductStatus.Sold)
+            //    throw new Exception("Cannot change status of a sold item");
+            //if (JewelryId != null)
+            //    throw new Exception("Cannot change status of this diamond, since it is attached to a jewelry already");
             Status = ProductStatus.Active;
             ProductLock = null;
             SoldPrice = null;
