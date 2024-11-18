@@ -27,6 +27,7 @@ namespace DiamondShop.Domain.Models.Orders
         public CustomizeRequestId? CustomizeRequestId { get; set; }
         public PromotionId? PromotionId { get; set; }
         public Promotion? Promotion { get; set; }
+        public string? PromotionCode { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now.ToUniversalTime();
         public DateTime ExpectedDate { get; set; } = DateTime.Now.AddDays(OrderRules.ExpectedDeliveryDate).ToUniversalTime();
         public DateTime? ShippedDate { get; set; }
@@ -75,7 +76,7 @@ namespace DiamondShop.Domain.Models.Orders
         public Order() { }
         public static Order Create(AccountId accountId, PaymentType paymentType, PaymentMethodId paymentMethodId,
             decimal totalPrice, decimal shippingFee, string shippingAddress, CustomizeRequestId? customizeRequestId = null,
-            PromotionId promotionId = null, decimal orderSavedAmount = 0 , decimal UserRankAmountSaved = 0, OrderId givenId = null)
+            Promotion? promotion = null, decimal orderSavedAmount = 0 , decimal UserRankAmountSaved = 0, OrderId givenId = null)
         {
             return new Order()
             {
@@ -85,7 +86,8 @@ namespace DiamondShop.Domain.Models.Orders
                 Status = OrderStatus.Pending,
                 PaymentStatus = PaymentStatus.Pending,
                 CustomizeRequestId = customizeRequestId,
-                PromotionId = promotionId,
+                PromotionId = promotion == null ? null : promotion.Id,
+                PromotionCode = promotion == null ? null : promotion.PromoCode,
                 PaymentType = paymentType,
                 TotalPrice = totalPrice,
                 ShippingFee = shippingFee,

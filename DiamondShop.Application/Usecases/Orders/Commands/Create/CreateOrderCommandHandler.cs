@@ -129,7 +129,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             var customizeRequestId = requestId == null ? null : CustomizeRequestId.Parse(requestId);
             var orderPromo = cartModel.Promotion.Promotion;
             var order = Order.Create(account.Id, paymentType, paymentMethod.Id, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice,
-                address, customizeRequestId, orderPromo?.Id, cartModel.OrderPrices.OrderAmountSaved, cartModel.OrderPrices.UserRankDiscountAmount);
+                address, customizeRequestId, orderPromo, cartModel.OrderPrices.OrderAmountSaved, cartModel.OrderPrices.UserRankDiscountAmount);
             //create log
             var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Pending);
             List<OrderItem> orderItems = new();
@@ -141,9 +141,10 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 var gift = giftedId is null ? null : orderPromo?.Gifts.FirstOrDefault(k => k.ItemId == giftedId);
                 //If shop replacement, then bought price should be 0
                 //TODO: Add final price
+                var getDiscountIfExist = cartModel.DiscountsApplied.FirstOrDefault(k => k.Id == product.DiscountId);
                 orderItems.Add(OrderItem.Create(order.Id, product.Jewelry?.Id, product.Diamond?.Id, product.ReviewPrice.DefaultPrice,
                      product.ReviewPrice.FinalPrice,
-                product.DiscountId, product.DiscountPercent,
+                getDiscountIfExist, product.DiscountPercent,
                 gift?.UnitType, gift?.UnitValue, product.CurrentWarrantyPrice,requestId != null? OrderItemStatus.Pending : OrderItemStatus.Prepared));
                 if (product.Jewelry != null)
                 {

@@ -13,15 +13,12 @@ namespace DiamondShop.Domain.Repositories
     public record DeleteManyParameter(DiamondShapeId DiamondShapeId, DiamondCriteriaId CriteriaId);
     public interface IDiamondPriceRepository : IBaseRepository<DiamondPrice>
     {
-        //Task<List<DiamondPrice>> GetPriceByShapes(DiamondShape shape, bool? isLabDiamond = null, CancellationToken token = default);
         Task<List<DiamondPrice>> GetPriceByCriteria(DiamondCriteriaId diamondCriteriaId, bool? isLabDiamond = null, CancellationToken token = default);
-        Task<List<DiamondPrice>> GetPrice(Cut? cut, DiamondShape shape, bool? isLabDiamond = null, CancellationToken token = default);
-        Task<List<DiamondPrice>> GetPriceIgnoreCache(DiamondShape shape, bool? isLabDiamond = null, CancellationToken token = default);
+        Task<List<DiamondPrice>> GetPrice(Cut? cut, DiamondShape shape, bool isLabDiamond , CancellationToken token = default);
+        Task<List<DiamondPrice>> GetPriceIgnoreCache(DiamondShape shape, bool isLabDiamond , CancellationToken token = default);
 
         Task<DiamondPrice?> GetById(DiamondShapeId shapeId, DiamondCriteriaId criteriaId, CancellationToken cancellationToken =default);
         Task CreateMany(List<DiamondPrice> prices);
-        //Task<List<DiamondPrice>> GetSideDiamondPriceByShape(DiamondShape shape, bool? islabDiamond = null, CancellationToken cancellationToken = default);
-        //bool isFancyShape,
         Task<List<DiamondPrice>> GetSideDiamondPrice(bool isLabDiamond,CancellationToken token = default);
         //bool isFancyShape,
         Task<List<DiamondPrice>> GetSideDiamondPriceByAverageCarat( bool isLabDiamond, float avgCarat, CancellationToken token = default);

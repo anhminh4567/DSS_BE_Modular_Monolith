@@ -16,6 +16,8 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public Color? Color { get; set; }
         public float CaratFrom { get; set; }
         public float CaratTo { get; set; }
+        public DiamondShapeDto? Shape { get; set; }
+        public string ShapeId { get; set; }
         //public bool IsLabGrown { get; set; }
     }
 }

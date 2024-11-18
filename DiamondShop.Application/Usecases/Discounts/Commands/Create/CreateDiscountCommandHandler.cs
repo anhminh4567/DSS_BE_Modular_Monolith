@@ -31,6 +31,9 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Create
             var startDate = DateTime.ParseExact(request.startDate, DateTimeFormatingRules.DateTimeFormat, null);
             var endDate = DateTime.ParseExact(request.endDate, DateTimeFormatingRules.DateTimeFormat, null);
             var newDiscount = Discount.Create(request.name, startDate, endDate, request.discountPercent, request.discountCode);
+            var getDiscountByCode = await _discountRepository.GetByCode(request.discountCode);
+            if (getDiscountByCode != null)
+                return Result.Fail("Đã có 1 discount với mã code như vậy, hãy đổi mã code");
             await _discountRepository.Create(newDiscount);
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(newDiscount);

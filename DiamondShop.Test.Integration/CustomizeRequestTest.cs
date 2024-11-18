@@ -45,7 +45,7 @@ namespace DiamondShop.Test.Integration
                     CaratTo = 3f,
                 }
             };
-            var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(criteriaRequestDtos,true));
+            var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(criteriaRequestDtos,"99",true));
             if (result.IsFailed)
                 WriteError(result.Errors);
             Assert.True(result.IsSuccess);
@@ -56,7 +56,7 @@ namespace DiamondShop.Test.Integration
             {
                 new(criteria.Id.Value,100000m),
             };
-            var priceResult = await _sender.Send(new CreateManyDiamondPricesCommand(priceRequestDtos,DiamondShape.IsFancyShape(diamond.ShapeId),false,true));
+            var priceResult = await _sender.Send(new CreateManyDiamondPricesCommand(priceRequestDtos,diamond.ShapeId.Value,false,true));
             if (priceResult.IsFailed)
                 WriteError(priceResult.Errors);
             Assert.True(priceResult.IsSuccess);

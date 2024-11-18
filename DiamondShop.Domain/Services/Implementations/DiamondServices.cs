@@ -36,13 +36,15 @@ namespace DiamondShop.Domain.Services.Implementations
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
         private readonly IDiamondCriteriaRepository _diamondCriteriaRepository;
         private readonly IDiamondRepository _diamondRepository;
+        private readonly IDiamondShapeRepository _diamondShapeRepository;
 
-        public DiamondServices(IDiamondPriceRepository diamondPriceRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondRepository diamondRepository)
+        public DiamondServices(IDiamondPriceRepository diamondPriceRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondRepository diamondRepository, IDiamondShapeRepository diamondShapeRepository)
         {
             _diamondPriceRepository = diamondPriceRepository;
             _optionsMonitor = optionsMonitor;
             _diamondCriteriaRepository = diamondCriteriaRepository;
             _diamondRepository = diamondRepository;
+            _diamondShapeRepository = diamondShapeRepository;
         }
 
         public static Discount? AssignDiamondDiscountGlobal(Diamond diamond, List<Discount> discounts)
@@ -107,7 +109,12 @@ namespace DiamondShop.Domain.Services.Implementations
             // if diamond is locked for user, and price is seted
             if(diamond.Status == Common.Enums.ProductStatus.LockForUser)
             {
-
+                if(diamond.DefaultPrice != null && diamond.DefaultPrice > 0)
+                {
+                    var dealedDiamondPrice = DiamondPrice.CreateDealedLockedPriceForUser(diamond);
+                    diamond.DiamondPrice = dealedDiamondPrice;
+                    diamond.TruePrice = dealedDiamondPrice.Price;
+                }
             }
             foreach (var price in diamondPrices)
             {
@@ -224,8 +231,8 @@ namespace DiamondShop.Domain.Services.Implementations
         private static bool IsCorrectPrice(Diamond diamond, DiamondPrice price)
         {
             bool isFancyShapeDiamond = DiamondShape.IsFancyShape(diamond.DiamondShapeId);
-            bool isFancyShapePrice = DiamondShape.IsFancyShape(price.ShapeId);
-            if (diamond.DiamondShape.Id != price.ShapeId)
+            bool isFancyShapePrice = DiamondShape.IsFancyShape(price.Criteria.ShapeId);
+            if (diamond.DiamondShape.Id != price.Criteria.ShapeId)
             {
                 return false;
             }
@@ -307,7 +314,7 @@ namespace DiamondShop.Domain.Services.Implementations
             //else
             //{
             bool isFancyShape = DiamondShape.IsFancyShape(shape.Id);
-            if (isLabDiamond != null)
+            if (isLabDiamond == null)
             {
                 var getlab = await _diamondPriceRepository.GetPrice(cut,shape, true, token);
                 var getNatural = await _diamondPriceRepository.GetPrice(cut,shape, false, token);
@@ -316,7 +323,7 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             else
             {
-                var get = await _diamondPriceRepository.GetPrice(cut, shape, isLabDiamond, token);
+                var get = await _diamondPriceRepository.GetPrice(cut, shape, isLabDiamond.Value, token);
                 result.AddRange(get);
             }
             //}
@@ -326,7 +333,10 @@ namespace DiamondShop.Domain.Services.Implementations
         public async Task<bool> IsMainDiamondFoundInCriteria(Diamond diamond)
         {
             bool isFancyShapeDiamond = DiamondShape.IsFancyShape(diamond.DiamondShapeId);
-            var groupedCritera = await _diamondCriteriaRepository.GroupAllAvailableCriteria(isFancyShapeDiamond, diamond.Cut);
+            var getShape = await _diamondShapeRepository.GetById(diamond.DiamondShapeId);
+            if (getShape is null)
+                throw new Exception("this shape not exist");
+            var groupedCritera = await _diamondCriteriaRepository.GroupAllAvailableCriteria(diamond.DiamondShape, diamond.Cut);
             var diamondCarat = diamond.Carat;
             var caratGroup = groupedCritera.Keys.ToList();
             bool foundedCriteria = false;

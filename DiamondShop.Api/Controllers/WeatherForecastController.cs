@@ -147,7 +147,7 @@ namespace DiamondShopSystem.Controllers
             // Dispose the listItem to free up memory
             listItem.Clear();
             listItem = null;
-            var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(mappedList));
+            var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(mappedList,"1",false));
             var getShapes = await _sender.Send(new GetAllDiamondShapeQuery());
             var round = getShapes.FirstOrDefault(item => item.Shape.ToUpper() == "ROUND");
             var pear = getShapes.FirstOrDefault(item => item.Shape.ToUpper() == "PEAR");
@@ -272,7 +272,7 @@ namespace DiamondShopSystem.Controllers
                             prices.Add(columnPrice);
                         }
                     }
-                    var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(diamondCriteriaRequestDtos,false, false));
+                    var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(diamondCriteriaRequestDtos,round.Id.Value, false));
                     var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
                     var mappedListNatural = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
                     var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, round.Id.Value, true, false));
@@ -305,9 +305,11 @@ namespace DiamondShopSystem.Controllers
                         prices.Add(columnPrice);
                     }
                 }
-                var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(diamondCriteriaRequestDtos,false,true));
+                //var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(diamondCriteriaRequestDtos,false,true));
                 foreach(var fancyShape in allFancyShape)
                 {
+                    var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(diamondCriteriaRequestDtos, fancyShape.Id.Value, false));
+
                     var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
                     var mappedListNatural = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();
                     var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(mappedListDiamondLab, fancyShape.Id.Value, true, false));
@@ -331,6 +333,9 @@ namespace DiamondShopSystem.Controllers
                 new (0.03f, 0.07f),
                 new (0.07f, 0.14f),
                 new (0.14f, 0.18f),
+                new (0.18f, 0.22f),
+                new (0.22f, 0.29f),
+                new (0.29f, 0.37f),
             };
             var rowIncrementPrice = 5_000;
             var columnIncrementPrice = 3_000;
@@ -361,7 +366,7 @@ namespace DiamondShopSystem.Controllers
                         prices.Add(startPrice);
                     }
                 }
-                var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(diamondCriteriaRequestDtos, true));
+                var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(diamondCriteriaRequestDtos,DiamondShape.ANY_SHAPES.Id.Value, true));
                 //var getAnyShape = getShapes.FirstOrDefault(x => x.Id == DiamondShape.ANY_SHAPES.Id);
 
                 var mappedListDiamondLab = result.Value.Select((item, index) => new DiamondPriceRequestDto(item.Id.Value, prices[index])).ToList();

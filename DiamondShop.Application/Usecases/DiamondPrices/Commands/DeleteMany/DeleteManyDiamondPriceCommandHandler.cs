@@ -42,9 +42,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.DeleteMany
                 selectedShape = getAllShape.FirstOrDefault(s => s.Id == DiamondShape.ANY_SHAPES.Id);
             if (selectedShape is null)
                 return Result.Fail(new NotFoundError("Shape not found"));
-            //selectedShape = request.isFancy
-            //? getAllShape.FirstOrDefault(x => x.Id == DiamondShape.FANCY_SHAPES.Id)
-            // : getAllShape.FirstOrDefault(x => x.Id == DiamondShape.ROUND.Id);
+
 
 
             var parsedList = request.deleteList.Select(x => new DeleteManyParameter

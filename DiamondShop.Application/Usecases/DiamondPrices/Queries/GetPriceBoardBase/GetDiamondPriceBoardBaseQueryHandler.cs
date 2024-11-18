@@ -89,9 +89,9 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoardBa
                 //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableCaratRange( cancellationToken);
                 priceBoard.MainCut = request.cut;
                 if (isFancyShape)
-                    criteriasByGrouping = await _diamondCriteriaRepository.GroupAllAvailableCriteria(isFancyShape, null, cancellationToken);
+                    criteriasByGrouping = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getShape, null, cancellationToken);
                 else
-                    criteriasByGrouping = await _diamondCriteriaRepository.GroupAllAvailableCriteria(isFancyShape, priceBoard.MainCut, cancellationToken);
+                    criteriasByGrouping = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getShape, priceBoard.MainCut, cancellationToken);
             }
             else
             {
