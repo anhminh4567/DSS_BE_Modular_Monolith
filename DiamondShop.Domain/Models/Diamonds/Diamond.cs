@@ -124,7 +124,7 @@ namespace DiamondShop.Domain.Models.Diamonds
             if (isRemove)
             {
                 JewelryId = null;//if remove a diamond from jewelry it will go to inactive 
-                SetInActive();
+                Status = ProductStatus.Locked;
             }
             else
             {
@@ -160,7 +160,7 @@ namespace DiamondShop.Domain.Models.Diamonds
             DefaultPrice = null;
             ProductLock = null;
         }
-        public void SetDeactivate()
+        public void SetLock()
         {
             Status = ProductStatus.Locked;
             SoldPrice = null;

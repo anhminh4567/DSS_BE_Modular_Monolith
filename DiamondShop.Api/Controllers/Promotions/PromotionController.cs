@@ -51,7 +51,7 @@ namespace DiamondShop.Api.Controllers.Promotions
         }
         [HttpGet("{promotionId}")]
         [ProducesResponseType(typeof(PromotionDto), 200)]
-        public async Task<ActionResult> Get([FromRoute] string promotionId, [FromQuery] string promoCode)
+        public async Task<ActionResult> Get([FromRoute] string? promotionId, [FromQuery] string? promoCode)
         {
             var result = await _sender.Send(new GetPromotionDetailQuery(promotionId,promoCode));
             var mappedResult = _mapper.Map<PromotionDto>(result.Value);

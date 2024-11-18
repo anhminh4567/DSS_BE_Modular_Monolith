@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.Diamonds.Enums;
+﻿using DiamondShop.Application.Dtos.Responses.JewelryModels;
+using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using System;
 using System.Collections.Generic;
@@ -30,5 +31,6 @@ namespace DiamondShop.Application.Dtos.Responses.Promotions
         //public Color? ColorFrom { get; set; }
         //public Color? ColorTo { get; set; }
         public DiamondSpecDto? DiamondRequirementSpec { get; set; }
+        public JewelryModelDto? GiftedModel { get; set; }
     }
 }

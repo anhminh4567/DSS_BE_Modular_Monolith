@@ -2,11 +2,14 @@
 {
     public class ListBestSellingDiamondShapeDto
     {
-        public DateTime From { get; set; }
-        public DateTime To { get; set; }
+        public string? From { get; set; }
+        public string? To { get; set; }
+
         public int TotalInStock { get; set; }
         public int TotalActive { get; set; }
         public int TotalInactive { get; set; }
+        public int TotalLocked { get; set; }
+        public int TotalSold { get; set; }
         public List<DiamondBestSellingShapeDto> DiamondBestSellingShapes { get; set; } = new();
     }
 

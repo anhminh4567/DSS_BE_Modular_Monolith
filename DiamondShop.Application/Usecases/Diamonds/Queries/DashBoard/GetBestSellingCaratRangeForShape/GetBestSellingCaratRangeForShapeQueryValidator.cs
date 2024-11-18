@@ -8,8 +8,16 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.DashBoard.GetBestSel
         public GetBestSellingCaratRangeForShapeQueryValidator()
         {
             RuleFor(x => x.shapeId).NotEmpty().WithMessage("ShapeId is required");
-            RuleFor(x => x.caratFrom).NotEmpty().WithMessage("CaratFrom is required");
-            RuleFor(x => x.caratTo).NotEmpty().WithMessage("CaratTo is required");
+            RuleFor(x => x.caratFrom).Cascade(CascadeMode.Stop)
+                .NotNull()
+                .WithMessage("CaratFrom is required")
+                .GreaterThanOrEqualTo(0)
+                .WithMessage("must greater than 0 to copmare");
+            RuleFor(x => x.caratTo).Cascade(CascadeMode.Stop)
+                .NotNull()
+                .WithMessage("Carat To is required")
+                .GreaterThanOrEqualTo(0)
+                .WithMessage("must greater than 0 to copmare");
 
             RuleFor(x => x.startDate).ValidDate()
                 .When(x => x.startDate != null);

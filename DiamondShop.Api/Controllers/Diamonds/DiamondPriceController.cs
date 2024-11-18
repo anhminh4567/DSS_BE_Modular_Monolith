@@ -5,8 +5,7 @@ using DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.DeleteMany;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany;
 using DiamondShop.Application.Usecases.DiamondPrices.Queries.GetAllByShape;
-using DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPaging;
-using DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard;
+using DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoardBase;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -28,30 +27,14 @@ namespace DiamondShop.Api.Controllers.Diamonds
         }
         [HttpGet("PriceBoard")]
         [Produces(typeof(DiamondPriceDto))]
-        public async Task<ActionResult> GetDiamondPriceBoard([FromQuery] GetDiamondPriceBoardQuery command)
+        public async Task<ActionResult> GetDiamondPriceBoard([FromQuery] GetDiamondPriceBoardBaseQuery command)
         {
             var result = await _sender.Send(command);
             if(result.IsFailed)
                 return MatchError(result.Errors,ModelState);
             return Ok(result.Value);
         }
-        //[HttpGet("PriceBoard/Side")]
-        //[Produces(typeof(SideDiamondPriceBoardDto))]
-        //public async Task<ActionResult> GetSideDiamondPriceBoard( )
-        //{
-        //    var result = await _sender.Send(new GetSideDiamondPriceBoardQuery());
-        //    if (result.IsFailed)
-        //        return MatchError(result.Errors, ModelState);
-        //    return Ok(result.Value);
-        //}
-        [HttpGet]
-        [Produces(typeof(DiamondPriceDto))]
-        public async Task<ActionResult> GetPaging([FromQuery] GetDiamondPricePagingQuery command)
-        {
-            var result = await _sender.Send(command);
-            var mappedResult = _mapper.Map<List<DiamondPriceDto>>(result.Values);
-            return Ok(mappedResult);
-        }
+        
         [HttpGet("Shape")]
         [Produces(typeof(DiamondPriceDto))]
         public async Task<ActionResult> GetPaging([FromQuery] GetAllDiamondPriceByShapeQuery query)

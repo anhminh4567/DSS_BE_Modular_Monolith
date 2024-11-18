@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DiamondShop.Application.Dtos.Responses.JewelryModels;
 
 namespace DiamondShop.Application.Dtos.Responses.Promotions
 {
@@ -34,6 +35,7 @@ namespace DiamondShop.Application.Dtos.Responses.Promotions
         //public Color? ColorFrom { get; set; }
         //public Color? ColorTo { get; set; }
         public DiamondSpecDto? DiamondRequirementSpec { get; set; }
+        public JewelryModelDto? Model { get; set; }
         //public List<RequirementShapeDto> PromoReqShapes { get; set; } = new();
     }
 }

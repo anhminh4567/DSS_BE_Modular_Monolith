@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Diamonds.Queries.DashBoard.GetBestSellingForManyShape
 {
-    public record GetBestSellingForShapeQuery(string startDate , string endDate) : IRequest<Result<ListBestSellingDiamondShapeDto>>;
+    public record GetBestSellingForShapeQuery(string? startDate, string? endDate) : IRequest<Result<ListBestSellingDiamondShapeDto>>;
     internal class GetBestSellingForManyShapeQueryHandler : IRequestHandler<GetBestSellingForShapeQuery, Result<ListBestSellingDiamondShapeDto>>
     {
         private readonly IDiamondRepository _diamondRepository;
@@ -42,26 +42,39 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.DashBoard.GetBestSel
             var getAllDiamondCounts = _diamondRepository.GetCount();
             var parsedStartResults = DateTime.TryParseExact(request.startDate, DateTimeFormatingRules.DateTimeFormat, null, System.Globalization.DateTimeStyles.None, out DateTime startParsed);
             var parsedEndResults = DateTime.TryParseExact(request.endDate, DateTimeFormatingRules.DateTimeFormat, null, System.Globalization.DateTimeStyles.None, out DateTime endParsed);
-            response.From = startParsed;
-            response.To = endParsed;
+
             response.TotalInStock = getAllDiamondCounts;
             response.TotalActive = await _diamondRepository.GetCountByStatus(new List<ProductStatus> { ProductStatus.Active });
             response.TotalInactive = await _diamondRepository.GetCountByStatus(new List<ProductStatus> { ProductStatus.Inactive });
             foreach (var shape in getAllShape)
             {
-                var soldDiamonds = await _diamondRepository.GetTotalSoldDiamondsByShape(shape, startParsed, endParsed);
+                DateTime? startDate = null;
+                DateTime? endDate = null;
+                if (parsedStartResults)
+                {
+                    startDate = startParsed.ToUniversalTime();
+                    response.From = _mapper.Map<string>(startDate);
+                }
+                if (parsedEndResults)
+                {
+                    endDate = endParsed.ToUniversalTime();
+                    response.To = _mapper.Map<string>(endDate);
+                }
+                var soldDiamonds = await _diamondRepository.GetTotalSoldDiamondsByShape(shape, startDate, endDate);
                 response.DiamondBestSellingShapes.Add(new DiamondBestSellingShapeDto
                 {
                     Shape = _mapper.Map<DiamondShapeDto>(shape),
-                    TotalActive =  _diamondRepository.GetCountByShapeAndStatus(new List<ProductStatus> { ProductStatus.Active }, new List<DiamondShapeId> { shape.Id }).Result,
-                    TotalInactive =  _diamondRepository.GetCountByShapeAndStatus(new List<ProductStatus> { ProductStatus.Inactive }, new List<DiamondShapeId> { shape.Id }).Result,
+                    TotalActive = _diamondRepository.GetCountByShapeAndStatus(new List<ProductStatus> { ProductStatus.Active }, new List<DiamondShapeId> { shape.Id }).Result,
+                    TotalInactive = _diamondRepository.GetCountByShapeAndStatus(new List<ProductStatus> { ProductStatus.Inactive }, new List<DiamondShapeId> { shape.Id }).Result,
                     TotalInStock = _diamondRepository.GetCountByShapeAndStatus(ProductStatusHelper.GetAllStatus(), new List<DiamondShapeId> { shape.Id }).Result,
-                    TotalLock =  _diamondRepository.GetCountByShapeAndStatus(new List<ProductStatus> { ProductStatus.Locked }, new List<DiamondShapeId> { shape.Id }).Result,
+                    TotalLock = _diamondRepository.GetCountByShapeAndStatus(new List<ProductStatus> { ProductStatus.Locked }, new List<DiamondShapeId> { shape.Id }).Result,
                     TotalLockForUser = _diamondRepository.GetCountByShapeAndStatus(new List<ProductStatus> { ProductStatus.LockForUser }, new List<DiamondShapeId> { shape.Id }).Result,
                     TotalRevenueForThisShape = soldDiamonds.Sum(x => x.SoldPrice).Value,
-                    TotalSold = _diamondRepository.GetCountByShapeAndStatus(new List<ProductStatus> { ProductStatus.Sold},new List<DiamondShapeId> { shape.Id}).Result, 
+                    TotalSold = _diamondRepository.GetCountByShapeAndStatus(new List<ProductStatus> { ProductStatus.Sold }, new List<DiamondShapeId> { shape.Id }).Result,
                 });
             }
+            response.TotalLocked = response.DiamondBestSellingShapes.Sum(x => x.TotalLock);
+            response.TotalSold = response.DiamondBestSellingShapes.Sum(x => x.TotalSold);
             return response;
             throw new NotImplementedException();
         }

@@ -67,7 +67,7 @@ namespace DiamondShop.Domain.Services.Implementations
                             {
                                 foreach (var diamond in jewelry.Diamonds)
                                 {
-                                    diamond.SetDeactivate();
+                                    diamond.SetLock();
                                     diamonds.Add(diamond);
                                 }
                             }

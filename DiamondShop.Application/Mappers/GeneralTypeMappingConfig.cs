@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Commons.Models;
 using DiamondShop.Application.Dtos.Responses;
 using DiamondShop.Application.Dtos.Responses.Transactions;
+using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.AccountRoleAggregate.ValueObjects;
@@ -97,6 +98,9 @@ namespace DiamondShop.Application.Mappers
                 .MapWith(src => src.Value).Compile();
             config.NewConfig<PaymentMethod, PaymentMethodDto>()
                 .Map(dest => dest.MappedName, src => PaymentMethodHelper.GetMethodName(src));
+
+            config.NewConfig<DateTime,string>()
+                .MapWith(src => src.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat));
         }
     }
 }

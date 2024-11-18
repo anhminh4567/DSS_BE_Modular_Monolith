@@ -3,6 +3,8 @@ using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Create;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Delete;
 using DiamondShop.Application.Usecases.Diamonds.Commands.LockForUser;
+using DiamondShop.Application.Usecases.Diamonds.Queries.DashBoard.GetBestSellingCaratRangeForShape;
+using DiamondShop.Application.Usecases.Diamonds.Queries.DashBoard.GetBestSellingForManyShape;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetAll;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetAllAdmin;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetAllAttributes;
@@ -136,6 +138,27 @@ namespace DiamondShop.Api.Controllers.Diamonds
                 return Ok();
             return MatchError(result.Errors, ModelState);
         }
-        
+        [HttpGet("TopSelling/AllShape")]
+        public async Task<ActionResult> GetTopSellingFromAllShape([FromQuery]string? startDate, [FromQuery]string? endDate)
+        {
+            var command = new GetBestSellingForShapeQuery(startDate,endDate);
+            var result = await _sender.Send(command);
+            if(result.IsSuccess)
+                return Ok(result.Value);
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpGet("TopSelling/{shapeId}")]
+        public async Task<ActionResult> GetTopSellingFromAllShape([FromRoute] string shapeId,
+            [FromQuery] string? startDate,
+            [FromQuery] string? endDate,
+            [FromQuery] float caratFrom,
+            [FromQuery] float caratTo)
+        {
+            var command = new GetBestSellingCaratRangeForShapeQuery(shapeId,caratFrom,caratTo,startDate, endDate);
+            var result = await _sender.Send(command);
+            if (result.IsSuccess)
+                return Ok(result.Value);
+            return MatchError(result.Errors, ModelState);
+        }
     }
 }
