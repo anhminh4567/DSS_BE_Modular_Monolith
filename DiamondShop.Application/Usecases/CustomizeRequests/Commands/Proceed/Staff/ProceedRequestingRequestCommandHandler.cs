@@ -27,7 +27,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
         {
 
             request.Deconstruct(out CustomizeRequest customizeRequest);
-            await _unitOfWork.BeginTransactionAsync(token);
+           // await _unitOfWork.BeginTransactionAsync(token);
             if (customizeRequest.Status != CustomizeRequestStatus.Requesting)
                 return Result.Fail("This request can't be accepted anymore");
             //Create Jewelry
@@ -41,7 +41,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
             customizeRequest.ResetExpiredDate();
             await _customizeRequestRepository.Update(customizeRequest);
             await _unitOfWork.SaveChangesAsync(token);
-            await _unitOfWork.CommitAsync(token);
+            //await _unitOfWork.CommitAsync(token);
             return customizeRequest;
         }
     }

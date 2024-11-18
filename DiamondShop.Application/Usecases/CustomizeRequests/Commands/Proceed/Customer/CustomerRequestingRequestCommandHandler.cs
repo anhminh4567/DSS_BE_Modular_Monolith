@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Azure.Core;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Staff;
 
 namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Customer
 {
@@ -19,10 +20,13 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Cu
     {
         private readonly ICustomizeRequestRepository _customizeRequestRepository;
         private readonly IUnitOfWork _unitOfWork;
-        public CustomerRequestingRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork)
+        private readonly ISender _sender;
+
+        public CustomerRequestingRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, ISender sender)
         {
             _customizeRequestRepository = customizeRequestRepository;
             _unitOfWork = unitOfWork;
+            _sender = sender;
         }
 
         public async Task<Result<CustomizeRequest>> Handle(CustomerRequestingRequestCommand request, CancellationToken token)
@@ -43,6 +47,17 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Cu
                 return Result.Fail("This request can't be requesting anymore");
             customizeRequest.Status = CustomizeRequestStatus.Requesting;
             await _customizeRequestRepository.Update(customizeRequest);
+            await _unitOfWork.SaveChangesAsync(token);
+            //staff auto accept
+            var diamondRequestRecords = customizeRequest.DiamondRequests.Select(p => new DiamondRequestAssignRecord(p.DiamondId.Value, p.DiamondId.Value)).ToList();
+            var staffAccepted = new StaffProceedCustomizeRequestCommand(customizeRequest.Id.Value, null);
+            var result = await _sender.Send(staffAccepted);
+            if (result.IsFailed)
+            {
+                await _unitOfWork.RollBackAsync(token);
+                return Result.Fail(result.Errors);
+            }
+            //staff auto accept finish
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
             return customizeRequest;
