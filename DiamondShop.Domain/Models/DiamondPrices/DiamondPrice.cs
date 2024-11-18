@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
+using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.Promotions.Entities;
@@ -14,18 +15,19 @@ namespace DiamondShop.Domain.Models.DiamondPrices
 {
     public class DiamondPrice
     {
-        public DiamondShapeId ShapeId { get; set; }
-        public DiamondShape Shape { get; set; }
+        //public DiamondShapeId ShapeId { get; set; }
+        //public DiamondShape Shape { get; set; }
         public DiamondCriteriaId CriteriaId { get; set; }
         public DiamondCriteria Criteria { get; set; }
         public bool IsLabDiamond { get; set; }
         public bool IsSideDiamond { get; set; } = false;
         public decimal Price { get; set; }
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         [NotMapped]
         public string? ForUnknownPrice { get; set; }
 
-        [NotMapped]
-        public bool IsFancyShape => ShapeId == DiamondShape.FANCY_SHAPES.Id;
+        //[NotMapped]
+        //public bool IsFancyShape => ShapeId == DiamondShape.FANCY_SHAPES.Id;
         //public const bool DEFAULT_SIDE_DIAMOND_IS_LAB = true;
         public static DiamondPrice Create(DiamondShapeId diamondShapeId, DiamondCriteriaId diamondCriteriaId, decimal price, bool isLabPrice)
         {
@@ -33,7 +35,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices
                 throw new Exception();
             return new DiamondPrice
             {
-                ShapeId = diamondShapeId,
+                //ShapeId = diamondShapeId,
                 CriteriaId = diamondCriteriaId,
                 Price = price,
                 IsLabDiamond = isLabPrice,
@@ -45,11 +47,24 @@ namespace DiamondShop.Domain.Models.DiamondPrices
             //this is not supposed to be in db, just for assigning
             return new DiamondPrice
             {
-                ShapeId = diamondShapeId,
+                //ShapeId = diamondShapeId,
                 CriteriaId = diamondCriteriaId,
                 Price = 0,
                 ForUnknownPrice = "Liên hệ chúng tôi để được tư vấn giá",
                 IsLabDiamond = isLab,
+                IsSideDiamond = false,
+            };
+        }
+        public static DiamondPrice CreateDealedLockedPriceForUser(Diamond lockedDiamond)
+        {
+            //this is not supposed to be in db, just for assigning
+            return new DiamondPrice
+            {
+                //ShapeId = lockedDiamond.DiamondShapeId,
+                CriteriaId = null,
+                Price = lockedDiamond.DefaultPrice.Value,
+                //ForUnknownPrice = "Liên hệ chúng tôi để được tư vấn giá",
+                IsLabDiamond = lockedDiamond.IsLabDiamond,
                 IsSideDiamond = false,
             };
         }
@@ -58,7 +73,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices
             //this is not supposed to be in db, just for assigning
             return new DiamondPrice
             {
-                ShapeId = DiamondShape.ANY_SHAPES.Id,
+                //ShapeId = DiamondShape.ANY_SHAPES.Id,
                 CriteriaId = DiamondCriteriaId.Parse("-1"),
                 Price = 0,
                 ForUnknownPrice = "giá kim cương tấm chưa được set rõ",
@@ -72,7 +87,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices
                 throw new Exception();
             return new DiamondPrice
             {
-                ShapeId = shape.Id, 
+                //ShapeId = shape.Id, 
                 CriteriaId = diamondCriteriaId,
                 Price = price,
                 IsLabDiamond = isLabDiamond,

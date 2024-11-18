@@ -50,7 +50,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.UpdateRange
                     Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>> allCriteria = new();
                     (float CaratFrom, float CaratTo)? tobeUpdatedRange = null;
 
-                    allCriteria = await _diamondCriteriaRepository.GroupAllAvailableCriteria(true, null, cancellationToken);
+                    allCriteria = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getshape, null, cancellationToken);
                     var orderedCutRange = allCriteria.Keys.OrderBy(x => x.CaratFrom).ToList();
                     foreach (var range in orderedCutRange)
                     {
@@ -91,7 +91,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.UpdateRange
                         Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>> allCriteria = new();
                         (float CaratFrom, float CaratTo)? tobeUpdatedRange = null;
 
-                        allCriteria = await _diamondCriteriaRepository.GroupAllAvailableCriteria(false,cut, cancellationToken);
+                        allCriteria = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getshape,cut, cancellationToken);
                         groupedByCut.Add(cut, allCriteria);
                         var orderedCutRange = allCriteria.Keys.OrderBy(x => x.CaratFrom).ToList();
                         foreach (var range in orderedCutRange)

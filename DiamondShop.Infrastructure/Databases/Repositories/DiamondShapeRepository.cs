@@ -29,7 +29,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         }
         public async Task<bool> IsAnyItemHaveThisShape(DiamondShapeId diamondShapeId, CancellationToken cancellationToken = default)
         {
-            var anyPrice = _dbContext.DiamondPrices.AnyAsync(p => p.ShapeId.Equals(diamondShapeId), cancellationToken);
+            var anyPrice = _dbContext.DiamondCriteria.AnyAsync(p => p.ShapeId.Equals(diamondShapeId), cancellationToken);
             var anyDiamond = _dbContext.MainDiamondShapes.AnyAsync(p => p.ShapeId.Equals(diamondShapeId), cancellationToken);
             var anySideDiamond = _dbContext.SideDiamondOpts.AnyAsync(p => p.ShapeId.Equals(diamondShapeId), cancellationToken);
             var anyPromoShape = _dbContext.PromoReqShapes.AnyAsync(p => p.ShapeId.Equals(diamondShapeId), cancellationToken);

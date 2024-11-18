@@ -30,6 +30,7 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public decimal PurchasedPrice { get; set; }
         public DiscountId? DiscountId { get; set; }
         public Discount? Discount { get; set; }
+        public string? DiscountCode { get; set; }
         public int? DiscountPercent { get; set; }
         public UnitType? PromoType { get; set; }
         public decimal? PromoValue { get; set; }
@@ -38,7 +39,7 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public OrderItemWarrantyId? WarrantyId { get; set; }
         public OrderItemWarranty? Warranty { get; set; }
         public OrderItem() { }
-        public static OrderItem Create(OrderId orderId, JewelryId? jewelryId, DiamondId? diamondId,decimal? originalPrice, decimal? purchasedPrice = 0, DiscountId? discountId = null,  int? discountPercent = 0, UnitType? promoType = UnitType.Percent, decimal? promoValue = 0, decimal warrantyPrice = 0, OrderItemStatus status = OrderItemStatus.Prepared, OrderItemId? givenId = null)
+        public static OrderItem Create(OrderId orderId, JewelryId? jewelryId, DiamondId? diamondId,decimal? originalPrice, decimal? purchasedPrice = 0, Discount? discount = null,  int? discountPercent = 0, UnitType? promoType = UnitType.Percent, decimal? promoValue = 0, decimal warrantyPrice = 0, OrderItemStatus status = OrderItemStatus.Prepared, OrderItemId? givenId = null)
         {
             return new OrderItem()
             {
@@ -50,8 +51,9 @@ namespace DiamondShop.Domain.Models.Orders.Entities
                 //FinalPrice = finalPrice ?? 0,
                 OriginalPrice = originalPrice ?? 0,
                 PurchasedPrice = purchasedPrice ?? 0,
-                DiscountId = discountId,
+                DiscountId = discount == null ? null : discount.Id ,
                 DiscountPercent = discountPercent ?? 0,
+                DiscountCode = discount == null ? null : discount.DiscountCode,
                 PromoType = promoType,
                 PromoValue = promoValue ?? 0,
                 WarrantyPrice = warrantyPrice

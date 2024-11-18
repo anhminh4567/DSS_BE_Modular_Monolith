@@ -53,7 +53,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.DeleteRange
             var getAllShape = await _diamondShapeRepository.GetAllIncludeSpecialShape();
             var getShape = getAllShape.FirstOrDefault(x => x.Id == pareseShapeId);
             bool isFancyShape = DiamondShape.IsFancyShape(pareseShapeId);
-            if (getAllShape is null)
+            if (getShape is null)
             {
                 return Result.Fail("Shape not found");
             }
@@ -76,7 +76,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.DeleteRange
                 List<KeyValuePair<(float caratFrom, float carat), List<DiamondCriteria>>> listTobeRemoved = new();
                 if (isFancyShape)
                 {
-                    getGrooupedCriteria = await _diamondCriteriaRepository.GroupAllAvailableCriteria(true,null, cancellationToken);
+                    getGrooupedCriteria = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getShape,null, cancellationToken);
                     Cut anyCut = Cut.Excellent;
                     groupedByCut.Add(anyCut, getGrooupedCriteria);
                     var criteriaInRange = getGrooupedCriteria.FirstOrDefault(x => x.Key.CaratFrom == request.caratFrom && x.Key.CaratTo == request.caratTo);
@@ -86,7 +86,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.DeleteRange
                 {
                     foreach (var cut in CutHelper.GetCutList())
                     {
-                        getGrooupedCriteria = await _diamondCriteriaRepository.GroupAllAvailableCriteria(false, cut, cancellationToken);
+                        getGrooupedCriteria = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getShape, cut, cancellationToken);
                         groupedByCut.Add(cut, getGrooupedCriteria);
                         var criteriaInRange = getGrooupedCriteria.FirstOrDefault(x => x.Key.CaratFrom == request.caratFrom && x.Key.CaratTo == request.caratTo);
                         listTobeRemoved.Add(criteriaInRange);
@@ -113,7 +113,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.DeleteRange
                 var anyCriteriaInRange = getGrooupedCriteria.FirstOrDefault(x => x.Key.CaratFrom == request.caratFrom && x.Key.CaratTo == request.caratTo);
                 if (anyCriteriaInRange.Value == null || anyCriteriaInRange.Value.Count == 0)
                 {
-                    return Result.Fail("Criteria not found");
+                    return Result.Fail("Criteria not found or empty");
                 }
                 foreach (var criteria in anyCriteriaInRange.Value)
                 {

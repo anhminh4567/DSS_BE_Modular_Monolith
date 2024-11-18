@@ -1,5 +1,7 @@
 ﻿using DiamondShop.Domain.Models.DiamondPrices.Entities;
+using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds.Enums;
+using DiamondShop.Domain.Models.DiamondShapes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +13,10 @@ namespace DiamondShop.Domain.Repositories
     public interface IDiamondCriteriaRepository : IBaseRepository<DiamondCriteria>
     {
         Task CreateMany(List<DiamondCriteria> diamondCriterias);
-        Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableCaratRange(bool isFancyShape,CancellationToken cancellationToken = default);
+        Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableCaratRange(DiamondShape diamondShape, Cut? cut, CancellationToken cancellationToken = default);
         Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableSideDiamondCaratRange(CancellationToken cancellationToken = default);
-        Task<Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>>> GroupAllAvailableCriteria(bool isFancyShape ,Cut? cut, CancellationToken cancellationToken = default);
+        Task<Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>>> GroupAllAvailableCriteria(DiamondShape diamondShape, Cut? cut, CancellationToken cancellationToken = default);
         Task<Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>>> GroupAllAvailableSideDiamondCriteria(CancellationToken cancellationToken = default);
-
+        Task<List<DiamondCriteria>> GetCriteriasByManyId(List<DiamondCriteriaId> diamondCriteriaIds, CancellationToken cancellationToken = default);
     }
 }

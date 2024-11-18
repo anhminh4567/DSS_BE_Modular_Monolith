@@ -28,7 +28,6 @@
 
   <ItemGroup>
     <Folder Include="Usecases\Addresses\Queries\GetAllUserAddresses\" />
-    <Folder Include="Usecases\Diamonds\Commands\CreateUnavailble\" />
     <Folder Include="Usecases\JewelryModelCategories\Commands\Delete\" />
     <Folder Include="Usecases\JewelryModelCategories\Commands\Update\" />
     <Folder Include="Usecases\JewelryModels\Commands\Delete\" />
