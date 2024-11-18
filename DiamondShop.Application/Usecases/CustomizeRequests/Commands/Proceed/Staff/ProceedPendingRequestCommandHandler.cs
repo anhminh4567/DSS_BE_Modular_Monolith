@@ -8,6 +8,7 @@ using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
+using DiamondShop.Domain.Services.Implementations;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
@@ -106,6 +107,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
                     return Result.Fail(errors);
             }
             customizeRequest.Status = CustomizeRequestStatus.Priced;
+            _customizeRequestService.SetStage(customizeRequest);
             await _customizeRequestRepository.Update(customizeRequest);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);

@@ -32,7 +32,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 return false;
             return true;
         }
-        public void SetStage(CustomizeRequest req, bool isPriced)
+        public void SetStage(CustomizeRequest req, bool isPriced = false)
         {
             req.Stage = req.Status switch
             {

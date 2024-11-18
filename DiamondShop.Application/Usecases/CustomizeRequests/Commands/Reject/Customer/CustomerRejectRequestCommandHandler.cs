@@ -6,6 +6,7 @@ using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
+using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
 
@@ -18,12 +19,15 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Cus
         private readonly ICustomizeRequestRepository _customizeRequestRepository;
         private readonly IDiamondRepository _diamondRepository;
         private readonly IUnitOfWork _unitOfWork;
-        public CustomerRejectRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository)
+        private readonly ICustomizeRequestService _customizeRequestService;
+
+        public CustomerRejectRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository, ICustomizeRequestService customizeRequestService)
         {
             _customizeRequestRepository = customizeRequestRepository;
             _unitOfWork = unitOfWork;
             _jewelryRepository = jewelryRepository;
             _diamondRepository = diamondRepository;
+            _customizeRequestService = customizeRequestService;
         }
 
         public async Task<Result<CustomizeRequest>> Handle(CustomerRejectRequestCommand request, CancellationToken token)
@@ -63,6 +67,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Cus
                 }
             }
             await _unitOfWork.CommitAsync(token);
+            _customizeRequestService.SetStage(customizeRequest);
             return customizeRequest;
         }
     }

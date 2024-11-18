@@ -7,6 +7,6 @@ namespace DiamondShop.Domain.Services.interfaces
     public interface ICustomizeRequestService
     {
         bool IsAssigningDiamondSpecValid(DiamondRequest request, Diamond diamond);
-        void SetStage(CustomizeRequest req, bool isPriced);
+        void SetStage(CustomizeRequest req, bool isPriced = false);
     }
 }

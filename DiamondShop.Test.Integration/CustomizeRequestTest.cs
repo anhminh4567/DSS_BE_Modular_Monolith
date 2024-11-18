@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Diamonds;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Staff;
-using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject;
+using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Customer;
+using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Staff;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendRequest;
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany;
@@ -8,13 +9,8 @@ using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
-using DiamondShop.Domain.Models.DiamondPrices;
-using DiamondShop.Domain.Models.DiamondPrices.Entities;
-using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
-using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.Jewelries;
-using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Test.Integration.Data;
 using FluentResults;
@@ -41,8 +37,10 @@ namespace DiamondShop.Test.Integration
             List<DiamondCriteriaRequestDto> criteriaRequestDtos = new() {
                 new()
                 {
-                    CaratFrom = 0.001f,
+                    CaratFrom = 0.00001f,
                     CaratTo = 3f,
+                    Clarity = Clarity.IF,
+                    Color = Color.K
                 }
             };
             var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(criteriaRequestDtos,"99",true));
@@ -78,7 +76,7 @@ namespace DiamondShop.Test.Integration
             //model has 1 main diamond
             List<CustomizeDiamondRequest> diamondRequests = new()
             {
-                new(firstShape.ShapeId.Value,Clarity.IF,Color.D,Cut.Good,firstShape.CaratFrom,firstShape.CaratTo,false,Polish.Excellent,Symmetry.Excellent,Girdle.Thin, Culet.Medium),
+                new(firstShape.ShapeId.Value,Clarity.IF,Clarity.IF,Color.K,Color.K,Cut.Good,Cut.Good,firstShape.CaratFrom,firstShape.CaratTo,false,null,null,null,null),
             };
             CustomizeModelRequest customizeModelRequest = new(jewelryModel.Id.Value, sizeMetal.MetalId.Value, sizeMetal.SizeId.Value, jewelryModel.SideDiamonds[0].Id.Value, "engraving", "ASCII", null, diamondRequests);
             var result = await _sender.Send(new CreateCustomizeRequestCommand(accountId.Value, customizeModelRequest));
@@ -123,7 +121,7 @@ namespace DiamondShop.Test.Integration
             //model has 1 main diamond
             List<CustomizeDiamondRequest> diamondRequests = new()
             {
-                new(diamond.DiamondShapeId.Value,diamond.Clarity,diamond.Color,diamond.Cut,firstShape.CaratFrom,firstShape.CaratTo,false,null,null,null,null),
+                new(diamond.DiamondShapeId.Value,diamond.Clarity,diamond.Clarity,diamond.Color,diamond.Color,diamond.Cut.Value,diamond.Cut.Value,firstShape.CaratFrom,firstShape.CaratTo,false,null,null,null,null),
             };
             CustomizeModelRequest customizeModelRequest = new(jewelryModel.Id.Value, sizeMetal.MetalId.Value, sizeMetal.SizeId.Value, side.Id.Value, null, null, null, diamondRequests);
             var result = await _sender.Send(new CreateCustomizeRequestCommand(userId.Value, customizeModelRequest));

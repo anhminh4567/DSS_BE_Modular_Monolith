@@ -3,7 +3,7 @@ using DiamondShop.Domain.Common;
 using FluentValidation;
 using Microsoft.Extensions.Options;
 
-namespace DiamondShop.Application.Usecases.Jewelries.Commands
+namespace DiamondShop.Application.Usecases.Jewelries.Commands.Create
 {
     public class CreateJewelryCommandValidator : AbstractValidator<CreateJewelryCommand>
     {
@@ -21,7 +21,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
 
                     p.RuleFor(p => p.SizeId)
                         .NotEmpty();
-                    
+
                     p.RuleFor(p => p.MetalId)
                         .NotEmpty();
                 });

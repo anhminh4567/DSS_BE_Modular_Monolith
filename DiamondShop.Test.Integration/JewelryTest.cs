@@ -1,16 +1,8 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Jewelries;
-using DiamondShop.Application.Dtos.Requests.JewelryModels;
-using DiamondShop.Application.Usecases.Jewelries.Commands;
-using DiamondShop.Application.Usecases.JewelryModels.Commands.Create;
+using DiamondShop.Application.Usecases.Jewelries.Commands.Create;
 using DiamondShop.Domain.Models.Diamonds;
-using DiamondShop.Domain.Models.Diamonds.Enums;
-using DiamondShop.Domain.Models.Diamonds.ValueObjects;
-using DiamondShop.Domain.Models.JewelryModels;
-using DiamondShop.Domain.Models.JewelryModels.Entities;
-using DiamondShop.Domain.Models.JewelryModels.Enum;
-using DiamondShop.Infrastructure.Databases;
+using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Test.Integration.Data;
-using FluentResults;
 using Xunit.Abstractions;
 
 namespace DiamondShop.Test.Integration
@@ -22,7 +14,19 @@ namespace DiamondShop.Test.Integration
         {
             _output = output;
         }
-
+        [Trait("ReturnTrue","DeleteJewelry")]
+        [Fact]
+        public async Task Delete_Jewelry_Should_Detach_Diamond()
+        {
+            var jewelry = await TestData.SeedDefaultJewelry(_context);
+            var diamond = await TestData.SeedDefaultDiamond(_context,jewelry.Id);
+            Assert.NotNull(diamond.JewelryId);
+            _context.Set<Jewelry>().Remove(jewelry);
+            await _context.SaveChangesAsync();
+            var jewelries = _context.Set<Jewelry>().ToList();
+            Assert.Equal(0, jewelries.Count);
+            Assert.Null(diamond.JewelryId);
+        }
 
         [Trait("ReturnTrue", "DefaultRing")]
         [Fact]

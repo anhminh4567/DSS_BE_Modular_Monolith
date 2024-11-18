@@ -145,17 +145,29 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 orderItems.Add(OrderItem.Create(order.Id, product.Jewelry?.Id, product.Diamond?.Id, product.ReviewPrice.DefaultPrice,
                      product.ReviewPrice.FinalPrice,
                 getDiscountIfExist, product.DiscountPercent,
-                gift?.UnitType, gift?.UnitValue, product.CurrentWarrantyPrice,requestId != null? OrderItemStatus.Pending : OrderItemStatus.Prepared));
-                if (product.Jewelry != null)
+                gift?.UnitType, gift?.UnitValue, product.CurrentWarrantyPrice));
+                if (requestId != null)
                 {
-                    _jewelryService.AddPrice(product.Jewelry, _sizeMetalRepository);
-                    product.Jewelry.SetSold(product.Jewelry.ND_Price.Value, product.ReviewPrice.DefaultPrice, product.EngravedText, product.EngravedFont);
-                    jewelries.Add(product.Jewelry);
+                    if (product.Jewelry != null)
+                    {
+                        _jewelryService.AddPrice(product.Jewelry, _sizeMetalRepository);
+                        product.Jewelry.SetSoldUnavailable(product.Jewelry.ND_Price.Value, product.ReviewPrice.DefaultPrice, product.EngravedText, product.EngravedFont);
+                        jewelries.Add(product.Jewelry);
+                    }
                 }
-                if (product.Diamond != null)
+                else
                 {
-                    product.Diamond.SetSold(product.ReviewPrice.DefaultPrice, product.ReviewPrice.FinalPrice);
-                    diamonds.Add(product.Diamond);
+                    if (product.Jewelry != null)
+                    {
+                        _jewelryService.AddPrice(product.Jewelry, _sizeMetalRepository);
+                        product.Jewelry.SetSold(product.Jewelry.ND_Price.Value, product.ReviewPrice.DefaultPrice, product.EngravedText, product.EngravedFont);
+                        jewelries.Add(product.Jewelry);
+                    }
+                    if (product.Diamond != null)
+                    {
+                        product.Diamond.SetSold(product.ReviewPrice.DefaultPrice, product.ReviewPrice.FinalPrice);
+                        diamonds.Add(product.Diamond);
+                    }
                 }
             }
             await _orderItemRepository.CreateRange(orderItems);

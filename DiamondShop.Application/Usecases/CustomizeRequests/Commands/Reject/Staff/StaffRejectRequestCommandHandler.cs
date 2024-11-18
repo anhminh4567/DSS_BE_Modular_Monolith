@@ -4,6 +4,7 @@ using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
+using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
 
@@ -15,11 +16,14 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Sta
         private readonly ICustomizeRequestRepository _customizeRequestRepository;
         private readonly IDiamondRepository _diamondRepository;
         private readonly IUnitOfWork _unitOfWork;
-        public StaffRejectRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, IDiamondRepository diamondRepository)
+        private readonly ICustomizeRequestService _customizeRequestService;
+
+        public StaffRejectRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, IDiamondRepository diamondRepository, ICustomizeRequestService customizeRequestService)
         {
             _customizeRequestRepository = customizeRequestRepository;
             _unitOfWork = unitOfWork;
             _diamondRepository = diamondRepository;
+            _customizeRequestService = customizeRequestService;
         }
 
         public async Task<Result<CustomizeRequest>> Handle(StaffRejectRequestCommand request, CancellationToken token)
@@ -34,6 +38,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Sta
             customizeRequest.Status = CustomizeRequestStatus.Shop_Rejected;
             await _customizeRequestRepository.Update(customizeRequest);
             await _unitOfWork.SaveChangesAsync(token);
+            var isPriced = customizeRequest.Status == CustomizeRequestStatus.Requesting;
             if (customizeRequest.DiamondRequests.Count() > 0)
             {
                 foreach (var diamondReq in customizeRequest.DiamondRequests)
@@ -47,6 +52,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Sta
                 }
             }
             await _unitOfWork.CommitAsync(token);
+            _customizeRequestService.SetStage(customizeRequest, isPriced);
             return customizeRequest;
         }
     }
