@@ -38,7 +38,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
 
         public async Task<Result<List<DiamondCriteria>>> Handle(CreateCriteriaFromRangeCommand request, CancellationToken cancellationToken)
         {
-            List<(float CaratFrom, float CaratTo)> allAvailableCaratRange = new();
+            List<(float CaratFrom, float CaratTo)> allAvailableCaratRangeForThisShape = new();
             var getAllShape = await _diamondShapeRepository.GetAllIncludeSpecialShape();
             var getShape = getAllShape.FirstOrDefault(s => s.Id == DiamondShapeId.Parse(request.diamondShapeId));
 
@@ -47,11 +47,26 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
                 if (getShape is null)
                     return Result.Fail("Shape not found");
                 bool isFancyShape = DiamondShape.IsFancyShape(getShape.Id);
-                allAvailableCaratRange = await _diamondCriteriaRepository.GroupAllAvailableCaratRange(isFancyShape,cancellationToken);
+                if(isFancyShape)
+                    allAvailableCaratRangeForThisShape = await _diamondCriteriaRepository.GroupAllAvailableCaratRange(getShape, null, cancellationToken);
+                else
+                {
+                    foreach(Cut cut in CutHelper.GetCutList())
+                    {
+                        var result = await _diamondCriteriaRepository.GroupAllAvailableCaratRange(getShape, cut, cancellationToken);
+                        allAvailableCaratRangeForThisShape.AddRange(result);
+                    }
+                }
+
             }
             else
-                allAvailableCaratRange = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCaratRange(cancellationToken);
-            var orderedRange = allAvailableCaratRange.OrderBy(x => x.CaratFrom).ToList();
+            {
+                allAvailableCaratRangeForThisShape = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCaratRange(cancellationToken);
+                getShape = getAllShape.FirstOrDefault(s => s.Id == DiamondShape.ANY_SHAPES.Id);
+                if(getShape is null)
+                    return Result.Fail("Shape not found");
+            }
+            var orderedRange = allAvailableCaratRangeForThisShape.OrderBy(x => x.CaratFrom).ToList();
             foreach (var range in orderedRange)
             {
                 if(request.IsSideDiamond == false)
@@ -113,7 +128,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
                         }
                     }
                 }
-                var command = new CreateManyDiamondCriteriasCommand(requests, request.IsSideDiamond, isFancyShape);
+                var command = new CreateManyDiamondCriteriasCommand(requests, getShape.Id.Value, request.IsSideDiamond);
                 var result = await _sender.Send(command, cancellationToken);
                 return result;
             }
@@ -136,7 +151,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
                         }
                     }
                 }
-                var command = new CreateManyDiamondCriteriasCommand(requests, request.IsSideDiamond, false);
+                var command = new CreateManyDiamondCriteriasCommand(requests, getShape.Id.Value, request.IsSideDiamond );
                 var result = await _sender.Send(command, cancellationToken);
                 return result;
             }

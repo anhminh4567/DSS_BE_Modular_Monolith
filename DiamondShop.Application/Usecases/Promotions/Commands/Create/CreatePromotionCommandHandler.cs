@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Promotions.Commands.Create
 {
-    public record CreatePromotionCommand(string startDateTime, string endDateTime,string name, string? promoCode, string description, RedemptionMode RedemptionMode,bool isExcludeQualifierProduct = true, int priority = 1  ) : IRequest<Result<Promotion>>;
+    public record CreatePromotionCommand(string startDateTime, string endDateTime,string name, string promoCode, string description, RedemptionMode RedemptionMode,bool isExcludeQualifierProduct = true, int priority = 1  ) : IRequest<Result<Promotion>>;
     internal class CreatePromotionCommandHandler : IRequestHandler<CreatePromotionCommand, Result<Promotion>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -36,6 +36,9 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Create
             DateTime endParsed = DateTime.ParseExact(request.endDateTime, DateTimeFormatingRules.DateTimeFormat, null);
 
             var newPromo = Promotion.Create(request.name, request.promoCode,request.description,startParsed,endParsed,request.priority,request.isExcludeQualifierProduct,request.RedemptionMode);
+            var getPromoByCode = await _promotionRepository.GetByCode(request.promoCode);
+            if (getPromoByCode != null)
+                return Result.Fail("Đã có 1 promotion với mã code như vậy, hãy đổi mã code");
             await _promotionRepository.Create(newPromo);
             await _unitOfWork.SaveChangesAsync();
             return newPromo;

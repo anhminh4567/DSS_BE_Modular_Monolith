@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
+using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -19,10 +20,13 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondPriceConfig
                 .HasConversion(
                     o => o.Value,
                     dbValue => DiamondCriteriaId.Parse(dbValue));
-            //builder.Property(o => o.Cut).HasConversion<string>();
-            //builder.Property(o => o.Clarity).HasConversion<string>();
-            //builder.Property(o => o.Color).HasConversion<string>();
-            builder.HasIndex(x => new { x.CaratFrom,x.CaratTo,x.IsSideDiamond,x.IsLabGrown });
+            builder.Property(o => o.ShapeId)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => DiamondShapeId.Parse(dbValue));
+            builder.HasOne(o => o.Shape).WithMany().HasForeignKey(o => o.ShapeId).IsRequired();
+            builder.HasIndex(x => new { x.CaratFrom,x.CaratTo,x.IsSideDiamond });
+            builder.HasIndex(x => new { x.ShapeId,x.IsLabGrown, x.IsSideDiamond, x.CaratFrom, x.CaratTo });
             builder.HasKey(o => o.Id);
         }
     }

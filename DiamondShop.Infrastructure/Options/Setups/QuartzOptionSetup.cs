@@ -66,6 +66,13 @@ namespace DiamondShop.Infrastructure.Options.Setups
             options.AddJob<CustomizeRequestWorker>(config => config.WithIdentity(customizeRequestJobName))
                 .AddTrigger(config => config.ForJob(customizeRequestJobName)
                 .WithSimpleSchedule(schedule => schedule.WithIntervalInMinutes(40).RepeatForever()));
+
+            string productLockExpiredJobName = nameof(ProductLockExpiredWorkers);
+            options.AddJob<ProductLockExpiredWorkers>(config => config.WithIdentity(productLockExpiredJobName))
+                .AddTrigger(config => config.ForJob(productLockExpiredJobName)
+                    .WithSimpleSchedule(schedule => schedule
+                        .WithIntervalInMinutes(5)
+                            .RepeatForever()));
         }
     }
 }

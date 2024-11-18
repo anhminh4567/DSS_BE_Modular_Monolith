@@ -16,20 +16,21 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondPriceConfig
         public void Configure(EntityTypeBuilder<DiamondPrice> builder)
         {
             builder.ToTable("DiamondPrice");
-            builder.Property(o => o.ShapeId)
-            .HasConversion(
-                Id => Id.Value,
-                dbValue => DiamondShapeId.Parse(dbValue));
+            //builder.Property(o => o.ShapeId)
+            //.HasConversion(
+            //    Id => Id.Value,
+            //    dbValue => DiamondShapeId.Parse(dbValue));
             builder.Property(o => o.CriteriaId)
             .HasConversion(
                 Id => Id.Value,
                 dbValue => DiamondCriteriaId.Parse(dbValue));
-            builder.HasOne(o => o.Shape).WithMany().HasForeignKey(o => o.ShapeId).IsRequired();
-            builder.HasOne(o => o.Criteria).WithMany().HasForeignKey(o => o.CriteriaId).IsRequired();
-            builder.HasKey(o => new { o.ShapeId, o.CriteriaId,o.IsLabDiamond, o.IsSideDiamond });
-            builder.HasIndex(o => new { o.ShapeId, o.IsLabDiamond, o.IsSideDiamond  });
+            //builder.HasOne(o => o.Shape).WithMany().HasForeignKey(o => o.ShapeId).IsRequired();
+            builder.HasOne(o => o.Criteria)
+                .WithMany(d => d.DiamondPrices).HasForeignKey(o => o.CriteriaId).IsRequired();
+            builder.HasKey(o => new {  o.CriteriaId,o.IsLabDiamond, o.IsSideDiamond });
+            builder.HasIndex(o => new { o.IsLabDiamond, o.IsSideDiamond  });
             builder.HasIndex(o => new { o.CriteriaId, o.IsLabDiamond , o.IsSideDiamond });
-            builder.HasIndex(o => new { o.CriteriaId, o.ShapeId, o.IsLabDiamond, o.IsSideDiamond });
+            builder.HasIndex(o => new { o.CriteriaId, o.IsLabDiamond, o.IsSideDiamond });
 
         }
     }

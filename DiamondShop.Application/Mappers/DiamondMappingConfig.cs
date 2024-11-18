@@ -6,6 +6,7 @@ using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.DiamondShapes;
 using Mapster;
+using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -30,10 +31,11 @@ namespace DiamondShop.Application.Mappers
                 .Map(dest => dest.Id, src => src.Id.Value);
 
             config.NewConfig<DiamondCriteria, DiamondCriteriaDto>()
-                .Map(dest => dest.Id, src => src.Id.Value);
+                .Map(dest => dest.Id, src => src.Id.Value)
+                .Map(dest => dest.ShapeId, src => src.ShapeId.Value);
 
             config.NewConfig<DiamondPrice, DiamondPriceDto>()
-                .Map(dest => dest.ShapeId, src => src.ShapeId.Value)
+                //.Map(dest => dest.ShapeId, src => src.ShapeId.Value)
                 .Map(dest => dest.CriteriaId, src => src.CriteriaId.Value);
 
         }

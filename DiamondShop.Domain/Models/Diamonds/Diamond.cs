@@ -57,6 +57,8 @@ namespace DiamondShop.Domain.Models.Diamonds
         public ProductLock? ProductLock { get; set; }
         public decimal? SoldPrice { get; set; }
         public decimal? DefaultPrice { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         [NotMapped]
         public bool IsSetForJewelry { get => JewelryId != null; }
         [NotMapped]
@@ -108,6 +110,8 @@ namespace DiamondShop.Domain.Models.Diamonds
                 SoldPrice = null,
                 DefaultPrice = null,
                 Certificate = certificate,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
             };
             if(sku!= null)
                 newdiamond.SerialCode = sku;
@@ -204,8 +208,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         {
             if (Status == ProductStatus.Sold)
                 throw new Exception("cannot unlock an already sold item");
-            Status = ProductStatus.Active;
-            ProductLock = null;
+            SetSell();
         }
         public void ChangeThumbnail(Media? thumbnail) => Thumbnail = thumbnail;
         public void ChangeOffset(decimal newOffset)

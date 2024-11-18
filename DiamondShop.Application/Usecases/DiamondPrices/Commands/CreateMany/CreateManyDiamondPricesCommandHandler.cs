@@ -42,7 +42,6 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
             List<DiamondCriteria> getCriteria;
             var parsedShapeId = DiamondShapeId.Parse(request.shapeId);
             var getShapes = await _diamondShapeRepository.GetAllIncludeSpecialShape();
-            getCriteria = await _diamondCriteriaRepository.GetAll();
             correctShape = getShapes.FirstOrDefault(s => s.Id == parsedShapeId);
             if(request.IsSideDiamond)
                 correctShape = getShapes.FirstOrDefault(s => s.Id == DiamondShape.ANY_SHAPES.Id);
@@ -52,24 +51,19 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
 
             await _unitOfWork.BeginTransactionAsync();
 
-            //if (request.isFancyShapePrice == null)
-            //    return Result.Fail("diamond must known if it is fancy shape or not");
-            //if (request.isFancyShapePrice)
-            //    correctShape = getShapes.FirstOrDefault(s => s.Id == DiamondShape.FANCY_SHAPES.Id);
-
-            //else
-            //    correctShape = getShapes.FirstOrDefault(s => s.Id == DiamondShape.ROUND.Id);
            
             if (correctShape is null)
                 return Result.Fail(new NotFoundError());
 
             var mappedListPrice = request.listPrices.Select(x => new { CriteriaId = DiamondCriteriaId.Parse(x.DiamondCriteriaId), Price = MoneyVndRoundUpRules.RoundAmountFromDecimal(x.price) });
+            var mappedCriteria = mappedListPrice.Select(x => x.CriteriaId).ToList();
+            getCriteria = await _diamondCriteriaRepository.GetCriteriasByManyId(mappedCriteria);
             foreach (var price in mappedListPrice)
             {
                 if (request.IsSideDiamond == false)
                 {
                     var tryGetCriteria = getCriteria.FirstOrDefault(c => c.Id == price.CriteriaId && c.IsSideDiamond == false);
-                    if (getCriteria is null)
+                    if (tryGetCriteria is null)
                         return Result.Fail(new NotFoundError());
                     var newPrice = DiamondPrice.Create(correctShape.Id, tryGetCriteria.Id, price.Price, request.IsLabDiamond);
                     await _diamondPriceRepository.Create(newPrice);
@@ -77,7 +71,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
                 else
                 {
                     var tryGetCriteria = getCriteria.FirstOrDefault(c => c.Id == price.CriteriaId && c.IsSideDiamond == true);
-                    if (getCriteria is null)
+                    if (tryGetCriteria is null)
                         return Result.Fail(new NotFoundError());
                     var newPrice = DiamondPrice.CreateSideDiamondPrice(tryGetCriteria.Id, price.Price, request.IsLabDiamond,correctShape);
                     await _diamondPriceRepository.Create(newPrice);
