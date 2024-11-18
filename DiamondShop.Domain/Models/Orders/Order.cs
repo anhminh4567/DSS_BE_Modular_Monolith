@@ -135,7 +135,10 @@ namespace DiamondShop.Domain.Models.Orders
 
         public decimal GetOrderItemPriceOnly()
         {
-            return TotalPrice - ShippingFee + OrderAmountSaved + UserRankAmountSaved;
+            if (Items.Count == 0)
+                throw new Exception("make sure there are product item included") ;
+            var totalWarrantyPrice = Items.Sum(x => x.WarrantyPrice);
+            return TotalPrice - ShippingFee + OrderAmountSaved + UserRankAmountSaved - totalWarrantyPrice;
         }
         public decimal GetOrderExcludeShipping()
         {

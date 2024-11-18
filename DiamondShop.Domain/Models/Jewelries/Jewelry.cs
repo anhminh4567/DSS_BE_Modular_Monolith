@@ -129,18 +129,20 @@ namespace DiamondShop.Domain.Models.Jewelries
         public void SetSell()
         {
             Status = ProductStatus.Active;
-            ND_Price = 0;
-            D_Price = 0;
-            SoldPrice = 0;
+            ND_Price = null;
+            D_Price = null;
+            SD_Price = null;
+            SoldPrice = null;
             EngravedFont = null;
             EngravedText = null;
         }
-        public void SetDeactivate()
+        public void SetLock()
         {
             Status = ProductStatus.Locked;
-            ND_Price = 0;
-            D_Price = 0;
-            SoldPrice = 0;
+            ND_Price = null;
+            D_Price = null;
+            SD_Price = null;
+            SoldPrice = null;
             EngravedFont = null;
             EngravedText = null;
         }
@@ -170,6 +172,5 @@ namespace DiamondShop.Domain.Models.Jewelries
         {
             PromotionReducedAmount = reducedAmount;
         }
-
     }
 }
