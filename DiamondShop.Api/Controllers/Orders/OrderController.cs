@@ -6,6 +6,7 @@ using DiamondShop.Application.Dtos.Responses.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Orders.Commands.Checkout;
 using DiamondShop.Application.Usecases.Orders.Commands.DeliverFail;
+using DiamondShop.Application.Usecases.Orders.Commands.PrepareItem;
 using DiamondShop.Application.Usecases.Orders.Commands.Proceed;
 using DiamondShop.Application.Usecases.Orders.Commands.Redeliver;
 using DiamondShop.Application.Usecases.Orders.Commands.Refund;
@@ -199,22 +200,7 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return Unauthorized();
         }
-        //On Hold
-        //De nguoi dung lay link nhan refund
-        //[HttpPut("GetRefund")]
-        //[Authorize(Roles = AccountRole.CustomerId)]
-        //public async Task<ActionResult> GetOrderRefund([FromQuery] GetRefundOrderCommand refundOrderCommand)
-        //{
-        //    var result = await _sender.Send(refundOrderCommand);
-        //    if (result.IsSuccess)
-        //    {
-        //        var mappedResult = _mapper.Map<OrderDto>(result.Value);
-        //        return Ok(mappedResult);
-        //    }
-        //    else
-        //        return MatchError(result.Errors, ModelState);
-        //}
-        
+
         [HttpPut("CompleteRefund")]
         [Authorize(Roles = AccountRole.StaffId)]
         public async Task<ActionResult> CompleteOrderRefund([FromQuery] RefundOrderCommand refundOrderCommand)
@@ -228,6 +214,5 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return MatchError(result.Errors, ModelState);
         }
-
     }
 }

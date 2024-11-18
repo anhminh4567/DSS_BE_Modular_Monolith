@@ -40,9 +40,21 @@ namespace DiamondShop.Application.Usecases.Blogs.Commands.Remove
                 return Result.Fail("This blog doesn't exist");
             if (blog.AccountId == AccountId.Parse(accountId))
                 return Result.Fail("Only the author can remove the blog");
-            var deleteFlag = await _blogFileService.DeleteFiles(blog.Id, token);
-            if (deleteFlag.IsFailed)
-                return Result.Fail(deleteFlag.Errors);
+            List<Task<Result>> tasks = new()
+            {
+                _blogFileService.DeleteThumbnail(blog, token),
+                _blogFileService.DeleteContent(blog.Id, token)
+            };
+            var results = await Task.WhenAll(tasks);
+            if (results.Where(p => p.IsSuccess).Count() != results.Count())
+            {
+                var errors = new List<IError>();
+                foreach(var result in results)
+                {
+                    errors.AddRange(result.Errors);
+                }
+                return Result.Fail(errors);
+            }
             await _blogRepository.Delete(blog);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);

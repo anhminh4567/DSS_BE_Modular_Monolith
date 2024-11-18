@@ -17,7 +17,7 @@ namespace DiamondShop.Domain.Models.Blogs
         public string Title { get; set; }
         public DateTime CreatedDate { get; set; }
         [NotMapped]
-        public List<Media>? Medias { get; set; } = new();
+        public string Content { get; set; }
         private Blog() { }
         public static Blog Create(List<BlogTag> blogTags, AccountId accountId, string title)
         {

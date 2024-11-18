@@ -6,8 +6,6 @@ namespace DiamondShop.Application.Usecases.JewelryReviews.Commands.Update
 {
     public class UpdateJewelryReviewCommandValidator : AbstractValidator<UpdateJewelryReviewCommand>
     {
-        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
-
         public UpdateJewelryReviewCommandValidator(IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             var rule = optionsMonitor.CurrentValue.JewelryReviewRules;

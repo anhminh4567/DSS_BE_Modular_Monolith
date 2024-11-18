@@ -8,16 +8,20 @@ using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Infrastructure.Options;
 using FluentEmail.Core;
 using FluentResults;
+using HtmlAgilityPack.CssSelectors.NetCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Org.BouncyCastle.Utilities.IO;
 using System.IO;
+using System.Text;
 
 namespace DiamondShop.Infrastructure.Services.Blobs
 {
     internal class BlogFileService : AzureBlobContainerService, IBlogFileService
     {
         internal const string PARENT_FOLDER = "Blogs";
+        internal const string THUMBNAIL = "thumbnail";
+        internal const string CONTENT = "content";
         internal const string DELIMITER = "/";
         private readonly ILogger<BlogFileService> _logger;
 
@@ -26,53 +30,59 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             _logger = logger;
         }
 
-        public Task<Result> DeleteFiles(BlogId blogId, CancellationToken token = default)
+        public async Task<Result> DeleteThumbnail(Blog blog, CancellationToken token = default)
         {
-            string basePath = GetAzureFilePath(blogId);
+            if (string.IsNullOrEmpty(blog.Thumbnail.MediaPath))
+                return Result.Fail("Can't get thumbnail path");
+            return await base.DeleteFileAsync(blog.Thumbnail.MediaPath, token);
+        }
+        public Task<Result> DeleteContent(BlogId blogId, CancellationToken token = default)
+        {
+            string basePath = GetAzureFilePath(blogId) + $"/{CONTENT}.txt";
             return base.DeleteFileAsync(basePath, token);
         }
 
-        public Task<List<Media>> GetFolders(BlogId blogId, CancellationToken token = default)
+        public async Task<Result<string>> GetContent(BlogId blogId, CancellationToken token = default)
         {
-            string basePath = GetAzureFilePath(blogId);
-            return base.GetFolders(basePath, token);
+            string basePath = GetAzureFilePath(blogId) + $"/{CONTENT}.txt";
+            var result = await base.DownloadFileAsync(basePath, token);
+            if (result.IsFailed)
+                return Result.Fail(result.Errors);
+            if (result.Value?.Stream == null)
+                return Result.Fail("Can't get content");
+            using(StreamReader sr = new StreamReader(result.Value.Stream))
+            {
+                return await sr.ReadToEndAsync(token);
+            }
         }
 
-        public async Task<Result<string[]>> UploadBlogContent(BlogId blogId, FileData[] streams, CancellationToken token = default)
+        public async Task<Result<string>> UploadContent(BlogId blogId, string content, CancellationToken token = default)
         {
             string basePath = GetAzureFilePath(blogId);
-            List<Task<Result<string>>> uploadTasks = new();
-            foreach (var stream in streams)
+            Task<Result<string>> uploadTask = Task.Run(async () =>
             {
-                uploadTasks.Add(Task.Run(async () =>
-                {
-                    var finalPath = $"{basePath}/{stream.FileName}";
-                    if (stream.FileExtension != null)
-                        finalPath = $"{finalPath}.{GetExtensionName(stream.FileExtension)}";
-                    var result = await UploadFileAsync(finalPath, stream.Stream, stream.contentType, token);
-                    if (result.IsFailed)
-                        _logger.LogError("Failed to upload file with name: {0}", stream.FileName);
-                    else
-                        _logger.LogInformation("uploaded file with name: {0}", stream.FileName);
-                    return result;
-                }));
-            }
-            var results = await Task.WhenAll(uploadTasks);
-            var stringResult = results.Where(r => r.IsSuccess).Select(r => r.Value).ToArray();
-            if (stringResult.Length == streams.Length)
-                return Result.Ok(stringResult);
+                MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
+                var finalPath = $"{basePath}/{CONTENT}.txt";
+                var result = await UploadFileAsync(finalPath, stream, "text/plain", token);
+                if (result.IsFailed)
+                    _logger.LogError("Failed to upload file with name: {0}", "content.txt");
+                else
+                    _logger.LogInformation("uploaded file with name: {0}", "content.txt");
+                return result;
+            });
+            var result = await uploadTask;
+            if (result.IsSuccess)
+                return result;
             else
             {
-                List<IError> errors = new List<IError>() { new Error("Failed to upload some file") };
-                results.Where(r => r.IsFailed).ForEach(r => errors.AddRange(r.Errors));
-                return Result.Fail(errors);
+                return Result.Fail(result.Errors);
             }
         }
         public async Task<Result<Media>> UploadThumbnail(BlogId blogId, FileData fileData, CancellationToken token = default)
         {
             string basePath = GetAzureFilePath(blogId);
             List<Task<Result<string>>> uploadTasks = new();
-            var finalPath = $"{basePath}/{GetTimeStamp()}";
+            var finalPath = $"{basePath}/thumbnail";
             if (fileData.FileExtension != null)
                 finalPath = $"{finalPath}.{GetExtensionName(fileData.FileExtension)}";
             var result = await UploadFileAsync(finalPath, fileData.Stream, fileData.contentType, token);
