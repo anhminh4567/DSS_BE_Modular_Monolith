@@ -2,5 +2,5 @@
 
 namespace DiamondShop.Application.Dtos.Requests.Blogs
 {
-    public record CreateBlogRequestDto(string Title, List<string> BlogTags, IFormFile? Thumbnail, IFormFile[] Contents);
+    public record CreateBlogRequestDto(string Title, List<string> BlogTags, IFormFile? Thumbnail, string Content);
 }

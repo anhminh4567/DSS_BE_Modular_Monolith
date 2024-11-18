@@ -6,6 +6,7 @@ using DiamondShop.Application.Usecases.Blogs.Commands.Create;
 using DiamondShop.Application.Usecases.Blogs.Commands.Remove;
 using DiamondShop.Application.Usecases.Blogs.Commands.Update;
 using DiamondShop.Application.Usecases.Blogs.Queries.GetAll;
+using DiamondShop.Application.Usecases.Blogs.Queries.GetDetail;
 using DiamondShop.Domain.Models.RoleAggregate;
 using MapsterMapper;
 using MediatR;
@@ -27,6 +28,25 @@ namespace DiamondShop.Api.Controllers.Blogs
             _mapper = mapper;
         }
         #region Staff,Manager
+        [HttpGet("Staff/All")]
+        public async Task<ActionResult> GetAllStaff([FromQuery] GetAllBlogQuery getAllBlogQuery)
+        {
+            var result = await _sender.Send(getAllBlogQuery);
+            var mappedResult = _mapper.Map<PagingResponseDto<BlogDto>>(result);
+            return Ok(mappedResult);
+        }
+        [HttpGet("Staff/Detail")]
+        public async Task<ActionResult> GetDetailStaff([FromQuery] GetDetailBlogQuery getDetailBlogQuery)
+        {
+            var result = await _sender.Send(getDetailBlogQuery);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<BlogDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            else
+                return MatchError(result.Errors, ModelState);
+        }
         [HttpPost("Create")]
         [Authorize(Roles = AccountRole.StaffId)]
         public async Task<ActionResult> CreateJewelryReview([FromForm] CreateBlogRequestDto createBlogRequestDto)
@@ -84,11 +104,23 @@ namespace DiamondShop.Api.Controllers.Blogs
         #endregion
         #region Customer
         [HttpGet("All")]
-        public async Task<ActionResult> GetAll(GetAllBlogQuery getAllBlogQuery)
+        public async Task<ActionResult> GetAllCustomer([FromQuery] GetAllBlogQuery getAllBlogQuery)
         {
             var result = await _sender.Send(getAllBlogQuery);
             var mappedResult = _mapper.Map<PagingResponseDto<BlogDto>>(result);
             return Ok(mappedResult);
+        }
+        [HttpGet("Detail")]
+        public async Task<ActionResult> GetDetailCustomer([FromQuery] GetDetailBlogQuery getDetailBlogQuery)
+        {
+            var result = await _sender.Send(getDetailBlogQuery);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<BlogDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            else
+                return MatchError(result.Errors, ModelState);
         }
         #endregion
     }

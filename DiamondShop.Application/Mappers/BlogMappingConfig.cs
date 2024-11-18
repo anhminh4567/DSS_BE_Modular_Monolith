@@ -9,10 +9,8 @@ namespace DiamondShop.Application.Mappers
     {
         public void Register(TypeAdapterConfig config)
         {
-            config.NewConfig<Blog, BlogDto>();
-
-            config.NewConfig<BlogTag, string>()
-                .Map(dest => dest, src => src.Value);
+            config.NewConfig<Blog, BlogDto>()
+                .Map(dest => dest.Tags, src => src.Tags.Select(p => p.Value).ToList());
         }
     }
 }

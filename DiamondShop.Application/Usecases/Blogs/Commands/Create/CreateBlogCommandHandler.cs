@@ -20,10 +20,18 @@ namespace DiamondShop.Application.Usecases.Blogs.Commands.Create
         private readonly IBlogRepository _blogRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IBlogFileService _blogFileService;
+
+        public CreateBlogCommandHandler(IBlogRepository blogRepository, IUnitOfWork unitOfWork, IBlogFileService blogFileService)
+        {
+            _blogRepository = blogRepository;
+            _unitOfWork = unitOfWork;
+            _blogFileService = blogFileService;
+        }
+
         public async Task<Result<Blog>> Handle(CreateBlogCommand request, CancellationToken token)
         {
             request.Deconstruct(out string accountId, out CreateBlogRequestDto createBlogRequestDto);
-            createBlogRequestDto.Deconstruct(out string title, out List<string> blogTags, out IFormFile? thumbnail, out IFormFile[] contents);
+            createBlogRequestDto.Deconstruct(out string title, out List<string> blogTags, out IFormFile? thumbnail, out string content);
             await _unitOfWork.BeginTransactionAsync(token);
             Blog blog = Blog.Create(blogTags.Select(p => new BlogTag(p)).ToList(), AccountId.Parse(accountId), title);
             await _blogRepository.Create(blog);
@@ -31,20 +39,16 @@ namespace DiamondShop.Application.Usecases.Blogs.Commands.Create
             if (thumbnail != null)
             {
                 var thumbnailResult = await _blogFileService.UploadThumbnail(blog.Id, new FileData("thumbnail", thumbnail.FileName, thumbnail.ContentType, thumbnail.OpenReadStream()), token);
-                if(thumbnailResult.IsFailed)
+                if (thumbnailResult.IsFailed)
                     return Result.Fail(thumbnailResult.Errors);
                 blog.Thumbnail = thumbnailResult.Value;
                 await _blogRepository.Update(blog);
                 await _unitOfWork.SaveChangesAsync(token);
             }
-            if (contents.Count() > 0)
-            {
-                FileData[] fileDatas = contents.Select(f => new FileData(f.Name, f.ContentType, f.ContentType, f.OpenReadStream())).ToArray();
-                var result = await _blogFileService.UploadBlogContent(blog.Id, fileDatas);
-                if (result.IsFailed)
-                    return Result.Fail(result.Errors);
-                blog.Medias.AddRange(result.Value.Select(p => Media.Create("", p, p.Split(".")[1])));
-            }
+            var result = await _blogFileService.UploadContent(blog.Id, content);
+            if (result.IsFailed)
+                return Result.Fail(result.Errors);
+            blog.Content = content;
             await _unitOfWork.CommitAsync(token);
             return blog;
         }

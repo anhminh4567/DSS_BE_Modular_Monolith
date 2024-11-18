@@ -11,8 +11,6 @@ namespace DiamondShop.Application.Usecases.JewelryReviews.Commands.Create
 {
     public class CreateJewelryReviewCommandValidator : AbstractValidator<CreateJewelryReviewCommand>
     {
-        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
-
         public CreateJewelryReviewCommandValidator(IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             var rule = optionsMonitor.CurrentValue.JewelryReviewRules;

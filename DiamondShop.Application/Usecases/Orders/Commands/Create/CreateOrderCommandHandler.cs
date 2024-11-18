@@ -26,8 +26,8 @@ using System.Collections.Generic;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 {
-    public record CreateOrderInfo(PaymentType PaymentType, string methodId , string PaymentName, string? RequestId, string? PromotionId, string Address, List<OrderItemRequestDto> OrderItemRequestDtos);
-    public record CreateOrderCommand(string AccountId, CreateOrderInfo CreateOrderInfo, Order? ParentOrder = null, List<OrderItem> ParentItems = null) : IRequest<Result<Order>>;
+    public record CreateOrderInfo(PaymentType PaymentType, string methodId, string PaymentName, string? RequestId, string? PromotionId, string Address, List<OrderItemRequestDto> OrderItemRequestDtos);
+    public record CreateOrderCommand(string AccountId, CreateOrderInfo CreateOrderInfo) : IRequest<Result<Order>>;
     internal class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Result<Order>>
     {
         private readonly IAccountRepository _accountRepository;
@@ -70,7 +70,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             var transactionRule = _optionsMonitor.CurrentValue.TransactionRule;
             var logRule = _optionsMonitor.CurrentValue.LoggingRules;
             await _unitOfWork.BeginTransactionAsync(token);
-            request.Deconstruct(out string accountId, out CreateOrderInfo createOrderInfo, out Order? parentOrder, out List<OrderItem> parentItems);
+            request.Deconstruct(out string accountId, out CreateOrderInfo createOrderInfo);
             createOrderInfo.Deconstruct(out PaymentType paymentType, out string methodId, out string paymentName, out string? requestId, out string? promotionId, out string address, out List<OrderItemRequestDto> orderItemReqs);
             var account = await _accountRepository.GetById(AccountId.Parse(accountId));
             if (account == null)
@@ -78,7 +78,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             PaymentMethodId parrsedMethodId = PaymentMethodId.Parse(methodId);
             var getAllPaymentMethod = await _paymentMethodRepository.GetAll();
             var paymentMethod = getAllPaymentMethod.FirstOrDefault(p => p.Id == parrsedMethodId);
-            if(paymentMethod == null)
+            if (paymentMethod == null)
                 return Result.Fail("This payment method doesn't exist");
             //TODO: Validate account status
             List<IError> errors = new List<IError>();
@@ -93,7 +93,6 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 cartItemRequest.EngravedFont = item.EngravedFont;
                 cartItemRequest.EngravedText = item.EngravedText;
                 cartItemRequest.DiamondId = item.DiamondId;
-                //??
                 cartItemRequest.WarrantyCode = item.WarrantyCode;
                 cartItemRequest.WarrantyType = item.WarrantyType;
                 return cartItemRequest;
@@ -122,38 +121,17 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 }
             }
             if (errors.Count > 0) return Result.Fail(errors);
-            //TODO: ADD seperate error validation
-            //    foreach (var index in cartModel.OrderValidation.InvalidItemIndex)
-            //    {
-            //        var invalidItem = cartModel.Products[index];
-            //        var error = Result.Fail(cartModel);
-            //    }
-            if(paymentMethod.Id == PaymentMethod.ZALOPAY.Id)
+            if (paymentMethod.Id == PaymentMethod.ZALOPAY.Id)
             {
                 if (cartModelResult.Value.OrderPrices.FinalPrice > transactionRule.MaximumPerTransaction)
-                    return Result.Fail("Transaction value is too high for method "+ PaymentMethod.ZALOPAY.MethodName);
+                    return Result.Fail("Transaction value is too high for method " + PaymentMethod.ZALOPAY.MethodName);
             }
-
             var customizeRequestId = requestId == null ? null : CustomizeRequestId.Parse(requestId);
             var orderPromo = cartModel.Promotion.Promotion;
             var order = Order.Create(account.Id, paymentType, paymentMethod.Id, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice,
                 address, customizeRequestId, orderPromo?.Id, cartModel.OrderPrices.OrderAmountSaved, cartModel.OrderPrices.UserRankDiscountAmount);
             //create log
             var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Pending);
-            //if replacement order
-            if (parentOrder != null)
-            {
-                order.ParentOrderId = parentOrder.Id;
-                order.TotalPrice += parentItems.Sum(p => p.PurchasedPrice);
-                order.Status = OrderStatus.Processing;
-            }
-            await _orderRepository.Create(order, token);
-            await _orderLogRepository.Create(log, token);
-            if(order.ParentOrderId != null)
-            {
-                var continueLog = OrderLog.CreateByChangeStatus(order, OrderStatus.Processing);
-                await _orderLogRepository.Create(continueLog, token);
-            }
             List<OrderItem> orderItems = new();
             List<Jewelry> jewelries = new();
             List<Diamond> diamonds = new();
@@ -163,14 +141,14 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 var gift = giftedId is null ? null : orderPromo?.Gifts.FirstOrDefault(k => k.ItemId == giftedId);
                 //If shop replacement, then bought price should be 0
                 //TODO: Add final price
-                orderItems.Add(OrderItem.Create(order.Id, product.Jewelry?.Id, product.Diamond?.Id,product.ReviewPrice.DefaultPrice,
+                orderItems.Add(OrderItem.Create(order.Id, product.Jewelry?.Id, product.Diamond?.Id, product.ReviewPrice.DefaultPrice,
                      product.ReviewPrice.FinalPrice,
                 product.DiscountId, product.DiscountPercent,
-                gift?.UnitType, gift?.UnitValue,product.CurrentWarrantyPrice));
+                gift?.UnitType, gift?.UnitValue, product.CurrentWarrantyPrice,requestId != null? OrderItemStatus.Pending : OrderItemStatus.Prepared));
                 if (product.Jewelry != null)
                 {
                     _jewelryService.AddPrice(product.Jewelry, _sizeMetalRepository);
-                    product.Jewelry.SetSold(product.Jewelry.ND_Price.Value, product.ReviewPrice.DefaultPrice,product.EngravedText, product.EngravedFont);
+                    product.Jewelry.SetSold(product.Jewelry.ND_Price.Value, product.ReviewPrice.DefaultPrice, product.EngravedText, product.EngravedFont);
                     jewelries.Add(product.Jewelry);
                 }
                 if (product.Diamond != null)
@@ -179,24 +157,14 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                     diamonds.Add(product.Diamond);
                 }
             }
-            if (parentItems != null)
-            {
-                foreach (var item in parentItems)
-                {
-                    orderItems.Add(OrderItem.Create(order.Id, item.JewelryId, item.DiamondId,  item.PurchasedPrice,item.OriginalPrice,
-                        item.DiscountId, item.DiscountPercent, item.PromoType, item.PromoValue));
-                }
-            }
             await _orderItemRepository.CreateRange(orderItems);
             _jewelryRepository.UpdateRange(jewelries);
             _diamondRepository.UpdateRange(diamonds);
-
-
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
             order.Account = account;
             //no wait to send email
-            _emailService.SendInvoiceEmail(order,account);
+            _emailService.SendInvoiceEmail(order, account);
             return order;
         }
 

@@ -7,13 +7,6 @@
         public static string key = "BlogRule";
         public int MaxContentSizeInMb = 15;
         public int MaxContentSize { get => MaxContentSizeInMb * 1024 * 1024; }
-        public List<string> AllowedContentType = new List<string>()
-        {
-            "image/png",
-            "image/jpeg",
-            "image/jpg",
-            "video/mp4",
-        };
         public List<string> AllowedThumbnailType = new List<string>()
         {
             "image/png",
