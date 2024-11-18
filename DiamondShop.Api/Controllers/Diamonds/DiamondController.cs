@@ -106,9 +106,27 @@ namespace DiamondShop.Api.Controllers.Diamonds
         }
         [HttpPost]
         [Produces(typeof(DiamondDto))]
-        public async Task<ActionResult> Create([FromBody] CreateDiamondCommand createDiamondCommand)
+        public async Task<ActionResult> Create([FromBody] CreateDiamondRequestDto createDiamondCommand)
         {
-            var result = await _sender.Send(createDiamondCommand);
+            var command = new CreateDiamondCommand(createDiamondCommand.diamond4c,createDiamondCommand.details,
+                createDiamondCommand.measurement,createDiamondCommand.shapeId,createDiamondCommand.sku,createDiamondCommand.Certificate,
+                createDiamondCommand.priceOffset, true);
+            var result = await _sender.Send(command);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<DiamondDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPost("Unavailble")]
+        [Produces(typeof(DiamondDto))]
+        public async Task<ActionResult> CreateUnavailable([FromBody] CreateDiamondRequestDto createDiamondCommand)
+        {
+            var command = new CreateDiamondCommand(createDiamondCommand.diamond4c, createDiamondCommand.details,
+                createDiamondCommand.measurement, createDiamondCommand.shapeId, createDiamondCommand.sku, createDiamondCommand.Certificate,
+                createDiamondCommand.priceOffset, false);
+            var result = await _sender.Send(command);
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<DiamondDto>(result.Value);
