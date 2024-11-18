@@ -1,6 +1,8 @@
 ﻿using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
+using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using FluentResults;
 using MediatR;
@@ -17,11 +19,13 @@ namespace DiamondShop.Application.Usecases.Discounts.Queries.GetDetail
     internal class GetDiscountDetailQueryHandler : IRequestHandler<GetDiscountDetailQuery, Result<Discount>>
     {
         private readonly IDiscountRepository _discountRepository;
+        private readonly IJewelryModelRepository _jewelryModelRepository;
         private readonly ILogger<GetDiscountDetailQueryHandler> _logger;
 
-        public GetDiscountDetailQueryHandler(IDiscountRepository discountRepository, ILogger<GetDiscountDetailQueryHandler> logger)
+        public GetDiscountDetailQueryHandler(IDiscountRepository discountRepository, IJewelryModelRepository jewelryModelRepository, ILogger<GetDiscountDetailQueryHandler> logger)
         {
             _discountRepository = discountRepository;
+            _jewelryModelRepository = jewelryModelRepository;
             _logger = logger;
         }
 
@@ -40,6 +44,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Queries.GetDetail
                     _logger.LogError("no discount found");
                     return Result.Fail(new NotFoundError());
                 }
+                await MapDiscount(result);
                 return result;
             }
             else if (request.discountId is not null)
@@ -51,9 +56,21 @@ namespace DiamondShop.Application.Usecases.Discounts.Queries.GetDetail
                     _logger.LogError("no discount found");
                     return Result.Fail(new NotFoundError());
                 }
+                await MapDiscount(result);
                 return result;
             }
             return Result.Fail("Unknown error") ;
+        }
+        private async Task MapDiscount(Discount discount)
+        {
+            foreach (var req in discount.DiscountReq)
+            {
+                if (req.TargetType == TargetType.Jewelry_Model && req.ModelId != null)
+                {
+                    var model = await _jewelryModelRepository.GetById(req.ModelId);
+                    req.Model = model;
+                }
+            }
         }
     }
 }

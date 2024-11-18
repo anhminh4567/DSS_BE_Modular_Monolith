@@ -2,11 +2,13 @@
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
+using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,6 +36,8 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public Cut? CutTo { get; set; }
         public Color? ColorFrom { get; set; }
         public Color? ColorTo { get; set; }
+        [NotMapped]
+        public JewelryModel? GiftedModel { get; set; }
         public static Gift CreateJewelry(string name,string itemId,UnitType unitType,decimal unitValue,int amount)
         {
             return new Gift()
