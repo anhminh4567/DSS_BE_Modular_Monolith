@@ -67,6 +67,19 @@ namespace DiamondShop.Api.Controllers.CustomRequest
             else
                 return MatchError(result.Errors, ModelState);
         }
+        [HttpPut("Staff/Proceed")]
+        [Authorize(Roles = AccountRole.StaffId)]
+        public async Task<ActionResult> StaffChangeDiamondRequest([FromBody] StaffProceedCustomizeRequestCommand proceedCustomizeRequestCommand)
+        {
+            var result = await _sender.Send(proceedCustomizeRequestCommand);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<CustomizeRequestDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            else
+                return MatchError(result.Errors, ModelState);
+        }
         [HttpPut("Staff/Reject")]
         [Authorize(Roles = AccountRole.StaffId)]
         public async Task<ActionResult> StaffRejectCustomizeRequest([FromQuery] StaffRejectRequestCommand staffRejectRequestCommand)

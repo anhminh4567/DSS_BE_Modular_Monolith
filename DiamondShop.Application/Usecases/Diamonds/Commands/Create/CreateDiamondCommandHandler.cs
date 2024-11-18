@@ -70,7 +70,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
             }
             else
             {
-                newDiamond.Status = ProductStatus.Unavailable;
+                newDiamond.Status = ProductStatus.PreOrder;
             }
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(newDiamond);

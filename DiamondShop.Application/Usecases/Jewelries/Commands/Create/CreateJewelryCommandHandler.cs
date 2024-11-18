@@ -18,7 +18,7 @@ using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Options;
 
-namespace DiamondShop.Application.Usecases.Jewelries.Commands
+namespace DiamondShop.Application.Usecases.Jewelries.Commands.Create
 {
     public record CreateJewelryCommand(JewelryRequestDto JewelryRequest, string? SideDiamondOptId, List<string>? attachedDiamondIds) : IRequest<Result<Jewelry>>;
     internal class CreateJewelryCommandHandler : IRequestHandler<CreateJewelryCommand, Result<Jewelry>>
@@ -103,7 +103,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands
                     return Result.Fail(new ConflictError("This side diamond option doesn't exist"));
                 if (sideDiamond.AverageCarat > diamondRule.BiggestSideDiamondCarat)
                     return Result.Fail(new ConflictError("The carat of side diamond is too big, the current app rules only allow " + diamondRule.BiggestSideDiamondCarat + " carat(s)"));
-                
+
                 var jewelrySideDiamond = JewelrySideDiamond.Create(sideDiamond);
                 jewelry.SideDiamond = jewelrySideDiamond;
             }

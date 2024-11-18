@@ -3,7 +3,7 @@ using DiamondShop.Application.Dtos.Requests.Blogs;
 using DiamondShop.Application.Dtos.Responses.Blogs;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Blogs.Commands.Create;
-using DiamondShop.Application.Usecases.Blogs.Commands.Remove;
+using DiamondShop.Application.Usecases.Blogs.Commands.Delete;
 using DiamondShop.Application.Usecases.Blogs.Commands.Update;
 using DiamondShop.Application.Usecases.Blogs.Queries.GetAll;
 using DiamondShop.Application.Usecases.Blogs.Queries.GetDetail;
@@ -92,7 +92,7 @@ namespace DiamondShop.Api.Controllers.Blogs
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
             {
-                var result = await _sender.Send(new RemoveBlogCommand(BlogId, userId.Value));
+                var result = await _sender.Send(new DeleteBlogCommand(BlogId, userId.Value));
                 if (result.IsSuccess)
                     return Ok();
                 else

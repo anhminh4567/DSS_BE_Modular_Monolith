@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+﻿using DiamondShop.Domain.Common.Enums;
+using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Orders;
@@ -54,39 +55,45 @@ namespace DiamondShop.Domain.Services.Implementations
             List<Diamond> diamonds = new List<Diamond>();
             foreach (var item in items)
             {
-                if (item.Status == OrderItemStatus.Pending || item.Status == OrderItemStatus.Prepared)
+                if (item.JewelryId != null)
                 {
-                    if (item.JewelryId != null)
+                    var jewelry = await _jewelRepo.GetById(item.JewelryId);
+                    if (jewelry.Status == ProductStatus.PreOrder)
                     {
-                        var jewelry = await _jewelRepo.GetById(item.JewelryId);
-                        if (jewelry == null)
-                            errors.Append(new Error($"Can't find jewelry #{item.JewelryId}"));
-                        else
+                        await _jewelRepo.Delete(jewelry);
+                        if(jewelry.Diamonds != null)
                         {
-                            if (jewelry.Diamonds != null)
+                            foreach(var diamond in jewelry.Diamonds)
                             {
-                                foreach (var diamond in jewelry.Diamonds)
-                                {
-                                    diamond.SetLock();
-                                    diamonds.Add(diamond);
-                                }
+                                diamond.SetSell();
+                                diamonds.Add(diamond);
                             }
-                            jewelry.SetSell();
-                            jewelries.Add(jewelry);
                         }
                     }
-                    if (item.DiamondId != null)
+                    else
                     {
-                        var diamond = await _diamondRepo.GetById(item.DiamondId);
-                        if (diamond == null)
-                            errors.Append(new Error($"Can't find diamond #{item.DiamondId}"));
-                        else
+                        if (jewelry.Diamonds != null)
                         {
-                            diamond.SetSell();
-                            diamonds.Add(diamond);
+                            foreach (var diamond in jewelry.Diamonds)
+                            {
+                                diamond.SetLock();
+                                diamonds.Add(diamond);
+                            }
                         }
                     }
-                    item.Status = OrderItemStatus.Removed;
+                    jewelry.SetSell();
+                    jewelries.Add(jewelry);
+                }
+                if (item.DiamondId != null)
+                {
+                    var diamond = await _diamondRepo.GetById(item.DiamondId);
+                    if (diamond == null)
+                        errors.Append(new Error($"Can't find diamond #{item.DiamondId}"));
+                    else
+                    {
+                        diamond.SetSell();
+                        diamonds.Add(diamond);
+                    }
                 }
             }
             if (errors.Count > 0)

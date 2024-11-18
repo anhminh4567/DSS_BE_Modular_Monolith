@@ -8,7 +8,7 @@ namespace DiamondShop.Domain.Common.Enums
 {
     public enum ProductStatus
     {
-        Active = 1, Sold = 2, Locked = 3, Inactive = 4, LockForUser = 5, Unavailable = 6
+        Active = 1, Sold = 2, Locked = 3, Inactive = 4, LockForUser = 5, PreOrder = 6
     }
     public static class ProductStatusHelper
     {
@@ -21,13 +21,13 @@ namespace DiamondShop.Domain.Common.Enums
                 ProductStatus.Locked => "khóa cho khách hoặc cho trang sức",
                 ProductStatus.Inactive => "không bán",
                 ProductStatus.LockForUser => "khóa cho khách mua",
-                ProductStatus.Unavailable => "Sản phẩm chưa tồn tại",
+                ProductStatus.PreOrder => "Sản phẩm đặt trước",
                 _ => throw new Exception("invalid state")
             }; 
         }
         public static List<ProductStatus> GetAllStatus()
         {
-            return new List<ProductStatus> { ProductStatus.Active, ProductStatus.Sold, ProductStatus.Locked, ProductStatus.Inactive, ProductStatus.LockForUser, ProductStatus.Unavailable };
+            return new List<ProductStatus> { ProductStatus.Active, ProductStatus.Sold, ProductStatus.Locked, ProductStatus.Inactive, ProductStatus.LockForUser, ProductStatus.PreOrder };
         }
     }
 }

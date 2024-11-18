@@ -66,9 +66,9 @@ namespace DiamondShop.Test.Integration.Data
         };
         public static List<SideDiamondOpt> DefaultRingSideDiamondOpts(JewelryModelId modelId) => new()
         {
-            SideDiamondOpt.Create(modelId,DiamondShapeId.Parse("1"),Color.K, Color.D, Clarity.VS2, Clarity.IF, SettingType.Prong,0.15f,15,true,SideDiamondOptId.Parse($"{modelId}_1")),
-            SideDiamondOpt.Create(modelId,DiamondShapeId.Parse("1"),Color.F, Color.D, Clarity.VVS1, Clarity.IF, SettingType.Prong,0.25f,2,true,SideDiamondOptId.Parse($"{modelId}_2")),
-            SideDiamondOpt.Create(modelId,DiamondShapeId.Parse("1"),Color.D, Color.D, Clarity.IF, Clarity.IF, SettingType.Prong,0.35f,5,true, SideDiamondOptId.Parse($"{modelId}_3")),
+            SideDiamondOpt.Create(modelId,DiamondShapeId.Parse("1"),Color.K, Color.D, Clarity.VS2, Clarity.IF, SettingType.Prong,0.15f,15,false,SideDiamondOptId.Parse($"{modelId}_1")),
+            SideDiamondOpt.Create(modelId,DiamondShapeId.Parse("1"),Color.F, Color.D, Clarity.VVS1, Clarity.IF, SettingType.Prong,0.25f,2,false,SideDiamondOptId.Parse($"{modelId}_2")),
+            SideDiamondOpt.Create(modelId,DiamondShapeId.Parse("1"),Color.D, Color.D, Clarity.IF, Clarity.IF, SettingType.Prong,0.35f,5,false, SideDiamondOptId.Parse($"{modelId}_3")),
         };
         public static List<SizeMetal> DefaultRingSizeMetal(JewelryModelId modelId) => new()
         {
@@ -213,7 +213,7 @@ namespace DiamondShop.Test.Integration.Data
             Diamond_4C DefaultDiamond4C = new Diamond_4C(Cut.Excellent, Color.K, Clarity.FL, 1, false);
             Diamond_Details DefaultDiamondDetail = new Diamond_Details(Polish.Good, Symmetry.Good, Girdle.Medium, Fluorescence.None, Culet.None);
             Diamond_Measurement DefaultDiamondMeasurement = new Diamond_Measurement(1f, 1f, 1f, "1x1");
-            Diamond DefaultDiamond = Diamond.Create(DefaultDiamondShape, DefaultDiamond4C, DefaultDiamondDetail, DefaultDiamondMeasurement, 0m);
+            Diamond DefaultDiamond = Diamond.Create(DefaultDiamondShape, DefaultDiamond4C, DefaultDiamondDetail, DefaultDiamondMeasurement, 0m, "abc");
             DefaultDiamond.JewelryId = jewelryId;
             await SeedingDiamond(_context, DefaultDiamond);
             return DefaultDiamond;
@@ -227,7 +227,7 @@ namespace DiamondShop.Test.Integration.Data
             List<Diamond> DefaultDiamonds = new() { };
             for (int i = 0; i < quantity; i++)
             {
-                var diamond = Diamond.Create(DefaultDiamondShape, DefaultDiamond4C, DefaultDiamondDetail, DefaultDiamondMeasurement, 0m);
+                var diamond = Diamond.Create(DefaultDiamondShape, DefaultDiamond4C, DefaultDiamondDetail, DefaultDiamondMeasurement, 0m,$"{i}");
                 diamond.JewelryId = jewelryId;
                 DefaultDiamonds.Add(diamond);
             }
@@ -239,7 +239,7 @@ namespace DiamondShop.Test.Integration.Data
 
         #region DiamondCriteria
         public static DiamondCriteria DefaultDiamondCriteria(Cut? cut, Clarity clarity, Color color, bool isLab)
-        => DiamondCriteria.Create(cut.Value, clarity, color, 0f, 3f);
+        => DiamondCriteria.Create(cut.Value, clarity, color, 0f, 3f, DiamondShape.ROUND);
         static async Task SeedingCriteria(DiamondShopDbContext _context, DiamondCriteria criteria)
         {
             _context.Set<DiamondCriteria>().AddRange(criteria);

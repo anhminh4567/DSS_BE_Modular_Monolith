@@ -145,6 +145,11 @@ namespace DiamondShop.Domain.Models.Diamonds
         {
             return GetTitle(diamond);
         }
+        public void DetachJewelry()
+        {
+            JewelryId = null;
+            SetSell();
+        }
         public void SetSold(decimal defaultPrice ,decimal soldPrice)
         {
             Status = ProductStatus.Sold;

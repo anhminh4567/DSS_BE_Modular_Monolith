@@ -1,7 +1,7 @@
 ﻿using DiamondShop.Application.Commons.Responses;
 using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Application.Dtos.Responses.Jewelries;
-using DiamondShop.Application.Usecases.Jewelries.Commands;
+using DiamondShop.Application.Usecases.Jewelries.Commands.Create;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetAll;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetDetail;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond;

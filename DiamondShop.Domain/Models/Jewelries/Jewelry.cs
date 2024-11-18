@@ -35,7 +35,7 @@ namespace DiamondShop.Domain.Models.Jewelries
                     inalPrice += ND_Price.Value;
                 if (D_Price is not null)
                     inalPrice += D_Price.Value;
-                if(SD_Price is not null)
+                if (SD_Price is not null)
                     inalPrice += SD_Price.Value;
                 return inalPrice;
             }
@@ -111,6 +111,24 @@ namespace DiamondShop.Domain.Models.Jewelries
                 Status = status,
             };
         }
+        public void SetSoldUnavailable(decimal noDiamondPrice, decimal soldPrice, string? engravedText, string? engravedFont)
+        {
+            ND_Price = noDiamondPrice;
+            D_Price = soldPrice - noDiamondPrice;
+            SoldPrice = soldPrice;
+            EngravedText = engravedText;
+            EngravedFont = engravedFont;
+            Diamonds.ForEach(p =>
+            {
+                if (p.TruePrice != null)
+                    p.SetSold(p.TruePrice, p.TruePrice);
+            });
+        }
+        public void SetSold()
+        {
+            if (Status == ProductStatus.PreOrder)
+                Status = ProductStatus.Sold;
+        }
         public void SetSold(decimal noDiamondPrice, decimal soldPrice, string? engravedText, string? engravedFont)
         {
 
@@ -126,6 +144,7 @@ namespace DiamondShop.Domain.Models.Jewelries
                     p.SetSold(p.TruePrice, p.TruePrice);
             });
         }
+
         public void SetSell()
         {
             Status = ProductStatus.Active;
@@ -148,7 +167,7 @@ namespace DiamondShop.Domain.Models.Jewelries
         }
         public void SetLockForUser(Account userAccount, int lockHour)
         {
-            if(Status == ProductStatus.Sold)
+            if (Status == ProductStatus.Sold)
                 throw new Exception("Can not lock a sold product");
             Status = ProductStatus.Locked;
             ProductLock = ProductLock.CreateLockForUser(userAccount.Id, TimeSpan.FromHours(lockHour));

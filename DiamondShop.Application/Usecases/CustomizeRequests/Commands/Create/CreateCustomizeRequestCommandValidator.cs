@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Create
 {
-    public class CreateCustomRequestCommandValidator : AbstractValidator<CreateCustomizeRequestCommand>
+    public class CreateCustomizeRequestCommandValidator : AbstractValidator<CreateCustomizeRequestCommand>
     {
-        public CreateCustomRequestCommandValidator()
+        public CreateCustomizeRequestCommandValidator()
         {
             RuleFor(p => p.AccountId).NotEmpty();
             RuleFor(p => p.ModelRequest).ChildRules(
@@ -19,7 +19,6 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Create
                     p.RuleFor(k => k.JewelryModelId).NotEmpty();
                     p.RuleFor(k => k.MetalId).NotEmpty();
                     p.RuleFor(k => k.SizeId).NotEmpty();
-                    p.RuleFor(k => k.SideDiamondOptId).NotEmpty();
                     p.RuleForEach(k => k.CustomizeDiamondRequests)
                     .Where(k => k != null)
                     .ChildRules(k =>

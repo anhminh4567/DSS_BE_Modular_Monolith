@@ -8,7 +8,6 @@ using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.Transactions;
 using DiamondShop.Domain.Models.Transactions.Enum;
 using DiamondShop.Domain.Repositories;
-using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Repositories.TransactionRepo;
@@ -25,6 +24,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderItemRepository _orderItemRepository;
         private readonly ITransactionRepository _transactionRepository;
+        private readonly IJewelryRepository _jewelryRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderService _orderService;
         private readonly IOrderTransactionService _orderTransactionService;
@@ -34,7 +34,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
         private readonly IOrderLogRepository _orderLogRepository;
         private readonly IOrderFileServices _orderFileServices;
 
-        public ProceedOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, ISender sender, IPublisher publisher, IPaymentMethodRepository paymentMethodRepository, IOrderLogRepository orderLogRepository, IOrderFileServices orderFileServices)
+        public ProceedOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, ISender sender, IPublisher publisher, IPaymentMethodRepository paymentMethodRepository, IOrderLogRepository orderLogRepository, IOrderFileServices orderFileServices, IJewelryRepository jewelryRepository)
         {
             _accountRepository = accountRepository;
             _orderRepository = orderRepository;
@@ -48,6 +48,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             _paymentMethodRepository = paymentMethodRepository;
             _orderLogRepository = orderLogRepository;
             _orderFileServices = orderFileServices;
+            _jewelryRepository = jewelryRepository;
         }
 
         public async Task<Result<Order>> Handle(ProceedOrderCommand request, CancellationToken token)
@@ -75,13 +76,23 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                 order.Status = OrderStatus.Processing;
                 order.PaymentStatus = order.PaymentType == PaymentType.Payall ? PaymentStatus.PaidAll : PaymentStatus.Deposited;
                 await _orderRepository.Update(order);
-                orderItems.ForEach(p => p.Status = OrderItemStatus.Prepared);
-                _orderItemRepository.UpdateRange(orderItems);
                 var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Processing);
                 await _orderLogRepository.Create(log);
             }
             else if (order.Status == OrderStatus.Processing)
             {
+                //Change jewelry status if customize
+                var items = order.Items;
+                foreach (var item in items)
+                {
+                    if (order.CustomizeRequestId != null)
+                    {
+                        item.Jewelry.SetSold();
+                        await _jewelryRepository.Update(item.Jewelry);
+                    }
+                    item.Status = OrderItemStatus.Prepared;
+                }
+                _orderItemRepository.UpdateRange(items);
                 order.Status = OrderStatus.Prepared;
                 var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Prepared);
                 await _orderLogRepository.Create(log);

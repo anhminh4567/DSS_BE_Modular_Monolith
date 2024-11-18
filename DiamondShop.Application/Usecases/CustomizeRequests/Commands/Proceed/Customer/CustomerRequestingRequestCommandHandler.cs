@@ -1,17 +1,12 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Domain.Models.CustomizeRequests.Enums;
+using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Staff;
 using DiamondShop.Domain.Models.CustomizeRequests;
+using DiamondShop.Domain.Models.CustomizeRequests.Enums;
+using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
+using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Azure.Core;
-using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
-using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Staff;
 
 namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Customer
 {
@@ -21,12 +16,13 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Cu
         private readonly ICustomizeRequestRepository _customizeRequestRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISender _sender;
-
-        public CustomerRequestingRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, ISender sender)
+        private readonly ICustomizeRequestService _customizeRequestService;
+        public CustomerRequestingRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, ISender sender, ICustomizeRequestService customizeRequestService)
         {
             _customizeRequestRepository = customizeRequestRepository;
             _unitOfWork = unitOfWork;
             _sender = sender;
+            _customizeRequestService = customizeRequestService;
         }
 
         public async Task<Result<CustomizeRequest>> Handle(CustomerRequestingRequestCommand request, CancellationToken token)
@@ -60,6 +56,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Cu
             //staff auto accept finish
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
+            _customizeRequestService.SetStage(customizeRequest);
             return customizeRequest;
         }
     }
