@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Common.Enums;
 using FluentResults;
 using MapsterMapper;
 using MediatR;
@@ -90,6 +91,19 @@ namespace DiamondShop.Api.Controllers
             get.MaxAddress += 10;
             _applicationSettingService.Set(AccountRules.key, get);
             return Ok();
+        }
+        [HttpGet("ProductStatus")]
+        public async Task<ActionResult> GetProductStatusMessage()
+        {
+            Dictionary<int , string> keyValuePairs = new Dictionary<int, string>();
+            ProductStatusHelper.GetAllStatus();
+            foreach (var item in ProductStatusHelper.GetAllStatus())
+            {
+                var key  = (int)item;
+                var value = ProductStatusHelper.GetStatusName(item);
+                keyValuePairs.Add(key, value);
+            }
+            return Ok(keyValuePairs);
         }
     }
 }

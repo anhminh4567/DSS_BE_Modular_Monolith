@@ -2,6 +2,7 @@
 using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
@@ -20,7 +21,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
 {
-    public record CreateDiamondCommand(Diamond_4C diamond4c, Diamond_Details details, Diamond_Measurement measurement, string shapeId, string? sku,Certificate? Certificate = Certificate.GIA, decimal priceOffset = 1) :IRequest<Result<Diamond>>;
+    public record CreateDiamondRequestDto(Diamond_4C diamond4c, Diamond_Details details, Diamond_Measurement measurement, string shapeId, string? sku, Certificate? Certificate = Certificate.GIA, decimal priceOffset = 1);
+    public record CreateDiamondCommand(Diamond_4C diamond4c, Diamond_Details details, Diamond_Measurement measurement, string shapeId, string? sku,Certificate? Certificate = Certificate.GIA, decimal priceOffset = 1, bool isAvailble = true) :IRequest<Result<Diamond>>;
     internal class CreateDiamondCommandHandler : IRequestHandler<CreateDiamondCommand, Result<Diamond>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -45,7 +47,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
         public async Task<Result<Diamond>> Handle(CreateDiamondCommand request, CancellationToken cancellationToken)
         {
             DiamondRule diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
-            request.Deconstruct(out var diamond4c, out var details, out var measurement, out string shapeGivenId, out string? sku, out var certificate, out var priceOffset);
+            request.Deconstruct(out var diamond4c, out var details, out var measurement, out string shapeGivenId, out string? sku, out var certificate, out var priceOffset, out bool isAvailable);
             DiamondShapeId shapeId = DiamondShapeId.Parse(shapeGivenId);
             var getShapes = await _diamondShapeRepository.GetAll();
             DiamondShape? getShape = getShapes.FirstOrDefault(x => x.Id == shapeId);
@@ -62,6 +64,14 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
                 return Result.Fail(new ValidationError("Diamond is not belong to any criteria group"));
 
             await _diamondRepository.Create(newDiamond);
+            if (isAvailable)
+            {
+                newDiamond.Status = ProductStatus.Active;
+            }
+            else
+            {
+                newDiamond.Status = ProductStatus.Unavailable;
+            }
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(newDiamond);
         }
