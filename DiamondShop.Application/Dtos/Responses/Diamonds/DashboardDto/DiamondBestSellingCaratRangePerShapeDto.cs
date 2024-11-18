@@ -8,8 +8,8 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds.DashboardDto
 {
     public class DiamondBestSellingCaratRangePerShapeDto
     {
-        public DateTime From { get; set; }
-        public DateTime To { get; set; }
+        public string From { get; set; }
+        public string To { get; set; }
         public DiamondShapeDto Shape { get; set; }
         public float CaratFrom { get; set; }
         public float CaratTo { get; set; }

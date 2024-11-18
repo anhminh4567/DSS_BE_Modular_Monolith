@@ -51,7 +51,7 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Queries.GetAllOrderLogs
                     parent.ChildLog.Add(child);
                 }
             }
-            return getParentLog.OrderBy(x => x.Status).ThenBy(x => x.CreatedDate).ToList();
+            return getParentLog.OrderBy(x => x.CreatedDate).ToList();
         }
     }
 

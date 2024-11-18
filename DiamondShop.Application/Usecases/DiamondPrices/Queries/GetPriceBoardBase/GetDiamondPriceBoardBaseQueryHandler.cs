@@ -22,12 +22,12 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
+namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoardBase
 {
     // cut is not required, might leave it as it be
     //
-    public record GetDiamondPriceBoardQuery(Cut cut, bool isLabDiamond, bool isSideDiamond, string? shapeId) : IRequest<Result<DiamondPriceBoardDto>>;// bool IsSideDiamond = false
-    internal class GetDiamondPriceBoardQueryHandler : IRequestHandler<GetDiamondPriceBoardQuery, Result<DiamondPriceBoardDto>>
+    public record GetDiamondPriceBoardBaseQuery(Cut cut, bool isLabDiamond, bool isSideDiamond, string? shapeId) : IRequest<Result<DiamondPriceBoardDto>>;// bool IsSideDiamond = false
+    internal class GetDiamondPriceBoardBaseQueryHandler : IRequestHandler<GetDiamondPriceBoardBaseQuery, Result<DiamondPriceBoardDto>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
         private readonly IDiamondCriteriaRepository _diamondCriteriaRepository;
@@ -35,7 +35,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
         private readonly IDiscountRepository _discountRepository;
         private readonly IMapper _mapper;
 
-        public GetDiamondPriceBoardQueryHandler(IDiamondPriceRepository diamondPriceRepository, IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondShapeRepository diamondShapeRepository, IDiscountRepository discountRepository, IMapper mapper)
+        public GetDiamondPriceBoardBaseQueryHandler(IDiamondPriceRepository diamondPriceRepository, IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondShapeRepository diamondShapeRepository, IDiscountRepository discountRepository, IMapper mapper)
         {
             _diamondPriceRepository = diamondPriceRepository;
             _diamondCriteriaRepository = diamondCriteriaRepository;
@@ -44,7 +44,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             _mapper = mapper;
         }
 
-        public async Task<Result<DiamondPriceBoardDto>> Handle(GetDiamondPriceBoardQuery request, CancellationToken cancellationToken)
+        public async Task<Result<DiamondPriceBoardDto>> Handle(GetDiamondPriceBoardBaseQuery request, CancellationToken cancellationToken)
         {
             var activeDiscount = await _discountRepository.GetActiveDiscount();
             if (request.isSideDiamond == false && request.shapeId is null)
@@ -52,7 +52,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             var shapeId = DiamondShapeId.Parse(request.shapeId);
             var getAllShape = await _diamondShapeRepository.GetAllIncludeSpecialShape();
             DiamondShape getShape = getAllShape.FirstOrDefault(x => x.Id == shapeId);
-            if(request.isSideDiamond)
+            if (request.isSideDiamond)
                 getShape = getAllShape.FirstOrDefault(s => s.Id == DiamondShape.ANY_SHAPES.Id);
             if (getShape is null)
                 return Result.Fail(new NotFoundError("Shape not found"));
@@ -78,29 +78,29 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
 
                 prices = await _diamondPriceRepository.GetPrice(request.cut, getShape, request.isLabDiamond, cancellationToken);
                 priceBoard.IsSideDiamondBoardPrices = false;
-                string serlized = JsonConvert.SerializeObject(prices,new JsonSerializerSettings() 
+                string serlized = JsonConvert.SerializeObject(prices, new JsonSerializerSettings()
                 {
-                    ReferenceLoopHandling  = ReferenceLoopHandling.Ignore
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                 });
                 byte[] bytes = Encoding.UTF8.GetBytes(serlized);
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("size: "+ bytes.Length);
+                Console.WriteLine("size: " + bytes.Length);
                 Console.ResetColor();
                 //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableCaratRange( cancellationToken);
                 priceBoard.MainCut = request.cut;
-                if(isFancyShape)
-                    criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableCriteria(isFancyShape, null, cancellationToken));
+                if (isFancyShape)
+                    criteriasByGrouping = await _diamondCriteriaRepository.GroupAllAvailableCriteria(isFancyShape, null, cancellationToken);
                 else
-                    criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableCriteria(isFancyShape,priceBoard.MainCut, cancellationToken));
+                    criteriasByGrouping = await _diamondCriteriaRepository.GroupAllAvailableCriteria(isFancyShape, priceBoard.MainCut, cancellationToken);
             }
             else
             {
                 var isFancy = DiamondShape.IsFancyShape(getShape.Id);
-                prices = await _diamondPriceRepository.GetSideDiamondPrice( request.isLabDiamond, cancellationToken);
+                prices = await _diamondPriceRepository.GetSideDiamondPrice(request.isLabDiamond, cancellationToken);
                 priceBoard.IsSideDiamondBoardPrices = true;
                 priceBoard.Shape = _mapper.Map<DiamondShapeDto>(DiamondShape.ANY_SHAPES);
                 //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCaratRange(cancellationToken);
-                criteriasByGrouping = (await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCriteria(cancellationToken));
+                criteriasByGrouping = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCriteria(cancellationToken);
             }
             //criteriasCarat = criteriasCarat.OrderBy(x => x.CaratTo).ToList();
 
@@ -123,11 +123,11 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
             Dictionary<Color, int> colorRange = criteriasByGrouping.SelectMany(x => x.Value)
                 .Select(x => x.Color)
                 .Distinct()
-                .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => ((int)x.Value));
+                .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => (int)x.Value);
             Dictionary<Clarity, int> clarityRange = criteriasByGrouping.SelectMany(x => x.Value)
                 .Select(x => x.Clarity)
                 .Distinct()
-                .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => ((int)x.Value));
+                .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => (int)x.Value);
 
             var createTable = criteriasByGrouping
                 .AsParallel()
@@ -162,10 +162,10 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoard
 
             priceBoard.PriceTables = createTable;
             //assign discount on table
-            priceBoard.PriceTables
-                .AsParallel()
-                .ForAll(x => x.MapDiscounts(activeDiscount, priceBoard.MainCut,getShape,priceBoard.IsLabDiamondBoardPrices));
-            //
+            //priceBoard.PriceTables
+            //    .AsParallel()
+            //    .ForAll(x => x.MapDiscounts(activeDiscount, priceBoard.MainCut, getShape, priceBoard.IsLabDiamondBoardPrices));
+            ////
             stopwatch.Stop();
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("execution time measured in miliseconds: " + stopwatch.ElapsedMilliseconds);
