@@ -2,6 +2,7 @@
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Staff;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Create;
 using DiamondShop.Commons;
+using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.CustomizeRequests.Entities;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
@@ -70,6 +71,15 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeR
             {
                 await _unitOfWork.RollBackAsync();
                 return Result.Fail(new ValidationError("Diamond không đáp ứng yêu cầu Requirement"));
+            }
+            if(request.lockPrice != null)
+            {
+                var normalizedPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(request.lockPrice.Value);
+                if (request.lockPrice < 0 || normalizedPrice < 0)
+                {
+                    await _unitOfWork.RollBackAsync();
+                    return Result.Fail(new ValidationError("Giá không hợp lệ, Phải lớn hơn hoặc =0"));
+                }
             }
             diamondRequest.AssignDiamondToRequest(diamond);
             await _diamondRepository.Update(diamond);
