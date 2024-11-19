@@ -5,6 +5,7 @@ using DiamondShop.Commons;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate;
+using DiamondShop.Domain.Models.AccountAggregate.ErrorMessages;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.AccountRoleAggregate.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
@@ -181,7 +182,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             var userIdentity = loginValidateResult.Value;
             if (CheckIfUserIsValidToLogin(userIdentity))
             {
-                return Result.Fail("user is lock out,contact admin to unlock");
+                return Result.Fail(AccountErrors.LockAccount);
             }
             var getCustomer = await _accountRepository.GetByIdentityId(userIdentity.Id, cancellationToken);
             // getCustomer.Roles.First(r => r.Id == AccountRole.Customer.Id);
@@ -215,7 +216,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
         {
             if ((await _userManager.FindByEmailAsync(email)) is not null)
             {
-                return Result.Fail("User Exist");
+                return Result.Fail(AccountErrors.Register.UserExist);
             }
             var identity = new CustomIdentityUser();
             identity.Email = email;

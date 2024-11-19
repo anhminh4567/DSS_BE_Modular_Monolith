@@ -75,7 +75,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
                         {
                             errors.Add(new Error($"Diamond for request number {i} doesn't exist"));
                         }
-                        else if (diamond.Status != ProductStatus.Active || diamond.JewelryId != null)
+                        else if ( ( diamond.Status != ProductStatus.Active && diamond.Status != ProductStatus.PreOrder )|| diamond.JewelryId != null)
                         {
                             errors.Add(new Error($"Diamond for request number {i} isn't available for sell"));
                         }

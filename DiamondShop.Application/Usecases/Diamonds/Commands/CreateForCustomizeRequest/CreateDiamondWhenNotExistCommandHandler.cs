@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeRequest
 {
-    public record CreateDiamondWhenNotExistCommand(CreateDiamondCommand CreateDiamond , string customizeRequestId, string diamondRequest, decimal? lockPrice   ) : IRequest<Result<Diamond>>;
+    public record CreateDiamondWhenNotExistCommand(CreateDiamondCommand CreateDiamond , string customizeRequestId, string diamondRequestId, decimal? lockPrice   ) : IRequest<Result<Diamond>>;
     internal class CreateDiamondWhenNotExistCommandHandler : IRequestHandler<CreateDiamondWhenNotExistCommand, Result<Diamond>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -29,16 +29,19 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeR
         private readonly IDiamondServices _diamondServices;
         private readonly IDiamondPriceRepository _diamondPriceRepository;
         private readonly ICustomizeRequestRepository _customizeRequestRepository;
+        private readonly IDiamondRequestRepository _diamondRequestRepository;
         private readonly ICustomizeRequestService _customizeRequestService;
         private readonly ISender _sender;
         private readonly IMapper _mapper;
-        public CreateDiamondWhenNotExistCommandHandler(IUnitOfWork unitOfWork, IDiamondRepository diamondRepository, IDiamondServices diamondServices, IDiamondPriceRepository diamondPriceRepository, ICustomizeRequestRepository customizeRequestRepository, ICustomizeRequestService customizeRequestService, ISender sender, IMapper mapper)
+
+        public CreateDiamondWhenNotExistCommandHandler(IUnitOfWork unitOfWork, IDiamondRepository diamondRepository, IDiamondServices diamondServices, IDiamondPriceRepository diamondPriceRepository, ICustomizeRequestRepository customizeRequestRepository, IDiamondRequestRepository diamondRequestRepository, ICustomizeRequestService customizeRequestService, ISender sender, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _diamondRepository = diamondRepository;
             _diamondServices = diamondServices;
             _diamondPriceRepository = diamondPriceRepository;
             _customizeRequestRepository = customizeRequestRepository;
+            _diamondRequestRepository = diamondRequestRepository;
             _customizeRequestService = customizeRequestService;
             _sender = sender;
             _mapper = mapper;
@@ -47,7 +50,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeR
         public async Task<Result<Diamond>> Handle(CreateDiamondWhenNotExistCommand request, CancellationToken cancellationToken)
         {
             CustomizeRequestId customizeRequestId = CustomizeRequestId.Parse(request.customizeRequestId);
-            DiamondRequestId diamondRequestId = DiamondRequestId.Parse(request.diamondRequest);
+            DiamondRequestId diamondRequestId = DiamondRequestId.Parse(request.diamondRequestId);
             var getCustomizeRequest = await _customizeRequestRepository.GetById(customizeRequestId);
             if(getCustomizeRequest is null)
                 return Result.Fail(new NotFoundError("Không tìm thấy yêu cầu này"));
@@ -61,7 +64,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeR
             }
             var diamond = createResult.Value;
             diamond.Status = Domain.Common.Enums.ProductStatus.PreOrder;
-
+            
             var isDiamondMetRquirement = _customizeRequestService.IsAssigningDiamondSpecValid(diamondRequest, diamond);
             if(isDiamondMetRquirement is false)
             {
@@ -70,7 +73,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeR
             }
             diamondRequest.AssignDiamondToRequest(diamond);
             await _diamondRepository.Update(diamond);
-            
+            await _customizeRequestRepository.Update(getCustomizeRequest);
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
             return Result.Ok(diamond);

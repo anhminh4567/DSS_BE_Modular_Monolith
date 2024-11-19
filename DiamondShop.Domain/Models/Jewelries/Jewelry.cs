@@ -120,6 +120,11 @@ namespace DiamondShop.Domain.Models.Jewelries
             EngravedFont = engravedFont;
             Diamonds.ForEach(p =>
             {
+                if (p.Status == ProductStatus.PreOrder)
+                {
+                    p.SetSoldPreOrder(p.TruePrice,p.TruePrice);
+                    return;
+                }
                 if (p.TruePrice != null)
                     p.SetSold(p.TruePrice, p.TruePrice);
             });

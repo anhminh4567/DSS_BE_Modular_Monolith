@@ -133,7 +133,8 @@ namespace DiamondShop.Domain.Models.Diamonds
             }
             else
             {
-                SetSell();
+                var currentPrice = 
+                //SetSell();
                 JewelryId = jewelry.Id;
                 Status = ProductStatus.Locked;
             } 
@@ -156,6 +157,13 @@ namespace DiamondShop.Domain.Models.Diamonds
         public void SetSold(decimal defaultPrice ,decimal soldPrice)
         {
             Status = ProductStatus.Sold;
+            DefaultPrice = defaultPrice;
+            SoldPrice = soldPrice;
+            ProductLock = null;
+        }
+        public void SetSoldPreOrder(decimal defaultPrice, decimal soldPrice)
+        {
+            Status = ProductStatus.PreOrder;
             DefaultPrice = defaultPrice;
             SoldPrice = soldPrice;
             ProductLock = null;
@@ -279,6 +287,12 @@ namespace DiamondShop.Domain.Models.Diamonds
             if (Status == ProductStatus.PreOrder)
                 return true;
             return false;
+        }
+        public void DealdedPrice(decimal dealedPrice)
+        {
+            if (Status != ProductStatus.PreOrder)
+                throw new Exception("chỉ được tự deal giá nếu kim cương trong pre order");
+            DefaultPrice = dealedPrice;
         }
         private Diamond() { }
     }

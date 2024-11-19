@@ -38,6 +38,7 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
                     {
                         p.Status = CustomizeRequestStatus.Customer_Rejected;
                         await HandleDiamondRequestCancelled(context, p);
+
                     }
                     else
                     {
@@ -61,7 +62,11 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
                 preOrderDiamonds.ForEach(x => _diamondRepository.Delete(x));
                 await _unitOfWork.SaveChangesAsync();
             }
+        }
+        private async Task HandleJewelryCancelled(IJobExecutionContext context, CustomizeRequest requestDetail)
+        {
 
         }
+
     }
 }
