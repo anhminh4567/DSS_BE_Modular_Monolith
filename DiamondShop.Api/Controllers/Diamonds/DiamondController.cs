@@ -3,6 +3,7 @@ using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Create;
 using DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeRequest;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Delete;
+using DiamondShop.Application.Usecases.Diamonds.Commands.DeletePreOrderDiamondFromCustomizeRequest;
 using DiamondShop.Application.Usecases.Diamonds.Commands.LockForUser;
 using DiamondShop.Application.Usecases.Diamonds.Queries.DashBoard.GetBestSellingCaratRangeForShape;
 using DiamondShop.Application.Usecases.Diamonds.Queries.DashBoard.GetBestSellingForManyShape;
@@ -149,6 +150,14 @@ namespace DiamondShop.Api.Controllers.Diamonds
         public async Task<ActionResult> Delete([FromRoute] string id)
         {
             var command = new DeleteDiamondCommand(id);
+            var result = await _sender.Send(command);
+            if (result.IsSuccess)
+                return Ok();
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpDelete("Unavailble")]
+        public async Task<ActionResult> DeleteUnavailbe(DeletePreOrderDiamondCommand command)
+        {
             var result = await _sender.Send(command);
             if (result.IsSuccess)
                 return Ok();
