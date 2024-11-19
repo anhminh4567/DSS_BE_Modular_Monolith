@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
@@ -36,7 +37,13 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.AttachToJewelry
             var jewelry = await _jewelryRepository.GetById(jewelryId);
             if(jewelry.Id == null)
                 return Result.Fail("This jewelry doesn't exist");
-            diamonds.ForEach(d => d.SetForJewelry(jewelry));
+            foreach (var diamond in diamonds)
+            {
+                if (diamond.JewelryId != null)
+                    return Result.Fail("This diamond is already attached to a jewelry");
+                diamond.SetForJewelry(jewelry);
+            }
+
             _diamondRepository.UpdateRange(diamonds);
             await _unitOfWork.SaveChangesAsync(token);
             return Result.Ok();            

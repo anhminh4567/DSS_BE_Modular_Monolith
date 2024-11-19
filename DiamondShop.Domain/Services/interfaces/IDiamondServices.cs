@@ -28,7 +28,7 @@ namespace DiamondShop.Domain.Services.interfaces
 
         Task<Discount?> AssignDiamondDiscount(Diamond diamond, List<Discount> discounts);
 
-        Task<List<DiamondPrice>> GetPrice(Cut cut, DiamondShape shape, bool? isLabDiamond = null, CancellationToken token = default);
+        Task<List<DiamondPrice>> GetPrice(Cut? cut, DiamondShape shape, bool? isLabDiamond = null, CancellationToken token = default);
 
 
     }

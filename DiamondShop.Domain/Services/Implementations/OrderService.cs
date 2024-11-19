@@ -65,8 +65,15 @@ namespace DiamondShop.Domain.Services.Implementations
                         {
                             foreach(var diamond in jewelry.Diamonds)
                             {
-                                diamond.SetSell();
-                                diamonds.Add(diamond);
+                                if(diamond.Status == ProductStatus.PreOrder)
+                                {
+                                    await _diamondRepo.Delete(diamond);
+                                }
+                                else
+                                {
+                                    diamond.SetSell();
+                                    diamonds.Add(diamond);
+                                }
                             }
                         }
                     }
@@ -76,7 +83,7 @@ namespace DiamondShop.Domain.Services.Implementations
                         {
                             foreach (var diamond in jewelry.Diamonds)
                             {
-                                diamond.SetLock();
+                                diamond.SetForJewelry(jewelry);
                                 diamonds.Add(diamond);
                             }
                         }

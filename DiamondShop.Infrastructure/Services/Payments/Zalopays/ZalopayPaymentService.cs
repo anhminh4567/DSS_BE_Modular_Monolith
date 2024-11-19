@@ -207,7 +207,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             var amount = correctAmount;
 
             var timeStampe = ZalopayUtils.GetTimeStamp().ToString();
-            var description = paymentLinkRequest.Description is null ? $"thanh toan cho don hang {paymentLinkRequest.Order.Id.Value}, timestampe = {timeStampe}" : paymentLinkRequest.Description;
+            var description = paymentLinkRequest.Description is null ? $"thanh toan cho don hang {paymentLinkRequest.Order.OrderCode}, timestampe = {timeStampe}" : paymentLinkRequest.Description;
             PaymentMetadataBodyPerTransaction descriptionBodyJson = new PaymentMetadataBodyPerTransaction
             {
                 GeneratedCode = app_trans_id,
@@ -295,7 +295,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             param.Add("zp_trans_id", forTransaction.PaygateTransactionCode);
             param.Add("amount", ((long)forTransaction.TotalAmount).ToString());
             param.Add("timestamp", timestamp);
-            param.Add("description", description is null ? $"hoan tra don hang cho giao dich: {forTransaction.AppTransactionCode} cua don hang: {order.Id.Value} " : description );
+            param.Add("description", description is null ? $"hoan tra don hang cho giao dich: {forTransaction.AppTransactionCode} cua don hang: {order.OrderCode} " : description );
             string data = null;
             if (fineAmountRounded > 0)
             {

@@ -111,10 +111,10 @@ namespace DiamondShop.Domain.Models.Jewelries
                 Status = status,
             };
         }
-        public void SetSoldUnavailable(decimal noDiamondPrice, decimal soldPrice, string? engravedText, string? engravedFont)
+        public void SetSoldUnavailable( decimal soldPrice, string? engravedText, string? engravedFont)
         {
-            ND_Price = noDiamondPrice;
-            D_Price = soldPrice - noDiamondPrice;
+            //ND_Price = noDiamondPrice;
+            //D_Price = soldPrice - noDiamondPrice;
             SoldPrice = soldPrice;
             EngravedText = engravedText;
             EngravedFont = engravedFont;
@@ -129,12 +129,17 @@ namespace DiamondShop.Domain.Models.Jewelries
             if (Status == ProductStatus.PreOrder)
                 Status = ProductStatus.Sold;
         }
-        public void SetSold(decimal noDiamondPrice, decimal soldPrice, string? engravedText, string? engravedFont)
+        public void SetSold( decimal soldPrice, string? engravedText, string? engravedFont)
         {
 
             Status = ProductStatus.Sold;
-            ND_Price = noDiamondPrice;
-            D_Price = soldPrice - noDiamondPrice;
+            //khúc này không cần, trong cartModel đã tính rồi, đã set giá cho ND , D  và SD
+            //Giá thằng đó là giá default, là giá gốc, còn sold price là giá bán
+            // lý do ko tính mấy thằng kia theo giá bán do giá gốc nó mới chuẩn
+            // Giá gốc = ND + D + SD rồi mới bắt đầu tính discount, promo, nên để nguyên v, lúc
+            // lấy sản phẩm ra xem thì cũng xem tổng giá với giá ban đầu
+            //ND_Price = noDiamondPrice;
+            //D_Price = soldPrice - noDiamondPrice;
             SoldPrice = soldPrice;
             EngravedText = engravedText;
             EngravedFont = engravedFont;

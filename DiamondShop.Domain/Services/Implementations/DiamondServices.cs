@@ -107,13 +107,14 @@ namespace DiamondShop.Domain.Services.Implementations
         public static async Task<DiamondPrice> GetDiamondPriceGlobal(Diamond diamond, List<DiamondPrice> diamondPrices, DiamondRule diamondRule)
         {
             // if diamond is locked for user, and price is seted
-            if(diamond.Status == Common.Enums.ProductStatus.LockForUser)
+            if(diamond.Status == Common.Enums.ProductStatus.LockForUser || diamond.Status == Common.Enums.ProductStatus.PreOrder)
             {
                 if(diamond.DefaultPrice != null && diamond.DefaultPrice > 0)
                 {
                     var dealedDiamondPrice = DiamondPrice.CreateDealedLockedPriceForUser(diamond);
                     diamond.DiamondPrice = dealedDiamondPrice;
                     diamond.TruePrice = dealedDiamondPrice.Price;
+                    return dealedDiamondPrice;
                 }
             }
             foreach (var price in diamondPrices)
@@ -287,7 +288,7 @@ namespace DiamondShop.Domain.Services.Implementations
             return price;
         }
 
-        public async Task<List<DiamondPrice>> GetPrice(Cut cut, DiamondShape shape, bool? isLabDiamond = null, CancellationToken token = default)
+        public async Task<List<DiamondPrice>> GetPrice(Cut? cut, DiamondShape shape, bool? isLabDiamond = null, CancellationToken token = default)
         {
             List<DiamondPrice> result = new();
             //if(shape == null)

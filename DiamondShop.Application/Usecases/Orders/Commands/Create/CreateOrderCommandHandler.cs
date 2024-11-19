@@ -105,7 +105,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             {
                 PromotionId = promotionId,
                 Items = items,
-                AccountId = account.Id.Value
+                AccountId = account.Id.Value,
             };
             //Validate CartModel
             var cartModelResult = await _sender.Send(new ValidateCartFromListCommand(cartRequestDto));
@@ -118,6 +118,10 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 foreach (var index in cartModel.OrderValidation.UnavailableItemIndex)
                 {
                     errors.Add(new Error(cartModel.Products[index].ErrorMessage));
+                }
+                foreach (var errMess in cartModel.OrderValidation.MainErrorMessage)
+                {
+                    errors.Add(new Error(errMess));
                 }
             }
             if (errors.Count > 0) return Result.Fail(errors);
@@ -151,7 +155,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                     if (product.Jewelry != null)
                     {
                         _jewelryService.AddPrice(product.Jewelry, _sizeMetalRepository);
-                        product.Jewelry.SetSoldUnavailable(product.Jewelry.ND_Price.Value, product.ReviewPrice.DefaultPrice, product.EngravedText, product.EngravedFont);
+                        product.Jewelry.SetSoldUnavailable( product.ReviewPrice.FinalPrice, product.EngravedText, product.EngravedFont);
                         jewelries.Add(product.Jewelry);
                     }
                 }
@@ -160,7 +164,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                     if (product.Jewelry != null)
                     {
                         _jewelryService.AddPrice(product.Jewelry, _sizeMetalRepository);
-                        product.Jewelry.SetSold(product.Jewelry.ND_Price.Value, product.ReviewPrice.DefaultPrice, product.EngravedText, product.EngravedFont);
+                        product.Jewelry.SetSold(product.ReviewPrice.FinalPrice, product.EngravedText, product.EngravedFont);
                         jewelries.Add(product.Jewelry);
                     }
                     if (product.Diamond != null)
@@ -170,6 +174,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                     }
                 }
             }
+            await _orderRepository.Create(order);
             await _orderItemRepository.CreateRange(orderItems);
             _jewelryRepository.UpdateRange(jewelries);
             _diamondRepository.UpdateRange(diamonds);

@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
@@ -55,6 +56,14 @@ namespace DiamondShop.Domain.Models.CustomizeRequests.Entities
                 Girdle = girdle,
                 Culet = culet
             };
+        }
+        public void AssignDiamondToRequest(Diamond diamond)
+        {
+            if(diamond.Status != ProductStatus.Active && diamond.Status != ProductStatus.PreOrder)
+            {
+                throw new Exception("Viên kim cương này cần được active hoặc preorder");
+            }
+            DiamondId = diamond.Id;
         }
     }
 }
