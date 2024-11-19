@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
@@ -27,10 +28,10 @@ namespace DiamondShop.Application.Usecases.SizeMetals.Commands.Delete
             await _unitOfWork.BeginTransactionAsync(token);
             var sizeMetal = await _sizeMetalRepository.GetById(JewelryModelId.Parse(modelId), MetalId.Parse(metalId), SizeId.Parse(sizeId));
             if (sizeMetal == null)
-                return Result.Fail("This size and metal selection for this model doesn't exist");
+                return Result.Fail(JewelryModelErrors.SizeMetal.SizeMetalNotFoundError);
             var inUseFlag = await _jewelryRepository.Existing(sizeMetal.ModelId, sizeMetal.MetalId, sizeMetal.SizeId);
             if (inUseFlag)
-                return Result.Fail("This size and metal selection is still in use");
+                return Result.Fail(JewelryModelErrors.SizeMetal.SizeMetalInUseConflictError);
             await _sizeMetalRepository.Delete(sizeMetal, token);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);

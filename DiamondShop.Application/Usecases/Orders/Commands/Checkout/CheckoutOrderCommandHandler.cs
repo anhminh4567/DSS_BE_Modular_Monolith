@@ -83,8 +83,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Checkout
                     Email = order.Account.Email,
                     Phone = billingDetail.Phone,
                     Address = order.ShippingAddress,
-                    Title = $"Payment for Order#{order.Id}",
-                    Description = $"{paymentType.ToString()} payment",
+                    Title = $"Thanh toán cho đơn hàng {order.OrderCode}",
+                    Description = $"Loại giao dịch - {paymentType.ToString()}",
                     Amount = amount,
                 };
                 var paymentLink = await _paymentService.CreatePaymentLink(paymentLinkRequest, token);

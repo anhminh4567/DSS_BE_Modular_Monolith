@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
@@ -27,10 +28,10 @@ namespace DiamondShop.Application.Usecases.SizeMetals.Commands.Delete
             await _unitOfWork.BeginTransactionAsync(token);
             var sideDiamond = await _sideDiamondRepository.GetById(SideDiamondOptId.Parse(sideDiamondOptId));
             if (sideDiamond == null)
-                return Result.Fail("This side diamond option for this model doesn't exist");
+                return Result.Fail(JewelryModelErrors.SideDiamond.SideDiamondOptNotFoundError);
             var inUseFlag = await _jewelryRepository.Existing(sideDiamond.ModelId, sideDiamond);
             if (inUseFlag)
-                return Result.Fail("This side diamond option for this model is still in use");
+                return Result.Fail(JewelryModelErrors.SideDiamond.SideDiamondOptInUseConflictError);
             await _sideDiamondRepository.Delete(sideDiamond, token);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);

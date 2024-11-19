@@ -2,6 +2,7 @@
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories;
@@ -35,7 +36,7 @@ namespace DiamondShop.Api.Controllers.Orders.AssignDeliverer
             var orderQuery = _orderRepository.GetQuery();
             var order = _orderRepository.QueryFilter(orderQuery, p => p.Id == OrderId.Parse(orderId)).FirstOrDefault();
             if (order == null)
-                return Result.Fail("The order doesn't exist");
+                return Result.Fail(OrderErrors.OrderNotFoundError);
             await _orderService.AssignDeliverer(order, delivererId, _accountRepository, _orderRepository);
             await _orderRepository.Update(order);
             await _unitOfWork.SaveChangesAsync(token);

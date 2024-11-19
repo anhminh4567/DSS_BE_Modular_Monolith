@@ -6,7 +6,9 @@ using DiamondShop.Application.Usecases.Jewelries.Commands;
 using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
+using DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
+using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
@@ -18,10 +20,11 @@ using MediatR;
 namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Staff
 {
     public record DiamondRequestAssignRecord(string DiamondRequestId, string? DiamondId, CreateDiamondCommand? CreateDiamondCommand);
-    public record ProceedPendingRequestCommand(CustomizeRequest CustomizeRequest, List<DiamondRequestAssignRecord>? DiamondAssigning) : IRequest<Result<CustomizeRequest>>;
+    public record ProceedPendingRequestCommand(CustomizeRequest CustomizeRequest, string? SideDiamondOptId, List<DiamondRequestAssignRecord>? DiamondAssigning) : IRequest<Result<CustomizeRequest>>;
     internal class ProceedPendingRequestCommandHandler : IRequestHandler<ProceedPendingRequestCommand, Result<CustomizeRequest>>
     {
         private readonly IDiamondRepository _diamondRepository;
+        private readonly IJewelryModelRepository _jewelryModelRepository;
         private readonly ISideDiamondRepository _sideDiamondRepository;
         private readonly ICustomizeRequestRepository _customizeRequestRepository;
         private readonly IDiamondRequestRepository _diamondRequestRepository;
@@ -29,7 +32,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
         private readonly IDiamondServices _diamondServices;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISender _sender;
-        public ProceedPendingRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, ICustomizeRequestService customizeRequestService, IDiamondRepository diamondRepository, IDiamondRequestRepository diamondRequestRepository, IDiamondServices diamondServices, ISideDiamondRepository sideDiamondRepository, ISender sender)
+        public ProceedPendingRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, ICustomizeRequestService customizeRequestService, IDiamondRepository diamondRepository, IDiamondRequestRepository diamondRequestRepository, IDiamondServices diamondServices, ISideDiamondRepository sideDiamondRepository, ISender sender, IJewelryModelRepository jewelryModelRepository)
         {
             _customizeRequestRepository = customizeRequestRepository;
             _unitOfWork = unitOfWork;
@@ -39,29 +42,37 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
             _diamondServices = diamondServices;
             _sideDiamondRepository = sideDiamondRepository;
             _sender = sender;
+            _jewelryModelRepository = jewelryModelRepository;
         }
 
         public async Task<Result<CustomizeRequest>> Handle(ProceedPendingRequestCommand request, CancellationToken token)
         {
-            request.Deconstruct(out CustomizeRequest customizeRequest, out List<DiamondRequestAssignRecord>? diamondAssigning);
+            request.Deconstruct(out CustomizeRequest customizeRequest, out string? sideDiamondOptId, out List<DiamondRequestAssignRecord>? diamondAssigning);
             await _unitOfWork.BeginTransactionAsync(token);
             if (customizeRequest.Status != CustomizeRequestStatus.Pending)
-                return Result.Fail("This request can't be priced anymore");
-            if (customizeRequest.SideDiamondId != null)
+                return Result.Fail(CustomizeRequestErrors.UnpricableError);
+            var model = await _jewelryModelRepository.GetById(customizeRequest.JewelryModelId);
+            if (model == null)
+                return Result.Fail(JewelryModelErrors.JewelryModelNotFoundError);
+            if (model.SideDiamonds.Count() > 0)
             {
-                var sideDiamond = await _sideDiamondRepository.GetById(customizeRequest.SideDiamondId);
-                if (sideDiamond == null)
-                    return Result.Fail("Can't find the required side diamond option");
-                if (sideDiamond.ModelId != customizeRequest.JewelryModelId)
-                    return Result.Fail("The jewelry model doesn't support this side diamond option");
-                await _diamondServices.GetSideDiamondPrice(sideDiamond);
-                if (sideDiamond.TotalPrice == 0)
-                    return Result.Fail("Please update the side diamond price first");
+                if (customizeRequest.SideDiamondId != null || sideDiamondOptId != null)
+                {
+                    var sideDiamond = model.SideDiamonds.FirstOrDefault(p => customizeRequest.SideDiamondId == null ? p.Id.Value == sideDiamondOptId : p.Id == customizeRequest.SideDiamondId);
+                    if (sideDiamond == null)
+                        return Result.Fail(JewelryModelErrors.SideDiamond.SideDiamondOptNotFoundError);
+                    await _diamondServices.GetSideDiamondPrice(sideDiamond);
+                    if (sideDiamond.TotalPrice == 0)
+                        return Result.Fail(JewelryModelErrors.SideDiamond.UnpricedSideDiamondOptError);
+                }
+                else
+                    return Result.Fail(CustomizeRequestErrors.UnchosenSideDiamondOptError);
             }
+
             if (customizeRequest.DiamondRequests.Any())
             {
                 if (customizeRequest.DiamondRequests.Count != diamondAssigning.Count)
-                    return Result.Fail("The quantity of assigning diamond doesn't match the requesting amount");
+                    return Result.Fail(JewelryModelErrors.MainDiamond.MainDiamondCountError(customizeRequest.DiamondRequests.Count));
                 List<IError> errors = new List<IError>();
                 var diamondRequests = customizeRequest.DiamondRequests;
                 for (int i = 0; i < diamondRequests.Count; i++)
@@ -71,7 +82,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
 
                     if (assignedDiamond.DiamondId == null && assignedDiamond.CreateDiamondCommand == null)
                     {
-                        errors.Add(new Error($"Diamond request number {i} doesn't have an assigned diamond nor preorder diamond"));
+                        errors.Add(CustomizeRequestErrors.DiamondRequest.UnchosenMainDiamondError(i));
                     }
                     else
                     {

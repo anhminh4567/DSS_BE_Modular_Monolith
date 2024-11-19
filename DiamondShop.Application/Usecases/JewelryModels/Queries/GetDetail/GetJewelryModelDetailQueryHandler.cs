@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetail;
 using DiamondShop.Domain.Models.JewelryModels;
+using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Services.interfaces;
@@ -30,7 +31,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetDetail
             request.Deconstruct(out string modelId);
             var jewelryModel = await _jewelryModelRepository.GetById(JewelryModelId.Parse(modelId));
             if (jewelryModel == null)
-                return Result.Fail("This jewelry model doesn't exist");
+                return Result.Fail(JewelryModelErrors.JewelryModelNotFoundError);
             return jewelryModel;
         }
     }

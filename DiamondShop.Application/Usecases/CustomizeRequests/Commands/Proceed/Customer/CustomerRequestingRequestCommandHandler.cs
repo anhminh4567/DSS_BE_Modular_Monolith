@@ -2,6 +2,7 @@
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Staff;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
+using DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Services.interfaces;
@@ -32,20 +33,20 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Cu
             await _unitOfWork.BeginTransactionAsync(token);
             var customizeRequest = await _customizeRequestRepository.GetById(CustomizeRequestId.Parse(customizeRequestId));
             if (customizeRequest == null)
-                return Result.Fail("This request doens't exist");
+                return Result.Fail(CustomizeRequestErrors.CustomizeRequestNotFoundError);
             if (customizeRequest.ExpiredDate < DateTime.UtcNow)
             {
-                return Result.Fail("This customize request has already been expired");
+                return Result.Fail(CustomizeRequestErrors.ExpiredError);
             }
             if (customizeRequest.AccountId.Value != accountId)
-                return Result.Fail("Only the owner of this request can change status to Requesting");
+                return Result.Fail(CustomizeRequestErrors.NoPermissionError);
             if (customizeRequest.Status != CustomizeRequestStatus.Priced)
-                return Result.Fail("This request can't be requesting anymore");
+                return Result.Fail(CustomizeRequestErrors.UnrequestableError);
             customizeRequest.Status = CustomizeRequestStatus.Requesting;
             await _customizeRequestRepository.Update(customizeRequest);
             await _unitOfWork.SaveChangesAsync(token);
             //staff auto accept
-            var staffAccepted = new StaffProceedCustomizeRequestCommand(customizeRequest.Id.Value, null);
+            var staffAccepted = new StaffProceedCustomizeRequestCommand(customizeRequest.Id.Value,null, null);
             var result = await _sender.Send(staffAccepted);
             if (result.IsFailed)
             {

@@ -4,9 +4,9 @@ using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
-using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Models.Warranties.Enum;
+using DiamondShop.Domain.Models.Warranties.ErrorMessages;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.OrderRepo;
@@ -117,14 +117,14 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 if (warrantyType != WarrantyType.Jewelry)
                 {
-                    return Result.Fail($"Wrong Type of warranty for jewelry #{jewelryId}");
+                    return Result.Fail(WarrantyErrors.WrongJewelryError);
                 }
             }
             else if (diamondId != null)
             {
                 if (warrantyType != WarrantyType.Diamond)
                 {
-                    return Result.Fail($"Wrong Type of warranty for diamond #{diamondId}");
+                    return Result.Fail(WarrantyErrors.WrongDiamondError);
                 }
             }
             return Result.Ok();

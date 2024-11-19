@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories.OrderRepo;
@@ -30,10 +31,10 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail
             orderQuery = _orderRepository.GetDetailQuery(orderQuery);
             var order = _orderRepository.QueryFilter(orderQuery, p => p.Id == OrderId.Parse(orderId)).FirstOrDefault();
             if (order == null)
-                return Result.Fail("This order doesn't exist.");
+                return Result.Fail(OrderErrors.OrderNotFoundError);
             if ((role == AccountRole.CustomerId && order.AccountId != AccountId.Parse(accountId)) ||
                 (role == AccountRole.DelivererId && order.DelivererId != AccountId.Parse(accountId)))
-                return Result.Fail("You don't have permission to access this order");
+                return Result.Fail(OrderErrors.NoPermissionToViewError);
             var orderLog = await _orderLogRepository.GetOrderLogs(order, cancellationToken);
             order.Logs = orderLog;
             return order;

@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
@@ -32,13 +33,8 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
             query = _modelRepository.QueryFilter(query, p => p.Id == JewelryModelId.Parse(modelId));
             var model = query.FirstOrDefault();
             if (model == null)
-                return Result.Fail("This model doesn't exist");
-
-            //TODO: REplace diamond price with real price getter
-            const decimal DiamondPrices = 10m;
+                return Result.Fail(JewelryModelErrors.JewelryModelNotFoundError);
             var sideDiamonds = model.SideDiamonds;
-            //sideDiamonds.ForEach(d => d.TotalPrice = DiamondPrices);
-
             //SizeMetal
             var metalGroup = model.SizeMetals
                 .GroupBy(p => p.Metal);
@@ -50,7 +46,6 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
                 {
                     foreach(var side in sideDiamonds)
                     {
-                        //side.TotalPrice = DiamondPrices;
                         var sizesInStock = _jewelryRepository.GetSizesInStock(model.Id, metals.Key.Id, side);
                         await _diamondServices.GetSideDiamondPrice(side);
                         metalGroups.Add(

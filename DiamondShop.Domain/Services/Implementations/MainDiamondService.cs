@@ -5,6 +5,7 @@ using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Services.interfaces;
@@ -25,20 +26,20 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             var diamondReqs = await mainDiamondRepository.GetCriteria(jewelryModelId);
             if (diamonds.Count != diamondReqs.Sum(p => p.Quantity))
-                return Result.Fail(new ConflictError("The quantity of the main diamond differs from what the model requires."));
+                return Result.Fail(JewelryModelErrors.MainDiamond.MainDiamondCountError(diamondReqs.Sum(p => p.Quantity)));
             var flagMatchedDiamonds = MatchingDiamond(diamonds, diamondReqs.ToList());
-            if (!flagMatchedDiamonds) return Result.Fail(new ConflictError("Diamonds don't meet the model requirement."));
-            return Result.Ok();
+            return flagMatchedDiamonds;
         }
-        private bool MatchingDiamond(List<Diamond> diamonds, List<MainDiamondReq> diamondReqs)
+        private Result MatchingDiamond(List<Diamond> diamonds, List<MainDiamondReq> diamondReqs)
         {
             var diamondShapeCaratHolder = diamonds.Select(p => new DiamondShapeHolder(p.DiamondShapeId, p.Carat)).ToList();
             return Backtracking(diamondShapeCaratHolder, diamondReqs);
         }
-        private bool Backtracking(List<DiamondShapeHolder> shapes, List<MainDiamondReq> diamondReqs, int index = 0)
+        private Result Backtracking(List<DiamondShapeHolder> shapes, List<MainDiamondReq> diamondReqs, int index = 0)
         {
-            if (index == shapes.Count) return true;
+            if (index == shapes.Count) return Result.Ok();
             var shape = shapes[index];
+            List<IError> errors = new();
             foreach (var req in diamondReqs)
             {
                 if (req.Quantity > 0)
@@ -49,16 +50,20 @@ namespace DiamondShop.Domain.Services.Implementations
                         if (matchedShape.CaratFrom <= shape.Carat && matchedShape.CaratTo >= shape.Carat)
                         {
                             req.Quantity--;
-                            if (Backtracking(shapes, diamondReqs, ++index))
+                            if (Backtracking(shapes, diamondReqs, ++index).IsSuccess)
                             {
-                                return true;
+                                return Result.Ok();
                             }
                             req.Quantity++;
                         }
+                        else
+                            errors.Add(JewelryModelErrors.MainDiamond.MismatchCaratError(index));
                     }
+                    else
+                        errors.Add(JewelryModelErrors.MainDiamond.MismatchShapeError(index));
                 }
             }
-            return false;
+            return Result.Fail(errors);
         }
 
 
@@ -66,11 +71,10 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             var diamondReqs = await mainDiamondRepository.GetCriteria(jewelryModelId);
             if (customizeRequests.Count != diamondReqs.Sum(p => p.Quantity))
-                return Result.Fail(new ConflictError("The quantity of the main diamond differs from what the model requires."));
+                return Result.Fail(JewelryModelErrors.MainDiamond.MainDiamondCountError(diamondReqs.Sum(p => p.Quantity)));
             var ordered = customizeRequests.OrderBy(p => p.DiamondShapeId == null).ThenBy(p => p.DiamondShape).ToList();
             var flagMatchedDiamonds = MatchingDiamond(ordered, diamondReqs);
-            if (flagMatchedDiamonds.IsFailed) return Result.Fail(flagMatchedDiamonds.Errors);
-            return Result.Ok();
+            return flagMatchedDiamonds;
         }
         private Result MatchingDiamond(List<DiamondRequest> diamonds, List<MainDiamondReq> diamondReqs)
         {
@@ -81,6 +85,7 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             if (index == shapes.Count) return Result.Ok();
             var shape = shapes[index];
+            List<IError> errors = new();
             foreach (var req in diamondReqs)
             {
                 if (req.Quantity > 0)
@@ -106,13 +111,13 @@ namespace DiamondShop.Domain.Services.Implementations
                             req.Quantity++;
                         }
                         else
-                            return Result.Fail($"Unmatching range of carat for item number #{index}");
+                            errors.Add(JewelryModelErrors.MainDiamond.MismatchCaratError(index));
                     }
                     else
-                        return Result.Fail($"No matching shape for item number #{index}");
+                        errors.Add(JewelryModelErrors.MainDiamond.MismatchShapeError(index));
                 }
             }
-            return Result.Fail($"Diamond list doesn't match criteria");
+            return Result.Fail(errors);
         }
     }
 }

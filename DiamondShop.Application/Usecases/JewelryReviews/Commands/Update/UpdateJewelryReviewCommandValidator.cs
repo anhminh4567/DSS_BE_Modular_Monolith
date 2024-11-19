@@ -15,11 +15,11 @@ namespace DiamondShop.Application.Usecases.JewelryReviews.Commands.Update
                 p.RuleFor(k => k.JewelryId).NotEmpty();
                 p.RuleFor(k => k.Content).NotEmpty();
                 p.RuleFor(k => k.StarRating).InclusiveBetween(1, 5);
-                p.RuleFor(k => k.Files).Must(k => k.Count() <= rule.MaxFileAllowed).WithMessage("You can only upload maximum of 5 files").When(k => k != null);
+                p.RuleFor(k => k.Files).Must(k => k.Count() <= rule.MaxFileAllowed).WithMessage(rule.MaxFileAllowedError).When(k => k != null);
                 p.RuleForEach(k => k.Files)
                 .NotNull()
-                .Must(p => p.Length <= rule.MaxContentSize).WithMessage($"File must be under {rule.MaxContentSizeInMb} Mb")
-                .Must(p => rule.AllowedContentType.Contains(p.ContentType)).WithMessage($"App doens't support this type of file")
+                .Must(p => p.Length <= rule.MaxContentSize).WithMessage(rule.MaxContentSizeError)
+                .Must(p => rule.AllowedContentType.Contains(p.ContentType)).WithMessage(rule.ContentTypeError)
                 .When(k => k != null);
             });
         }

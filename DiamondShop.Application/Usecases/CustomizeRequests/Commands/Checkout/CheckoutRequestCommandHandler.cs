@@ -2,6 +2,7 @@
 using DiamondShop.Application.Services.Models;
 using DiamondShop.Application.Usecases.Orders.Commands.Checkout;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
+using DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Models.Warranties.Enum;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
@@ -32,19 +33,19 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Checkout
             checkoutRequestDto.Deconstruct(out string customizeRequestId, out BillingDetail billingDetail, out OrderRequestDto orderRequestDto, out string warrantyCode, out WarrantyType warrantyType);
             var customizeRequest = await _customizeRequestRepository.GetById(CustomizeRequestId.Parse(customizeRequestId));
             if (customizeRequest == null)
-                return Result.Fail("This request doesn't exist");
+                return Result.Fail(CustomizeRequestErrors.CustomizeRequestNotFoundError);
             if (customizeRequest.AccountId.Value != accountId)
-                return Result.Fail("Only the owner of the request can checkout");
+                return Result.Fail(CustomizeRequestErrors.NoPermissionError);
             if (customizeRequest.Status != CustomizeRequestStatus.Accepted)
-                return Result.Fail("This request needs to be accepted before checkout");
+                return Result.Fail(CustomizeRequestErrors.UnacceptedCheckoutError);
             var existedOrderFlag = _orderRepository.IsRequestCreated(customizeRequest.Id);
-            if(existedOrderFlag)
-                return Result.Fail("This request has already been created");
+            if (existedOrderFlag)
+                return Result.Fail(CustomizeRequestErrors.ExistedOrderError);
             List<OrderItemRequestDto> items = new()
             {
                 new(customizeRequest.JewelryId.Value,null,null,null,warrantyCode,warrantyType),
             };
-            CheckoutOrderInfo info = new(orderRequestDto,items);
+            CheckoutOrderInfo info = new(orderRequestDto, items);
             var result = await _sender.Send(new CheckoutOrderCommand(accountId, billingDetail, info));
             if (result.IsFailed)
                 return Result.Fail(result.Errors);

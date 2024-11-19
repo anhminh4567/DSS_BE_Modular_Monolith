@@ -4,6 +4,7 @@ using DiamondShop.Commons;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
@@ -47,12 +48,12 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
             request.Deconstruct(out JewelryModelRequestDto modelSpec, out List<MainDiamondRequestDto>? mainDiamondSpecs,
                 out List<SideDiamondRequestDto>? sideDiamondSpecs, out List<ModelMetalSizeRequestDto> metalSizeSpecs);
             var category = _categoryRepository.GetQuery().FirstOrDefault(p => p.Id == JewelryModelCategoryId.Parse(modelSpec.CategoryId));
-            if (category is null) return Result.Fail(new NotFoundError("Can't find model category object."));
+            if (category is null) return Result.Fail(JewelryModelErrors.Category.JewelryModelCategoryNotFoundError);
 
             var matchingName = _jewelryModelRepository.GetQuery().Any(p => p.Name.Trim().ToUpper() == modelSpec.Name.Trim().ToUpper());
-            if (matchingName) return Result.Fail("This model name has already existed");
+            if (matchingName) return Result.Fail(JewelryModelErrors.ExistedModelNameFound(modelSpec.Name));
             var matchingCode = _jewelryModelRepository.IsExistModelCode(modelSpec.Code);
-            if (matchingName) return Result.Fail("This model code has already existed");
+            if (matchingCode) return Result.Fail(JewelryModelErrors.ExistedModelCodeFound(modelSpec.Code));
             var newModel = JewelryModel.Create(modelSpec.Name, modelSpec.Code.ToUpper(), category.Id, modelSpec.craftmanFee, modelSpec.Width, modelSpec.Length, modelSpec.IsEngravable, modelSpec.IsRhodiumFinish, modelSpec.BackType, modelSpec.ClaspType, modelSpec.ChainType);
             await _jewelryModelRepository.Create(newModel, token);
 
@@ -78,14 +79,14 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
             if (sideDiamondSpecs != null)
             {
                 var sideDiamonds = sideDiamondSpecs.Select(p => SideDiamondOpt.Create(newModel.Id, DiamondShapeId.Parse(p.ShapeId), p.ColorMin, p.ColorMax, p.ClarityMin, p.ClarityMax, p.SettingType, p.CaratWeight, p.Quantity, p.IsLabDiamond)).ToList();
-                
-                foreach(var sideDiamond in sideDiamonds)
+
+                foreach (var sideDiamond in sideDiamonds)
                 {
                     var isInAnyCriteria = await _diamondServices.IsSideDiamondFoundInCriteria(sideDiamond);
-                    if(isInAnyCriteria == false)
+                    if (isInAnyCriteria == false)
                     {
                         int index = sideDiamonds.IndexOf(sideDiamond);
-                        return Result.Fail(new ValidationError($"the side diamond at postion {index} is not valid, no criteria can be found for it"));
+                        return Result.Fail(JewelryModelErrors.SideDiamond.NoCriteriaFound(index));
                     }
                 }
                 await _sideDiamondRepository.CreateRange(sideDiamonds, token);

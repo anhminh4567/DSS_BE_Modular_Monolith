@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using FluentValidation;
 using Microsoft.Extensions.Options;
 
@@ -23,6 +24,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
                     }
                     return true;
                 })
+                .WithMessage(JewelryModelErrors.SideDiamond.UnsupportedSideDiamondCaratError.Message)
                 .When(c => c.SideDiamondSpecs != null);
 
             RuleForEach(c => c.MainDiamondSpecs)

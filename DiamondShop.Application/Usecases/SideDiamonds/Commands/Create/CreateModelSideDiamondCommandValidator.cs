@@ -24,14 +24,14 @@ namespace DiamondShop.Application.Usecases.SideDiamonds.Commands.Create
 
                     p.RuleFor(p => p.ColorMax)
                         .IsInEnum()
-                        .Must((spec, max) => (int)spec.ColorMin <= (int)max).WithMessage((e) => $"ColorMin '{e.ColorMin}' needs to be smaller than ColorMax '{e.ColorMax}'");
+                        .Must((spec, max) => (int)spec.ColorMin <= (int)max).WithMessage((e) => $"Màu nhỏ nhất (\"{e.ColorMin}\") phải bé hơn màu lớn nhất (\"{e.ColorMax}\")");
 
                     p.RuleFor(p => p.ClarityMin)
                         .IsInEnum();
 
                     p.RuleFor(p => p.ClarityMax)
                         .IsInEnum()
-                        .Must((spec, max) => (int)spec.ClarityMin <= (int)max).WithMessage((e) => $"ClarityMin '{e.ClarityMin}' needs to be smaller than ClarityMax '{e.ClarityMax}'");
+                        .Must((spec, max) => (int)spec.ClarityMin <= (int)max).WithMessage((e) => $"Độ trong nhỏ nhất (\"{e.ClarityMin}\") phải bé hơn độ trong lớn nhất (\"{e.ClarityMax}\")");
 
                     p.RuleFor(p => p.SettingType)
                         .IsInEnum();

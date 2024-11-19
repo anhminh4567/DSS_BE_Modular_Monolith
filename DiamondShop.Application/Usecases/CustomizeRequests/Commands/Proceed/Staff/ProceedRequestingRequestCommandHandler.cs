@@ -4,6 +4,7 @@ using DiamondShop.Application.Usecases.Jewelries.Commands.Create;
 using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
+using DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
@@ -32,7 +33,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
             request.Deconstruct(out CustomizeRequest customizeRequest);
            // await _unitOfWork.BeginTransactionAsync(token);
             if (customizeRequest.Status != CustomizeRequestStatus.Requesting)
-                return Result.Fail("This request can't be accepted anymore");
+                return Result.Fail(CustomizeRequestErrors.UnacceptableError);
             //Create Jewelry
             var diamondList = customizeRequest.DiamondRequests.Count > 0 ? customizeRequest.DiamondRequests.Select(p => p.DiamondId.Value).ToList() : null;
             JewelryRequestDto jewelryRequestDto = new(customizeRequest.JewelryModelId.Value, customizeRequest.SizeId.Value, customizeRequest.MetalId.Value, ProductStatus.Locked);

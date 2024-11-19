@@ -5,6 +5,7 @@ using DiamondShop.Application.Usecases.JewelryReviews.Commands.ChangeVisibility;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.Entities;
+using DiamondShop.Domain.Models.Jewelries.ErrorMessages;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryReviewRepo;
 using FluentResults;
@@ -39,11 +40,11 @@ namespace DiamondShop.Application.Usecases.JewelryReviews.Commands.Update
             await _unitOfWork.BeginTransactionAsync(token);
             var review = await _jewelryReviewRepository.GetById(JewelryId.Parse(jewelryId));
             if (review == null)
-                return Result.Fail("This review doesn't exist");
+                return Result.Fail(JewelryErrors.Review.ReviewNotFoundError);
             if (review.AccountId.Value != accountId)
-                return Result.Fail("You don't have permission to change this review");
+                return Result.Fail(JewelryErrors.Review.NoPermissionError);
             if (review.Jewelry == null)
-                return Result.Fail("Can't get the jewelry of this review");
+                return Result.Fail(JewelryErrors.Review.ReviewJewelryNotFoundError);
             var deleteFlag = await _jewelryReviewFileService.DeleteFiles(review.Jewelry);
             if (deleteFlag.IsFailed)
                 return Result.Fail(deleteFlag.Errors);

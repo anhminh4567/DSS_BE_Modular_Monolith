@@ -1,21 +1,15 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Deliveries.Commands.Create;
-using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
-using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Redeliver
 {
@@ -44,9 +38,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Redeliver
             var orderQuery = _orderRepository.GetQuery();
             var order = _orderRepository.QueryFilter(orderQuery, p => p.Id == OrderId.Parse(orderId)).FirstOrDefault();
             if (order == null)
-                return Result.Fail("This order doesn't exist");
+                return Result.Fail(OrderErrors.OrderNotFoundError);
             if(order.ShipFailedCount > DeliveryRules.MaxRedelivery)
-                return Result.Fail("Maximum redelivery reached");
+                return Result.Fail(OrderErrors.MaxRedeliveryError);
             await _orderService.AssignDeliverer(order, delivererId, _accountRepository, _orderRepository);
             order.ShipFailedDate = null;
             order.Status = OrderStatus.Prepared;

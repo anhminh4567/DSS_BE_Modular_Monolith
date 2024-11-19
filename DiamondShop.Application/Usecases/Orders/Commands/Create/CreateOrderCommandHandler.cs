@@ -10,7 +10,6 @@ using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
-using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.Transactions.Entities;
 using DiamondShop.Domain.Models.Transactions.ValueObjects;
 using DiamondShop.Domain.Repositories;
@@ -22,7 +21,6 @@ using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Options;
-using System.Collections.Generic;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 {

@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Services.interfaces;
@@ -36,9 +37,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Refund
             await _unitOfWork.BeginTransactionAsync(token);
             var order = await _orderRepository.GetById(OrderId.Parse(orderId));
             if (order == null)
-                return Result.Fail("No order found!");
+                return Result.Fail(OrderErrors.OrderNotFoundError);
             if (order.PaymentStatus != PaymentStatus.Refunding)
-                return Result.Fail("This order is not currently refundable!");
+                return Result.Fail(OrderErrors.RefundedError);
             order.PaymentStatus = PaymentStatus.Refunded;
             await _orderRepository.Update(order);
             await _unitOfWork.SaveChangesAsync(token);

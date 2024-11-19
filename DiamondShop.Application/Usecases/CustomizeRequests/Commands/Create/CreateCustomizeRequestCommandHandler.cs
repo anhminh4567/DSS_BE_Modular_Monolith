@@ -5,6 +5,7 @@ using DiamondShop.Domain.Models.CustomizeRequests.Entities;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
@@ -54,17 +55,17 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendReques
             p.MetalId == MetalId.Parse(metalId));
             var modelOpt = modelQuery.FirstOrDefault();
             if (modelOpt == null)
-                return Result.Fail("The model with this size and metal doesn't exist");
+                return Result.Fail(JewelryModelErrors.SizeMetal.SizeMetalNotFoundError);
             //Check if model allow engraving text
             if (!string.IsNullOrEmpty(engravedText) && !modelOpt.Model.IsEngravable)
-                return Result.Fail("This model doesn't allow engraving text");
+                return Result.Fail(JewelryModelErrors.NoEngravingError);
             var sideDiamondOpts = await _sideDiamondRepository.GetByModelId(modelOpt.ModelId);
             SideDiamondOpt? sideDiamondOpt = null;
             if (sideDiamondOpts != null && sideDiamondOpts.Count > 0)
             {
                 var selectedOne = sideDiamondOpts.FirstOrDefault(p => p.Id.Value == sideDiamondOptId);
                 if (selectedOne == null)
-                    return Result.Fail("This side diamond option doesn't exist for this model ");
+                    return Result.Fail(JewelryModelErrors.SideDiamond.UnsupportedSideDiamondCaratError);
                 sideDiamondOpt = selectedOne;
                 await _diamondServices.GetSideDiamondPrice(sideDiamondOpt);
             }

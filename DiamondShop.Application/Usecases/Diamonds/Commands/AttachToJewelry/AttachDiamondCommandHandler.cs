@@ -2,6 +2,7 @@
 using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
+using DiamondShop.Domain.Models.Jewelries.ErrorMessages;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
@@ -36,7 +37,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.AttachToJewelry
             request.Deconstruct(out JewelryId jewelryId, out List<Diamond> diamonds);
             var jewelry = await _jewelryRepository.GetById(jewelryId);
             if(jewelry.Id == null)
-                return Result.Fail("This jewelry doesn't exist");
+                return Result.Fail(JewelryErrors.JewelryNotFoundError);
             foreach (var diamond in diamonds)
             {
                 if (diamond.JewelryId != null)

@@ -2,21 +2,16 @@
 using DiamondShop.Application.Usecases.Deliveries.Commands.Create;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
-using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories;
+using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.OrderRepo;
+using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DiamondShop.Domain.Services.interfaces;
-using DiamondShop.Domain.Services.Implementations;
-using DiamondShop.Domain.Models.Orders.Entities;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverFail
 {
@@ -50,15 +45,15 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverFail
             await _unitOfWork.BeginTransactionAsync(token);
             var order = await _orderRepository.GetById(OrderId.Parse(orderId));
             if (order == null)
-                return Result.Fail("This order doesn't exist");
+                return Result.Fail(OrderErrors.OrderNotFoundError);
             if (order.DelivererId != AccountId.Parse(delivererId))
-                return Result.Fail("Only the deliverer of this order can change its status.");
+                return Result.Fail(OrderErrors.OrderNotFoundError);
             if (order.ShipFailedCount > DeliveryRules.MaxRedelivery)
             {
                 order.Status = OrderStatus.Cancelled;
                 order.PaymentStatus = PaymentStatus.Refunding;
                 order.CancelledDate = DateTime.UtcNow;
-                order.CancelledReason = "This order has reached maximum shipping attempt. By our policy, it is automatically cancelled.";
+                order.CancelledReason = DeliveryRules.MaxRedeliveryError;
                 _orderTransactionService.AddRefundUserCancel(order);
                 //Return to selling
                 await _orderService.CancelItems(order, _orderRepository, _orderItemRepository, _jewelryRepository, _diamondRepository);
