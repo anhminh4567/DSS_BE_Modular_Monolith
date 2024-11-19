@@ -128,11 +128,12 @@ namespace DiamondShop.Domain.Models.Diamonds
             if (isRemove)
             {
                 JewelryId = null;//if remove a diamond from jewelry it will go to inactive 
-                Status = ProductStatus.Locked;
+                Status = ProductStatus.Inactive;
             }
             else
             {
                 JewelryId = jewelry.Id;
+                Status = ProductStatus.Locked;
             } 
         }
         public static string GetTitle(Diamond diamond)
@@ -186,6 +187,7 @@ namespace DiamondShop.Domain.Models.Diamonds
             SoldPrice = null;
             DefaultPrice = null;
             ProductLock = null;
+            UpdatedAt = DateTime.UtcNow;
         }   
         public void SetCorrectPrice(decimal truePrice, DiamondRule rulesToSetCutOffSet)
         {
@@ -214,13 +216,19 @@ namespace DiamondShop.Domain.Models.Diamonds
             if (Status == ProductStatus.Sold)
                 throw new Exception("cannot unlock an already sold item");
             SetSell();
+            UpdatedAt = DateTime.UtcNow;
         }
-        public void ChangeThumbnail(Media? thumbnail) => Thumbnail = thumbnail;
+        public void ChangeThumbnail(Media? thumbnail)
+        {
+            Thumbnail = thumbnail;
+            UpdatedAt = DateTime.UtcNow;
+        }
         public void ChangeOffset(decimal newOffset)
         {
             if (newOffset <= 0)
                 throw new Exception();
             PriceOffset = newOffset;
+            UpdatedAt = DateTime.UtcNow;
         }
         public void AssignPromotion(Promotion promotion, decimal reducedAmount)
         {

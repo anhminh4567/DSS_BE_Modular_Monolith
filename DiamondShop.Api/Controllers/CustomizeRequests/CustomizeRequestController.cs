@@ -67,7 +67,7 @@ namespace DiamondShop.Api.Controllers.CustomRequest
             else
                 return MatchError(result.Errors, ModelState);
         }
-        [HttpPut("Staff/Proceed")]
+        [HttpPut("Staff/ChangeDiamond")]
         [Authorize(Roles = AccountRole.StaffId)]
         public async Task<ActionResult> StaffChangeDiamondRequest([FromBody] StaffProceedCustomizeRequestCommand proceedCustomizeRequestCommand)
         {
