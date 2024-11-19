@@ -337,7 +337,7 @@ namespace DiamondShop.Domain.Services.Implementations
             var getShape = await _diamondShapeRepository.GetById(diamond.DiamondShapeId);
             if (getShape is null)
                 throw new Exception("this shape not exist");
-            var groupedCritera = await _diamondCriteriaRepository.GroupAllAvailableCriteria(diamond.DiamondShape, diamond.Cut);
+            var groupedCritera = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getShape, diamond.Cut);
             var diamondCarat = diamond.Carat;
             var caratGroup = groupedCritera.Keys.ToList();
             bool foundedCriteria = false;
