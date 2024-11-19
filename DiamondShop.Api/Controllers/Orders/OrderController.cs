@@ -6,7 +6,6 @@ using DiamondShop.Application.Dtos.Responses.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Orders.Commands.Checkout;
 using DiamondShop.Application.Usecases.Orders.Commands.DeliverFail;
-using DiamondShop.Application.Usecases.Orders.Commands.PrepareItem;
 using DiamondShop.Application.Usecases.Orders.Commands.Proceed;
 using DiamondShop.Application.Usecases.Orders.Commands.Redeliver;
 using DiamondShop.Application.Usecases.Orders.Commands.Refund;

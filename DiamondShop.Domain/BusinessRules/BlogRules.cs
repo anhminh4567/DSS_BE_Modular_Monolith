@@ -13,5 +13,8 @@
             "image/jpeg",
             "image/jpg",
         };
+        public string MaxContentSizeError { get => $"Thumbnail vượt kích thước {MaxContentSizeInMb} Mb"; }
+        public string ContentTypeError { get => $"Thumbnail không được hỗ trợ"; }
+
     }
 }

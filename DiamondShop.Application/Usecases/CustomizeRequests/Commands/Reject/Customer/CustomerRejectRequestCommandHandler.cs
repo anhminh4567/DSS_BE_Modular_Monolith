@@ -2,7 +2,9 @@
 using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
+using DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Models.Jewelries.ErrorMessages;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
@@ -37,16 +39,16 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Cus
             await _unitOfWork.BeginTransactionAsync(token);
             var customizeRequest = await _customizeRequestRepository.GetById(CustomizeRequestId.Parse(customizeRequestId));
             if (customizeRequest == null)
-                return Result.Fail("This request doens't exist");
+                return Result.Fail(CustomizeRequestErrors.CustomizeRequestNotFoundError);
             if (customizeRequest.AccountId.Value != accountId)
-                return Result.Fail("Only the owner of this request can reject it");
+                return Result.Fail(CustomizeRequestErrors.NoPermissionError);
             if (customizeRequest.Status != CustomizeRequestStatus.Priced && customizeRequest.Status != CustomizeRequestStatus.Accepted)
-                return Result.Fail("You can't reject this request anymore");
+                return Result.Fail(CustomizeRequestErrors.UnrejectableError);
             if (customizeRequest.Status == CustomizeRequestStatus.Accepted && customizeRequest.JewelryId != null)
             {
                 var jewelry = await _jewelryRepository.GetById(customizeRequest.JewelryId);
                 if (jewelry == null)
-                    return Result.Fail("Can't get requested jewelry");
+                    return Result.Fail(JewelryErrors.JewelryNotFoundError);
                 jewelry.Status = ProductStatus.Active;
                 await _jewelryRepository.Update(jewelry);
                 await _unitOfWork.SaveChangesAsync(token);

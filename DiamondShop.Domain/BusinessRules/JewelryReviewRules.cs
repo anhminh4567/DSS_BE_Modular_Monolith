@@ -16,5 +16,8 @@
             "image/gif",
             "video/mp4",
         };
+        public string MaxContentSizeError { get => $"Tệp tin vượt kích thước {MaxContentSizeInMb} Mb"; }
+        public string MaxFileAllowedError { get => $"Chỉ được gửi tối đa {MaxFileAllowed}"; }
+        public string ContentTypeError { get => $"Tệp tin không được hỗ trợ"; }
     }
 }

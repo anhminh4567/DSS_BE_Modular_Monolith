@@ -8,7 +8,9 @@ using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.Entities;
+using DiamondShop.Domain.Models.Jewelries.ErrorMessages;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
@@ -58,28 +60,22 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands.Create
             modelQuery = _jewelryModelRepository.QueryInclude(modelQuery, p => p.SideDiamonds);
             modelQuery = _jewelryModelRepository.QueryInclude(modelQuery, p => p.SizeMetals);
             var model = modelQuery.FirstOrDefault(p => p.Id == JewelryModelId.Parse(jewelryRequest.ModelId));
-            if (model is null) return Result.Fail(new NotFoundError("Can't find jewelry model object."));
+            if (model is null) return Result.Fail(JewelryModelErrors.JewelryModelNotFoundError);
 
             var sizeMetalQuery = _sizeMetalRepository.GetQuery();
             sizeMetalQuery = _sizeMetalRepository.QueryInclude(sizeMetalQuery, p => p.Metal);
             sizeMetalQuery = _sizeMetalRepository.QueryInclude(sizeMetalQuery, p => p.Size);
             var sizeMetal = sizeMetalQuery.FirstOrDefault(p => p.ModelId == model.Id && p.SizeId == SizeId.Parse(jewelryRequest.SizeId) && p.MetalId == MetalId.Parse(jewelryRequest.MetalId));
-            if (sizeMetal is null) return Result.Fail(new NotFoundError("Can't find jewelry size metal object."));
+            if (sizeMetal is null) return Result.Fail(JewelryModelErrors.SizeMetal.SizeMetalNotFoundError);
 
             var attachedDiamonds = new List<Diamond>();
             await _unitOfWork.BeginTransactionAsync(token);
-            if (attachedDiamondIds is not null)
+            if (attachedDiamondIds is not null && attachedDiamondIds.Count > 0)
             {
                 var convertedId = attachedDiamondIds.Select(DiamondId.Parse).ToList();
-                if (convertedId.Count == 0)
-                    return Result.Fail($"Theres no diamond selected.");
                 var diamondQuery = _diamondRepository.GetQuery();
                 diamondQuery = _diamondRepository.QueryFilter(diamondQuery, p => convertedId.Contains(p.Id));
                 attachedDiamonds = diamondQuery.ToList();
-                if (attachedDiamondIds.Count == 0)
-                    return Result.Fail($"The selected {(convertedId.Count > 1 ? "diamonds dont" : "diamond doesn't")} exist.");
-                if (attachedDiamonds.Any(p => p.JewelryId != null))
-                    return Result.Fail("Some diamonds have already attached to other jewelries.");
                 var flagUnmatchedDiamonds = await _mainDiamondService.CheckMatchingDiamond(model.Id, attachedDiamonds, _mainDiamondRepository);
                 if (flagUnmatchedDiamonds.IsFailed)
                     return Result.Fail(flagUnmatchedDiamonds.Errors);
@@ -97,12 +93,12 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands.Create
             if (sideDiamondOptId is not null)
             {
                 if (model.SideDiamonds.Count == 0)
-                    return Result.Fail(new ConflictError("This model doesn't have side diamond"));
+                    return Result.Fail(JewelryModelErrors.SideDiamond.NoSideDiamondSupportError);
                 var sideDiamond = model.SideDiamonds.FirstOrDefault(p => p.Id == SideDiamondOptId.Parse(sideDiamondOptId));
                 if (sideDiamond == null)
-                    return Result.Fail(new ConflictError("This side diamond option doesn't exist"));
+                    return Result.Fail(JewelryModelErrors.SideDiamond.SideDiamondOptNotFoundError);
                 if (sideDiamond.AverageCarat > diamondRule.BiggestSideDiamondCarat)
-                    return Result.Fail(new ConflictError("The carat of side diamond is too big, the current app rules only allow " + diamondRule.BiggestSideDiamondCarat + " carat(s)"));
+                    return Result.Fail(JewelryErrors.SideDiamond.UnsupportedSideDiamondError);
 
                 var jewelrySideDiamond = JewelrySideDiamond.Create(sideDiamond);
                 jewelry.SideDiamond = jewelrySideDiamond;

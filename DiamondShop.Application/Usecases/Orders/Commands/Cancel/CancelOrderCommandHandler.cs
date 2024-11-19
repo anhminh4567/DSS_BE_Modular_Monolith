@@ -3,6 +3,7 @@ using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryRepo;
@@ -48,11 +49,11 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
             await _unitOfWork.BeginTransactionAsync(token);
             var order = await _orderRepository.GetById(OrderId.Parse(orderId));
             if (order == null)
-                return Result.Fail("No order found!");
+                return Result.Fail(OrderErrors.OrderNotFoundError);
             else if (!_orderService.IsCancellable(order.Status))
-                return Result.Fail("This order can't be cancelled anymore!");
+                return Result.Fail(OrderErrors.UncancellableError);
             if (order.AccountId != AccountId.Parse(accountId))
-                return Result.Fail("You're not allowed to cancel this order");
+                return Result.Fail(OrderErrors.NoPermissionToCancelError);
             _orderTransactionService.AddRefundUserCancel(order);
             order.Status = OrderStatus.Cancelled;
             order.PaymentStatus = PaymentStatus.Refunding;

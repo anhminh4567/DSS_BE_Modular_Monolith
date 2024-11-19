@@ -6,12 +6,12 @@ using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Blogs;
 using DiamondShop.Domain.Models.Blogs.Entities;
+using DiamondShop.Domain.Models.Blogs.ErrorMessages;
 using DiamondShop.Domain.Models.Blogs.ValueObjects;
 using DiamondShop.Domain.Repositories.BlogRepo;
 using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
 
 namespace DiamondShop.Application.Usecases.Blogs.Commands.Update
 {
@@ -36,9 +36,9 @@ namespace DiamondShop.Application.Usecases.Blogs.Commands.Update
             await _unitOfWork.BeginTransactionAsync(token);
             var blog = await _blogRepository.GetById(BlogId.Parse(blogId));
             if (blog == null)
-                return Result.Fail("This blog doesn't exist");
+                return Result.Fail(BlogErrors.BlogNotFoundError);
             if (blog.AccountId != AccountId.Parse(accountId))
-                return Result.Fail("Only the author can edit the blog");
+                return Result.Fail(BlogErrors.NoPermissionError);
             blog.Title = title;
             blog.Tags = blogTags.Select(p => new BlogTag(p)).ToList();
             if (thumbnail != null)

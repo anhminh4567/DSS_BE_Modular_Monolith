@@ -3,6 +3,7 @@ using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.Warranties;
 using DiamondShop.Domain.Models.Warranties.Enum;
+using DiamondShop.Domain.Models.Warranties.ErrorMessages;
 using DiamondShop.Domain.Models.Warranties.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
@@ -31,9 +32,9 @@ namespace DiamondShop.Api.Controllers.Warranties.Delete
             await _unitOfWork.BeginTransactionAsync(token);
             var warranty = await _warrantyRepository.GetById(WarrantyId.Parse(warrantyId));
             if (warranty == null)
-                return Result.Fail("This warranty doesn't exist");
+                return Result.Fail(WarrantyErrors.WarrantyNotFoundError);
             if (_optionsMonitor.CurrentValue.WarrantyRules.DEFAULT_CODE.Contains(warranty.Code))
-                return Result.Fail("You can't delete default warranty");
+                return Result.Fail(WarrantyErrors.DeleteDefaultConflictError);
             await _warrantyRepository.Delete(warranty);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);

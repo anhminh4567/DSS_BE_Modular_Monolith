@@ -4,6 +4,7 @@ using DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeReque
 using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests.Entities;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
+using DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
@@ -42,12 +43,12 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.ChangeDiam
             await _unitOfWork.BeginTransactionAsync(token);
             var customizeRequest = await _customizeRequestRepository.GetById(CustomizeRequestId.Parse(customizeRequestId));
             if (customizeRequest == null)
-                return Result.Fail("yêu cầu thiết kế không tồn tại");
+                return Result.Fail(CustomizeRequestErrors.CustomizeRequestNotFoundError);
             if (customizeRequest.Status != CustomizeRequestStatus.Priced)
-                return Result.Fail("chỉ có thể đổi kim cương trước khi người dùng xác nhận");
+                return Result.Fail(CustomizeRequestErrors.DiamondRequest.InvalidChangingDiamondStatusError);
             var diamondRequest = await _diamondRequestRepository.GetById(DiamondRequestId.Parse(diamondRequestId));
             if (diamondRequest == null)
-                return Result.Fail("no diamond req");
+                return Result.Fail(CustomizeRequestErrors.DiamondRequest.DiamondRequestNotFoundError);
             if (diamondRequest.DiamondId != null)
             {
 
@@ -66,7 +67,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.ChangeDiam
                     await _unitOfWork.SaveChangesAsync(token);
                 }
                 else
-                    return Result.Fail("no old diamond found");
+                    return Result.Fail(CustomizeRequestErrors.DiamondRequest.OldAttachedDiamondNotFoundError);
             }
             if (createDiamondCommand != null)
             {
@@ -116,7 +117,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.ChangeDiam
             }
             else
             {
-                return Result.Fail("Diamond Id trung lap");
+                return Result.Fail(CustomizeRequestErrors.DiamondRequest.ConflictedDiamondIdError);
             }
             await _unitOfWork.CommitAsync(token);
             return diamondRequest;

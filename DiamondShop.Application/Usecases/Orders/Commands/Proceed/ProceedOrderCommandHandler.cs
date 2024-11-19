@@ -3,6 +3,7 @@ using DiamondShop.Application.Services.Interfaces.Orders;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.Events;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.Transactions;
@@ -62,11 +63,11 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             var account = await _accountRepository.GetById(order.AccountId);
             var paymentMethods = await _paymentMethodRepository.GetAll();
             if (order == null)
-                return Result.Fail("No order found!");
+                return Result.Fail(OrderErrors.OrderNotFoundError);
             if (account == null)
                 return Result.Fail("No account found!");
             if (!_orderService.IsProceedable(order.Status))
-                return Result.Fail("This order can't proceed!");
+                return Result.Fail(OrderErrors.UnproceedableError);
             var orderItemQuery = _orderItemRepository.GetQuery();
             orderItemQuery = _orderItemRepository.QueryFilter(orderItemQuery, p => p.OrderId == order.Id);
             orderItemQuery = _orderItemRepository.QueryInclude(orderItemQuery, p => p.Jewelry);
@@ -74,7 +75,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             var orderItems = orderItemQuery.ToList();
             if (order.Status == OrderStatus.Pending)
             {
-                Transaction trans = Transaction.CreateManualPayment(order.Id, $"Transfer from {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} for order #{order.Id.Value}", _orderTransactionService.GetFullPaymentValueForOrder(order), TransactionType.Pay);
+                Transaction trans = Transaction.CreateManualPayment(order.Id, $"Chuyển khoản từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", _orderTransactionService.GetFullPaymentValueForOrder(order), TransactionType.Pay);
                 trans.AppTransactionCode = "";
                 trans.PaygateTransactionCode = "";
                 await _transactionRepository.Create(trans);
@@ -96,7 +97,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                         var getJewelryDiamond = await _diamondRepository.GetDiamondsJewelry(item.Jewelry.Id);
                         foreach (var diamond in getJewelryDiamond)
                         {
-                            diamond.SetSold(diamond.DefaultPrice.Value,diamond.SoldPrice.Value);
+                            diamond.SetSold(diamond.DefaultPrice.Value, diamond.SoldPrice.Value);
                             await _diamondRepository.Update(diamond);
                         }
                         await _jewelryRepository.Update(item.Jewelry);
@@ -111,7 +112,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             else if (order.Status == OrderStatus.Prepared)
             {
                 if (order.DelivererId == null)
-                    return Result.Fail("No deliverer has been assigned to this order. Please assign immediately!");
+                    return Result.Fail(OrderErrors.NoDelivererAssignedError);
                 order.Status = OrderStatus.Delivering;
                 var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Delivering);
                 await _orderLogRepository.Create(log);
@@ -119,9 +120,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             else if (order.Status == OrderStatus.Delivering)
             {
                 if (accountId == null)
-                    return Result.Fail("No deliverer to assign.");
+                    return Result.Fail(OrderErrors.NoDelivererToAssignError);
                 if (order.DelivererId?.Value != accountId)
-                    return Result.Fail("Only the deliverer of this order can complete it.");
+                    return Result.Fail(OrderErrors.OnlyDelivererAllowedError);
                 if (order.PaymentType == PaymentType.COD)
                     //TODO: Add payment here
                     _orderTransactionService.AddCODPayment(order);
@@ -133,7 +134,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             }
             else
             {
-                return Result.Fail("Can't get order status.");
+                return Result.Fail(OrderErrors.OrderStatusNotFoundError);
             }
             await _orderRepository.Update(order);
             await _unitOfWork.SaveChangesAsync(token);

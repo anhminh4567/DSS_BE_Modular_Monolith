@@ -2,6 +2,7 @@
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryRepo;
@@ -47,9 +48,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
             await _unitOfWork.BeginTransactionAsync(token);
             var order = await _orderRepository.GetById(OrderId.Parse(orderId));
             if (order == null)
-                return Result.Fail("No order found!");
+                return Result.Fail(OrderErrors.OrderNotFoundError);
             else if (!_orderService.IsCancellable(order.Status))
-                return Result.Fail("This order can't be rejected anymore!");
+                return Result.Fail(OrderErrors.UncancellableError);
             _orderTransactionService.AddRefundShopReject(order);
             order.Status = OrderStatus.Rejected;
             order.PaymentStatus = PaymentStatus.Refunding;

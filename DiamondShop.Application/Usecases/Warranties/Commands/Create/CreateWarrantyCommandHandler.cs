@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.Warranties;
 using DiamondShop.Domain.Models.Warranties.Enum;
+using DiamondShop.Domain.Models.Warranties.ErrorMessages;
 using DiamondShop.Domain.Models.Warranties.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
@@ -25,9 +26,9 @@ namespace DiamondShop.Application.Usecases.Warranties.Commands.Create
             request.Deconstruct(out WarrantyType type, out string name, out string code, out int duration, out decimal price);
             await _unitOfWork.BeginTransactionAsync(token);
             if (_warrantyRepository.IsNameExist(name))
-                return Result.Fail("The warranty with this name has already existed");
+                return Result.Fail(WarrantyErrors.ExistedWarrantyNameFound(name));
             if (_warrantyRepository.IsCodeExist(code))
-                return Result.Fail("The warranty with this code has already existed");
+                return Result.Fail(WarrantyErrors.ExistedWarrantyCodeFound(code));
             Warranty warranty = Warranty.Create(type, name, code, duration, price);
             await _warrantyRepository.Create(warranty);
             await _unitOfWork.SaveChangesAsync(token);

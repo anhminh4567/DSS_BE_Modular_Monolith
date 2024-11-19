@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Dtos.Requests.JewelryModels;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using FluentResults;
@@ -28,7 +29,7 @@ namespace DiamondShop.Application.Usecases.SizeMetals.Commands.Update
             sizeMetalQuery = _sizeMetalRepository.QueryFilter(sizeMetalQuery, p => p.ModelId == JewelryModelId.Parse(modelId));
             var sizeMetals = sizeMetalQuery.ToList();
             if (sizeMetals == null)
-                return Result.Fail("The size and metal selection for this model doesn't exist");
+                return Result.Fail(JewelryModelErrors.SizeMetal.SizeMetalNotFoundError);
             sizeMetals.ForEach(p =>
             {
                 var item = sizeMetalUpdates.FirstOrDefault(k => k.MetalId == p.MetalId.Value && k.SizeId == p.SizeId.Value);

@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Dtos.Requests.JewelryModels;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using FluentResults;
@@ -25,7 +26,7 @@ namespace DiamondShop.Application.Usecases.SizeMetals.Commands.Create
             var sizeMetal = SizeMetal.Create(JewelryModelId.Parse(modelId), MetalId.Parse(metalSizeSpec.MetalId), SizeId.Parse(metalSizeSpec.SizeId), metalSizeSpec.Weight);
             var existFlag = await _sizeMetalRepository.Existing(sizeMetal.ModelId, sizeMetal.MetalId, sizeMetal.SizeId);
             if (existFlag)
-                return Result.Fail("This metal option for this model has already existed");
+                return Result.Fail(JewelryModelErrors.SizeMetal.SizeMetalNotFoundError);
             await _sizeMetalRepository.Create(sizeMetal, token);
             await _unitOfWork.SaveChangesAsync(token);
             return Result.Ok();

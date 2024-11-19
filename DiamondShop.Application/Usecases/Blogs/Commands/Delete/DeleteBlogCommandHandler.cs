@@ -1,7 +1,10 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Blogs;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.Blogs.ErrorMessages;
 using DiamondShop.Domain.Models.Blogs.ValueObjects;
+using DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages;
+using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Repositories.BlogRepo;
 using FluentResults;
 using MediatR;
@@ -28,9 +31,9 @@ namespace DiamondShop.Application.Usecases.Blogs.Commands.Delete
             await _unitOfWork.BeginTransactionAsync(token);
             var blog = await _blogRepository.GetById(BlogId.Parse(blogId));
             if (blog == null)
-                return Result.Fail("This blog doesn't exist");
+                return Result.Fail(BlogErrors.BlogNotFoundError);
             if (blog.AccountId != AccountId.Parse(accountId))
-                return Result.Fail("Only the author can remove the blog");
+                return Result.Fail(BlogErrors.NoPermissionError);
             List<Task<Result>> tasks = new()
             {
                 _blogFileService.DeleteThumbnail(blog, token),

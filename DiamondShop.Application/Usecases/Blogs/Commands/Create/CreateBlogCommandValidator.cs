@@ -21,9 +21,9 @@ namespace DiamondShop.Application.Usecases.Blogs.Commands.Create
                 p.RuleForEach(k => k.BlogTags).NotEmpty();
                 p.RuleFor(k => k.Thumbnail)
                 .Must(k => k.Length <= rule.MaxContentSize)
-                .WithMessage($"Thumbnail must be under {rule.MaxContentSizeInMb} Mb")
+                .WithMessage(rule.MaxContentSizeError)
                 .Must(k => rule.AllowedThumbnailType.Contains(k.ContentType))
-                .WithMessage($"Thumbnail doens't support this type of file");
+                .WithMessage(rule.ContentTypeError);
                 p.RuleFor(k => k.Content)
                 .NotEmpty();
             });

@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.JewelryReviews;
 using DiamondShop.Domain.Models.Jewelries.Entities;
+using DiamondShop.Domain.Models.Jewelries.ErrorMessages;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories.JewelryReviewRepo;
@@ -28,15 +29,15 @@ namespace DiamondShop.Application.Usecases.JewelryReviews.Commands.ChangeVisibil
             await _unitOfWork.BeginTransactionAsync(token);
             var review = await _jewelryReviewRepository.GetById(JewelryId.Parse(jewelryId));
             if (review == null)
-                return Result.Fail("This review doesn't exist");
+                return Result.Fail(JewelryErrors.Review.ReviewNotFoundError);
             if (review.Jewelry == null)
-                return Result.Fail("Can't get the jewelry of this review");
+                return Result.Fail(JewelryErrors.Review.ReviewJewelryNotFoundError);
             if (accountRole == AccountRole.CustomerId)
             {
-                if(review.AccountId.Value != accountId)
-                    return Result.Fail("You don't have permission to remove this review");
-                if(review.IsHidden)
-                    return Result.Fail("This review has already been removed");
+                if (review.AccountId.Value != accountId)
+                    return Result.Fail(JewelryErrors.Review.NoPermissionError);
+                if (review.IsHidden)
+                    return Result.Fail(JewelryErrors.Review.AlreadyHiddenError);
             }
             review.IsHidden = !review.IsHidden;
             await _jewelryReviewRepository.Update(review);

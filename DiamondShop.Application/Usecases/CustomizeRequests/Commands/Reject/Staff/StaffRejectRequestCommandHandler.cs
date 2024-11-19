@@ -2,6 +2,7 @@
 using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
+using DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
@@ -33,9 +34,9 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Sta
             await _unitOfWork.BeginTransactionAsync(token);
             var customizeRequest = await _customizeRequestRepository.GetById(CustomizeRequestId.Parse(customizeRequestId));
             if (customizeRequest == null)
-                return Result.Fail("This request doens't exist");
+                return Result.Fail(CustomizeRequestErrors.CustomizeRequestNotFoundError);
             if (customizeRequest.Status != CustomizeRequestStatus.Pending && customizeRequest.Status != CustomizeRequestStatus.Requesting)
-                return Result.Fail("You can't reject this request anymore");
+                return Result.Fail(CustomizeRequestErrors.UnrejectableError);
             customizeRequest.Status = CustomizeRequestStatus.Shop_Rejected;
             await _customizeRequestRepository.Update(customizeRequest);
             await _unitOfWork.SaveChangesAsync(token);

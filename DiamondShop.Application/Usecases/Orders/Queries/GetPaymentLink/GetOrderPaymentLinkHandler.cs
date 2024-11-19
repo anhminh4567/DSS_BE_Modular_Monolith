@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Models;
+using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.OrderRepo;
@@ -41,7 +42,7 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetPaymentLink
             var getOrder = await _orderRepository.GetById(parsedId);
             if(getOrder is null)
             {
-                return Result.Fail("Order not found");
+                return Result.Fail(OrderErrors.OrderNotFoundError);
             }
             var getAccount = await _accountRepository.GetById(getOrder.AccountId);
             if(getAccount is null)
@@ -57,7 +58,7 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetPaymentLink
                 Description = getOrder.Note,
                 Email = getAccount.Email,
                 Order = getOrder,
-                Title = "Payment for order " + getOrder.Id.Value,
+                Title = "Thanh toán cho đơn hàng " + getOrder.OrderCode,
             };
             var result = await _paymentService.CreatePaymentLink(paymentLinkRequest,cancellationToken);
             return result;

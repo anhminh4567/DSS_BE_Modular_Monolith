@@ -1,7 +1,10 @@
 ﻿using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
+using DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Models.Jewelries.ErrorMessages;
+using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
@@ -39,12 +42,12 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomer
             var discounts = await _discountRepository.GetActiveDiscount();
             var customizeRequest = await _customizeRequestRepository.GetDetail(CustomizeRequestId.Parse(requestId));
             if (customizeRequest == null)
-                return Result.Fail("This customize request doesn't exist");
+                return Result.Fail(CustomizeRequestErrors.CustomizeRequestNotFoundError);
             if (customizeRequest.AccountId != AccountId.Parse(accountId))
-                return Result.Fail("You don't have permission to view this request");
+                return Result.Fail(CustomizeRequestErrors.NoPermissionError);
             var model = customizeRequest.JewelryModel;
             if (model == null)
-                return Result.Fail("Can't get the requested jewelry model");
+                return Result.Fail(JewelryModelErrors.JewelryModelNotFoundError);
             var sizeMetal = customizeRequest.JewelryModel.SizeMetals.FirstOrDefault(p => p.SizeId == customizeRequest.SizeId && p.MetalId == customizeRequest.MetalId);
             await _jewelryModelService.AddSettingPrice(model, sizeMetal, customizeRequest.SideDiamond);
             bool isPriced = false;
@@ -71,9 +74,9 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomer
             {
                 var jewelry = customizeRequest.Jewelry;
                 if (jewelry == null)
-                    return Result.Fail("Can't get the requested jewelry");
+                    return Result.Fail(JewelryErrors.JewelryNotFoundError);
                 if (sizeMetal == null)
-                    return Result.Fail("Can't get size and metal option for the requested jewelry");
+                    return Result.Fail(JewelryModelErrors.SizeMetal.SizeMetalNotFoundError);
                 _jewelryService.AddPrice(jewelry, sizeMetal);
                 await _jewelryService.AssignJewelryDiscount(jewelry, discounts);
             }

@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Commons.Responses;
 using DiamondShop.Application.Services.Interfaces.Blogs;
 using DiamondShop.Domain.Models.Blogs;
+using DiamondShop.Domain.Models.Blogs.ErrorMessages;
 using DiamondShop.Domain.Models.Blogs.ValueObjects;
 using DiamondShop.Domain.Repositories.BlogRepo;
 using FluentResults;
@@ -29,7 +30,7 @@ namespace DiamondShop.Application.Usecases.Blogs.Queries.GetDetail
             request.Deconstruct(out string blogId);
             var blog = await _blogRepository.GetById(BlogId.Parse(blogId));
             if (blog == null)
-                return Result.Fail("This blog doesn't exist");
+                return Result.Fail(BlogErrors.BlogNotFoundError);
             var contentFlag = await _blogFileService.GetContent(blog.Id, token);
             if (contentFlag.IsFailed)
                 return Result.Fail(contentFlag.Errors);
