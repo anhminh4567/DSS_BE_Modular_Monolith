@@ -20,7 +20,8 @@ namespace DiamondShop.Application.Dtos.Responses.Orders
         public string? CancelledDate { get; set; }
         public string? CancelledReason { get; set; }
         public OrderStatus Status { get; set; }
-        public PaymentType PaymentStatus { get; set; }
+        public PaymentType PaymentType { get; set; }
+        public PaymentStatus PaymentStatus { get; set; }
         public string? PaymentMethodId { get; set; }
         public PaymentMethodDto? PaymentMethod { get; set; }
         public decimal ShippingFee { get; set; }
