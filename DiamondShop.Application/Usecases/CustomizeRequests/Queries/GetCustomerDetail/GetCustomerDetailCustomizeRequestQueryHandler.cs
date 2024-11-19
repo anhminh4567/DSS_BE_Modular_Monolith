@@ -66,7 +66,6 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomer
                 {
                     isPriced = isPriced && true;
                 }
-                await _diamondServices.AssignDiamondDiscount(diamond, discounts);
             }
             if (customizeRequest.Status == CustomizeRequestStatus.Accepted)
             {

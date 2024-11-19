@@ -20,7 +20,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.CustomizeRequestRepo
 
         public Task<DiamondRequest?> GetById(DiamondRequestId diamondRequestId, CancellationToken cancellationToken = default)
         {
-            return _set.FirstOrDefaultAsync(x => x.DiamondRequestId == diamondRequestId);
+            return _set.Include(p => p.Diamond).FirstOrDefaultAsync(x => x.DiamondRequestId == diamondRequestId);
         }
     }
 }

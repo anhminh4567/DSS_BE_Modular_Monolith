@@ -11,6 +11,13 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
     {
         public StaffProceedCustomizeRequestCommandValidator()
         {
+            RuleFor(p => p.RequestId).NotEmpty();
+            RuleForEach(p => p.DiamondAssigning).ChildRules(p =>
+            {
+                p.RuleFor(k => k.DiamondRequestId).NotEmpty();
+                p.RuleFor(k => k.DiamondId).NotEmpty().When(k => k.CreateDiamondCommand == null).WithMessage("Id kim cương đang trống");
+                p.RuleFor(k => k.CreateDiamondCommand).NotEmpty().When(k => k.DiamondId == null).WithMessage("Yêu cầu kim cương mới đang trống");
+            }).When(p => p.DiamondAssigning != null);
         }
     }
 }
