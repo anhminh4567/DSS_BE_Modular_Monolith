@@ -68,6 +68,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDiamondPricesComp
             result.IsPriceKnown = false;
             result.Message = "chưa rõ giá, bạn có muốn thêm vào ?";
             var diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
+            
             return result;
         }
     }

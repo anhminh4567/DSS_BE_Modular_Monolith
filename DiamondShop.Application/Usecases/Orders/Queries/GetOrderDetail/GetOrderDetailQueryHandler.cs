@@ -14,11 +14,13 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderService _orderService;
+        private readonly IOrderLogRepository _orderLogRepository;
 
-        public GetOrderDetailQueryHandler(IOrderRepository orderRepository, IOrderService orderService)
+        public GetOrderDetailQueryHandler(IOrderRepository orderRepository, IOrderService orderService, IOrderLogRepository orderLogRepository)
         {
             _orderRepository = orderRepository;
             _orderService = orderService;
+            _orderLogRepository = orderLogRepository;
         }
 
         public async Task<Result<Order>> Handle(GetOrderDetailQuery request, CancellationToken cancellationToken)
@@ -32,6 +34,8 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail
             if ((role == AccountRole.CustomerId && order.AccountId != AccountId.Parse(accountId)) ||
                 (role == AccountRole.DelivererId && order.DelivererId != AccountId.Parse(accountId)))
                 return Result.Fail("You don't have permission to access this order");
+            var orderLog = await _orderLogRepository.GetOrderLogs(order, cancellationToken);
+            order.Logs = orderLog;
             return order;
         }
     }

@@ -11,10 +11,13 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
     {
         //public DiamondDto? Diamond { get; set; }
         public DiamondPriceDto PriceFound { get; set; }
+        public DiamondCriteriaDto CriteraFound { get; set; }
         public decimal Price { get; set; }
         public decimal CorrectPrice { get; set; }
         public decimal CurrentGivenOffset { get; set; }
         public bool IsPriceKnown { get; set; }
         public string Message { get; set; }
+        public bool IsValid { get; set; }
+        public decimal SuggestedOffsetTobeAdded { get; set; }
     }
 }
