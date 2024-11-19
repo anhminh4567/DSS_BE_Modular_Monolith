@@ -1,41 +1,125 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Domain.Models.CustomizeRequests;
+using DiamondShop.Application.Usecases.Diamonds.Commands.Create;
+using DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeRequest;
+using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests.Entities;
-using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
-using DiamondShop.Domain.Repositories.JewelryModelRepo;
+using DiamondShop.Domain.Models.CustomizeRequests.Enums;
+using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
+using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.ChangeDiamond
 {
-    public record ChangeDiamondRequestCommand(string DiamondRequestId, string DiamondId) : IRequest<Result<DiamondRequest>>;
+    public record ChangeDiamondRequestCommand(string CustomizeRequestId, string DiamondRequestId, string? DiamondId, CreateDiamondCommand? CreateDiamondCommand) : IRequest<Result<DiamondRequest>>;
     internal class ChangeDiamondRequestCommandHandler : IRequestHandler<ChangeDiamondRequestCommand, Result<DiamondRequest>>
     {
         private readonly IDiamondRepository _diamondRepository;
+        private readonly ICustomizeRequestRepository _customizeRequestRepository;
         private readonly IDiamondRequestRepository _diamondRequestRepository;
         private readonly ICustomizeRequestService _customizeRequestService;
         private readonly IDiamondServices _diamondServices;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ISender _sender;
 
-        public ChangeDiamondRequestCommandHandler(IDiamondRepository diamondRepository, IDiamondRequestRepository diamondRequestRepository, ICustomizeRequestService customizeRequestService, IDiamondServices diamondServices, IUnitOfWork unitOfWork)
+        public ChangeDiamondRequestCommandHandler(IDiamondRepository diamondRepository, IDiamondRequestRepository diamondRequestRepository, ICustomizeRequestService customizeRequestService, IDiamondServices diamondServices, IUnitOfWork unitOfWork, ISender sender, ICustomizeRequestRepository customizeRequestRepository)
         {
             _diamondRepository = diamondRepository;
             _diamondRequestRepository = diamondRequestRepository;
             _customizeRequestService = customizeRequestService;
             _diamondServices = diamondServices;
             _unitOfWork = unitOfWork;
+            _sender = sender;
+            _customizeRequestRepository = customizeRequestRepository;
         }
 
-        public Task<Result<DiamondRequest>> Handle(ChangeDiamondRequestCommand request, CancellationToken cancellationToken)
+        public async Task<Result<DiamondRequest>> Handle(ChangeDiamondRequestCommand request, CancellationToken token)
         {
-            throw new NotImplementedException();
+            request.Deconstruct(out string customizeRequestId, out string diamondRequestId, out string? diamondId, out CreateDiamondCommand? createDiamondCommand);
+            await _unitOfWork.BeginTransactionAsync(token);
+            var customizeRequest = await _customizeRequestRepository.GetById(CustomizeRequestId.Parse(customizeRequestId));
+            if (customizeRequest == null)
+                return Result.Fail("yêu cầu thiết kế không tồn tại");
+            if (customizeRequest.Status != CustomizeRequestStatus.Priced)
+                return Result.Fail("chỉ có thể đổi kim cương trước khi người dùng xác nhận");
+            var diamondRequest = await _diamondRequestRepository.GetById(DiamondRequestId.Parse(diamondRequestId));
+            if (diamondRequest == null)
+                return Result.Fail("no diamond req");
+            if (diamondRequest.DiamondId != null)
+            {
+
+                var oldDiamond = diamondRequest.Diamond;
+                if (oldDiamond != null)
+                {
+                    //Preorder then delete
+                    if (oldDiamond.Status == ProductStatus.PreOrder)
+                        await _diamondRepository.Delete(oldDiamond);
+                    //set selling
+                    else
+                    {
+                        oldDiamond.SetSell();
+                        await _diamondRepository.Update(oldDiamond);
+                    }
+                    await _unitOfWork.SaveChangesAsync(token);
+                }
+                else
+                    return Result.Fail("no old diamond found");
+            }
+            if (createDiamondCommand != null)
+            {
+                var createFlag = await _sender.Send(new CreateDiamondWhenNotExistCommand(createDiamondCommand, diamondRequest.CustomizeRequestId.Value, diamondRequestId, null));
+                if (createFlag.IsFailed)
+                    return Result.Fail(createFlag.Errors);
+            }
+            else if (diamondId != null && diamondRequest.DiamondId?.Value != diamondId)
+            {
+                if (!String.IsNullOrEmpty(diamondId))
+                {
+                    var diamond = await _diamondRepository.GetById(DiamondId.Parse(diamondId));
+                    if (diamond == null)
+                    {
+                        return Result.Fail($"Diamond doesn't exist");
+                    }
+                    else if (diamond.Status != ProductStatus.Active || diamond.JewelryId != null)
+                    {
+                        return Result.Fail($"Diamond isn't available for sell");
+                    }
+                    else if (!_customizeRequestService.IsAssigningDiamondSpecValid(diamondRequest, diamond))
+                    {
+                        return Result.Fail($"Diamond doesn't match the requirement");
+                    }
+                    else
+                    {
+                        var prices = await _diamondServices.GetPrice(diamond.Cut, diamond.DiamondShape, diamond.IsLabDiamond, token);
+                        var price = await _diamondServices.GetDiamondPrice(diamond, prices);
+                        if (price == null || diamond.IsPriceKnown == false)
+                        {
+                            return Result.Fail($"Can't get price for diamond");
+                        }
+                        //Only when valid
+                        else
+                        {
+                            diamondRequest.DiamondId = diamond.Id;
+                            await _diamondRequestRepository.Update(diamondRequest);
+                            if (diamond.Status != ProductStatus.PreOrder)
+                                diamond.SetLock();
+                            await _diamondRepository.Update(diamond);
+                            await _unitOfWork.SaveChangesAsync(token);
+                        }
+                    }
+                }
+                else
+                    return Result.Fail("Diamond id khong ton tai");
+            }
+            else
+            {
+                return Result.Fail("Diamond Id trung lap");
+            }
+            await _unitOfWork.CommitAsync(token);
+            return diamondRequest;
         }
     }
 }

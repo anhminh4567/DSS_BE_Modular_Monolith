@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Commons.Responses;
 using DiamondShop.Application.Dtos.Responses.CustomizeRequest;
 using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Application.Usecases.CustomizeRequests.Commands.ChangeDiamond;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Checkout;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Customer;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Staff;
@@ -69,9 +70,9 @@ namespace DiamondShop.Api.Controllers.CustomRequest
         }
         [HttpPut("Staff/ChangeDiamond")]
         [Authorize(Roles = AccountRole.StaffId)]
-        public async Task<ActionResult> StaffChangeDiamondRequest([FromBody] StaffProceedCustomizeRequestCommand proceedCustomizeRequestCommand)
+        public async Task<ActionResult> StaffChangeDiamondRequest([FromBody] ChangeDiamondRequestCommand changeDiamondRequestCommand)
         {
-            var result = await _sender.Send(proceedCustomizeRequestCommand);
+            var result = await _sender.Send(changeDiamondRequestCommand);
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<CustomizeRequestDto>(result.Value);

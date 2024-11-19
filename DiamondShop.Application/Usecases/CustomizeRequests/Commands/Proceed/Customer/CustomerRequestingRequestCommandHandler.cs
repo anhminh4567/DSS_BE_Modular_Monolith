@@ -45,7 +45,6 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Cu
             await _customizeRequestRepository.Update(customizeRequest);
             await _unitOfWork.SaveChangesAsync(token);
             //staff auto accept
-            var diamondRequestRecords = customizeRequest.DiamondRequests.Select(p => new DiamondRequestAssignRecord(p.DiamondId.Value, p.DiamondId.Value)).ToList();
             var staffAccepted = new StaffProceedCustomizeRequestCommand(customizeRequest.Id.Value, null);
             var result = await _sender.Send(staffAccepted);
             if (result.IsFailed)
