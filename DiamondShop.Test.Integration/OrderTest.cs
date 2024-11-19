@@ -54,8 +54,9 @@ namespace DiamondShop.Test.Integration
                 new OrderItemRequestDto(jewelry.Id.Value, null, null, null, "Default_Jewelry_Warranty", WarrantyType.Jewelry),
                 new OrderItemRequestDto(null, diamond2.Id.Value, null, null, "Default_Diamond_Warranty", WarrantyType.Diamond)
             };
+            var billingDetail = new BillingDetail("abc","abc","123123132","HCM","Thu Duc", "Ward", "Tan Binh", "abc street","no");
             var address = String.Join(" ", ["HCM", "Thu Duc", "Tam Binh", "abc street"]);
-            var orderDetail = new CreateOrderInfo(paymentType, PaymentMethod.BANK_TRANSFER.Id.Value,"zalopay", null, null, address, itemReqs);
+            var orderDetail = new CreateOrderInfo(paymentType, PaymentMethod.BANK_TRANSFER.Id.Value,"zalopay", null, null, billingDetail, itemReqs);
             var createCommand = new CreateOrderCommand(account.Id.Value, orderDetail);
             var createResult = await _sender.Send(createCommand);
             if (createResult.IsFailed)

@@ -26,7 +26,7 @@ using System.Collections.Generic;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 {
-    public record CreateOrderInfo(PaymentType PaymentType, string methodId, string PaymentName, string? RequestId, string? PromotionId, string Address, List<OrderItemRequestDto> OrderItemRequestDtos);
+    public record CreateOrderInfo(PaymentType PaymentType, string methodId, string PaymentName, string? RequestId, string? PromotionId, BillingDetail BillingDetail, List<OrderItemRequestDto> OrderItemRequestDtos);
     public record CreateOrderCommand(string AccountId, CreateOrderInfo CreateOrderInfo) : IRequest<Result<Order>>;
     internal class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Result<Order>>
     {
@@ -71,7 +71,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             var logRule = _optionsMonitor.CurrentValue.LoggingRules;
             await _unitOfWork.BeginTransactionAsync(token);
             request.Deconstruct(out string accountId, out CreateOrderInfo createOrderInfo);
-            createOrderInfo.Deconstruct(out PaymentType paymentType, out string methodId, out string paymentName, out string? requestId, out string? promotionId, out string address, out List<OrderItemRequestDto> orderItemReqs);
+            createOrderInfo.Deconstruct(out PaymentType paymentType, out string methodId, out string paymentName, out string? requestId, out string? promotionId, out BillingDetail billingDetail, out List<OrderItemRequestDto> orderItemReqs);
             var account = await _accountRepository.GetById(AccountId.Parse(accountId));
             if (account == null)
                 return Result.Fail("This account doesn't exist");
@@ -106,6 +106,13 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 PromotionId = promotionId,
                 Items = items,
                 AccountId = account.Id.Value,
+                UserAddress = new Dtos.Requests.Accounts.AddressRequestDto()
+                {
+                    District = billingDetail.District,
+                    Province = billingDetail.Providence,
+                    Street = billingDetail.Address,
+                    Ward = billingDetail.Ward
+                }
             };
             //Validate CartModel
             var cartModelResult = await _sender.Send(new ValidateCartFromListCommand(cartRequestDto));
@@ -132,6 +139,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             }
             var customizeRequestId = requestId == null ? null : CustomizeRequestId.Parse(requestId);
             var orderPromo = cartModel.Promotion.Promotion;
+            var address = billingDetail.GetAddressString();
             var order = Order.Create(account.Id, paymentType, paymentMethod.Id, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice,
                 address, customizeRequestId, orderPromo, cartModel.OrderPrices.OrderAmountSaved, cartModel.OrderPrices.UserRankDiscountAmount);
             //create log

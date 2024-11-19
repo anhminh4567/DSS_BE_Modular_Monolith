@@ -17,7 +17,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                         .Must(m => Enum.IsDefined(typeof(PaymentType), m));
                     p.RuleFor(m => m.PaymentName)
                     .NotEmpty();
-                    p.RuleFor(k => k.Address).NotEmpty();
+                    //p.RuleFor(k => k.Address).NotEmpty();
+                    p.RuleFor(m => m.BillingDetail)
+                        .NotNull();
                     p.RuleFor(k => k.OrderItemRequestDtos).NotEmpty();
                     p.RuleForEach(k => k.OrderItemRequestDtos)
                     .ChildRules(k =>
