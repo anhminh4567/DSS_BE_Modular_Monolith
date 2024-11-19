@@ -29,10 +29,8 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail
             var order = _orderRepository.QueryFilter(orderQuery, p => p.Id == OrderId.Parse(orderId)).FirstOrDefault();
             if (order == null)
                 return Result.Fail("This order doesn't exist.");
-            if (
-                (role == AccountRole.CustomerId && order.AccountId != AccountId.Parse(accountId)) ||
-                (role == AccountRole.DelivererId && order.DelivererId != AccountId.Parse(accountId))
-                )
+            if ((role == AccountRole.CustomerId && order.AccountId != AccountId.Parse(accountId)) ||
+                (role == AccountRole.DelivererId && order.DelivererId != AccountId.Parse(accountId)))
                 return Result.Fail("You don't have permission to access this order");
             return order;
         }

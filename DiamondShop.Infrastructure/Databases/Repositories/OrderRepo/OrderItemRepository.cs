@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
+using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Repositories.OrderRepo;
@@ -19,6 +20,17 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
         public async Task CreateRange(List<OrderItem> orderItems)
         {
             await _set.AddRangeAsync(orderItems);
+        }
+
+        public Task<List<OrderItem>> GetOrderItemsDetail(Order order, CancellationToken cancellationToken = default)
+        {
+            return _set.Where(o => o.OrderId == order.Id)
+                .Include(x => x.Diamond)
+                .Include(x => x.Jewelry)
+                    .ThenInclude(x => x.SideDiamond)
+                .Include(x => x.Jewelry)
+                    .ThenInclude(x => x.Diamonds)
+                .ToListAsync();
         }
 
         public void UpdateRange(List<OrderItem> orderItems) => _set.UpdateRange(orderItems);

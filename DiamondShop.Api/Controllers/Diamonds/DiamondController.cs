@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Commons.Responses;
 using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Create;
+using DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeRequest;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Delete;
 using DiamondShop.Application.Usecases.Diamonds.Commands.LockForUser;
 using DiamondShop.Application.Usecases.Diamonds.Queries.DashBoard.GetBestSellingCaratRangeForShape;
@@ -110,7 +111,7 @@ namespace DiamondShop.Api.Controllers.Diamonds
         {
             var command = new CreateDiamondCommand(createDiamondCommand.diamond4c,createDiamondCommand.details,
                 createDiamondCommand.measurement,createDiamondCommand.shapeId,createDiamondCommand.sku,createDiamondCommand.Certificate,
-                createDiamondCommand.priceOffset, true);
+                createDiamondCommand.priceOffset);
             var result = await _sender.Send(command);
             if (result.IsSuccess)
             {
@@ -121,12 +122,9 @@ namespace DiamondShop.Api.Controllers.Diamonds
         }
         [HttpPost("Unavailble")]
         [Produces(typeof(DiamondDto))]
-        public async Task<ActionResult> CreateUnavailable([FromBody] CreateDiamondRequestDto createDiamondCommand)
+        public async Task<ActionResult> CreateUnavailable([FromBody] CreateDiamondWhenNotExistCommand createDiamondCommand)
         {
-            var command = new CreateDiamondCommand(createDiamondCommand.diamond4c, createDiamondCommand.details,
-                createDiamondCommand.measurement, createDiamondCommand.shapeId, createDiamondCommand.sku, createDiamondCommand.Certificate,
-                createDiamondCommand.priceOffset, false);
-            var result = await _sender.Send(command);
+            var result = await _sender.Send(createDiamondCommand);
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<DiamondDto>(result.Value);

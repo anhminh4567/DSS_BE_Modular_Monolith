@@ -14,6 +14,7 @@ using DiamondShop.Domain.Repositories.TransactionRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
+using Microsoft.AspNetCore.Builder;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
 {
@@ -33,13 +34,15 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
         private readonly IPaymentMethodRepository _paymentMethodRepository;
         private readonly IOrderLogRepository _orderLogRepository;
         private readonly IOrderFileServices _orderFileServices;
+        private readonly IDiamondRepository _diamondRepository;
 
-        public ProceedOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, ISender sender, IPublisher publisher, IPaymentMethodRepository paymentMethodRepository, IOrderLogRepository orderLogRepository, IOrderFileServices orderFileServices, IJewelryRepository jewelryRepository)
+        public ProceedOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, ISender sender, IPublisher publisher, IPaymentMethodRepository paymentMethodRepository, IOrderLogRepository orderLogRepository, IOrderFileServices orderFileServices, IDiamondRepository diamondRepository)
         {
             _accountRepository = accountRepository;
             _orderRepository = orderRepository;
             _orderItemRepository = orderItemRepository;
             _transactionRepository = transactionRepository;
+            _jewelryRepository = jewelryRepository;
             _unitOfWork = unitOfWork;
             _orderService = orderService;
             _orderTransactionService = orderTransactionService;
@@ -48,7 +51,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             _paymentMethodRepository = paymentMethodRepository;
             _orderLogRepository = orderLogRepository;
             _orderFileServices = orderFileServices;
-            _jewelryRepository = jewelryRepository;
+            _diamondRepository = diamondRepository;
         }
 
         public async Task<Result<Order>> Handle(ProceedOrderCommand request, CancellationToken token)
@@ -66,6 +69,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                 return Result.Fail("This order can't proceed!");
             var orderItemQuery = _orderItemRepository.GetQuery();
             orderItemQuery = _orderItemRepository.QueryFilter(orderItemQuery, p => p.OrderId == order.Id);
+            orderItemQuery = _orderItemRepository.QueryInclude(orderItemQuery, p => p.Jewelry);
+            orderItemQuery = _orderItemRepository.QueryInclude(orderItemQuery, p => p.Diamond);
             var orderItems = orderItemQuery.ToList();
             if (order.Status == OrderStatus.Pending)
             {
@@ -88,6 +93,12 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                     if (order.CustomizeRequestId != null)
                     {
                         item.Jewelry.SetSold();
+                        var getJewelryDiamond = await _diamondRepository.GetDiamondsJewelry(item.Jewelry.Id);
+                        foreach (var diamond in getJewelryDiamond)
+                        {
+                            diamond.SetSold(diamond.DefaultPrice.Value,diamond.SoldPrice.Value);
+                            await _diamondRepository.Update(diamond);
+                        }
                         await _jewelryRepository.Update(item.Jewelry);
                     }
                     item.Status = OrderItemStatus.Prepared;

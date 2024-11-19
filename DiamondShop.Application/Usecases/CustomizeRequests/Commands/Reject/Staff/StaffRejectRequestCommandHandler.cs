@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
@@ -45,8 +46,15 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Sta
                 {
                     if (diamondReq.Diamond != null)
                     {
-                        diamondReq.Diamond.SetSell();
-                        await _diamondRepository.Update(diamondReq.Diamond);
+                        if (diamondReq.Diamond.Status == ProductStatus.Active)
+                        {
+                            diamondReq.Diamond.SetSell();
+                            await _diamondRepository.Update(diamondReq.Diamond);
+                        }
+                        else if (diamondReq.Diamond.Status == ProductStatus.PreOrder)
+                        {
+                            await _diamondRepository.Delete(diamondReq.Diamond);
+                        }
                         await _unitOfWork.SaveChangesAsync(token);
                     }
                 }

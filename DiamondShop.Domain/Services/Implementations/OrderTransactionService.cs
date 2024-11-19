@@ -118,9 +118,9 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             if (order.Status == OrderStatus.Pending)
             {
-                var paymentInTransac = Transaction.CreateManualPayment(order.Id, $"Manual payment for order#{order.Id.Value}", order.TotalPrice, TransactionType.Pay);
+                var paymentInTransac = Transaction.CreateManualPayment(order.Id, $"Manual payment for order#{order.OrderCode}", order.TotalPrice, TransactionType.Pay);
                 order.AddTransaction(paymentInTransac);
-                var refundOutTransac = Transaction.CreateManualRefund(order.Id, $"Maunual refund for order#{order.Id.Value}", paymentInTransac.TotalAmount);
+                var refundOutTransac = Transaction.CreateManualRefund(order.Id, $"Maunual refund for order#{order.OrderCode}", paymentInTransac.TotalAmount);
                 order.AddRefund(refundOutTransac);
                 return;
             }
@@ -134,7 +134,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 .Sum(p => p.TotalAmount);
             if (transaction.IsManual)
             {
-                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id.Value}", refundAmount);
+                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.OrderCode}", refundAmount);
                 order.AddRefund(transac);
             }
         }
@@ -142,9 +142,9 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             if (order.Status == OrderStatus.Pending)
             {
-                var paymentInTransac = Transaction.CreateManualPayment(order.Id, $"Manual payment for order#{order.Id.Value}", order.TotalPrice, TransactionType.Pay);
+                var paymentInTransac = Transaction.CreateManualPayment(order.Id, $"Manual payment for order#{order.OrderCode}", order.TotalPrice, TransactionType.Pay);
                 order.AddTransaction(paymentInTransac);
-                var refundOutTransac = Transaction.CreateManualRefund(order.Id, $"Maunual refund for order#{order.Id.Value}", paymentInTransac.TotalAmount);
+                var refundOutTransac = Transaction.CreateManualRefund(order.Id, $"Maunual refund for order#{order.OrderCode}", paymentInTransac.TotalAmount);
                 order.AddRefund(refundOutTransac);
                 return;
             }
@@ -158,7 +158,7 @@ namespace DiamondShop.Domain.Services.Implementations
             refundAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(refundAmount);
             if (transaction.IsManual)
             {
-                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.Id.Value}", refundAmount);
+                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.OrderCode}", refundAmount);
                 order.AddRefund(transac);
             }
         }
@@ -171,7 +171,7 @@ namespace DiamondShop.Domain.Services.Implementations
             var remainAmount = order.TotalPrice - transaction.TotalAmount;
             if (transaction.IsManual)
             {
-                var transac = Transaction.CreateManualPayment(order.Id, $"Manual remaining COD payment for order#{order.Id.Value}", remainAmount, TransactionType.Pay);
+                var transac = Transaction.CreateManualPayment(order.Id, $"Manual remaining COD payment for order#{order.OrderCode}", remainAmount, TransactionType.Pay);
                 order.AddTransaction(transac);
                 order.PaymentStatus = PaymentStatus.PaidAll;
             }

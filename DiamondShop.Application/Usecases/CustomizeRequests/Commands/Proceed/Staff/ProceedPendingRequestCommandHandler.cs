@@ -85,9 +85,9 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
                         }
                         else
                         {
-                            var prices = await _diamondServices.GetPrice(diamond.Cut.Value, diamond.DiamondShape, diamond.IsLabDiamond, token);
+                            var prices = await _diamondServices.GetPrice(diamond.Cut, diamond.DiamondShape, diamond.IsLabDiamond, token);
                             var price = await _diamondServices.GetDiamondPrice(diamond, prices);
-                            if (price == null)
+                            if (price == null || diamond.IsPriceKnown == false)
                             {
                                 errors.Add(new Error($"Can't get price for diamond in request number {i}"));
                             }
@@ -96,7 +96,8 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
                             {
                                 diamondRequest.DiamondId = diamond.Id;
                                 await _diamondRequestRepository.Update(diamondRequest);
-                                diamond.SetLock();
+                                if(diamond.Status != ProductStatus.PreOrder)
+                                    diamond.SetLock();
                                 await _diamondRepository.Update(diamond);
                                 await _unitOfWork.SaveChangesAsync(token);
                             }

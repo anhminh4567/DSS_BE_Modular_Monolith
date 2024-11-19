@@ -101,6 +101,8 @@ namespace DiamondShop.Application.Mappers
 
             config.NewConfig<DateTime,string>()
                 .MapWith(src => src.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat));
+            config.NewConfig<DateTime?, string?>()
+                .MapWith(src => src == null ? null : src.Value.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat));
         }
     }
 }

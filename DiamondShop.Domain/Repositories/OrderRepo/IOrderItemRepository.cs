@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
+using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using System;
 using System.Collections;
@@ -14,5 +15,6 @@ namespace DiamondShop.Domain.Repositories.OrderRepo
     {
         public Task CreateRange(List<OrderItem> orderItems);
         public void UpdateRange(List<OrderItem> orderItems);
+        Task<List<OrderItem>> GetOrderItemsDetail(Order order, CancellationToken cancellationToken = default);
     }
 }

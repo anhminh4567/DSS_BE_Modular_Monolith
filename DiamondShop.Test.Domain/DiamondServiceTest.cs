@@ -30,10 +30,10 @@ namespace DiamondShop.Test.Domain
             bool Islab = true;
             bool IsSide = true;
             DiamondShape currentShape = DiamondShape.FANCY_SHAPES;
-            DiamondCriteria criteria1 = DiamondCriteria.CreateSideDiamondCriteria(0.01f, 0.05f, Clarity.VVS2, Color.E);
-            DiamondCriteria criteria2 = DiamondCriteria.CreateSideDiamondCriteria(0.01f, 0.05f, Clarity.VVS1, Color.E);
-            DiamondCriteria criteria3 = DiamondCriteria.CreateSideDiamondCriteria(0.01f, 0.05f, Clarity.VVS2, Color.D);
-            DiamondCriteria criteria4 = DiamondCriteria.CreateSideDiamondCriteria(0.01f, 0.05f, Clarity.VVS1, Color.D);
+            DiamondCriteria criteria1 = DiamondCriteria.CreateSideDiamondCriteria(0.01f, 0.05f, Clarity.VVS2, Color.E, currentShape);
+            DiamondCriteria criteria2 = DiamondCriteria.CreateSideDiamondCriteria(0.01f, 0.05f, Clarity.VVS1, Color.E, currentShape);
+            DiamondCriteria criteria3 = DiamondCriteria.CreateSideDiamondCriteria(0.01f, 0.05f, Clarity.VVS2, Color.D, currentShape);
+            DiamondCriteria criteria4 = DiamondCriteria.CreateSideDiamondCriteria(0.01f, 0.05f, Clarity.VVS1, Color.D, currentShape);
 
             _diamondPrices = new List<DiamondPrice>();
             var price1 = DiamondPrice.CreateSideDiamondPrice(criteria1.Id, 500_000m, Islab, currentShape); price1.Criteria = criteria1;
@@ -92,7 +92,7 @@ namespace DiamondShop.Test.Domain
             //arrange
             string jsonStringOldPrice = JsonConvert.SerializeObject(_diamondPrices);
             var listAddOnePriceOutOfRange = JsonConvert.DeserializeObject<List<DiamondPrice>>(jsonStringOldPrice);
-            DiamondCriteria outOfRangeCriteria = DiamondCriteria.CreateSideDiamondCriteria(0.01f, 0.05f, Clarity.VVS1, Color.F);
+            DiamondCriteria outOfRangeCriteria = DiamondCriteria.CreateSideDiamondCriteria(0.01f, 0.05f, Clarity.VVS1, Color.F, DiamondShape.ANY_SHAPES);
             //the criteria is off by the color, none of the side or price is in F, they are in d and e
             DiamondPrice newPriceOutOrRange = DiamondPrice.CreateSideDiamondPrice(outOfRangeCriteria.Id,800_000m,true,DiamondShape.FANCY_SHAPES);
             newPriceOutOrRange.Criteria = outOfRangeCriteria;

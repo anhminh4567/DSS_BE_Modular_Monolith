@@ -60,8 +60,15 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Cus
                 {
                     if (diamondReq.Diamond != null)
                     {
-                        diamondReq.Diamond.SetSell();
-                        await _diamondRepository.Update(diamondReq.Diamond);
+                        if(diamondReq.Diamond.Status == ProductStatus.Active)
+                        {
+                            diamondReq.Diamond.SetSell();
+                            await _diamondRepository.Update(diamondReq.Diamond);
+                        }
+                        else if(diamondReq.Diamond.Status == ProductStatus.PreOrder)
+                        {
+                            await _diamondRepository.Delete(diamondReq.Diamond);
+                        }                        
                         await _unitOfWork.SaveChangesAsync(token);
                     }
                 }

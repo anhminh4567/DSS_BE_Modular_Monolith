@@ -289,7 +289,8 @@ namespace DiamondShop.Domain.Services.Implementations
                     product.PromotionId = gift.PromotionId;
                     product.GiftAssignedId = gift.Id;
                     SetProductPriceFromGift(cartModel,product, gift);
-                    scopedGiftProducts.Add(i, product);
+                    var correctIndex = cartModel.Products.IndexOf(product);
+                    scopedGiftProducts.Add(correctIndex, product);
                 }
                 else
                 {

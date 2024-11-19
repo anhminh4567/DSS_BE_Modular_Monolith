@@ -127,11 +127,13 @@ namespace DiamondShop.Domain.Models.Diamonds
         {
             if (isRemove)
             {
+                SetSell();// set sell to clean up the price
                 JewelryId = null;//if remove a diamond from jewelry it will go to inactive 
                 Status = ProductStatus.Inactive;
             }
             else
             {
+                SetSell();
                 JewelryId = jewelry.Id;
                 Status = ProductStatus.Locked;
             } 
@@ -169,6 +171,7 @@ namespace DiamondShop.Domain.Models.Diamonds
             SoldPrice = null;
             DefaultPrice = null;
             ProductLock = null;
+            JewelryId = null;
         }
         public void SetLock()
         {
@@ -180,9 +183,9 @@ namespace DiamondShop.Domain.Models.Diamonds
         public void SetInActive()
         {
             if(Status == ProductStatus.Sold)
-                throw new Exception("Cannot change status of a sold item");
+                throw new Exception("sản phẩm đã bán, không làm được hành động nào");
             if (JewelryId != null)
-                throw new Exception("Cannot change status of this diamond, since it is attached to a jewelry already");
+                throw new Exception("không đổi trạng thái được, do đã gắn với 1 trang sức, cần xóa trang sức");
             Status = ProductStatus.Inactive;
             SoldPrice = null;
             DefaultPrice = null;
@@ -202,7 +205,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         public void SetLockForUser(Account userAccount , int lockHour, decimal? LockedPriceForCustomer)
         {
             if (Status == ProductStatus.Sold)
-                throw new Exception("cannot lock an already sold item");
+                throw new Exception("sản phẩm đã bán");
             Status = ProductStatus.LockForUser;
             ProductLock = ProductLock.CreateLockForUser(userAccount.Id, TimeSpan.FromHours(lockHour));
             if(LockedPriceForCustomer != null)
@@ -210,6 +213,18 @@ namespace DiamondShop.Domain.Models.Diamonds
                 DefaultPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(LockedPriceForCustomer.Value);
             }
                 
+        }
+        public void PreOrder(decimal? askingPrice)
+        {
+            if (Status == ProductStatus.Sold)
+                throw new Exception("sản phẩm đã bán");
+            if (Status == ProductStatus.Locked)
+                throw new Exception("sản phẩm bị khóa, ko pre-order");
+            Status = ProductStatus.PreOrder;
+            if(askingPrice < 0)
+                throw new Exception("Giá của món hàng phải lớn hay bằng 0, nếu = 0 thì miễn phí");
+            if (askingPrice != null)
+                DefaultPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(askingPrice.Value);
         }
         public void RemoveLock()
         {
@@ -256,6 +271,14 @@ namespace DiamondShop.Domain.Models.Diamonds
                 Status = ProductStatus.Active;
             else
                 Status = ProductStatus.Inactive;
+        }
+        public bool IsSetForCustomizeJewelryNotExistingInShop()
+        {
+            if (JewelryId != null && Status == ProductStatus.PreOrder)
+                return true ;
+            if (Status == ProductStatus.PreOrder)
+                return true;
+            return false;
         }
         private Diamond() { }
     }

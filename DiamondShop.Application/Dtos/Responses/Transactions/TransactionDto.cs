@@ -10,7 +10,7 @@ namespace DiamondShop.Application.Dtos.Responses.Transactions
         public PaymentMethod PayMethod { get; set; }
         public TransactionType TransactionType { get; set; }
         public string Description { get; set; }
-        public DateTime PayDate { get; set; }
+        public string PayDate { get; set; }
         public string AppTransactionCode { get; set; }
         public string PaygateTransactionCode { get; set; }
         public string TimeStampe { get; set; }
