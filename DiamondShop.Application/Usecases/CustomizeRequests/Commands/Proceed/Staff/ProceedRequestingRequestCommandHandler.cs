@@ -31,22 +31,21 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
         {
 
             request.Deconstruct(out CustomizeRequest customizeRequest);
-           // await _unitOfWork.BeginTransactionAsync(token);
+            await _unitOfWork.BeginTransactionAsync(token);
             if (customizeRequest.Status != CustomizeRequestStatus.Requesting)
                 return Result.Fail(CustomizeRequestErrors.UnacceptableError);
             //Create Jewelry
             var diamondList = customizeRequest.DiamondRequests.Count > 0 ? customizeRequest.DiamondRequests.Select(p => p.DiamondId.Value).ToList() : null;
-            JewelryRequestDto jewelryRequestDto = new(customizeRequest.JewelryModelId.Value, customizeRequest.SizeId.Value, customizeRequest.MetalId.Value, ProductStatus.Locked);
+            JewelryRequestDto jewelryRequestDto = new(customizeRequest.JewelryModelId.Value, customizeRequest.SizeId.Value, customizeRequest.MetalId.Value, ProductStatus.PreOrder);
             var jewelryResult = await _sender.Send(new CreateJewelryCommand(jewelryRequestDto, customizeRequest.SideDiamondId?.Value, diamondList));
             if(jewelryResult.IsFailed)
                 return Result.Fail(jewelryResult.Errors);
             customizeRequest.JewelryId = jewelryResult.Value.Id;
-            customizeRequest.Status = CustomizeRequestStatus.Accepted;
+            customizeRequest.SetAccepted();
             customizeRequest.ResetExpiredDate();
             await _customizeRequestRepository.Update(customizeRequest);
             await _unitOfWork.SaveChangesAsync(token);
-            _customizeRequestService.SetStage(customizeRequest);
-            //await _unitOfWork.CommitAsync(token);
+            await _unitOfWork.CommitAsync(token);
             return customizeRequest;
         }
     }

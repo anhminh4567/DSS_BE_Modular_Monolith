@@ -49,9 +49,6 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetDetail
                 return Result.Fail(CustomizeRequestErrors.NoPermissionError);
             var sizeMetal = customizeRequest.JewelryModel.SizeMetals.FirstOrDefault(p => p.SizeId == customizeRequest.SizeId && p.MetalId == customizeRequest.MetalId);
             await _jewelryModelService.AddSettingPrice(model, sizeMetal, customizeRequest.SideDiamond);
-            bool isPriced = false;
-            if (customizeRequest.SideDiamond != null && customizeRequest.SideDiamond.TotalPrice != 0)
-                isPriced = true;
             await _jewelryModelService.AssignJewelryModelDiscount(model, discounts);
             var diamondRequests = customizeRequest.DiamondRequests;
             foreach (var diamondRequest in diamondRequests)
@@ -59,15 +56,10 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetDetail
                 var diamond = diamondRequest.Diamond;
                 if (diamond == null)
                 {
-                    isPriced = false;
                     break;
                 }
                 var prices = await _diamondPriceRepository.GetPrice(diamond.Cut, diamond.DiamondShape, false, cancellationToken);
                 var diamondPrice = await _diamondServices.GetDiamondPrice(diamond, prices);
-                if (diamondPrice.Price != 0)
-                {
-                    isPriced = isPriced && true;
-                }
             }
             if (customizeRequest.Status == CustomizeRequestStatus.Accepted)
             {
@@ -79,7 +71,6 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetDetail
                 _jewelryService.AddPrice(jewelry, sizeMetal);
                 await _jewelryService.AssignJewelryDiscount(jewelry, discounts);
             }
-            _customizeRequestService.SetStage(customizeRequest, isPriced);
             return customizeRequest;
         }
 

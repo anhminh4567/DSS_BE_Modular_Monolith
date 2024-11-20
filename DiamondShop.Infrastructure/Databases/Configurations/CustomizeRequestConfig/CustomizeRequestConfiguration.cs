@@ -7,6 +7,7 @@ using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+using DiamondShop.Domain.Models.Orders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -67,6 +68,8 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.CustomizeRequestCo
                 .WithMany()
                 .HasForeignKey(o => o.SideDiamondId)
                 .IsRequired(false);
+            builder.HasOne(o => o.Order).WithOne(k => k.CustomizeRequest).HasForeignKey<Order>(k => k.CustomizeRequestId);
+
             builder.HasKey(o => o.Id);
         }
     }

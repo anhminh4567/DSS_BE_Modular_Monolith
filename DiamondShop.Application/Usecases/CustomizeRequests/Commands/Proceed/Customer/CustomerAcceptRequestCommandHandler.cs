@@ -1,5 +1,8 @@
-﻿using DiamondShop.Application.Services.Interfaces;
+﻿using DiamondShop.Application.Dtos.Requests.Jewelries;
+using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Staff;
+using DiamondShop.Application.Usecases.Jewelries.Commands.Create;
+using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages;
@@ -11,14 +14,14 @@ using MediatR;
 
 namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Customer
 {
-    public record CustomerRequestingRequestCommand(string CustomizeRequestId, string AccountId) : IRequest<Result<CustomizeRequest>>;
-    internal class CustomerRequestingRequestCommandHandler : IRequestHandler<CustomerRequestingRequestCommand, Result<CustomizeRequest>>
+    public record CustomerAcceptRequestCommand(string CustomizeRequestId, string AccountId) : IRequest<Result<CustomizeRequest>>;
+    internal class CustomerAcceptRequestCommandHandler : IRequestHandler<CustomerAcceptRequestCommand, Result<CustomizeRequest>>
     {
         private readonly ICustomizeRequestRepository _customizeRequestRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISender _sender;
         private readonly ICustomizeRequestService _customizeRequestService;
-        public CustomerRequestingRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, ISender sender, ICustomizeRequestService customizeRequestService)
+        public CustomerAcceptRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, ISender sender, ICustomizeRequestService customizeRequestService)
         {
             _customizeRequestRepository = customizeRequestRepository;
             _unitOfWork = unitOfWork;
@@ -26,7 +29,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Cu
             _customizeRequestService = customizeRequestService;
         }
 
-        public async Task<Result<CustomizeRequest>> Handle(CustomerRequestingRequestCommand request, CancellationToken token)
+        public async Task<Result<CustomizeRequest>> Handle(CustomerAcceptRequestCommand request, CancellationToken token)
         {
 
             request.Deconstruct(out string customizeRequestId, out string accountId);
@@ -42,21 +45,17 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Cu
                 return Result.Fail(CustomizeRequestErrors.NoPermissionError);
             if (customizeRequest.Status != CustomizeRequestStatus.Priced)
                 return Result.Fail(CustomizeRequestErrors.UnrequestableError);
-            customizeRequest.Status = CustomizeRequestStatus.Requesting;
+            var diamondList = customizeRequest.DiamondRequests.Count > 0 ? customizeRequest.DiamondRequests.Select(p => p.DiamondId.Value).ToList() : null;
+            JewelryRequestDto jewelryRequestDto = new(customizeRequest.JewelryModelId.Value, customizeRequest.SizeId.Value, customizeRequest.MetalId.Value, ProductStatus.PreOrder);
+            var jewelryResult = await _sender.Send(new CreateJewelryCommand(jewelryRequestDto, customizeRequest.SideDiamondId?.Value, diamondList));
+            if (jewelryResult.IsFailed)
+                return Result.Fail(jewelryResult.Errors);
+            customizeRequest.JewelryId = jewelryResult.Value.Id;
+            customizeRequest.SetAccepted();
+            customizeRequest.ResetExpiredDate();
             await _customizeRequestRepository.Update(customizeRequest);
             await _unitOfWork.SaveChangesAsync(token);
-            //staff auto accept
-            var staffAccepted = new StaffProceedCustomizeRequestCommand(customizeRequest.Id.Value,null, null);
-            var result = await _sender.Send(staffAccepted);
-            if (result.IsFailed)
-            {
-                await _unitOfWork.RollBackAsync(token);
-                return Result.Fail(result.Errors);
-            }
-            //staff auto accept finish
-            await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
-            _customizeRequestService.SetStage(customizeRequest);
             return customizeRequest;
         }
     }

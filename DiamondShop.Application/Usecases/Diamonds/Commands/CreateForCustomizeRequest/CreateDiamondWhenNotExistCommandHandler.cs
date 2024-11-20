@@ -69,7 +69,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeR
             diamond.Status = Domain.Common.Enums.ProductStatus.PreOrder;
             
             var isDiamondMetRquirement = _customizeRequestService.IsAssigningDiamondSpecValid(diamondRequest, diamond);
-            if(isDiamondMetRquirement is false)
+            if(isDiamondMetRquirement.IsFailed)
             {
                 await _unitOfWork.RollBackAsync();
                 return Result.Fail(DiamondErrors.DiamondNotMeetingRequirementSpec);

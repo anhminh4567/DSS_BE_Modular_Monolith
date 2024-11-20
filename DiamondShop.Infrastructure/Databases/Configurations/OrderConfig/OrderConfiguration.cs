@@ -1,18 +1,10 @@
-﻿using DiamondShop.Domain.Models.Orders.Entities;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DiamondShop.Domain.Models.Orders;
-using DiamondShop.Domain.Models.Orders.ValueObjects;
-using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
-using DiamondShop.Domain.Models.Transactions.ValueObjects;
+﻿using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
-using DiamondShop.Domain.Models.Transactions.Entities;
+using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.ValueObjects;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
 {
@@ -43,11 +35,8 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
             builder.HasMany(o => o.Items).WithOne().HasForeignKey(p => p.OrderId).IsRequired();
             builder.HasMany(o => o.Logs).WithOne().HasForeignKey(p => p.OrderId).IsRequired();
             builder.HasOne(p => p.Promotion).WithMany().HasForeignKey(p => p.PromotionId).IsRequired(false);
-            builder.HasOne<Order>().WithOne().HasForeignKey<Order>(o => o.ParentOrderId).IsRequired(false);
             builder.HasOne(o => o.Account).WithMany().HasForeignKey(o => o.AccountId).IsRequired().OnDelete(DeleteBehavior.SetNull);
             builder.HasOne(o => o.Deliverer).WithMany().HasForeignKey(o => o.DelivererId).IsRequired(false).OnDelete(DeleteBehavior.NoAction);
-
-            builder.HasOne<CustomizeRequest>().WithOne().HasForeignKey<Order>(o => o.CustomizeRequestId).IsRequired(false);
 
             builder.HasOne(x => x.PaymentMethod)
                 .WithMany()

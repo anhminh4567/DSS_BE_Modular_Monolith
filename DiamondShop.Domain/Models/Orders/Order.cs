@@ -3,6 +3,7 @@ using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
@@ -25,6 +26,7 @@ namespace DiamondShop.Domain.Models.Orders
         public AccountId? DelivererId { get; set; }
         public Account? Deliverer { get; set; }
         public CustomizeRequestId? CustomizeRequestId { get; set; }
+        public CustomizeRequest? CustomizeRequest { get; set; }
         public PromotionId? PromotionId { get; set; }
         public Promotion? Promotion { get; set; }
         public string? PromotionCode { get; set; }
@@ -50,8 +52,6 @@ namespace DiamondShop.Domain.Models.Orders
         public List<OrderItem> Items { get; set; } = new();
         public List<OrderLog> Logs { get; set; } = new();
         public List<Transaction> Transactions { get; set; } = new();
-        public OrderId? ParentOrderId { get; set; } // for replacement order
-
         public string? Note { get; set; }
         public DateTime? ExpiredDate { get; set; }
         public DateTime? ShipFailedDate{ get; set; }
