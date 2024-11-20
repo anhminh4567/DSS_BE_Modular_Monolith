@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.JewelryModels;
+using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using FluentResults;
@@ -25,7 +26,7 @@ namespace DiamondShop.Api.Controllers.JewelryModels.UpdateFee
             await _unitOfWork.BeginTransactionAsync(token);
             var jewelryModel = await _jewelryModelRepository.GetById(JewelryModelId.Parse(modelId));
             if (jewelryModel == null)
-                return Result.Fail("This jewelry model doesn't exist");
+                return Result.Fail(JewelryModelErrors.JewelryModelNotFoundError);
             jewelryModel.CraftmanFee = newFee;
             await _jewelryModelRepository.Update(jewelryModel);
             await _unitOfWork.SaveChangesAsync(token);

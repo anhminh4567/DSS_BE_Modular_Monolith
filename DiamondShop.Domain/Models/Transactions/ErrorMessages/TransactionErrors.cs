@@ -21,6 +21,7 @@ namespace DiamondShop.Domain.Models.Transactions.ErrorMessages
         {
             public static NotFoundError PaygateNotFoundError = new NotFoundError("Không tìm thấy cổng thanh toán");
             public static ValidationError PaygateDataNotValid = new ValidationError("Cổng thanh toán không hợp lệ");
+            public static ValidationError MaxTransactionError(string paymentName, long maxAmount) => new ValidationError($"Cổng thanh toán {paymentName} chỉ hỗ trợ tối đa {maxAmount.ToString("{0:#,##0}")} VND trên giao dịch");
             public static Error PaygateRefuseToWork = new Error("Cổng thanh toán không hoạt động");
             public static NotFoundError RefundNotFound = new NotFoundError("Không tìm thấy yêu cầu hoàn tiền");
             public static Error RefundRefused = new Error("Yêu cầu hoàn tiền bị từ chối");
