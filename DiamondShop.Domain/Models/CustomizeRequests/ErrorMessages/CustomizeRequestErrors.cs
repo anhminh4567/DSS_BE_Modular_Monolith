@@ -17,6 +17,7 @@ namespace DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages
         public static ValidationError UnrequestableError = new ValidationError("Yêu cầu thiết kế chưa được tính giá");
         public static ValidationError UnacceptableError = new ValidationError("Yêu cầu thiết kế không thể được chấp thuận");
         public static ValidationError UnrejectableError = new ValidationError("Yêu cầu thiết kế không thể được từ chối");
+        public static ValidationError UncancelableError = new ValidationError("Yêu cầu thiết kế không thể được hủy");
         public static ConflictError UnchosenSideDiamondOptError = new ConflictError("Yêu cầu thiết kế chưa chọn kim cương tấm");
 
         public static ConflictError ExpiredError = new ConflictError("Yêu cầu thiết kế này đã hết hạn");

@@ -44,20 +44,8 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Cus
                 return Result.Fail(CustomizeRequestErrors.CustomizeRequestNotFoundError);
             if (customizeRequest.AccountId.Value != accountId)
                 return Result.Fail(CustomizeRequestErrors.NoPermissionError);
-            if (customizeRequest.Status != CustomizeRequestStatus.Priced && customizeRequest.Status != CustomizeRequestStatus.Accepted)
+            if (customizeRequest.Status != CustomizeRequestStatus.Priced)
                 return Result.Fail(CustomizeRequestErrors.UnrejectableError);
-            if (customizeRequest.Status == CustomizeRequestStatus.Accepted && customizeRequest.JewelryId != null)
-            {
-                var jewelry = await _jewelryRepository.GetById(customizeRequest.JewelryId);
-                if (jewelry == null)
-                    return Result.Fail(JewelryErrors.JewelryNotFoundError);
-                jewelry.Status = ProductStatus.Active;
-                await _jewelryRepository.Update(jewelry);
-                await _unitOfWork.SaveChangesAsync(token);
-            }
-            customizeRequest.Status = CustomizeRequestStatus.Customer_Rejected;
-            await _customizeRequestRepository.Update(customizeRequest);
-            await _unitOfWork.SaveChangesAsync(token);
             if (customizeRequest.DiamondRequests.Count() > 0)
             {
                 List<Diamond> tobeSellDiamonds = new();
@@ -70,14 +58,11 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Cus
                         {
                             diamondReq.DiamondId = null;
                             tobeSellDiamonds.Add(diamondReq.Diamond);
-                            //diamondReq.Diamond.SetSell();
-                            //await _diamondRepository.Update(diamondReq.Diamond);
                         }
                         else if(diamondReq.Diamond.Status == ProductStatus.PreOrder)
                         {
                             diamondReq.DiamondId = null;
                             tobeDeleteDiamonds.Add(diamondReq.Diamond);
-                            //await _diamondRepository.Delete(diamondReq.Diamond);
                         }                        
                     }
                 }
@@ -88,8 +73,10 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Cus
                 await _unitOfWork.SaveChangesAsync(token);
 
             }
+            customizeRequest.SetCustomerReject();
+            await _customizeRequestRepository.Update(customizeRequest);
+            await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
-            _customizeRequestService.SetStage(customizeRequest);
             return customizeRequest;
         }
     }

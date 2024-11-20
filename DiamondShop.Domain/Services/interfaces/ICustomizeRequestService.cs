@@ -1,12 +1,12 @@
 ﻿using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Entities;
 using DiamondShop.Domain.Models.Diamonds;
+using FluentResults;
 
 namespace DiamondShop.Domain.Services.interfaces
 {
     public interface ICustomizeRequestService
     {
-        bool IsAssigningDiamondSpecValid(DiamondRequest request, Diamond diamond);
-        void SetStage(CustomizeRequest req, bool isPriced = false);
+        Result IsAssigningDiamondSpecValid(DiamondRequest request, Diamond diamond);
     }
 }

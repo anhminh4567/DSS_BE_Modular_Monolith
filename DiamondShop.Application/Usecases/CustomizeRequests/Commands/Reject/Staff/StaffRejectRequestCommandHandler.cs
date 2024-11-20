@@ -38,10 +38,6 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Sta
                 return Result.Fail(CustomizeRequestErrors.CustomizeRequestNotFoundError);
             if (customizeRequest.Status != CustomizeRequestStatus.Pending && customizeRequest.Status != CustomizeRequestStatus.Requesting)
                 return Result.Fail(CustomizeRequestErrors.UnrejectableError);
-            customizeRequest.Status = CustomizeRequestStatus.Shop_Rejected;
-            await _customizeRequestRepository.Update(customizeRequest);
-            await _unitOfWork.SaveChangesAsync(token);
-            var isPriced = customizeRequest.Status == CustomizeRequestStatus.Requesting;
             if (customizeRequest.DiamondRequests.Count() > 0)
             {
                 List<Diamond> tobeSellDiamonds = new();
@@ -69,8 +65,10 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Sta
                 tobeDeleteDiamonds.ForEach(x => _diamondRepository.Delete(x).Wait());
                 await _unitOfWork.SaveChangesAsync(token);
             }
+            customizeRequest.SetShopReject();
+            await _customizeRequestRepository.Update(customizeRequest);
+            await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
-            _customizeRequestService.SetStage(customizeRequest, isPriced);
             return customizeRequest;
         }
     }

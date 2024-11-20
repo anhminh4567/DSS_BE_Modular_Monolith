@@ -75,7 +75,7 @@ namespace DiamondShop.Api.Controllers.CustomRequest
             var result = await _sender.Send(changeDiamondRequestCommand);
             if (result.IsSuccess)
             {
-                var mappedResult = _mapper.Map<CustomizeRequestDto>(result.Value);
+                var mappedResult = _mapper.Map<DiamondRequestDto>(result.Value);
                 return Ok(mappedResult);
             }
             else
@@ -173,7 +173,7 @@ namespace DiamondShop.Api.Controllers.CustomRequest
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
             {
-                var result = await _sender.Send(new CustomerRequestingRequestCommand(CustomizeRequestId, userId.Value));
+                var result = await _sender.Send(new CustomerAcceptRequestCommand(CustomizeRequestId, userId.Value));
                 if (result.IsSuccess)
                 {
                     var mappedResult = _mapper.Map<CustomizeRequestDto>(result.Value);

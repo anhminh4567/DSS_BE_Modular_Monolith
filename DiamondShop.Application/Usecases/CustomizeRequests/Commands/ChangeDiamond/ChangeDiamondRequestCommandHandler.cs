@@ -6,12 +6,14 @@ using DiamondShop.Domain.Models.CustomizeRequests.Entities;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
+using static DiamondShop.Application.Commons.Utilities.FileUltilities;
 
 namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.ChangeDiamond
 {
@@ -56,7 +58,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.ChangeDiam
                 if (oldDiamond != null)
                 {
                     //Preorder then delete
-                    if (oldDiamond.Status == ProductStatus.PreOrder) 
+                    if (oldDiamond.Status == ProductStatus.PreOrder)
                     {
                         diamondRequest.DiamondId = null;
                         _diamondRequestRepository.Update(diamondRequest).Wait();
@@ -93,27 +95,31 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.ChangeDiam
                     {
                         return Result.Fail($"Diamond isn't available for sell");
                     }
-                    else if (!_customizeRequestService.IsAssigningDiamondSpecValid(diamondRequest, diamond))
-                    {
-                        return Result.Fail($"Diamond doesn't match the requirement");
-                    }
                     else
                     {
-                        var prices = await _diamondServices.GetPrice(diamond.Cut, diamond.DiamondShape, diamond.IsLabDiamond, token);
-                        var price = await _diamondServices.GetDiamondPrice(diamond, prices);
-                        if (price == null || diamond.IsPriceKnown == false)
+                        var matchingFlag = _customizeRequestService.IsAssigningDiamondSpecValid(diamondRequest, diamond);
+                        if (matchingFlag.IsFailed)
                         {
-                            return Result.Fail($"Can't get price for diamond");
+                            return Result.Fail(DiamondErrors.DiamondNotValid());
                         }
-                        //Only when valid
                         else
                         {
-                            diamondRequest.DiamondId = diamond.Id;
-                            await _diamondRequestRepository.Update(diamondRequest);
-                            if (diamond.Status != ProductStatus.PreOrder)
-                                diamond.SetLock();
-                            await _diamondRepository.Update(diamond);
-                            await _unitOfWork.SaveChangesAsync(token);
+                            var prices = await _diamondServices.GetPrice(diamond.Cut, diamond.DiamondShape, diamond.IsLabDiamond, token);
+                            var price = await _diamondServices.GetDiamondPrice(diamond, prices);
+                            if (price == null || diamond.IsPriceKnown == false)
+                            {
+                                return Result.Fail(DiamondErrors.UnknownPrice);
+                            }
+                            //Only when valid
+                            else
+                            {
+                                diamondRequest.DiamondId = diamond.Id;
+                                await _diamondRequestRepository.Update(diamondRequest);
+                                if (diamond.Status != ProductStatus.PreOrder)
+                                    diamond.SetLock();
+                                await _diamondRepository.Update(diamond);
+                                await _unitOfWork.SaveChangesAsync(token);
+                            }
                         }
                     }
                 }

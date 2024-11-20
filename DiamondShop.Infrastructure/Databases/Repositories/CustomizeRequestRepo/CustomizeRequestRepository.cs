@@ -27,6 +27,7 @@ namespace DiamondShop.Domain.Repositories.CustomizeRequestRepo
         public async Task<CustomizeRequest?> GetDetail(CustomizeRequestId requestId, AccountId accountId)
         {
             var query = _set.AsQueryable();
+            query = query.Include(p => p.Order);
             query = query.Include(p => p.JewelryModel.SizeMetals).ThenInclude(p => p.Metal);
             query = query.Include(p => p.SideDiamond);
             query = query.Include(p => p.DiamondRequests).ThenInclude(p => p.Diamond).ThenInclude(p => p.DiamondShape);

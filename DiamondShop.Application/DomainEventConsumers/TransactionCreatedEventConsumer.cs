@@ -8,11 +8,6 @@ using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Repositories.TransactionRepo;
 using DiamondShop.Domain.Services.interfaces;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Application.DomainEventConsumers
 {

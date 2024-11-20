@@ -3,7 +3,9 @@ using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
+using DiamondShop.Domain.Repositories.JewelryRepo;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Quartz;
 
 namespace DiamondShop.Infrastructure.BackgroundJobs
@@ -11,14 +13,18 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
     public class CustomizeRequestWorker : IJob
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<CustomizeRequestWorker> _logger;
         private readonly ICustomizeRequestRepository _customizeRequestRepository;
+        private readonly IJewelryRepository _jewelryRepository;
         private readonly IDiamondRepository _diamondRepository;
 
-        public CustomizeRequestWorker(IUnitOfWork unitOfWork, ICustomizeRequestRepository customizeRequestRepository, IDiamondRepository diamondRepository)
+        public CustomizeRequestWorker(IUnitOfWork unitOfWork, ICustomizeRequestRepository customizeRequestRepository, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, ILogger<CustomizeRequestWorker> logger)
         {
             _unitOfWork = unitOfWork;
             _customizeRequestRepository = customizeRequestRepository;
             _diamondRepository = diamondRepository;
+            _jewelryRepository = jewelryRepository;
+            _logger = logger;
         }
 
         public async Task Execute(IJobExecutionContext context)
@@ -32,18 +38,20 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
             if (query.Count() > 0)
             {
                 var list = query.ToList();
-                foreach(var p in list)
+                foreach (var p in list)
                 {
                     if (p.Status == CustomizeRequestStatus.Accepted)
                     {
-                        p.Status = CustomizeRequestStatus.Customer_Rejected;
+                        p.SetCustomerCancel();
+                        await HandleJewelryCancelled(context, p);
                         await HandleDiamondRequestCancelled(context, p);
-
                     }
+                    //Request reaches expired date
                     else
                     {
-                        p.Status = CustomizeRequestStatus.Shop_Rejected;
-                        await HandleDiamondRequestCancelled(context, p);
+                        if (p.Status == CustomizeRequestStatus.Priced)
+                            await HandleDiamondRequestCancelled(context, p);
+                        p.SetShopReject();
                     }
                 }
                 _customizeRequestRepository.UpdateRange(list);
@@ -65,7 +73,15 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
         }
         private async Task HandleJewelryCancelled(IJobExecutionContext context, CustomizeRequest requestDetail)
         {
-
+            if (requestDetail.JewelryId == null)
+                _logger.LogError($"Can't get jewelry id from request {requestDetail.Id.Value}");
+            else
+            {
+                var jewelry = await _jewelryRepository.GetById(requestDetail.JewelryId);
+                if (jewelry == null)
+                    _logger.LogError($"Can't get jewelry with id {requestDetail.JewelryId.Value}");
+                await _jewelryRepository.Delete(jewelry);
+            }
         }
 
     }

@@ -138,8 +138,8 @@ namespace DiamondShop.Test.Integration
             var diamondReq = pendingRequest.DiamondRequests[0];
             Assert.NotNull(diamondReq);
 
-            DiamondRequestAssignRecord record = new(diamondReq.DiamondRequestId.Value, diamond.Id.Value);
-            var pricedResult = await _sender.Send(new StaffProceedCustomizeRequestCommand(pendingRequest.Id.Value, new() { record }));
+            DiamondRequestAssignRecord record = new(diamondReq.DiamondRequestId.Value, diamond.Id.Value, null);
+            var pricedResult = await _sender.Send(new StaffProceedCustomizeRequestCommand(pendingRequest.Id.Value, null, new() { record }));
             if (pricedResult.IsFailed)
                 WriteError(pricedResult.Errors);
             Assert.True(pricedResult.IsSuccess);
@@ -149,7 +149,7 @@ namespace DiamondShop.Test.Integration
         async Task<CustomizeRequest> SeedingAcceptedRequest(AccountId userId)
         {
             var requestingResult = await SeedingNoDiamondRequest(userId);
-            var result = await _sender.Send(new StaffProceedCustomizeRequestCommand(requestingResult.Id.Value, null));
+            var result = await _sender.Send(new StaffProceedCustomizeRequestCommand(requestingResult.Id.Value, null, null));
             if (result.IsFailed)
                 WriteError(result.Errors);
             Assert.True(result.IsSuccess);
@@ -192,6 +192,15 @@ namespace DiamondShop.Test.Integration
         [Trait("ReturnTrue", "StaffPricingPending")]
         [Fact]
         public async Task Staff_Pricing_Pending_CustomizeRequest_Should_ReturnPriced()
+        {
+            var account = await TestData.SeedDefaultCustomer(_context, _authentication);
+            var pricedResult = await SeedingPricedRequest(account.Id);
+            var pricedRequest = await _context.Set<CustomizeRequest>().FirstOrDefaultAsync(p => p.Id == pricedResult.Id);
+            Assert.Equal(CustomizeRequestStatus.Priced, pricedResult.Status);
+        }
+        [Trait("ReturnTrue", "StaffPricingPendingNonexistentDiamond")]
+        [Fact]
+        public async Task Staff_Pricing_Pending_CustomizeRequest_With_Nonexistent_Diamond_Should_ReturnPriced()
         {
             var account = await TestData.SeedDefaultCustomer(_context, _authentication);
             var pricedResult = await SeedingPricedRequest(account.Id);

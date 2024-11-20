@@ -7,6 +7,7 @@ using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages;
+using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Repositories;
@@ -92,33 +93,37 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
                             var diamond = await _diamondRepository.GetById(DiamondId.Parse(assignedDiamond.DiamondId));
                             if (diamond == null)
                             {
-                                errors.Add(new Error($"Diamond for request number {i} doesn't exist"));
+                                errors.Add(new Error($"Kim cương số {i}: {DiamondErrors.DiamondNotFoundError.Message}"));
                             }
                             else if ((diamond.Status != ProductStatus.Active && diamond.Status != ProductStatus.PreOrder) || diamond.JewelryId != null)
                             {
-                                errors.Add(new Error($"Diamond for request number {i} isn't available for sell"));
-                            }
-                            else if (!_customizeRequestService.IsAssigningDiamondSpecValid(diamondRequest, diamond))
-                            {
-                                errors.Add(new Error($"Diamond for request number {i} doesn't match the requirement"));
+                                errors.Add(new Error($"Kim cương số {i}: {DiamondErrors.DiamondNotAvailable.Message}"));
                             }
                             else
                             {
-                                var prices = await _diamondServices.GetPrice(diamond.Cut, diamond.DiamondShape, diamond.IsLabDiamond, token);
-                                var price = await _diamondServices.GetDiamondPrice(diamond, prices);
-                                if (price == null || diamond.IsPriceKnown == false)
+                                var matchingFlag = _customizeRequestService.IsAssigningDiamondSpecValid(diamondRequest, diamond);
+                                if (matchingFlag.IsFailed)
                                 {
-                                    errors.Add(new Error($"Can't get price for diamond in request number {i}"));
+                                    errors.Add(new Error($"Kim cương số {i}: {DiamondErrors.DiamondNotValid().Message}"));
                                 }
-                                //Only when valid
                                 else
                                 {
-                                    diamondRequest.DiamondId = diamond.Id;
-                                    await _diamondRequestRepository.Update(diamondRequest);
-                                    if (diamond.Status != ProductStatus.PreOrder)
-                                        diamond.SetLock();
-                                    await _diamondRepository.Update(diamond);
-                                    await _unitOfWork.SaveChangesAsync(token);
+                                    var prices = await _diamondServices.GetPrice(diamond.Cut, diamond.DiamondShape, diamond.IsLabDiamond, token);
+                                    var price = await _diamondServices.GetDiamondPrice(diamond, prices);
+                                    if (price == null || diamond.IsPriceKnown == false)
+                                    {
+                                        errors.Add(new Error($"Kim cương số {i}: {DiamondErrors.UnknownPrice.Message}"));
+                                    }
+                                    //Only when valid
+                                    else
+                                    {
+                                        diamondRequest.DiamondId = diamond.Id;
+                                        await _diamondRequestRepository.Update(diamondRequest);
+                                        if (diamond.Status != ProductStatus.PreOrder)
+                                            diamond.SetLock();
+                                        await _diamondRepository.Update(diamond);
+                                        await _unitOfWork.SaveChangesAsync(token);
+                                    }
                                 }
                             }
                         }
@@ -134,8 +139,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
                 if (errors.Count > 0)
                     return Result.Fail(errors);
             }
-            customizeRequest.Status = CustomizeRequestStatus.Priced;
-            _customizeRequestService.SetStage(customizeRequest);
+            customizeRequest.SetPriced();
             await _customizeRequestRepository.Update(customizeRequest);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
