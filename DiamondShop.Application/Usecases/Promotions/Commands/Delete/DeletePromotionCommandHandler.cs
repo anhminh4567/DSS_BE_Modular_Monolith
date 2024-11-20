@@ -2,6 +2,7 @@
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.ErrorMessages;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
@@ -35,11 +36,11 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Delete
             var tryGet = await _promotionRepository.GetById(parsedId);
             if (tryGet == null)
             {
-                return Result.Fail(new NotFoundError("not found requirement with id: " + parsedId.Value));
+                return Result.Fail(PromotionError.RequirementError.NotFound);
             }
             if(tryGet.CanBePermanentlyDeleted == false)
             {
-                return Result.Fail(new ConflictError("can only be deleted if the promotion is of status: CANCELLED or EXPIRED"));
+                return Result.Fail(PromotionError.DeleteUnallowed);
             }
             await _promotionRepository.Delete(tryGet);
             await _unitOfWork.SaveChangesAsync();

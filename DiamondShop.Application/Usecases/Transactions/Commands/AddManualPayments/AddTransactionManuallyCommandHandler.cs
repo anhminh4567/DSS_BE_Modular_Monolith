@@ -6,10 +6,12 @@ using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.Transactions;
 using DiamondShop.Domain.Models.Transactions.Entities;
 using DiamondShop.Domain.Models.Transactions.Enum;
+using DiamondShop.Domain.Models.Transactions.ErrorMessages;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Repositories.TransactionRepo;
 using DiamondShop.Domain.Services.interfaces;
@@ -51,7 +53,7 @@ namespace DiamondShop.Application.Usecases.Transactions.Commands.AddManualPaymen
             var getAllPaymentMethod = await _paymentMethodRepository.GetAll();
             var getManual = getAllPaymentMethod.FirstOrDefault(p => p.Id == PaymentMethod.BANK_TRANSFER.Id);
             if (tryGetOrder is null)
-                return Result.Fail(new NotFoundError("Order not found"));
+                return Result.Fail(OrderErrors.OrderNotFoundError);
             Transaction newTrans;
             if (tryGetOrder.CustomizeRequestId == null)// normal order 
             {
@@ -62,7 +64,7 @@ namespace DiamondShop.Application.Usecases.Transactions.Commands.AddManualPaymen
                 newTrans = CreateForCustomOrder(request, tryGetOrder, request.PaymentType);
             }
             if (newTrans == null)
-                return Result.Fail(new ConflictError("Failed to create transaction"));
+                return Result.Fail(TransactionErrors.ChangeDataNotValid);
             await _transactionRepository.Create(newTrans);
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(newTrans);
@@ -79,7 +81,7 @@ namespace DiamondShop.Application.Usecases.Transactions.Commands.AddManualPaymen
                     amountToCreate = _orderTransactionService.GetCODValueForOrder(order);
                     return Transaction.CreateManualPayment(order.Id, request.description, amountToCreate, TransactionType.Pay);
                 default:
-                    throw new Exception("unidentified payment Type");
+                    throw new Exception("Không rõ loại giao dịch");
             }
         }
         private Transaction CreateForCustomOrder(AddTransactionManuallyCommand request, Order order, PaymentType paymentType)

@@ -3,6 +3,7 @@ using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
+using DiamondShop.Domain.Models.Promotions.ErrorMessages;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using FluentResults;
 using MediatR;
@@ -38,7 +39,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Create
             var newPromo = Promotion.Create(request.name, request.promoCode,request.description,startParsed,endParsed,request.priority,request.isExcludeQualifierProduct,request.RedemptionMode);
             var getPromoByCode = await _promotionRepository.GetByCode(request.promoCode);
             if (getPromoByCode != null)
-                return Result.Fail("Đã có 1 promotion với mã code như vậy, hãy đổi mã code");
+                return Result.Fail(PromotionError.ExistError);
             await _promotionRepository.Create(newPromo);
             await _unitOfWork.SaveChangesAsync();
             return newPromo;

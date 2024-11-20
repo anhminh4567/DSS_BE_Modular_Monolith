@@ -2,6 +2,7 @@
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Enum;
+using DiamondShop.Domain.Models.Promotions.ErrorMessages;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
@@ -34,7 +35,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.UpdateStatus
             var parsedId = PromotionId.Parse(request.promotionId);
             var getPromotion= await _promotionRepository.GetById(parsedId);
             if(getPromotion is null)
-                return Result.Fail(new NotFoundError());
+                return Result.Fail(PromotionError.NotFound);
             var result = getPromotion.Paused();
             if (result.IsSuccess)
             {

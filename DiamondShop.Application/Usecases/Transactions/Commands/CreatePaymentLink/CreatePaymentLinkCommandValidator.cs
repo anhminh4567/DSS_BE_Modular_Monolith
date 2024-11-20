@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using DiamondShop.Application.Commons.Validators.ErrorMessages;
+using FluentValidation;
 
 namespace DiamondShop.Application.Usecases.Transactions.Commands.CreatePaymentLink
 {
@@ -6,10 +7,18 @@ namespace DiamondShop.Application.Usecases.Transactions.Commands.CreatePaymentLi
     {
         public CreatePaymentLinkCommandValidator()
         {
-            RuleFor(x => x.userId).NotEmpty();
-            RuleFor(x => x.orderId).NotEmpty();
-            RuleFor(x => x.paymentMethodName).NotEmpty();
-            RuleFor(x => x.PaymentType).IsInEnum();
+            RuleFor(x => x.userId)
+                .NotEmpty()
+                    .WithNotEmptyMessage();
+            RuleFor(x => x.orderId)
+                .NotEmpty()
+                    .WithNotEmptyMessage();
+            RuleFor(x => x.paymentMethodName)
+                .NotEmpty()
+                    .WithNotEmptyMessage();
+            RuleFor(x => x.PaymentType)
+                .IsInEnum()
+                    .WithIsInEnumMessage();
         }
     }
 }

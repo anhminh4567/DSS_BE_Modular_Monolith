@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Commons;
+using DiamondShop.Domain.Models.Promotions.Enum;
 using FluentResults;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using System;
@@ -11,8 +12,8 @@ namespace DiamondShop.Domain.Models.Promotions.ErrorMessages
 {
     public class PromotionError
     {
-        public static NotFoundError PromotionNotFoundError = new NotFoundError("Không tìm thấy khuyến mãi");
-        public static ConflictError PromotionExistError = new ConflictError("Khuyến mãi đã tồn tại");
+        public static NotFoundError NotFound = new NotFoundError("Không tìm thấy khuyến mãi");
+        public static ConflictError ExistError = new ConflictError("Khuyến mãi đã tồn tại");
         public static ValidationError PromotionNotValid(string? extraMessage, Dictionary<string, object>? errors) 
         {
             if (extraMessage != null && errors != null)
@@ -25,10 +26,18 @@ namespace DiamondShop.Domain.Models.Promotions.ErrorMessages
         }
         public static Error ChangeDataNotValid = new Error("Dữ liệu thay đổi không hợp lệ");
         public static Error NotInCorrectState = new Error("Khuyến mãi không ở trạng thái yêu cầu để thực hiện hành động này");
-        public static Error DeleteUnallowed = new Error("Không thể xóa khuyến mãi này");
+        public static Error DeleteUnallowed = new Error("Không thể xóa khuyến mãi này, chỉ có thể xóa nếu nó cancelled, expired, scheduled");
+        public static Error RequirentTypeLimit(TargetType type, int limit)
+        {
+            return new Error($"Không thể thêm yêu cầu mới, đã đạt giới hạn {type} là {limit}");
+        }
+        public static Error GiftTypeLimit(TargetType type, int limit)
+        {
+            return new Error($"Không thể thêm yêu cầu mới, đã đạt giới hạn {type} là {limit}");
+        }
         public class GiftError
         {
-            public static NotFoundError GiftNotFoundError = new NotFoundError("Không tìm thấy quà tặng");
+            public static NotFoundError NotFound = new NotFoundError("Không tìm thấy quà tặng");
             public static ValidationError GiftNotValid(string? extraMessage, Dictionary<string, object>? errors)
             {
                 if (extraMessage != null && errors != null)
@@ -46,7 +55,7 @@ namespace DiamondShop.Domain.Models.Promotions.ErrorMessages
         }
         public class RequirementError
         {
-            public static NotFoundError RequirementNotFoundError = new NotFoundError("Không tìm thấy yêu cầu");
+            public static NotFoundError NotFound = new NotFoundError("Không tìm thấy yêu cầu");
             public static ValidationError RequirementNotValid(string? extraMessage, Dictionary<string, object>? errors)
             {
                 if (extraMessage != null && errors != null)

@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.Promotions.Enum;
+﻿using DiamondShop.Application.Commons.Validators.ErrorMessages;
+using DiamondShop.Domain.Models.Promotions.Enum;
 using FluentValidation;
 
 namespace DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany
@@ -8,7 +9,10 @@ namespace DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany
         public CreateGiftCommandValidator()
         {
             var validator = new GiftSpecValidator();
-            RuleFor(x => x.giftSpecs).Cascade(CascadeMode.Stop).NotNull();
+            RuleFor(x => x.giftSpecs)
+                .Cascade(CascadeMode.Stop)
+                .NotNull()
+                    .WithNotEmptyMessage();
             RuleForEach(x => x.giftSpecs).SetValidator(validator);
             When(x => x.giftSpecs.Any(g => g.TargetType == TargetType.Order), () => 
             {

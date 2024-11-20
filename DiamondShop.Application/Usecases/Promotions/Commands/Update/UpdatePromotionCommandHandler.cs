@@ -8,6 +8,7 @@ using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
+using DiamondShop.Domain.Models.Promotions.ErrorMessages;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using FluentResults;
@@ -47,7 +48,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Update
             //    return Result.Fail(new ConflictError("Cannot update promotion, must be scheduled or paused to update"));
             //}
             if(getPromotion == null)
-                return Result.Fail(new NotFoundError());
+                return Result.Fail(PromotionError.NotFound);
 
             await _unitOfWork.BeginTransactionAsync();
             if(request.UpdatePromotionParams != null)
@@ -106,12 +107,12 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Update
             if(getPromotion.PromoReqs.Where(x => x.TargetType ==TargetType.Order).Count() > 1)
             {
                 await _unitOfWork.RollBackAsync();
-                return Result.Fail(new ConflictError("Cannot have more than 1 order requirement"));
+                return Result.Fail(PromotionError.RequirentTypeLimit(TargetType.Order,1));
             }
             if (getPromotion.Gifts.Where(x => x.TargetType == TargetType.Order).Count() > 1)
             {
                 await _unitOfWork.RollBackAsync();
-                return Result.Fail(new ConflictError("Cannot have more than 1 order gifts"));
+                return Result.Fail(PromotionError.GiftTypeLimit(TargetType.Order, 1));
             }
             await _promotionRepository.Update(getPromotion);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

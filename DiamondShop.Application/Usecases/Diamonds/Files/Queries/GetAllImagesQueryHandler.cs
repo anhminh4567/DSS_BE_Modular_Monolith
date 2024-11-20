@@ -38,6 +38,10 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Queries
             }
             var getResults = await  _diamondFileService.GetFolders(getDiamond, cancellationToken);
             var gallery = _diamondFileService.MapPathsToCorrectGallery(getDiamond, getResults, cancellationToken);
+            gallery.Certificates.Clear();
+            if(getDiamond.CertificateFilePath != null)
+                gallery.Certificates.Add(getDiamond.CertificateFilePath);
+            
             return gallery;
             //throw new NotImplementedException();
         }

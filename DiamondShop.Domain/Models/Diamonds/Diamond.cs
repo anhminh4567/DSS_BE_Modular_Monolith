@@ -133,8 +133,13 @@ namespace DiamondShop.Domain.Models.Diamonds
             }
             else
             {
-                var currentPrice = 
+                var currentPrice = DefaultPrice;
                 //SetSell();
+                if(Status == ProductStatus.PreOrder)
+                {
+                    JewelryId = jewelry.Id;
+                    return;
+                }
                 JewelryId = jewelry.Id;
                 Status = ProductStatus.Locked;
             } 

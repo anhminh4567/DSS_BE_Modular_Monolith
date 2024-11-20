@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Commons;
+using DiamondShop.Domain.Models.Promotions.ErrorMessages;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using FluentResults;
@@ -32,10 +33,10 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.UpdateRequirement
             var reqIdsParsed = request.requirementIds.Select(r => PromoReqId.Parse(r)).ToList();
             var tryGetPromotion = await _promotionRepository.GetById(promoIdParsed);
             if (tryGetPromotion == null)
-                return Result.Fail(new NotFoundError("no promotion with such id"));
+                return Result.Fail(PromotionError.NotFound);
             var tryGetRequirements = await _requirementRepository.GetRange(reqIdsParsed);
             if (tryGetRequirements == null)
-                return Result.Fail(new NotFoundError("not found requirement"));
+                return Result.Fail(PromotionError.RequirementError.NotFound);
             if (request.isAdd)
             {
                 //if (tryGetPromotion.PromoReqs.Contains(tryGetRequirement))

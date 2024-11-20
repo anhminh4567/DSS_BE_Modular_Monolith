@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany;
+﻿using DiamondShop.Application.Commons.Validators.ErrorMessages;
+using DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany;
 using DiamondShop.Application.Usecases.PromotionRequirements.Commands.CreateMany;
 using DiamondShop.Application.Usecases.Promotions.Commands.Create;
 using FluentValidation;
@@ -9,9 +10,9 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.CreateFull
     {
         public CreateFullPromotionCommandValidator()
         {
-            RuleFor(x => x.CreatePromotionCommand).NotNull();
-            RuleFor(x => x.Requirements).NotNull();
-            RuleFor(x => x.Gifts).NotNull();
+            RuleFor(x => x.CreatePromotionCommand).NotNull().WithNotEmptyMessage();
+            RuleFor(x => x.Requirements).NotNull().WithNotEmptyMessage();
+            RuleFor(x => x.Gifts).NotNull().WithNotEmptyMessage();
             //When(x => x.Requirements != null, () =>
             //{
             //    var requirementSpecValidator = new RequirementSpecValidator();

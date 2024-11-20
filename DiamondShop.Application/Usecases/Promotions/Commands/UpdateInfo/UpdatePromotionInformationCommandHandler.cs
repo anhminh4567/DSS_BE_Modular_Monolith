@@ -7,6 +7,7 @@ using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Promotions;
+using DiamondShop.Domain.Models.Promotions.ErrorMessages;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
@@ -43,7 +44,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.UpdateInfo
             var parsedId = PromotionId.Parse(request.promotionId!);
             var getPromotion = await _promotionRepository.GetById(parsedId);
             if (getPromotion is null)
-                return Result.Fail(new NotFoundError());
+                return Result.Fail(PromotionError.NotFound);
 
             if (request.name != null)
                 getPromotion.Name = request.name;

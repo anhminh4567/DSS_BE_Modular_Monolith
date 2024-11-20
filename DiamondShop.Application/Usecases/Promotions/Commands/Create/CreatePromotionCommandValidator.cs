@@ -1,4 +1,6 @@
 ﻿using DiamondShop.Application.Commons.Utilities;
+using DiamondShop.Application.Commons.Validators;
+using DiamondShop.Application.Commons.Validators.ErrorMessages;
 using DiamondShop.Domain.BusinessRules;
 using FluentValidation;
 using System.Globalization;
@@ -9,16 +11,27 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Create
     {
         public CreatePromotionCommandValidator()
         {
-            RuleFor(x => x.name).NotEmpty();
-            RuleFor(x => x.description).NotEmpty();
-            RuleFor(x => x.RedemptionMode).IsInEnum();
+            RuleFor(x => x.name)
+                .NotEmpty()
+                    .WithNotEmptyMessage();
+            RuleFor(x => x.description)
+                .NotEmpty()
+                   .WithNotEmptyMessage();
+            RuleFor(x => x.RedemptionMode)
+                .IsInEnum()
+                    .WithIsInEnumMessage();
 
-            RuleFor(x => x.startDateTime).NotEmpty()
-                .Must(DateTimeUtil.BeAValidDate).WithMessage("Invalid Start Date format.");
+            RuleFor(x => x.startDateTime)
+                .NotEmpty()
+                    .WithNotEmptyMessage()
+                .ValidDate()
+                .When(x => x.startDateTime != null);
 
-            RuleFor(x => x.endDateTime).NotEmpty()
-                .Must(DateTimeUtil.BeAValidDate).WithMessage("Invalid End Date format.");
-
+            RuleFor(x => x.endDateTime)
+                .NotEmpty()
+                    .WithNotEmptyMessage()
+                .ValidDate()
+                .When(x => x.endDateTime != null);
             // Compare the dates after parsing
             RuleFor(x => x)
                 .Must((command) =>
@@ -31,7 +44,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Create
                     }
                     return false;
                 })
-                .WithMessage("The Start Date must be before the End Date, and the promotion must meet the minimum duration.");
+                .WithMessage("ngày bắt đầu phải trước kết thúc");
         }
 
 

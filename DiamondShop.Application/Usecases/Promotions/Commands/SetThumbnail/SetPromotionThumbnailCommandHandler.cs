@@ -3,6 +3,7 @@ using DiamondShop.Application.Commons.Utilities;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.Promotions.ErrorMessages;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using FluentResults;
@@ -34,7 +35,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.SetThumbnail
             var parsedId = PromotionId.Parse(request.promotionId!);
             var getPromotion = await _promotionRepository.GetById(parsedId);
             if (getPromotion is null)
-                return Result.Fail(new NotFoundError());
+                return Result.Fail(PromotionError.NotFound);
             // if there is a file, then update, else remove the old image
             if (request.imageFile != null)
             {
@@ -45,7 +46,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.SetThumbnail
                 if (FileUltilities.IsImageFileContentType(contentType) == false ||
                     FileUltilities.IsImageFileExtension(extension) == false)
                 {
-                    return Result.Fail("Invalid file type");
+                    return Result.Fail(FileUltilities.Errors.NotCorrectImageFileType);
                 }
                 if (getPromotion.Thumbnail != null)
                     await _blobFileServices.DeleteFileAsync(getPromotion.Thumbnail.MediaPath);
@@ -59,7 +60,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.SetThumbnail
                 }
                 else
                 {
-                    return Result.Fail("fail to upload new image");
+                    return Result.Fail(FileUltilities.Errors.UploadFail);
                 }
             }
             else
