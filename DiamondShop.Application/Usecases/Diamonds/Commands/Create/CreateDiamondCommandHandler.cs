@@ -54,7 +54,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
             var getShapes = await _diamondShapeRepository.GetAll();
             DiamondShape? getShape = getShapes.FirstOrDefault(x => x.Id == shapeId);
             if (getShape is null)
-                return Result.Fail(DiamondShapeErrorMessages.DiamondShapeNotFoundError);
+                return Result.Fail(DiamondShapeErrors.NotFoundError);
             
             List<Diamond> diamondFromSku = await _diamondRepository.GetBySkus(new string[] { sku });
             if (diamondFromSku.Count > 0)
