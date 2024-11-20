@@ -58,9 +58,10 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.DeletePreOrderDiamo
                 return Result.Fail(new NotFoundError("Không tìm thấy yêu cầu diamond này"));
 
             await _unitOfWork.BeginTransactionAsync();
-            _diamondRepository.Delete(diamond).Wait();
             diamondRequest.DiamondId = null;
             _customizeRequestRepository.Update(customizeRequest).Wait();
+            await _unitOfWork.SaveChangesAsync();
+            _diamondRepository.Delete(diamond).Wait();
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
             return Result.Ok();

@@ -56,8 +56,13 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.ChangeDiam
                 if (oldDiamond != null)
                 {
                     //Preorder then delete
-                    if (oldDiamond.Status == ProductStatus.PreOrder)
+                    if (oldDiamond.Status == ProductStatus.PreOrder) 
+                    {
+                        diamondRequest.DiamondId = null;
+                        _diamondRequestRepository.Update(diamondRequest).Wait();
+                        await _unitOfWork.SaveChangesAsync(token);
                         await _diamondRepository.Delete(oldDiamond);
+                    }
                     //set selling
                     else
                     {
