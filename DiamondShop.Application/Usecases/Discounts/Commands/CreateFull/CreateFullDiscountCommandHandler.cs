@@ -2,6 +2,7 @@
 using DiamondShop.Application.Usecases.Discounts.Commands.Create;
 using DiamondShop.Application.Usecases.PromotionRequirements.Commands.CreateMany;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.Entities.ErrorMessages;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using FluentResults;
@@ -57,7 +58,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.CreateFull
             if(requirements.Any(x => x.TargetType == TargetType.Order))
             {
                 await _unitOfWork.RollBackAsync(cancellationToken);
-                return Result.Fail("Requirement cannot be of targetType order, discount only accept diamond or jewelry as discount and only as percent");
+                return Result.Fail(DiscountErrors.OrderTargetNotAllowed);
             }
             requirements.ForEach(x => discount.SetRequirement(x));
             await _discountRepository.Update(discount);

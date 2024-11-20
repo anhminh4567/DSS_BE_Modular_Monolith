@@ -29,20 +29,20 @@ namespace DiamondShop.Application.Commons.Validators
                         return false;
                     }
                     return true;
-                }).WithMessage("the number fractional part must only be "+ maxFractionalNumber + " number(s)");
+                }).WithMessage("phần thập phân của số chỉ có thể là max "+ maxFractionalNumber + "(s) số sau thập phân");
         }
         public static IRuleBuilderOptions<T, string> ValidDate<T>(this IRuleBuilder<T, string> ruleBuilder)
         {
             return ruleBuilder
                 .NotEmpty()
-                .Must(DateTimeUtil.BeAValidDate).WithMessage("Invalid date format.");
+                .Must(DateTimeUtil.BeAValidDate).WithMessage("format ngày tháng không hợp lệ, phải là "+ DateTimeFormatingRules.DateTimeFormat);
         }
         public static IRuleBuilderOptions<T, string> ValidDateGreaterThanUTCNow<T>(this IRuleBuilder<T, string> ruleBuilder)
         {
             return ruleBuilder
                 .NotEmpty()
-                .Must(DateTimeUtil.BeAValidDate).WithMessage("Invalid date format.")
-                .Must(DateTimeUtil.BeGreaterThanUTCNow).WithMessage("Date must be greater than the current UTC time.");
+                .Must(DateTimeUtil.BeAValidDate).WithMessage("format ngày tháng không hợp lệ, phải là " + DateTimeFormatingRules.DateTimeFormat)
+                .Must(DateTimeUtil.BeGreaterThanUTCNow).WithMessage("Ngày tháng phải lớn hơn giờ UTC hiên tại, là: " + DateTime.UtcNow.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat));
         }
         public static IRuleBuilderOptions<T, T> ValidStartEndDate<T>(this IRuleBuilder<T, T> ruleBuilder, Func<T, string> startDateSelector, Func<T, string> endDateSelector)
         {
@@ -61,7 +61,7 @@ namespace DiamondShop.Application.Commons.Validators
                     }
                     return false;
                 })
-                .WithMessage("The Start Date must be before the End Date, and the promotion must meet the minimum duration.");
+                .WithMessage("Ngày bắt đầu phải bé hơn ngày kết thúc");
         }
     }
 }

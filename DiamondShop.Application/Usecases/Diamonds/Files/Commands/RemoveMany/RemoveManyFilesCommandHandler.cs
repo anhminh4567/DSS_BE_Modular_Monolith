@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Services.Interfaces.Diamonds;
 using DiamondShop.Commons;
+using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Services.interfaces;
@@ -31,7 +32,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.RemoveMany
             var getDiamond = await _diamondRepository.GetById(parsedId);
             if (getDiamond is null)
             {
-                return Result.Fail(new NotFoundError());
+                return Result.Fail(DiamondErrors.DiamondNotFoundError);
             }
             string[] relativePath = request.absolutePaths.Select(x => _diamondFileService.ToRelativePath(x)).ToArray();
             List<Task<Result>> runningDelete = new(); 

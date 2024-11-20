@@ -1,8 +1,10 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.AccountAggregate;
+using DiamondShop.Domain.Models.AccountAggregate.ErrorMessages;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
@@ -37,14 +39,14 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.LockForUser
             var parsedDiamondId = DiamondId.Parse(request.diamondId);
             var getCustomer = await _accountRepository.GetById(parsedCustomerId);
             if(getCustomer is null)
-                return Result.Fail(new NotFoundError("no customer found"));
+                return Result.Fail(AccountErrors.AccountNotFoundError);
             
             var getDiamond = await _diamondRepository.GetById(parsedDiamondId);
             if (getDiamond is null)
-                return Result.Fail(new NotFoundError("no diamond found"));
+                return Result.Fail(DiamondErrors.DiamondNotFoundError);
 
             if (getDiamond.Status == Domain.Common.Enums.ProductStatus.Sold)
-                return Result.Fail(new ConflictError("diamond is already sold, can't be lock for anyone else"));
+                return Result.Fail(DiamondErrors.LockError.SoldError);
 
             if (request.isUnlock)
                 getDiamond.SetSell();

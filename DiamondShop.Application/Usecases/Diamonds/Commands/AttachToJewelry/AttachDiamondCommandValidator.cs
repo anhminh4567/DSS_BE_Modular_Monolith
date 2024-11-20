@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using DiamondShop.Application.Commons.Validators.ErrorMessages;
+using FluentValidation;
 
 namespace DiamondShop.Application.Usecases.Diamonds.Commands.AttachToJewelry
 {
@@ -6,11 +7,11 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.AttachToJewelry
     {
         public AttachDiamondCommandValidator()
         {
-            RuleFor(p => p.JewelryId)
-                .NotEmpty();
 
+            RuleFor(p => p.JewelryId)
+                .NotEmpty().WithNotEmptyMessage();
             RuleForEach(p => p.DiamondIds)
-                .NotEmpty();
+                .NotEmpty().WithNotEmptyMessage();
         }
     }
 }

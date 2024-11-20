@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Dtos.Requests.Diamonds;
+﻿using DiamondShop.Application.Commons.Validators.ErrorMessages;
+using DiamondShop.Application.Dtos.Requests.Diamonds;
 using FluentValidation;
 
 namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
@@ -7,7 +8,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
     {
         public CreateManyDiamondPricesCommandValidator()
         {
-            RuleFor(x => x.listPrices).NotNull().NotEmpty();
+            RuleFor(x => x.listPrices).NotNull().NotEmpty().WithNotEmptyMessage();
             //RuleForEach(x => x.listPrices).SetValidator(new DiamondPriceRequestDtoValidator());
         }
         //private class DiamondPriceRequestDtoValidator : AbstractValidator<DiamondPriceRequestDto>

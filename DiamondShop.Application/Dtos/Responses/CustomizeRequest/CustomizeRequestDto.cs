@@ -23,8 +23,8 @@ namespace DiamondShop.Application.Dtos.Responses.CustomizeRequest
         public string? EngravedText { get; set; }
         public string? EngravedFont { get; set; }
         public string? Note { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime ExpiredDate { get; set; }
+        public string CreatedDate { get; set; }
+        public string ExpiredDate { get; set; }
         public CustomizeRequestStatus Status { get; set; }
         public List<DiamondRequestDto> DiamondRequests { get; set; } = new();
         public string? SideDiamondId { get; set; }

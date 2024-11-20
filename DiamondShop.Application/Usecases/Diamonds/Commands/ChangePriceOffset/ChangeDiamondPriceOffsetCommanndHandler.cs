@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
@@ -32,7 +33,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.ChangePriceOffset
             var getDiamond = await _diamondRepository.GetById(diamondId);
             if(getDiamond == null)
             {
-                return Result.Fail<Diamond>($"Diamond with id {diamondId} not found");
+                return Result.Fail(DiamondErrors.DiamondNotFoundError);
             }
             getDiamond.ChangeOffset(request.priceOffset);
             await _unitOfWork.SaveChangesAsync();

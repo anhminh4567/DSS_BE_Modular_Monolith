@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.DeliveryFees.ErrorMessages
 {
-    public class DeliveryFeeErrorMessages
+    public class DeliveryFeeErrors
     {
         public static NotFoundError DeliveryFeeNotFoundError = new NotFoundError("Không tìm thấy phí vận chuyển");
         public static ValidationError DeliveryFeeExistError = new ValidationError("Phí vận chuyển đã tồn tại");

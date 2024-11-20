@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Commons.Utilities;
+using DiamondShop.Application.Commons.Validators.ErrorMessages;
 using DiamondShop.Domain.BusinessRules;
 using FluentValidation;
 using System.Globalization;
@@ -9,13 +10,22 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Create
     {
         public CreateDiscountCommandValidator()
         {
-            RuleFor(c => c.name).NotEmpty().MinimumLength(2);
-            RuleFor(c => c.discountPercent).NotEmpty().GreaterThanOrEqualTo(1).LessThan(100);
+            RuleFor(c => c.name).NotEmpty()
+                    .WithNotEmptyMessage()
+                .MinimumLength(2)
+                    .WithMinLenghtMessage();
+            RuleFor(c => c.discountPercent)
+                .NotEmpty()
+                    .WithNotEmptyMessage()
+                .GreaterThanOrEqualTo(1)
+                    .WithGreaterThanOrEqualMessage()
+                .LessThan(100)
+                    .WithLessThanMessage();
             RuleFor(x => x.startDate).NotEmpty()
-                .Must(DateTimeUtil.BeAValidDate).WithMessage("Invalid Start Date format.");
+                .Must(DateTimeUtil.BeAValidDate);
 
             RuleFor(x => x.endDate).NotEmpty()
-                .Must(DateTimeUtil.BeAValidDate).WithMessage("Invalid End Date format.");
+                .Must(DateTimeUtil.BeAValidDate);
 
             RuleFor(x => x).Must((command) =>
             {
@@ -30,15 +40,20 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Create
                     return startDate < endDate;//&& (endDate - startDate).TotalDays >= settings.MinimumPromotionDuration;
                 }
                 return false;
-            }).WithName("Date Time Things");
-            RuleFor(x => x.discountCode).Must(code =>
-            {
-                if (code is null)
-                    return true;
-                if (code.Length < PromotionRules.MinCode || code.Length > PromotionRules.MaxCode)
-                    return false;
-                return true;
-            });
+            }).WithName("ngày bắt đầu bé hơn ngày kết thúc");
+            //RuleFor(x => x.discountCode).Must(code =>
+            //{
+            //    if (code is null)
+            //        return true;
+            //    if (code.Length < PromotionRules.MinCode || code.Length > PromotionRules.MaxCode)
+            //        return false;
+            //    return true;
+            //});\
+            RuleFor(x => x.discountCode)
+                .MinimumLength(PromotionRules.MinCode)
+                    .WithMinLenghtMessage()
+                .MaximumLength(PromotionRules.MaxCode)
+                    .WithMaxLenghtMessage();
         }
     }
 }

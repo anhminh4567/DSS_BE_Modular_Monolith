@@ -1,5 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Diamonds;
+using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
@@ -32,7 +34,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.RemoveCertifi
             var getDiamond = await _diamondRepository.GetById(parsedId);
             if(getDiamond == null)
             {
-                return Result.Fail("Diamond not found");
+                return Result.Fail(DiamondErrors.DiamondNotFoundError);
             }
             string relativePath =  _diamondFileService.ToRelativePath(request.certificateAbsolutePath);
             var removeResult = await _diamondFileService.DeleteFileAsync(relativePath, cancellationToken);

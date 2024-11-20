@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.Entities.ErrorMessages;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using FluentResults;
@@ -32,9 +33,9 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Delete
             var discountId = DiscountId.Parse(request.discountId);
             var tryGetDiscount = await _discountRepository.GetById(discountId);
             if (tryGetDiscount == null)
-                return Result.Fail(new NotFoundError("Not found discount"));
+                return Result.Fail(DiscountErrors.NotFound);
             if(tryGetDiscount.CanBePermanentlyDeleted == false)
-                return Result.Fail(new ConflictError("can only be deleted when status is CANCELLED or EXPIRED"));
+                return Result.Fail(DiscountErrors.DeleteUnallowed("chỉ có thể xóa nếu expired hoặc cancelled"));
             await _discountRepository.Delete(tryGetDiscount);
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(tryGetDiscount);

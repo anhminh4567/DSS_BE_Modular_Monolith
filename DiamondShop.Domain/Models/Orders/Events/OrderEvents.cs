@@ -10,4 +10,5 @@ using System.Threading.Tasks;
 namespace DiamondShop.Domain.Models.Orders.Events
 {
     public record OrderCompleteEvent(AccountId AccountId, OrderId OrderId, DateTime CompleteTime) :  IDomainEvent;
+    public record OrderDonePayAllEvent(OrderId OrderId, DateTime PayTime) : IDomainEvent;
 }

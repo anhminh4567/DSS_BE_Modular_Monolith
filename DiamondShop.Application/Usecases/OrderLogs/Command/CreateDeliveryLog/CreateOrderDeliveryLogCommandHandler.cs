@@ -17,6 +17,7 @@ using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using Microsoft.AspNetCore.Http;
+using DiamondShop.Domain.Models.Orders.ErrorMessages;
 
 namespace DiamondShop.Application.Usecases.OrderLogs.Command.CreateDeliveryLog
 {
@@ -46,13 +47,13 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Command.CreateDeliveryLog
             var parsedOrderId = OrderId.Parse(request.orderId);
             var getOrder = await _orderRepository.GetById(parsedOrderId);
             if (getOrder == null)
-                return Result.Fail(new NotFoundError("Order not found"));
+                return Result.Fail(OrderErrors.OrderNotFoundError);
 
             List<OrderLog> orderLogs = await _orderLogRepository.GetOrderLogs(getOrder, cancellationToken);
             var orderedByTimeLogs = orderLogs.OrderBy(x => x.CreatedDate).ToList();
             var getDeliveringParentLog = orderedByTimeLogs.FirstOrDefault(x => x.PreviousLogId == null && x.Status == OrderStatus.Delivering);
             if (getDeliveringParentLog == null)
-                return Result.Fail(new NotFoundError("No Delivering log found, this might be the order is not delivering yet to add extra log, or major logic error"));
+                return Result.Fail(OrderErrors.LogError.ParentLogNotFound);
 
             var deliveringLog = OrderLog.CreateDeliveringLog(getOrder, getDeliveringParentLog, request.message);
             await _orderLogRepository.Create(deliveringLog);
@@ -64,9 +65,9 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Command.CreateDeliveryLog
                 {
                     var ext = Path.GetExtension(image.FileName);
                     if (FileUltilities.IsImageFileExtension(ext) == false)
-                        return Result.Fail(new ValidationError("Only image file is allowed"));
+                        return Result.Fail(FileUltilities.Errors.NotCorrectImageFileType);
                     if (FileUltilities.IsImageFileContentType(image.ContentType) == false)
-                        return Result.Fail(new ValidationError("Only image file is allowed"));
+                        return Result.Fail(FileUltilities.Errors.NotCorrectImageFileType);
                     FileData fileData = new FileData(image.FileName, ext, image.ContentType, image.OpenReadStream());
                     imageDatas.Add(fileData);
                 }

@@ -8,6 +8,7 @@ using DiamondShop.Application.Usecases.PromotionRequirements.Commands.CreateMany
 using DiamondShop.Application.Usecases.Promotions.Commands.UpdateRequirements;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.Entities.ErrorMessages;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
@@ -50,7 +51,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Update
             var parsedId = DiscountId.Parse(request.discountId);
             Discount? getDiscount = await _discountRepository.GetById(parsedId);
             if(getDiscount is null)
-                return Result.Fail(new NotFoundError("no discount found"));
+                return Result.Fail(DiscountErrors.NotFound);
             await _unitOfWork.BeginTransactionAsync();
             if (request.discountInfo != null)
             {
@@ -91,7 +92,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Update
             if (getDiscount.DiscountReq.Where(x => x.TargetType == TargetType.Order).Count() > 0)
             {
                 await _unitOfWork.RollBackAsync();
-                return Result.Fail(new ConflictError("discount cannot have order requirement"));
+                return Result.Fail(DiscountErrors.OrderTargetNotAllowed);
             }
             await _discountRepository.Update(getDiscount);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

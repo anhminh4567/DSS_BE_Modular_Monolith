@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Commons.Validators;
+using DiamondShop.Application.Commons.Validators.ErrorMessages;
 using DiamondShop.Domain.Common;
 using FluentValidation;
 using Microsoft.Extensions.Options;
@@ -12,12 +13,12 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
         {
             _optionsMonitor = optionsMonitor;
             var diamondRule= _optionsMonitor.CurrentValue.DiamondRule;
-            RuleFor(c => c.shapeId).NotEmpty();
-            RuleFor(c => c.diamond4c.Cut).NotEmpty().IsInEnum();
-            RuleFor(c => c.diamond4c.Color).NotEmpty().IsInEnum();
-            RuleFor(c => c.diamond4c.Clarity).NotEmpty().IsInEnum();
-            RuleFor(c => c.diamond4c.isLabDiamond).NotNull();
-            RuleFor(c => c.diamond4c.Carat).Cascade(CascadeMode.Stop).NotNull()
+            RuleFor(c => c.shapeId).NotEmpty().WithNotEmptyMessage();
+            RuleFor(c => c.diamond4c.Cut).NotEmpty().WithNotEmptyMessage().IsInEnum().WithIsInEnumMessage();
+            RuleFor(c => c.diamond4c.Color).NotEmpty().WithNotEmptyMessage().IsInEnum().WithIsInEnumMessage();
+            RuleFor(c => c.diamond4c.Clarity).NotEmpty().WithNotEmptyMessage().IsInEnum().WithIsInEnumMessage();
+            RuleFor(c => c.diamond4c.isLabDiamond).NotNull().WithNotEmptyMessage();
+            RuleFor(c => c.diamond4c.Carat).Cascade(CascadeMode.Stop).NotNull().WithNotEmptyMessage()
                 .GreaterThanOrEqualTo(diamondRule.SmallestMainDiamondCarat)
                 .Must(c =>
                 {
@@ -26,22 +27,22 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
                     if (numbersBehindComma.Length > diamondRule.MainDiamondMaxFractionalNumber)
                         return false;
                     return true;
-                }).WithMessage($"main diamond now only allow you to input {diamondRule.MainDiamondMaxFractionalNumber} number(s) in fractional part");
-            RuleFor(c => c.measurement.Depth).NotEmpty().GreaterThan(0);
-            RuleFor(c => c.measurement.withLenghtRatio).NotEmpty().GreaterThan(0);
-            RuleFor(c => c.measurement.table).NotEmpty().GreaterThan(0) ;
-            RuleFor(c => c.measurement.Measurement).NotEmpty().MinimumLength(3);
+                }).WithMessage($"kim cương chính chỉ có thể để input {diamondRule.MainDiamondMaxFractionalNumber} (s) phần thập phân");
+            RuleFor(c => c.measurement.Depth).NotEmpty().WithNotEmptyMessage().GreaterThan(0);
+            RuleFor(c => c.measurement.withLenghtRatio).NotEmpty().WithNotEmptyMessage().GreaterThan(0);
+            RuleFor(c => c.measurement.table).NotEmpty().WithNotEmptyMessage().GreaterThan(0) ;
+            RuleFor(c => c.measurement.Measurement).NotEmpty().WithNotEmptyMessage().MinimumLength(3);
           
-            RuleFor(c => c.details.Symmetry).NotEmpty().IsInEnum();
-            RuleFor(c => c.details.Culet).NotEmpty().IsInEnum();
-            RuleFor(c => c.details.Polish).NotEmpty().IsInEnum();
-            RuleFor(c => c.details.Girdle).NotEmpty().IsInEnum();
-            RuleFor(c => c.details.Fluorescence).NotEmpty().IsInEnum();
+            RuleFor(c => c.details.Symmetry).NotEmpty().WithNotEmptyMessage().IsInEnum().WithIsInEnumMessage();
+            RuleFor(c => c.details.Culet).NotEmpty().WithNotEmptyMessage().IsInEnum().WithIsInEnumMessage();
+            RuleFor(c => c.details.Polish).NotEmpty().WithNotEmptyMessage().IsInEnum().WithIsInEnumMessage();
+            RuleFor(c => c.details.Girdle).NotEmpty().WithNotEmptyMessage().IsInEnum().WithIsInEnumMessage();
+            RuleFor(c => c.details.Fluorescence).NotEmpty().WithNotEmptyMessage().IsInEnum().WithIsInEnumMessage();
             RuleFor(c => c.Certificate).IsInEnum()
                 .When(x => x.Certificate != null);
             RuleFor(c => c.priceOffset).ValidNumberFraction()
                 .Must(c => c >= diamondRule.MinPriceOffset && c <= diamondRule.MaxPriceOffset)
-                .WithMessage($"Price offset must be within range of {diamondRule.MinPriceOffset} and {diamondRule.MaxPriceOffset}, this is business rules or limit opposed on app");
+                .WithMessage($"giá offset phải nằm trong khoảng {diamondRule.MinPriceOffset} và  {diamondRule.MaxPriceOffset}, đây là business rule");
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.Entities.ErrorMessages;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using FluentResults;
 using MediatR;
@@ -33,7 +34,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Create
             var newDiscount = Discount.Create(request.name, startDate, endDate, request.discountPercent, request.discountCode);
             var getDiscountByCode = await _discountRepository.GetByCode(request.discountCode);
             if (getDiscountByCode != null)
-                return Result.Fail("Đã có 1 discount với mã code như vậy, hãy đổi mã code");
+                return Result.Fail(DiscountErrors.Exist("với mã code #"+getDiscountByCode.DiscountCode));
             await _discountRepository.Create(newDiscount);
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(newDiscount);

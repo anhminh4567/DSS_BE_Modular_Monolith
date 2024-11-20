@@ -46,7 +46,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.SetThumbnail
                 if (FileUltilities.IsImageFileContentType(contentType) == false ||
                     FileUltilities.IsImageFileExtension(extension) == false)
                 {
-                    return Result.Fail("Invalid file type");
+                    return Result.Fail(FileUltilities.Errors.NotCorrectImageFileType);
                 }
                 if (getDiscount.Thumbnail != null)
                     await _blobFileServices.DeleteFileAsync(getDiscount.Thumbnail.MediaPath);
@@ -60,7 +60,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.SetThumbnail
                 }
                 else
                 {
-                    return Result.Fail("fail to upload new image");
+                    return Result.Fail(FileUltilities.Errors.UploadFail);
                 }
             }
             else

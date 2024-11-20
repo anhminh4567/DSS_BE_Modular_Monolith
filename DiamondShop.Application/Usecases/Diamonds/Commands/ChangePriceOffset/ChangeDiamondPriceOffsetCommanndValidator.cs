@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Common;
+﻿using DiamondShop.Application.Commons.Validators.ErrorMessages;
+using DiamondShop.Domain.Common;
 using FluentValidation;
 using Microsoft.Extensions.Options;
 
@@ -14,9 +15,14 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.ChangePriceOffset
             RuleFor(x => x.priceOffset)
                 .Cascade(CascadeMode.Stop)
                 .NotNull()
+                    .WithNotEmptyMessage()
                 .GreaterThanOrEqualTo(diamondRules.MinPriceOffset)
-                .LessThanOrEqualTo(diamondRules.MaxPriceOffset);
-            RuleFor(x => x.diamondId).NotNull();
+                    .WithGreaterThanOrEqualMessage()
+                .LessThanOrEqualTo(diamondRules.MaxPriceOffset)
+                    .WithLessThanOrEqualMessage();
+            RuleFor(x => x.diamondId)
+                .NotNull()
+                    .WithNotEmptyMessage();
         }
     }
 }

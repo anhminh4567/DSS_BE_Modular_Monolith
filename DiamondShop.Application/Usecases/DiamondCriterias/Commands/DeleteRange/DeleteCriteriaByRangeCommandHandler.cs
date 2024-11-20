@@ -22,7 +22,8 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.DeleteRange
     {
         public DeleteCriteriaByRangeCommandValidator()
         {
-            RuleFor(x => x.isSideDiamond).NotNull();
+            RuleFor(x => x.isSideDiamond)
+                .NotNull();
             RuleFor(x => x.caratFrom).Cascade(CascadeMode.Stop).NotNull().GreaterThanOrEqualTo(0);
             RuleFor(x => x.caratFrom).Cascade(CascadeMode.Stop).NotNull().GreaterThanOrEqualTo(0);
             When(x => x.caratFrom != null && x.caratTo != null, () =>

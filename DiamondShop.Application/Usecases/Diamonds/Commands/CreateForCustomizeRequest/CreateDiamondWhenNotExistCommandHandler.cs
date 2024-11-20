@@ -4,8 +4,10 @@ using DiamondShop.Application.Usecases.Diamonds.Commands.Create;
 using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.CustomizeRequests.Entities;
+using DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Services.interfaces;
@@ -54,7 +56,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeR
             DiamondRequestId diamondRequestId = DiamondRequestId.Parse(request.diamondRequestId);
             var getCustomizeRequest = await _customizeRequestRepository.GetById(customizeRequestId);
             if(getCustomizeRequest is null)
-                return Result.Fail(new NotFoundError("Không tìm thấy yêu cầu này"));
+                return Result.Fail(CustomizeRequestErrors.CustomizeRequestNotFoundError);
             await _unitOfWork.BeginTransactionAsync();
             var diamondRequest = getCustomizeRequest.DiamondRequests.FirstOrDefault(x => x.DiamondRequestId == diamondRequestId);
             var createResult = await _sender.Send(request.CreateDiamond);
@@ -70,7 +72,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeR
             if(isDiamondMetRquirement is false)
             {
                 await _unitOfWork.RollBackAsync();
-                return Result.Fail(new ValidationError("Diamond không đáp ứng yêu cầu Requirement"));
+                return Result.Fail(DiamondErrors.DiamondNotMeetingRequirementSpec);
             }
             if(request.lockPrice != null)
             {
@@ -78,7 +80,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeR
                 if (request.lockPrice < 0 || normalizedPrice < 0)
                 {
                     await _unitOfWork.RollBackAsync();
-                    return Result.Fail(new ValidationError("Giá không hợp lệ, Phải lớn hơn hoặc =0"));
+                    return Result.Fail(DiamondErrors.LockPriceNotValid("phải lớn hơn 0"));
                 }
             }
             diamondRequest.AssignDiamondToRequest(diamond);

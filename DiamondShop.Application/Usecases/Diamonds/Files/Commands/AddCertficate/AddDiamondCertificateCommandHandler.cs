@@ -43,7 +43,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddCertficate
             var fileName = request.pdfFile.FileName.Replace(fileExtension, "");
             if (FileUltilities.IsPdfFileContentType(request.pdfFile.ContentType) == false ||
                 FileUltilities.IsPdfFileExtension(fileExtension) == false)
-                return Result.Fail(new ConflictError("file is not type PDF")) ;
+                return Result.Fail(FileUltilities.Errors.NotCorrectImageFileType) ;
 
             var stream = request.pdfFile.OpenReadStream();
             var pdfObject = new FileData(fileName,fileExtension,request.pdfFile.ContentType,stream);

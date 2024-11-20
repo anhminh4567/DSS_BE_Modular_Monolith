@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries.ErrorMessages;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
@@ -41,7 +42,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.AttachToJewelry
             foreach (var diamond in diamonds)
             {
                 if (diamond.JewelryId != null)
-                    return Result.Fail("This diamond is already attached to a jewelry");
+                    return Result.Fail(DiamondErrors.DiamondAssignedToJewelryAlready(jewelry.SerialCode));
                 diamond.SetForJewelry(jewelry);
             }
 

@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Commons.Validators;
+using DiamondShop.Application.Commons.Validators.ErrorMessages;
 using FluentValidation;
 
 namespace DiamondShop.Application.Usecases.Discounts.Commands.UpdateInfo
@@ -7,7 +8,9 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.UpdateInfo
     {
         public UpdateDiscountInfoCommandValidator()
         {
-            RuleFor(x => x.discountId).NotEmpty();
+            RuleFor(x => x.discountId)
+                .NotEmpty()
+                    .WithNotEmptyMessage();
             When(x => x.discountPercent != null,() =>
             {
                 RuleFor(x => x.discountPercent).InclusiveBetween(1, 100);

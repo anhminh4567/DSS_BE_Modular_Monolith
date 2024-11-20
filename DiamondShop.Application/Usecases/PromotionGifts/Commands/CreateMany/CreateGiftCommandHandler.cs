@@ -63,12 +63,12 @@ namespace DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany
                         gifts.Add(orderGift);
                         break;
                     default:
-                        return Result.Fail(new ConflictError("unspecified type found in the gift position at : " + (++i)));
+                        return Result.Fail(new ConflictError("không rõ target của gift ở vị trí : " + (++i)));
 
                 }
             }
             if (gifts.Count == 0)
-                return Result.Fail(new NotFoundError("nothing to create"));
+                return Result.Fail(new NotFoundError("không có gì để tạo"));
             await _giftRepository.CreateRange(gifts);
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(gifts);

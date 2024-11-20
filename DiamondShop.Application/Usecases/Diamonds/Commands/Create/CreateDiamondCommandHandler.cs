@@ -5,7 +5,9 @@ using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
+using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
 using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.DiamondShapes.ErrorMessages;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Services.Implementations;
@@ -52,26 +54,18 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
             var getShapes = await _diamondShapeRepository.GetAll();
             DiamondShape? getShape = getShapes.FirstOrDefault(x => x.Id == shapeId);
             if (getShape is null)
-                return Result.Fail(new NotFoundError("no shape found"));
+                return Result.Fail(DiamondShapeErrors.NotFoundError);
             
             List<Diamond> diamondFromSku = await _diamondRepository.GetBySkus(new string[] { sku });
             if (diamondFromSku.Count > 0)
-                return Result.Fail(new ValidationError("Diamond with this sku already exist"));
+                return Result.Fail(DiamondErrors.DiamondExistError($"mã code của KC là #{diamondFromSku.First().SerialCode}, mã id là - {diamondFromSku.First().Id.Value}"));
 
             Diamond newDiamond = Diamond.Create(getShape, diamond4c, details, measurement, priceOffset,sku, certificate.Value);
             var isDiamondBelongToACriteraGroup = await _diamondServices.IsMainDiamondFoundInCriteria(newDiamond);
             if (isDiamondBelongToACriteraGroup == false )
-                return Result.Fail(new ValidationError("Diamond is not belong to any criteria group"));
+                return Result.Fail(DiamondErrors.DiamondNotExistInAnyCriteria);
 
             await _diamondRepository.Create(newDiamond);
-            //if (isAvailable)
-            //{
-            //    newDiamond.Status = ProductStatus.Active;
-            //}
-            //else
-            //{
-            //    newDiamond.Status = ProductStatus.PreOrder;
-            //}
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(newDiamond);
         }

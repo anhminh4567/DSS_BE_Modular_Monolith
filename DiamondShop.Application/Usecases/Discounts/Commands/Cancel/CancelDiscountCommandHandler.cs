@@ -2,6 +2,7 @@
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.Entities.ErrorMessages;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
@@ -35,7 +36,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Cancel
             var parsedId = DiscountId.Parse(request.discountId);
             var getDiscount = await _discountRepository.GetById(parsedId);
             if (getDiscount is null)
-                return Result.Fail(new NotFoundError());
+                return Result.Fail(DiscountErrors.NotFound);
             var result = getDiscount.Cancel();
             if (result.IsSuccess)
             {

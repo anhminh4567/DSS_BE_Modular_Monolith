@@ -2,6 +2,7 @@
 using DiamondShop.Application.Commons.Utilities;
 using DiamondShop.Application.Services.Interfaces.Diamonds;
 using DiamondShop.Commons;
+using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
@@ -36,10 +37,10 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddMany
             var getDiamond = await _diamondRepository.GetById(parsedId);
             if (getDiamond is null)
             {
-                return Result.Fail(new NotFoundError("diamond not found"));
+                return Result.Fail(DiamondErrors.DiamondNotFoundError);
             }
             if(request.images.Any(x => FileUltilities.IsImageFileContentType(x.ContentType) == false))
-                return Result.Fail(new ConflictError("Contain Invalid file type, has to be image"));
+                return Result.Fail(FileUltilities.Errors.NotCorrectImageFileType);
             FileData[] diamondFileDatas = request.images.Select(x => new FileData(x.FileName,null,x.ContentType,x.OpenReadStream())).ToArray();
             var uploadedResult = await _diamondFileService.UploadGallery(getDiamond, diamondFileDatas,cancellationToken);
             return uploadedResult;
