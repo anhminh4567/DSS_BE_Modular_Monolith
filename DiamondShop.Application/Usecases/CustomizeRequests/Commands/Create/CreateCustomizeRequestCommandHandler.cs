@@ -83,7 +83,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendReques
                 customizedRequest = CustomizeRequest.CreateRequesting(AccountId.Parse(accountId), modelOpt.ModelId, modelOpt.SizeId, modelOpt.MetalId, null, engravedText, engravedFont, note);
             await _customizeRequestRepository.Create(customizedRequest);
             await _unitOfWork.SaveChangesAsync(token);
-            if (diamondRequests != null)
+            if (diamondRequests != null && diamondRequests.Count > 0 )
             {
                 customizedRequest.SetPending();
                 await _customizeRequestRepository.Update(customizedRequest);
