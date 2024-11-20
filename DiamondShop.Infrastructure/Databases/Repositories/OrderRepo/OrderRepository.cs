@@ -31,6 +31,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
                     .ThenInclude(x => x.Jewelry)
                 .Include(o => o.Items) // Include OrderItems again
                     .ThenInclude(oi => oi.Diamond)
+                .Include(o => o.Logs)
                 .FirstOrDefaultAsync(o => o.Id == (OrderId)ids[0]);
         }
         public async Task<bool> IsOwner(AccountId accountId, JewelryId jewelryId)

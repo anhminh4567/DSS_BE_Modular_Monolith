@@ -10,7 +10,7 @@ namespace DiamondShop.Application.Dtos.Responses.Orders
         public string Id { get; set; }
         public string OrderId { get; set; }
         public string Message { get; set; }
-        public DateTime CreatedDate { get; set; }
+        public string CreatedDate { get; set; }
         public OrderStatus Status { get; set; }
         public string? PreviousLogId { get; set; }
         public OrderLogDto? PreviousLog { get; set; }

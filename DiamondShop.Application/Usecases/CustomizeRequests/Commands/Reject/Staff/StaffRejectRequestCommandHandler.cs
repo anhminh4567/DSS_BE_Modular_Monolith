@@ -4,6 +4,7 @@ using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Services.interfaces;
@@ -43,22 +44,30 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Sta
             var isPriced = customizeRequest.Status == CustomizeRequestStatus.Requesting;
             if (customizeRequest.DiamondRequests.Count() > 0)
             {
+                List<Diamond> tobeSellDiamonds = new();
+                List<Diamond> tobeDeleteDiamonds = new();
                 foreach (var diamondReq in customizeRequest.DiamondRequests)
                 {
+
                     if (diamondReq.Diamond != null)
                     {
                         if (diamondReq.Diamond.Status == ProductStatus.Active)
                         {
-                            diamondReq.Diamond.SetSell();
-                            await _diamondRepository.Update(diamondReq.Diamond);
+                            diamondReq.DiamondId = null;
+                            tobeSellDiamonds.Add(diamondReq.Diamond);
                         }
                         else if (diamondReq.Diamond.Status == ProductStatus.PreOrder)
                         {
-                            await _diamondRepository.Delete(diamondReq.Diamond);
+                            diamondReq.DiamondId = null;
+                            tobeDeleteDiamonds.Add(diamondReq.Diamond);
                         }
-                        await _unitOfWork.SaveChangesAsync(token);
                     }
                 }
+                tobeSellDiamonds.ForEach(x => x.SetSell());
+                _customizeRequestRepository.Update(customizeRequest).Wait();
+                _diamondRepository.UpdateRange(tobeSellDiamonds);
+                tobeDeleteDiamonds.ForEach(x => _diamondRepository.Delete(x).Wait());
+                await _unitOfWork.SaveChangesAsync(token);
             }
             await _unitOfWork.CommitAsync(token);
             _customizeRequestService.SetStage(customizeRequest, isPriced);
