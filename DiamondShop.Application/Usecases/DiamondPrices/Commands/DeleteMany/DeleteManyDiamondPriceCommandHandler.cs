@@ -2,6 +2,7 @@
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.DiamondShapes.ErrorMessages;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
@@ -41,7 +42,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.DeleteMany
             if (request.isSideDiamond)
                 selectedShape = getAllShape.FirstOrDefault(s => s.Id == DiamondShape.ANY_SHAPES.Id);
             if (selectedShape is null)
-                return Result.Fail(new NotFoundError("Shape not found"));
+                return Result.Fail(DiamondShapeErrors.NotFoundError);
 
 
 

@@ -20,7 +20,6 @@
   <ItemGroup>
     <Folder Include="Models\Diamonds\Entities\" />
     <Folder Include="Models\Notifications\Enum\" />
-    <Folder Include="Models\Promotions\Entities\ErrorMessages\" />
   </ItemGroup>
 
   <ItemGroup>

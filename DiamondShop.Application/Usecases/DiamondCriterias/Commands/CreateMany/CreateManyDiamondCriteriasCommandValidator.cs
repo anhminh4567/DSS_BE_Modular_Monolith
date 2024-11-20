@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Dtos.Requests.Diamonds;
+﻿using DiamondShop.Application.Commons.Validators.ErrorMessages;
+using DiamondShop.Application.Dtos.Requests.Diamonds;
 using FluentValidation;
 
 namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
@@ -18,19 +19,26 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
                 //RuleFor(c => c.Clarity).IsInEnum();
                 When(x => x.Color != null,() =>
                 {
-                    RuleFor(c => c.Color).IsInEnum();
+                    RuleFor(c => c.Color).IsInEnum().WithIsInEnumMessage();
                 });
                 When(x => x.Clarity != null, () =>
                 {
-                    RuleFor(c => c.Clarity).IsInEnum();
+                    RuleFor(c => c.Clarity).IsInEnum().WithIsInEnumMessage();
                 });
                 When(x => x.Cut != null, () =>
                 {
-                    RuleFor(c => c.Cut).IsInEnum();
+                    RuleFor(c => c.Cut).IsInEnum().WithIsInEnumMessage();
                 });
-                RuleFor(c => c.CaratFrom).NotEmpty().GreaterThan(0)
-                    .Must((command, crf) => crf < command.CaratTo);
-                RuleFor(c => c.CaratTo).NotEmpty().GreaterThan(0);
+                RuleFor(c => c.CaratFrom).NotEmpty().
+                        WithNotEmptyMessage()
+                    .GreaterThan(0)
+                        .WithGreaterThanMessage()
+                    .Must((command, crf) => crf < command.CaratTo)
+                        .WithMessage("carat from phải bé hơn carat to");
+                RuleFor(c => c.CaratTo).NotEmpty()
+                        .WithNotEmptyMessage()
+                    .GreaterThan(0)
+                        .WithGreaterThanMessage();
             }
         }
     }

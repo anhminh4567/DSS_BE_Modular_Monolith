@@ -20,5 +20,10 @@ namespace DiamondShop.Domain.Models.Orders.ErrorMessages
         public static ValidationError NoDelivererToAssignError = new ValidationError("Không có nhân viên giao hàng để chuyển giao");
         public static ValidationError OnlyDelivererAllowedError = new ValidationError("Chỉ có nhân viên giao hàng mới được thực hiện hành động");
         public static ValidationError UnproceedableError = new ValidationError("Đơn hàng không thể được tiếp tục");
+        public class LogError
+        {
+            public static NotFoundError NotFound = new NotFoundError("Không tìm thấy log đơn hàng");
+            public static NotFoundError ParentLogNotFound = new NotFoundError("Không tìm thấy log cha của log đơn hàng, có thể đơn chưa process hay chưa được giao");
+        }
     }
 }

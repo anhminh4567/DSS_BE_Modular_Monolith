@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Common.Enums;
+using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
@@ -30,13 +31,13 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Delete
             var diamondId = DiamondId.Parse(request.diamondId);
             var getDiamond = await _diamondRepository.GetById(diamondId);
             if (getDiamond == null)
-                return Result.Fail(new NotFoundError("not found this diamond"));
+                return Result.Fail(DiamondErrors.DiamondNotFoundError);
             if(getDiamond.Status == ProductStatus.Sold)
-                return Result.Fail(new ConflictError("cannot delete a sold diamond"));
+                return Result.Fail(DiamondErrors.SoldError());
             if (getDiamond.JewelryId is not null)
-                return Result.Fail(new ConflictError("this diamond seems to have a jewelry set to it, so it is used already, cannot delelte"));
+                return Result.Fail(DiamondErrors.DiamondAssignedToJewelryAlready(detail: "Không thể xóa"));
             if (getDiamond.Status != ProductStatus.Inactive)
-                return Result.Fail(new ConflictError("cannot delete a diamond that is not inactive, try to set it to inactive first "));
+                return Result.Fail(DiamondErrors.DeleteUnallowed());
             await _diamondRepository.Delete(getDiamond);
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok();

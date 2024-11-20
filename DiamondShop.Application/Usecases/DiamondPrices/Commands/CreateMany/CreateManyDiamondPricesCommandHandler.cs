@@ -4,8 +4,10 @@ using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.DiamondPrices.Entities;
+using DiamondShop.Domain.Models.DiamondPrices.ErrorMessages;
 using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.DiamondShapes.ErrorMessages;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
@@ -46,7 +48,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
             if(request.IsSideDiamond)
                 correctShape = getShapes.FirstOrDefault(s => s.Id == DiamondShape.ANY_SHAPES.Id);
             if (correctShape is null)
-                return Result.Fail(new NotFoundError("not found shape"));
+                return Result.Fail(DiamondShapeErrors.NotFoundError);
 
 
             await _unitOfWork.BeginTransactionAsync();
@@ -64,7 +66,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
                 {
                     var tryGetCriteria = getCriteria.FirstOrDefault(c => c.Id == price.CriteriaId && c.IsSideDiamond == false);
                     if (tryGetCriteria is null)
-                        return Result.Fail(new NotFoundError());
+                        return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.NotFoundError);
                     var newPrice = DiamondPrice.Create(correctShape.Id, tryGetCriteria.Id, price.Price, request.IsLabDiamond);
                     await _diamondPriceRepository.Create(newPrice);
                 }
@@ -72,7 +74,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
                 {
                     var tryGetCriteria = getCriteria.FirstOrDefault(c => c.Id == price.CriteriaId && c.IsSideDiamond == true);
                     if (tryGetCriteria is null)
-                        return Result.Fail(new NotFoundError());
+                        return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.NotFoundError);
                     var newPrice = DiamondPrice.CreateSideDiamondPrice(tryGetCriteria.Id, price.Price, request.IsLabDiamond,correctShape);
                     await _diamondPriceRepository.Create(newPrice);
                 }

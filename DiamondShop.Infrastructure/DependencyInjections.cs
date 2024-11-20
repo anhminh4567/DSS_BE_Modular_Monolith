@@ -58,6 +58,11 @@ using DiamondShop.Infrastructure.Databases.Repositories.BlogRepo;
 using DiamondShop.Application.Services.Interfaces.Blogs;
 using DiamondShop.Application.Services.Interfaces.Orders;
 using DiamondShop.Infrastructure.Services.Pdfs;
+using FluentValidation.Internal;
+using System.Globalization;
+using System.Linq.Expressions;
+using System.Reflection;
+using FluentValidation;
 namespace DiamondShop.Infrastructure
 {
     public static class DependencyInjections
@@ -72,6 +77,8 @@ namespace DiamondShop.Infrastructure
             services.AddPayments(configuration);
             services.AddServices(configuration);
             services.AddMappingExtension(configuration);
+            //Validator name resolver
+            ValidatorOptions.Global.DisplayNameResolver = (type, memberInfo, expression) => CamelCasePropertyNameResolver.ResolvePropertyName(type, memberInfo, expression);
             //startup
             services.AddHostedService<StartupServices>();
             return services;
@@ -284,6 +291,58 @@ namespace DiamondShop.Infrastructure
             //   .Map(dest => dest.Gallery , src => src.Gallery.ToDictionary(kvp => kvp.Key, kvp => $"{getOption.Azure.BaseUrl}/{getOption.Azure.ContainerName}/{kvp.Value}"));
             services.AddSingleton(config);
             return services;
+        }
+    }
+    public class CamelCasePropertyNameResolver
+    {
+
+        public static string ResolvePropertyName(Type type, MemberInfo memberInfo, LambdaExpression expression)
+        {
+            return ToCamelCase(DefaultPropertyNameResolver(type, memberInfo, expression));
+        }
+
+        private static string DefaultPropertyNameResolver(Type type, MemberInfo memberInfo, LambdaExpression expression)
+        {
+            if (expression != null)
+            {
+                var chain = PropertyChain.FromExpression(expression);
+                if (chain.Count > 0) return chain.ToString();
+            }
+
+            if (memberInfo != null)
+            {
+                return memberInfo.Name;
+            }
+
+            return null;
+        }
+
+        private static string ToCamelCase(string s)
+        {
+            if (string.IsNullOrEmpty(s) || !char.IsUpper(s[0]))
+            {
+                return s;
+            }
+
+            var chars = s.ToCharArray();
+
+            for (var i = 0; i < chars.Length; i++)
+            {
+                if (i == 1 && !char.IsUpper(chars[i]))
+                {
+                    break;
+                }
+
+                var hasNext = (i + 1 < chars.Length);
+                if (i > 0 && hasNext && !char.IsUpper(chars[i + 1]))
+                {
+                    break;
+                }
+
+                chars[i] = char.ToLower(chars[i], CultureInfo.InvariantCulture);
+            }
+
+            return new string(chars);
         }
     }
 }

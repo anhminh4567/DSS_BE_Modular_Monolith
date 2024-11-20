@@ -1,7 +1,9 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.DiamondPrices.Entities;
+using DiamondShop.Domain.Models.DiamondPrices.ErrorMessages;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.DiamondShapes.ErrorMessages;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
@@ -43,7 +45,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.UpdateRange
             if (request.isSideDiamond == false)
             {
                 if (getshape is null)
-                    return Result.Fail("Shape not found");
+                    return Result.Fail(DiamondShapeErrors.NotFoundError);
                 bool isfancyshape = DiamondShape.IsFancyShape(getshape.Id);
                 if (isfancyshape)
                 {
@@ -61,7 +63,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.UpdateRange
                         }
                     }
                     if (tobeUpdatedRange == null)
-                        return Result.Fail("The given range does not exist in the database");
+                        return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.CaratRangeNotExist);
                     foreach (var range in orderedCutRange)
                     {
                         if (tobeUpdatedRange?.CaratFrom == range.CaratFrom && tobeUpdatedRange?.CaratTo == range.CaratTo)
@@ -70,7 +72,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.UpdateRange
                         }
                         if (request.newCaratRange.caratFrom <= range.CaratTo && request.newCaratRange.caratTo >= range.CaratFrom)
                         {
-                            return Result.Fail($"The given range already exists or overlaps with an existing range in the database, which is from {range.CaratFrom} to {range.CaratTo}");
+                            return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.CaratRangeOverlaps(range.CaratFrom,range.CaratTo));
                         }
                     }
                     var getCriteriasFromCutGroup = allCriteria[tobeUpdatedRange.Value];
@@ -103,7 +105,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.UpdateRange
                             }
                         }
                         if (tobeUpdatedRange == null)
-                            return Result.Fail("The given range does not exist in the database");
+                            return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.CaratRangeNotExist);
                         foreach (var range in orderedCutRange)
                         {
                             if (tobeUpdatedRange?.CaratFrom == range.CaratFrom && tobeUpdatedRange?.CaratTo == range.CaratTo)
@@ -112,7 +114,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.UpdateRange
                             }
                             if (request.newCaratRange.caratFrom <= range.CaratTo && request.newCaratRange.caratTo >= range.CaratFrom)
                             {
-                                return Result.Fail($"The given range already exists or overlaps with an existing range in the database, which is from {range.CaratFrom} to {range.CaratTo}");
+                                return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.CaratRangeOverlaps(range.CaratFrom,range.CaratTo));
                             }
                         }
                         var getCriteriasFromCutGroup = allCriteria[tobeUpdatedRange.Value];
@@ -146,7 +148,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.UpdateRange
                     }
                 }
                 if (tobeUpdatedRange == null)
-                    return Result.Fail("The given range does not exist in the database");
+                    return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.CaratRangeNotExist);
                 foreach (var range in orderedRange)
                 {
                     if (tobeUpdatedRange?.CaratFrom == range.CaratFrom && tobeUpdatedRange?.CaratTo == range.CaratTo)
@@ -155,7 +157,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.UpdateRange
                     }
                     if (newRange.caratFrom < range.CaratTo && newRange.caratTo > range.CaratFrom)
                     {
-                        return Result.Fail("The given range already exists or overlaps with an existing range in the database");
+                        return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.CaratRangeOverlaps(range.CaratFrom,range.CaratTo));
                     }
                 }
                 var getCriteriasFromGroup = allCriteria[tobeUpdatedRange.Value];

@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using DiamondShop.Application.Commons.Validators.ErrorMessages;
+using FluentValidation;
 
 namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
 {
@@ -15,8 +16,12 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
         {
             public UpdatedDiamondPriceValidator()
             {
-                RuleFor(x => x.diamondCriteriaId).NotEmpty();
-                RuleFor(x => x.price).NotNull().GreaterThan(0);
+                RuleFor(x => x.diamondCriteriaId).NotEmpty()
+                    .WithNotEmptyMessage();
+                RuleFor(x => x.price).NotNull()
+                        .WithNotEmptyMessage()
+                    .GreaterThan(0)
+                        .WithGreaterThanMessage();
             }
     }
 }

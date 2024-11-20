@@ -4,6 +4,7 @@ using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.DiamondShapes.ErrorMessages;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Services.interfaces;
@@ -45,7 +46,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
             if (request.IsSideDiamond)
                 selectedShape = getAllShape.FirstOrDefault(s => s.Id == DiamondShape.ANY_SHAPES.Id);
             if (selectedShape is null)
-                return Result.Fail(new ValidationError("no shape found"));
+                return Result.Fail(DiamondShapeErrors.NotFoundError);
 
 
 

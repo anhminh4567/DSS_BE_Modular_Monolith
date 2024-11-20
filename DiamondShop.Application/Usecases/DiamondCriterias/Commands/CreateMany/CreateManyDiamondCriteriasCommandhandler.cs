@@ -3,6 +3,7 @@ using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.DiamondShapes.ErrorMessages;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
@@ -40,13 +41,13 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
             {
                 correctShape = getAllShape.FirstOrDefault(x => x.Id == DiamondShape.ANY_SHAPES.Id);
                 if (correctShape is null)
-                    return Result.Fail(new NotFoundError("Shape not found"));
+                    return Result.Fail(DiamondShapeErrors.NotFoundError);
                 mappedItems = request.listCriteria.Select(c => DiamondCriteria.CreateSideDiamondCriteria(c.CaratFrom, c.CaratTo, c.Clarity, c.Color, correctShape)).ToList();
             }
             else
             {
                 if (correctShape is null)
-                    return Result.Fail(new NotFoundError("Shape not found"));
+                    return Result.Fail(DiamondShapeErrors.NotFoundError);
                 bool isFancyShape = correctShape.IsFancy();
                 if(isFancyShape)
                     mappedItems = request.listCriteria.Select(c => DiamondCriteria.Create(null, c.Clarity, c.Color, c.CaratFrom, c.CaratTo, correctShape)).ToList();

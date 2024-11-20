@@ -4,6 +4,7 @@ using DiamondShop.Application.Usecases.Promotions.Commands.UpdateInfo;
 using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.Entities.ErrorMessages;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
@@ -34,7 +35,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.UpdateInfo
             var parsedId = DiscountId.Parse(request.discountId!);
             var getDiscount = await _discountRepository.GetById(parsedId);
             if (getDiscount is null)
-                return Result.Fail(new NotFoundError());
+                return Result.Fail(DiscountErrors.NotFound);
             //if(getDiscount.Status == Status)
             if (request.name != null)
                 getDiscount.Name = request.name;

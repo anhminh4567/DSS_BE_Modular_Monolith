@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Diamonds;
 using DiamondShop.Commons;
+using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
@@ -32,11 +33,11 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.RemoveThumbna
             var getDiamond = await _diamondRepository.GetById(id);
             if(getDiamond is null )
             {
-                return Result.Fail(new NotFoundError("Diamond not found"));
+                return Result.Fail(DiamondErrors.DiamondNotFoundError);
             }
             if(getDiamond.Thumbnail is null)
             {
-                return Result.Fail(new ConflictError("Diamond does not have thumbnail to delete, no need"));
+                return Result.Fail(new ConflictError("không có thumbnail để delete , legit"));
             }
             var thumbnailPath = getDiamond.Thumbnail.MediaPath;
             getDiamond.ChangeThumbnail(null);

@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
+using DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages;
 
 namespace DiamondShop.Application.Usecases.Diamonds.Commands.DeletePreOrderDiamondFromCustomizeRequest
 {
@@ -47,15 +49,15 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.DeletePreOrderDiamo
             var diamondRequestId = DiamondRequestId.Parse(request.diamondRequestId);
             var diamond = await _diamondRepository.GetById(diamondId);
             if (diamond is null)
-                return Result.Fail(new NotFoundError("Không tìm thấy viên kim cương này"));
+                return Result.Fail(DiamondErrors.DiamondNotFoundError);
             
             var customizeRequest = await _customizeRequestRepository.GetById(customizeRequestId);
             if(customizeRequest is null)
-                return Result.Fail(new NotFoundError("Không tìm thấy yêu cầu này"));
+                return Result.Fail(CustomizeRequestErrors.CustomizeRequestNotFoundError);
             
             var diamondRequest = customizeRequest.DiamondRequests.FirstOrDefault(x => x.DiamondRequestId == diamondRequestId);
             if (diamondRequest is null)
-                return Result.Fail(new NotFoundError("Không tìm thấy yêu cầu diamond này"));
+                return Result.Fail(CustomizeRequestErrors.DiamondRequest.DiamondRequestNotFoundError);
 
             await _unitOfWork.BeginTransactionAsync();
             _diamondRepository.Delete(diamond).Wait();

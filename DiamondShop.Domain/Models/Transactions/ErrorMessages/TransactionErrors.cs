@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.Transactions.ErrorMessages
 {
-    public class TransactionErrorMessages
+    public class TransactionErrors
     {
         public static NotFoundError TransactionNotFoundError = new NotFoundError("Không tìm thấy giao dịch");
         public static ConflictError TransactionExistError = new ConflictError("Giao dịch đã tồn tại");

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DiamondShop.Commons;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -63,6 +64,25 @@ namespace DiamondShop.Application.Commons.Utilities
                 return false;
             }
             return true;
+        }
+        public class Errors
+        {
+            public static ConflictError NotCorrectFileType(string? detail = null)
+            {
+                if (detail != null)
+                    return new ConflictError("File không đúng định dạng " + detail);
+                return new ConflictError("File không đúng định dạng");
+            }
+            public static ConflictError NotCorrectExtension(string? detail = null)
+            {
+                if (detail != null)
+                    return new ConflictError("File không đúng đuôi, " + detail);
+                return new ConflictError("File không đúng đuôi");
+            }
+            public static ConflictError NotCorrectImageFileType => NotCorrectFileType("hình ảnh, phải có đuôi là .jpg, .png, .gif, .jpeg");
+            public static ConflictError NotCorrectPdfFileType => NotCorrectFileType("pdf");
+            public static ConflictError NotCorrectExcelFileType => NotCorrectFileType("excel ,phải có đuôi là .xlsx");
+            public static Error UploadFail => new Error("Không up được file");
         }
     }
 }
