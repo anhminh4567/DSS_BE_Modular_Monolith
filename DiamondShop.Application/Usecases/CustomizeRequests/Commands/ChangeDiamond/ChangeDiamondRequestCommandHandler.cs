@@ -89,11 +89,11 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.ChangeDiam
                     var diamond = await _diamondRepository.GetById(DiamondId.Parse(diamondId));
                     if (diamond == null)
                     {
-                        return Result.Fail($"Diamond doesn't exist");
+                        return Result.Fail(DiamondErrors.DiamondNotFoundError);
                     }
                     else if (diamond.Status != ProductStatus.Active || diamond.JewelryId != null)
                     {
-                        return Result.Fail($"Diamond isn't available for sell");
+                        return Result.Fail(DiamondErrors.DiamondNotAvailable);
                     }
                     else
                     {
@@ -124,7 +124,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.ChangeDiam
                     }
                 }
                 else
-                    return Result.Fail("Diamond id khong ton tai");
+                    return Result.Fail(CustomizeRequestErrors.DiamondRequest.DiamondRequestNotFoundError);
             }
             else
             {

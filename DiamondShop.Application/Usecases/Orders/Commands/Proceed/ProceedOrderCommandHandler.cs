@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Orders;
+using DiamondShop.Domain.Models.AccountAggregate.ErrorMessages;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
@@ -65,7 +66,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             if (order == null)
                 return Result.Fail(OrderErrors.OrderNotFoundError);
             if (account == null)
-                return Result.Fail("No account found!");
+                return Result.Fail(AccountErrors.AccountNotFoundError);
             if (!_orderService.IsProceedable(order.Status))
                 return Result.Fail(OrderErrors.UnproceedableError);
             var orderItemQuery = _orderItemRepository.GetQuery();

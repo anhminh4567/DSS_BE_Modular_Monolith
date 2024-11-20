@@ -2,6 +2,7 @@
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using FluentResults;
@@ -31,7 +32,7 @@ namespace DiamondShop.Application.Usecases.JewelryModelCategories.Commands.Creat
         {
             string capitalized = Utilities.Capitalize(request.Name);
             var flag1 = await _categoryRepository.CheckDuplicate(capitalized);
-            if (flag1) return Result.Fail("This category name has already been used");
+            if (flag1) return Result.Fail(JewelryModelErrors.Category.JewelryModelCategoryNotFoundError);
             var parentId = request.ParentCategoryId is null ? null : JewelryModelCategoryId.Parse(request.ParentCategoryId);
             var category = JewelryModelCategory.Create(capitalized, request.Description, "", request.IsGeneral, parentId);
             await _categoryRepository.Create(category, token);

@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Models;
+using DiamondShop.Domain.Models.AccountAggregate.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Repositories;
@@ -47,7 +48,7 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetPaymentLink
             var getAccount = await _accountRepository.GetById(getOrder.AccountId);
             if(getAccount is null)
             {
-                return Result.Fail("Account not found");
+                return Result.Fail(AccountErrors.AccountNotFoundError);
             }
             var correctAmount = _orderTransactionService.GetCorrectAmountFromOrder(getOrder);
             PaymentLinkRequest paymentLinkRequest = new() 

@@ -3,6 +3,7 @@ using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson;
 using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Models.AccountAggregate.ErrorMessages;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
@@ -11,6 +12,7 @@ using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Transactions.Entities;
+using DiamondShop.Domain.Models.Transactions.ErrorMessages;
 using DiamondShop.Domain.Models.Transactions.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
@@ -72,12 +74,12 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             createOrderInfo.Deconstruct(out PaymentType paymentType, out string methodId, out string paymentName, out string? requestId, out string? promotionId, out BillingDetail billingDetail, out List<OrderItemRequestDto> orderItemReqs);
             var account = await _accountRepository.GetById(AccountId.Parse(accountId));
             if (account == null)
-                return Result.Fail("This account doesn't exist");
+                return Result.Fail(AccountErrors.AccountNotFoundError);
             PaymentMethodId parrsedMethodId = PaymentMethodId.Parse(methodId);
             var getAllPaymentMethod = await _paymentMethodRepository.GetAll();
             var paymentMethod = getAllPaymentMethod.FirstOrDefault(p => p.Id == parrsedMethodId);
             if (paymentMethod == null)
-                return Result.Fail("This payment method doesn't exist");
+                return Result.Fail(TransactionErrors.PaygateError.PaygateNotFoundError);
             //TODO: Validate account status
             List<IError> errors = new List<IError>();
             var items = orderItemReqs.Select((item) =>
@@ -133,7 +135,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             if (paymentMethod.Id == PaymentMethod.ZALOPAY.Id)
             {
                 if (cartModelResult.Value.OrderPrices.FinalPrice > transactionRule.MaximumPerTransaction)
-                    return Result.Fail("Transaction value is too high for method " + PaymentMethod.ZALOPAY.MethodName);
+                    return Result.Fail( TransactionErrors.PaygateError.MaxTransactionError(paymentName,transactionRule.MaximumPerTransaction));
             }
             var customizeRequestId = requestId == null ? null : CustomizeRequestId.Parse(requestId);
             var orderPromo = cartModel.Promotion.Promotion;
