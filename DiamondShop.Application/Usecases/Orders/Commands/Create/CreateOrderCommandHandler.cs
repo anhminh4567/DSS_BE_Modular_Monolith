@@ -181,6 +181,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 }
             }
             await _orderRepository.Create(order);
+            await _unitOfWork.SaveChangesAsync(token);
+            await _orderLogRepository.Create(log);
             await _orderItemRepository.CreateRange(orderItems);
             _jewelryRepository.UpdateRange(jewelries);
             _diamondRepository.UpdateRange(diamonds);
