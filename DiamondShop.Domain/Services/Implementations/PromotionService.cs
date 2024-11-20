@@ -10,6 +10,7 @@ using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
+using DiamondShop.Domain.Models.Promotions.ErrorMessages;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using Microsoft.AspNetCore.Components.Web;
@@ -52,11 +53,11 @@ namespace DiamondShop.Domain.Services.Implementations
             //clear previous promotion data applied on cart or product
             if (promotion.Status != Status.Active)
             {
-                return Result.Fail("Promotion is not active, skip to the next promotion");
+                return Result.Fail(PromotionError.ApplyingError.NotActiveToUse);
             }
             //var orderReq = promotionRequirement.FirstOrDefault(r => r.TargetType == TargetType.Order);
             if (cartModel.Promotion.IsHavingPromotion is true)
-                throw new Exception("already have a promotoin, stop doing things");
+                return Result.Fail(PromotionError.ApplyingError.AlreadyAppliedPromo);
             if (promotionRequirement.Count <= 0 || promotionGift.Count <= 0)
             {
                 throw new Exception("this promotion dont even have a requirement or gift, major error, it should not exist");
@@ -128,7 +129,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 //importatnt to clean up , no clean up, next promotion applied WILL HAVE THE PREVIOUS PROMOTION DATA
                 // which will result in WRONG AMOUNT APPLIED
                 CleanupAfterAppliedFail(cartModel);
-                return Result.Fail("Not all requirement are met");
+                return Result.Fail(PromotionError.ApplyingError.NotMeetRequirement);
             }
             else
             {

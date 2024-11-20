@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using DiamondShop.Application.Commons.Models;
+using DiamondShop.Application.Commons.Utilities;
 using DiamondShop.Application.Dtos.Responses;
 using DiamondShop.Application.Services.Interfaces.JewelryModels;
 using DiamondShop.Domain.Common.ValueObjects;
@@ -195,7 +196,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             var results = await Task.WhenAll(uploadTasks);
             var stringResult = results.Where(r => r.IsSuccess).SelectMany(r => r.Value).ToArray();
             if (stringResult.Length == 0)
-                return Result.Fail("Failed to upload any files at all");
+                return Result.Fail(FileUltilities.Errors.UploadFail);
             return Result.Ok(stringResult);
         }
 
@@ -213,7 +214,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             var results = await Task.WhenAll(uploadTasks);
             var stringResult = results.Where(r => r.IsSuccess).SelectMany(r => r.Value).ToArray();
             if (stringResult.Length == 0)
-                return Result.Fail("Failed to upload any files at all");
+                return Result.Fail(FileUltilities.Errors.UploadFail);
             return Result.Ok(stringResult);
         }
 
@@ -237,7 +238,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             var results = await Task.WhenAll(uploadTasks);
             var stringResult = results.Where(r => r.IsSuccess).SelectMany(r => r.Value).ToArray();
             if (stringResult.Length == 0)
-                return Result.Fail("Failed to upload any files at all");
+                return Result.Fail(FileUltilities.Errors.UploadFail);
             return Result.Ok(stringResult);
         }
 
@@ -257,7 +258,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             var results = await Task.WhenAll(uploadTasks);
             var stringResult = results.Where(r => r.IsSuccess).SelectMany(r => r.Value).ToArray();
             if (stringResult.Length == 0)
-                return Result.Fail("Failed to upload any files at all");
+                return Result.Fail(FileUltilities.Errors.UploadFail);
             return Result.Ok(stringResult);
         }
 
@@ -291,7 +292,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             var results = await Task.WhenAll(uploadTasks);
             var stringResult = results.Where(r => r.IsSuccess).Select(r => r.Value).ToArray();
             if (stringResult.Length == 0)
-                return Result.Fail("Failed to upload any files at all");
+                return Result.Fail(FileUltilities.Errors.UploadFail);
             return Result.Ok(stringResult);
         }
         //        foreach (var metal in jewelryModel.SizeMetals)

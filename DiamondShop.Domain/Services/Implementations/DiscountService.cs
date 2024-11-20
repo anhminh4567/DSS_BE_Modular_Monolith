@@ -3,6 +3,7 @@ using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.Entities.ErrorMessages;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
@@ -34,7 +35,7 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             if (discount.Status != Status.Active)
             {
-                return Result.Fail("Discount is not active, skip to the next discount");
+                return Result.Fail(DiscountErrors.ApplyingErrors.NotActiveToUse);
             }
             var requirements = discount.DiscountReq;
             bool isAnyProductHaveDiscount = false;
@@ -60,7 +61,7 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             else
             {
-                return Result.Fail("No product meet the requirement, skip to the next discount");
+                return Result.Fail(DiscountErrors.ApplyingErrors.NotMeetRequirement);
             }
         }
         private void SetProductDiscountPrice(CartProduct product, Discount discount)
@@ -142,7 +143,7 @@ namespace DiamondShop.Domain.Services.Implementations
         public Result ApplyDiscountOnCartProduct(CartProduct cartProduct, Discount discount)
         {
             if (discount.Status != Status.Active)
-                return Result.Fail("Discount is not active, skip to the next discount");
+                return Result.Fail(DiscountErrors.ApplyingErrors.NotActiveToUse);
             
             var requirements = discount.DiscountReq;
             bool isAnyProductHaveDiscount = false;
@@ -170,7 +171,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 return Result.Ok();
             
             else
-                return Result.Fail("No product meet the requirement, skip to the next discount");
+                return Result.Fail(DiscountErrors.ApplyingErrors.NotMeetRequirement);
             
         }
     }

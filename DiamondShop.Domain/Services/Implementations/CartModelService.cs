@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.Carts;
+using DiamondShop.Domain.Common.Carts.ErrorMessages;
 using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
@@ -8,6 +9,7 @@ using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.DeliveryFees;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.Promotions;
@@ -83,7 +85,7 @@ namespace DiamondShop.Domain.Services.Implementations
         public async Task<Result<CartModel>> ExecuteNormalOrder(List<CartProduct> products, List<Discount> givenDiscount, List<Promotion> givenPromotion, ShippingPrice shipPrice, Account? account)
         {
             ArgumentNullException.ThrowIfNull(products);
-            var cartModel = new CartModel { Products = products };
+            var cartModel = new CartModel { Products = products , Account = account };
             CurrentCart = cartModel;
             if (CurrentCart.Products.Count == 0)
                 return Result.Ok(CurrentCart);
@@ -255,16 +257,25 @@ namespace DiamondShop.Domain.Services.Implementations
         }
         private Result CheckIsValid(CartProduct product)
         {
+            var productIndex = CurrentCart.Products.IndexOf(product);
             if (product.Diamond is not null)
             {
                 if (product.Diamond.Status == ProductStatus.Sold)
-                    return Result.Fail("already sold");
-                if (product.Diamond.Status != ProductStatus.Active)
-                    return Result.Fail("not active");
+                    return Result.Fail(CartModelErrors.CartProductError.Sold(product));
+                if (product.Diamond.Status != ProductStatus.Active && product.Diamond.Status != ProductStatus.LockForUser)
+                    return Result.Fail(CartModelErrors.CartProductError.IncorrectStateForSale(product));
+                if (product.Diamond.Status == ProductStatus.LockForUser) 
+                {
+                    if (product.Diamond.ProductLock is null || CurrentCart.Account == null)
+                        return Result.Fail("");
+                    if (product.Diamond.ProductLock.AccountId != CurrentCart.Account.Id)
+                        return Result.Fail(CartModelErrors.CartProductError.NotLockForThisUser(product,CurrentCart.Account));
+                }
+
                 if (product.Diamond.DiamondPrice!.ForUnknownPrice != null)
-                    return Result.Fail("unknown price");
+                    return Result.Fail(CartModelErrors.CartProductError.UnknownPrice(productIndex + 1, product));
                 if (product.Diamond.IsSetForJewelry)
-                    return Result.Fail("Diamond is already set for a jewelry, cannot be bought");
+                    return Result.Fail(DiamondErrors.DiamondAssignedToJewelryAlready());
                 if (product.Jewelry != null || product.JewelryModel != null)
                 {
                     var result = CheckIfDiamondJewelryIsValid(product);
@@ -277,13 +288,13 @@ namespace DiamondShop.Domain.Services.Implementations
             if (product.Jewelry is not null)
             {
                 if (product.Jewelry.Status == ProductStatus.Sold)
-                    return Result.Fail("already sold");
+                    return Result.Fail(CartModelErrors.CartProductError.Sold(product));
                 if (product.Jewelry.IsAllDiamondPriceKnown == false)
-                    return Result.Fail("unknonw diamond price of this jewelry, contact us");
+                    return Result.Fail(CartModelErrors.CartProductError.UnknownPrice(productIndex,product));
                 return CheckDuplicate(CurrentCart, product);
             }
             if (product.JewelryModel is not null) { }
-            return Result.Fail("unknonw product type");
+            return Result.Fail(CartModelErrors.CartProductError.UnknownProductType);
             //return product.JewelryModel.
         }
         private Result CheckDuplicate(CartModel cartModel, CartProduct cartProduct)
@@ -312,7 +323,7 @@ namespace DiamondShop.Domain.Services.Implementations
             if (matchedProduct.Count > 0)
             {
                 cartProduct.IsDuplicate = true;
-                return Result.Fail("duplicate products found");
+                return Result.Fail(CartModelErrors.CartProductError.Duplicate);
             }
             else
             {
@@ -328,7 +339,7 @@ namespace DiamondShop.Domain.Services.Implementations
                                               // jewelry is correct one with the one in CartProduct
                 {
                     if (diamondJewelry.Jewelry.Id != attachedJewelryId)
-                        return Result.Fail("attached jewelry id is not the same as the jewelry id in the cart product");
+                        return Result.Fail(CartModelErrors.CartProductError.JewelryType.DiamondNotCorrect);
                     else
                         return Result.Ok();
                 }

@@ -27,6 +27,7 @@ namespace DiamondShop.Domain.Common.Carts
         public CartModelCounter OrderCounter { get; set; } = new();
         public CartModelValidation OrderValidation { get; set; } = new();
         public List<CartProduct> Products { get; set; } = new();
+        public Account? Account { get; set; }
         public void SetErrorMessages()
         {
             OrderValidation.SetErrorMessageInTheEnd(ShippingPrice);

@@ -37,5 +37,11 @@ namespace DiamondShop.Domain.Models.Promotions.Entities.ErrorMessages
         } 
         public static Error OrderTargetNotAllowed => new Error("Không tạo discount với đối tượng đơn hàng, chỉ có thể tạo với jewerly và diamond vói loại unit type là Phần trăm(%)");
         public static Error UnitTypeNotAllowed => new Error("Không tạo discount với loại unit type này, chỉ có thể tạo với loại unit type là Phần trăm(%)");
+        public class ApplyingErrors 
+        {
+            public static Error NotActiveToUse = new Error("Giảm giá không ở trạng thái sử dụng");
+            public static Error NotMeetRequirement = new Error("Giảm giá không đáp ứng yêu cầu");
+        }
+
     }
 }

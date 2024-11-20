@@ -70,6 +70,18 @@ namespace DiamondShop.Domain.Common.Carts
             RequirementQualifedId = null;
             ReviewPrice.PromotionAmountSaved = 0;
         }
+        public bool IsDiamond()
+        {
+            if(Jewelry is null && JewelryModel is null && Diamond is not null)
+                return true;
+            return false;
+        }
+        public bool IsJewelry()
+        {
+            if (Jewelry is not null && Diamond is null)
+                return true;
+            return false;
+        }
     }
 
 }

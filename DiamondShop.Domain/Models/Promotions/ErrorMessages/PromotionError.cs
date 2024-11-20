@@ -75,5 +75,11 @@ namespace DiamondShop.Domain.Models.Promotions.ErrorMessages
                 return new Error("Không thể xóa yêu cầu này");
             }
         }
+        public class ApplyingError
+        {
+            public static Error NotActiveToUse = new Error("Khuyến mãi không ở trạng thái sử dụng");
+            public static Error NotMeetRequirement = new Error("Khuyến mãi không đáp ứng yêu cầu");
+            public static ConflictError AlreadyAppliedPromo = new ConflictError("Khuyến mãi đã được áp dụng");
+        }
     }
 }

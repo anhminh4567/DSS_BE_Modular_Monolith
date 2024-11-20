@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Commons.Models;
+using DiamondShop.Application.Commons.Utilities;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Diamonds;
 using DiamondShop.Domain.BusinessRules;
@@ -100,9 +101,9 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             string basePath = GetAzureFilePath(diamond);
             basePath = $"{basePath}/{GIA_FOLDER}";
             if(pdfCertificate.contentType != "application/pdf")
-                return Result.Fail<string>("File is not a pdf");
+                return Result.Fail<string>(FileUltilities.Errors.NotCorrectPdfFileType);
             if(pdfCertificate.FileExtension != ".pdf")
-                return Result.Fail<string>("File extentsion is not a pdf");
+                return Result.Fail<string>(FileUltilities.Errors.NotCorrectPdfFileType);
             string finalpath = $"{basePath}/{pdfCertificate.FileName}_{GetTimeStamp()}";
             return await _blobFileServices.UploadFileAsync(finalpath, pdfCertificate.Stream, pdfCertificate.contentType, cancellationToken);
         }
@@ -138,7 +139,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             var results = await Task.WhenAll(uploadTasks);
             var stringResult = results.Where(r => r.IsSuccess).Select(r => r.Value).ToArray();
             if (stringResult.Length == 0)
-                return Result.Fail("Failed to upload any files at all");
+                return Result.Fail(FileUltilities.Errors.UploadFail);
             return Result.Ok(stringResult);
         }
 
