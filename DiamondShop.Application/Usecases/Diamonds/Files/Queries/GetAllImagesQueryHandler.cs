@@ -40,8 +40,14 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Queries
             var gallery = _diamondFileService.MapPathsToCorrectGallery(getDiamond, getResults, cancellationToken);
             gallery.Certificates.Clear();
             if(getDiamond.CertificateFilePath != null)
-                gallery.Certificates.Add(getDiamond.CertificateFilePath);
-            
+            {
+                gallery.Certificates.Add(new Media 
+                {
+                    MediaPath = getDiamond.CertificateFilePath.MediaPath,
+                    ContentType = getDiamond.CertificateFilePath.ContentType,
+                    MediaName = getDiamond.CertificateCode,
+                });
+            }            
             return gallery;
             //throw new NotImplementedException();
         }
