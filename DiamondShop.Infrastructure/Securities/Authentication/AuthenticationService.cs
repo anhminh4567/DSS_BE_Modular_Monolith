@@ -371,9 +371,9 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 Dictionary<string, object> errors = new();
                 foreach (var error in result.Errors)
                 {
-                    errors.Add(error.Code, error.Description);
+                    errors.Add(error.Code,new List<object> { "lỗi thay đổi password, hãy chắc ràng password " } );
                 }
-                return Result.Fail(new ValidationError("password error", errors));
+                return Result.Fail(new ValidationError("lõi thay đỏi password", errors));
             }
             return Result.Ok();
         }

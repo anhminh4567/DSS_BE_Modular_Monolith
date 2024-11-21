@@ -64,7 +64,7 @@ namespace DiamondShop.Domain.Models.DiamondShapes
         public void Update(string shape)
         {
             Shape = shape;
-        }
+        } 
 
     }
 }

@@ -29,8 +29,8 @@ namespace DiamondShop.Application.Usecases.Dashboard.Queries.GetOrderCompleted
             });
         }
     }
-    public record GetOrderCompletedByRangeQuery(string? dateFrom, string? dateTo, bool? isCustomOrder) : IRequest<Result<int>>;
-    internal class GetOrderCompletedByRangeQueryHandler : IRequestHandler<GetOrderCompletedByRangeQuery, Result<int>>
+    public record GetOrderCompletedByRangeQuery(string? dateFrom, string? dateTo, bool? isCustomOrder) : IRequest<Result<GetOrderCompletedByRangeDto>>;
+    internal class GetOrderCompletedByRangeQueryHandler : IRequestHandler<GetOrderCompletedByRangeQuery, Result<GetOrderCompletedByRangeDto>>
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderLogRepository _orderLogRepository;
@@ -43,7 +43,7 @@ namespace DiamondShop.Application.Usecases.Dashboard.Queries.GetOrderCompleted
             _mapper = mapper;
         }
 
-        public async Task<Result<int>> Handle(GetOrderCompletedByRangeQuery request, CancellationToken cancellationToken)
+        public async Task<Result<GetOrderCompletedByRangeDto>> Handle(GetOrderCompletedByRangeQuery request, CancellationToken cancellationToken)
         {
             var parsedDateFrom = DateTime.ParseExact(request.dateFrom,DateTimeFormatingRules.DateTimeFormat, null);
             var parsedDateTo = DateTime.ParseExact(request.dateTo, DateTimeFormatingRules.DateTimeFormat, null);
@@ -62,8 +62,28 @@ namespace DiamondShop.Application.Usecases.Dashboard.Queries.GetOrderCompleted
                     orderQuery = _orderRepository.QueryFilter(orderQuery, x => x.CustomizeRequestId == null);
                 }
             }
-            var count = orderQuery.Count();
-            return count;
+            var orders = orderQuery.ToList();
+            List<OrderDto> completedOrder = new();
+            foreach(var order in orders)
+            {
+                var orderLog = getCompleteOrderLogByDateRange.FirstOrDefault(x => x.OrderId == order.Id);
+                var completeDate = orderLog.CreatedDate;
+                var orderDto = _mapper.Map<OrderDto>(order);
+                orderDto.CompleteDate = _mapper.Map<string>(completeDate);
+                completedOrder.Add(orderDto);
+            }
+
+            var count = orders.Count();
+            return new GetOrderCompletedByRangeDto
+            {
+                CompletedOrder = completedOrder,
+                TotalOrder = count
+            };
         }
+    }
+    public class GetOrderCompletedByRangeDto 
+    {
+        public int TotalOrder { get; set; }
+        public List<OrderDto> CompletedOrder { get; set; } = new();
     }
 }

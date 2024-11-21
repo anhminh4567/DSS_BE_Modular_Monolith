@@ -40,6 +40,7 @@ namespace DiamondShop.Application.Dtos.Responses.Orders
         public string? ExpiredDate { get; set; }
         public string? ShipFailedDate { get; set; }
         public string? PromotionCode { get; set; }
+        public string? CompleteDate { get; set; }
 
     }
 }
