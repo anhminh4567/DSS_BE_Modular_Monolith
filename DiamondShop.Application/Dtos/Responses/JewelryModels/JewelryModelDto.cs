@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.JewelryModels.Entities;
+﻿using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.Enum;
 using System;
 using System.Collections.Generic;
@@ -63,5 +64,6 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         public List<MainDiamondReqDto> MainDiamonds { get; set; } = new();
         public List<SideDiamondOptDto> SideDiamonds { get; set; } = new();
         public List<SizeMetalDto> SizeMetals { get; set; } = new();
+        public MediaDto? Thumbnail { get; set; }
     }
 }
