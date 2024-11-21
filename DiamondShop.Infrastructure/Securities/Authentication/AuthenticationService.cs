@@ -525,5 +525,17 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             }
             throw new NotImplementedException();
         }
+
+        public async Task<Result> DeleteByIdentityUser(string identityId)
+        {
+            var getIdentity = await _userManager.FindByIdAsync(identityId);
+            if(getIdentity is null)
+            {
+                return Result.Fail(new NotFoundError());
+            }
+            await _userManager.DeleteAsync(getIdentity);
+            await _unitOfWork.SaveChangesAsync();
+            return Result.Ok();
+        }
     }
 }

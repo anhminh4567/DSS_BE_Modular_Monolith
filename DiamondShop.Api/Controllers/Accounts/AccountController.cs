@@ -282,5 +282,21 @@ namespace DiamondShop.Api.Controllers.Accounts
                 return Ok(result.Value);
             return MatchError(result.Errors,ModelState);
         }
+        [HttpDelete("{identityId}")]
+        public async Task<ActionResult> DeleteByIdentity([FromRoute] string identityId)
+        {
+            var result = await _authenticationService.DeleteByIdentityUser(identityId);
+            if(result.IsSuccess)
+                return Ok();
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPut("{identityId}/ResetPassword")]
+        public async Task<ActionResult> ChangePassword([FromRoute] string identityId, [FromForm] string oldPassword, [FromForm] string newPassword)
+        {
+            var result = await _authenticationService.ChangePassword(identityId,oldPassword,newPassword);
+            if (result.IsSuccess)
+                return Ok();
+            return MatchError(result.Errors, ModelState);
+        }
     }
 }

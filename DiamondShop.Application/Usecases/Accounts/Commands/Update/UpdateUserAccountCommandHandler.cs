@@ -53,8 +53,8 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.Update
                 RemoveAddress(getAccount, request.ChangedAddress);
                 UpdateAddress(getAccount, request.ChangedAddress);
                 AddAddress(getAccount, request.ChangedAddress);
-                ChangeDefaultAddress(getAccount, request.newDefaultAddressId);
             }
+            await ChangeDefaultAddress(getAccount, request.newDefaultAddressId);
             await _accountRepository.Update(getAccount);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
@@ -116,7 +116,7 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.Update
                 }
             }
         }
-        private async void ChangeDefaultAddress(Account account, string? addressId)
+        private async Task ChangeDefaultAddress(Account account, string? addressId)
         {
             if (addressId == null)
                 return;
