@@ -49,7 +49,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Redeliver
             await _orderRepository.Update(order);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
-            return order;
+            var getNewOrder = await _orderRepository.GetById(order.Id);
+            return getNewOrder;
         }
     }
 }
