@@ -42,7 +42,7 @@ namespace DiamondShop.Application.Usecases.Dashboard.Queries
 
         public async Task<Result<DashboardDto>> Handle(GetDashboardQuery request, CancellationToken cancellationToken)
         {
-            string key = $"Dashboard_Cache";
+            string key = $"Dashboard_Revenue";
             _memoryCache.TryGetValue(key, out DashboardDto dashboard);
             if (dashboard == null)
             {
@@ -51,7 +51,7 @@ namespace DiamondShop.Application.Usecases.Dashboard.Queries
                 var orders = orderQuery.ToList();
                 var mappedOrders = _mapper.Map<List<OrderDashboardDto>>(orders);
                 dashboard = new DashboardDto(mappedOrders);
-                _memoryCache.Set(key, dashboard, Utilities.EndOfMonth());
+                _memoryCache.Set(key, dashboard, TimeSpan.FromHours(5));
                 return dashboard;
             }
             else
