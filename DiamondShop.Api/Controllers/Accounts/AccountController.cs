@@ -273,6 +273,14 @@ namespace DiamondShop.Api.Controllers.Accounts
             var result = await _sender.Send(new GetDeliveresAndTheirStatusQuery());
             return Ok(result);
         }
-
+        [HttpPost("Google/Credential")]
+        [Produces(typeof(AuthenticationResultDto))]
+        public async Task<ActionResult> GoogleTokenFromFrontend([FromBody]string credential)
+        {
+            var result = await _authenticationService.GoogleHandler(credential);
+            if(result.IsSuccess)
+                return Ok(result.Value);
+            return MatchError(result.Errors,ModelState);
+        }
     }
 }

@@ -38,6 +38,6 @@ namespace DiamondShop.Application.Services.Interfaces
         ////
         Task<PagingResponseDto<Account>> GetAccountPagingIncludeIdentity(string[]? roleIds, int current = 0, int size = 10, CancellationToken cancellationToken = default);
         Task<Result<Account>> GetAccountDetailIncludeIdentity(AccountId accountId, CancellationToken cancellationToken = default);
-
+        Task<Result<AuthenticationResultDto>> GoogleHandler(string credential, CancellationToken cancellationToken = default);
     }
 }

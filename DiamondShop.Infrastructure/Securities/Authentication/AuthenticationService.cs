@@ -15,6 +15,7 @@ using DiamondShop.Infrastructure.Identity.Models;
 using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services;
 using FluentResults;
+using Google.Apis.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -25,8 +26,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using OpenQA.Selenium.DevTools.V127.WebAudio;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
@@ -429,8 +432,96 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 return Result.Fail(new NotFoundError());
             }
             var Identity = await _userManager.FindByIdAsync(getAccDetail.IdentityId);
-             getAccDetail.UserIdentity = Identity;
+            getAccDetail.UserIdentity = Identity;
             return getAccDetail;
+        }
+
+        public async Task<Result<AuthenticationResultDto>> GoogleHandler(string credential, CancellationToken cancellationToken = default)
+        {
+            var getAllRoles = await _accountRoleRepository.GetRoles();
+            try
+            {
+                var payload = await GoogleJsonWebSignature.ValidateAsync(credential);
+                var externalLoginInfo = new ExternalLoginInfo(
+                   new ClaimsPrincipal(
+                       new ClaimsIdentity(new List<Claim>
+                       {
+                        new Claim(ExternalAuthenticationOptions.EXTERNAL_IDENTIFIER_CLAIM_NAME, payload.Subject), // Google's user ID
+                        new Claim(ExternalAuthenticationOptions.EXTERNAL_EMAIL_CLAIM_NAME, payload.Email),
+                        new Claim(ExternalAuthenticationOptions.EXTERNAL_USERNAME_CLAIM_NAME, payload.Name),
+                        new Claim(ExternalAuthenticationOptions.EXTERNAL_PROFILE_IMAGE_CLAIM_NAME, payload.Picture)
+                       }, "Google")
+                   ),
+                   "Google", // Login provider name
+                   payload.Subject, // Provider key (Google user ID)
+                   "Google" // Email
+                );
+                var result = await _signinManager.ExternalLoginSignInAsync(
+                    externalLoginInfo.LoginProvider,
+                    externalLoginInfo.ProviderKey,
+                    isPersistent: false
+                );
+                if (result.Succeeded)
+                {
+                    var getUserByEmail = await _userManager.FindByLoginAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey);
+                    if (await _userManager.IsLockedOutAsync(getUserByEmail) is true)
+                        return Result.Fail("cannot login, you are locked out");
+                    if (getUserByEmail == null)
+                        return Result.Fail(new NotFoundError());
+                    if (CheckIfUserIsValidToLogin(getUserByEmail))
+                    {
+                        return Result.Fail("user is lock out,contact admin to unlock");
+                    }
+                    var getCustomer = await _accountRepository.GetByIdentityId(getUserByEmail.Id, cancellationToken);
+                    if (getCustomer is null)
+                        return Result.Fail(new NotFoundError());
+                    //getCustomer.Roles.First(r => r.Id != AccountRole.Customer.Id);
+                    var authTokenDto = await GenerateTokenForUser(getCustomer.Roles, getCustomer.Email, getCustomer.IdentityId, getCustomer.Id.Value, getCustomer.FullName.Value);
+                    return authTokenDto;
+                }
+                else
+                {
+                    var getEmail = externalLoginInfo.Principal.FindFirstValue(ExternalAuthenticationOptions.EXTERNAL_EMAIL_CLAIM_NAME);
+                    var getUsername = externalLoginInfo.Principal.FindFirstValue(ExternalAuthenticationOptions.EXTERNAL_USERNAME_CLAIM_NAME);
+                    var getProfileImage = externalLoginInfo.Principal.FindFirstValue(ExternalAuthenticationOptions.EXTERNAL_PROFILE_IMAGE_CLAIM_NAME);
+                    ArgumentNullException.ThrowIfNull(getEmail);
+                    ArgumentNullException.ThrowIfNull(getUsername);
+                    var identity = new CustomIdentityUser()
+                    {
+                        Email = getEmail,
+                        UserName = getEmail,
+                    };
+                    await _unitOfWork.BeginTransactionAsync();
+                    var createResult = await _userManager.CreateAsync(identity);
+                    await _userManager.SetLockoutEnabledAsync(identity, false);
+                    if (createResult.Succeeded is false)
+                        return Result.Fail("fail to create identity");
+                    var createLogin = await _userManager.AddLoginAsync(identity, externalLoginInfo);
+                    if (createLogin.Succeeded is false)
+                        return Result.Fail("fail to create login");
+                    FullName fullname;
+                    string[] splitedName = getUsername.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                    if (splitedName.Length >= 2)
+                    {
+                        fullname = FullName.Create(splitedName[0], splitedName[1]);
+                    }
+                    else
+                    {
+                        fullname = FullName.Create(splitedName[0], "");
+                    }
+                    var customer = Account.CreateBaseCustomer(fullname, getEmail, identity.Id, getAllRoles);
+                    await _accountRepository.Create(customer);
+                    await _unitOfWork.SaveChangesAsync();
+                    await _unitOfWork.CommitAsync();
+                    var token = await GenerateTokenForUser(customer.Roles, getEmail, identity.Id, customer.Id.Value, fullname.Value);
+                    return token;
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result.Fail(new Error("Invalid google credential"));
+            }
+            throw new NotImplementedException();
         }
     }
 }
