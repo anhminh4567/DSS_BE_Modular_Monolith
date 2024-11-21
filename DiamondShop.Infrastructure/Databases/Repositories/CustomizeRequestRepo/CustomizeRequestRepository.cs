@@ -1,16 +1,10 @@
 ﻿using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
-using DiamondShop.Infrastructure.Databases;
-using DiamondShop.Infrastructure.Databases.Repositories;
+using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DiamondShop.Domain.Repositories.CustomizeRequestRepo
+namespace DiamondShop.Infrastructure.Databases.Repositories.CustomizeRequestRepo
 {
     internal class CustomizeRequestRepository : BaseRepository<CustomizeRequest>, ICustomizeRequestRepository
     {
