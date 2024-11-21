@@ -50,8 +50,12 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddCertficate
             var uploadResult = await _diamondFileService.UploadCertificatePdf(getDiamond, pdfObject, cancellationToken);
             if (uploadResult.IsSuccess) 
             {
+                var currentCert = getDiamond.CertificateFilePath;
+                if(currentCert != null)
+                    _diamondFileService.DeleteFileAsync(currentCert.MediaPath);
                 var certificate = Media.Create(fileName, uploadResult.Value, request.pdfFile.ContentType);
                 getDiamond.SetCertificate(request.certificateCode, certificate);
+                await _diamondRepository.Update(getDiamond);
                 await _unitOfWork.SaveChangesAsync();
                 return Result.Ok();
             }

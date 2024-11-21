@@ -1,10 +1,12 @@
 ﻿using DiamondShop.Application.Dtos.Requests.ApplicationConfigurations.Diamonds;
+using DiamondShop.Application.Dtos.Requests.ApplicationConfigurations.Promotions;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
 using FluentResults;
 using FluentValidation;
+using Mapster;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -38,34 +40,33 @@ namespace DiamondShop.Api.Controllers.AdminConfigurations
             return Ok(promotionRule);
         }
         [HttpPost]
-        public async Task<ActionResult> UpdatePromotionRule() 
+        public async Task<ActionResult> UpdatePromotionRule([FromBody] PromotionRuleRequestDto promotionRuleRequest) 
         {
             var promotionRule = _optionsMonitor.CurrentValue.PromotionRule;
-            //diamondRuleRequestDto.Adapt(diamondRule);
-            //var validationResult = _validator.Validate(diamondRule);
-            //if (validationResult.IsValid is false)
-            //{
-            //    Dictionary<string, object> validationErrors = new();
-            //    validationResult.Errors
-            //        .ForEach(input =>
-            //        {
-            //            if (validationErrors.ContainsKey(input.PropertyName))
-            //            {
-            //                var errorList = (List<object>)validationErrors[input.PropertyName];
-            //                errorList.Add(input.ErrorMessage);
-            //            }
-            //            else
-            //                validationErrors.Add(input.PropertyName, new List<object> { input.ErrorMessage });
-            //        });
-            //    ValidationError validationError = new ValidationError($"validation error ", validationErrors);
-            //    return MatchError(Result.Fail(validationError).Errors, ModelState);
-            //}
-            //else
-            //{
-            //    _applicationSettingService.Set(DiamondRule.key, diamondRule);
-            //}
-            //return Ok(diamondRule);
-            throw new NotImplementedException();
+            promotionRuleRequest.Adapt(promotionRule);
+            var validationResult = _validator.Validate(promotionRule);
+            if(validationResult.IsValid is false)
+            {
+                Dictionary<string, object> validationErrors = new();
+                validationResult.Errors
+                    .ForEach(input =>
+                    {
+                        if (validationErrors.ContainsKey(input.PropertyName))
+                        {
+                            var errorList = (List<object>)validationErrors[input.PropertyName];
+                            errorList.Add(input.ErrorMessage);
+                        }
+                        else
+                            validationErrors.Add(input.PropertyName, new List<object> { input.ErrorMessage });
+                    });
+                ValidationError validationError = new ValidationError($"validation error ", validationErrors);
+                return MatchError(Result.Fail(validationError).Errors, ModelState);
+            }
+            else
+            {
+                _applicationSettingService.Set(PromotionRule.key, promotionRule);
+            }
+            return Ok(promotionRule);
         }
     }
 }

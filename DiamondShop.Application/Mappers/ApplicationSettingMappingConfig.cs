@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.BusinessRules;
+﻿using DiamondShop.Application.Dtos.Requests.ApplicationConfigurations.Promotions;
+using DiamondShop.Domain.BusinessRules;
 using Mapster;
 using System;
 using System.Collections.Generic;
@@ -21,8 +22,9 @@ namespace DiamondShop.Application.Mappers
                 .Map(dest => dest.AverageOffsetVeryGoodCutFromIdealCut, src => src.AverageOffsetVeryGoodCutFromIdealCut)
                 .Map(dest => dest.AverageOffsetGoodCutFromIdealCut, src => src.AverageOffsetGoodCutFromIdealCut)
                 .Map(dest => dest.AverageOffsetGoodCutFromIdealCut_FANCY_SHAPE, src => src.AverageOffsetGoodCutFromIdealCut_FANCY_SHAPE)
-                .Map(dest => dest.AverageOffsetVeryGoodCutFromIdealCut_FANCY_SHAPE, src => src.AverageOffsetVeryGoodCutFromIdealCut_FANCY_SHAPE)
-                ;
+                .Map(dest => dest.AverageOffsetVeryGoodCutFromIdealCut_FANCY_SHAPE, src => src.AverageOffsetVeryGoodCutFromIdealCut_FANCY_SHAPE);
+            
+            config.NewConfig<PromotionRule, PromotionRule>();
         }
     }
 }
