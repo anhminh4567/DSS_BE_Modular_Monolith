@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Jewelries;
+using DiamondShop.Domain.Models.Jewelries.ErrorMessages;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
@@ -38,7 +39,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetDetail
             query = _jewelryRepository.QueryFilter(query, p => p.Id == JewelryId.Parse(request.jewelryId));
             query = _jewelryRepository.QuerySplit(query);
             var item = query.FirstOrDefault();
-            if (item == null) return Result.Fail(new ConflictError($"Can't get jewelry #{request.jewelryId.ToString()}"));
+            if (item == null) return Result.Fail(JewelryErrors.JewelryNotFoundError);
             return _jewelryService.AddPrice(item, _sizeMetalRepository);
         }
     }
