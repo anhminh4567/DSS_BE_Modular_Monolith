@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Dtos.Responses.Orders;
+﻿using DiamondShop.Application.Dtos.Responses.Dashboard;
+using DiamondShop.Application.Dtos.Responses.Orders;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using Mapster;
@@ -10,6 +11,7 @@ namespace DiamondShop.Application.Mappers
         public void Register(TypeAdapterConfig config)
         {
             config.NewConfig<Order, OrderDto>();
+            config.NewConfig<Order, OrderDashboardDto>();
 
             config.NewConfig<OrderItem, OrderItemDto>();
 
