@@ -93,16 +93,16 @@ namespace DiamondShop.Domain.Models.CustomizeRequests
         public void SetRequesting()
         {
             Status = CustomizeRequestStatus.Requesting;
-            Stage = 6;
+            Stage = 7;
         }
         public void SetCustomerCancel()
         {
             if (Status == CustomizeRequestStatus.Pending)
                 Stage = 1;
             else if (Status == CustomizeRequestStatus.Requesting)
-                Stage = 7;
+                Stage = 8;
             else
-                Stage = 10;
+                Stage = 11;
             Status = CustomizeRequestStatus.Customer_Cancelled;
         }
         public void SetCustomerReject()
@@ -114,16 +114,18 @@ namespace DiamondShop.Domain.Models.CustomizeRequests
         {
             if (Status == CustomizeRequestStatus.Pending)
                 Stage = 2;
+            else if (Status == CustomizeRequestStatus.Priced)
+                Stage = 5;
             else
-                Stage = 8;
+                Stage = 9;
             Status = CustomizeRequestStatus.Shop_Rejected;
         }
         public void SetAccepted()
         {
             if (Status == CustomizeRequestStatus.Priced)
-                Stage = 5;
+                Stage = 6;
             else
-                Stage = 9;
+                Stage = 10;
             Status = CustomizeRequestStatus.Accepted;
         }
         public void ResetExpiredDate()
