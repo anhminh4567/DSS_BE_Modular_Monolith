@@ -54,9 +54,9 @@ namespace DiamondShop.Test.Integration
                 new OrderItemRequestDto(jewelry.Id.Value, null, null, null, "Default_Jewelry_Warranty", WarrantyType.Jewelry),
                 new OrderItemRequestDto(null, diamond2.Id.Value, null, null, "Default_Diamond_Warranty", WarrantyType.Diamond)
             };
-            var billingDetail = new BillingDetail("abc","abc","123123132","HCM","Thu Duc", "Ward", "Tan Binh", "abc street","no");
+            var billingDetail = new BillingDetail("abc", "abc", "123123132", "HCM", "Thu Duc", "Ward", "Tan Binh", "abc street", "no");
             var address = String.Join(" ", ["HCM", "Thu Duc", "Tam Binh", "abc street"]);
-            var orderDetail = new CreateOrderInfo(paymentType, PaymentMethod.BANK_TRANSFER.Id.Value,"zalopay", null, null, billingDetail, itemReqs);
+            var orderDetail = new CreateOrderInfo(paymentType, PaymentMethod.BANK_TRANSFER.Id.Value, "zalopay", null, null, billingDetail, itemReqs);
             var createCommand = new CreateOrderCommand(account.Id.Value, orderDetail);
             var createResult = await _sender.Send(createCommand);
             if (createResult.IsFailed)
@@ -127,13 +127,13 @@ namespace DiamondShop.Test.Integration
         {
             var account = await TestData.SeedDefaultCustomer(_context, _authentication);
             var jewelry = await SeedingOrderJewelry();
-            var billing = new BillingDetail(account.FullName.FirstName, account.FullName.LastName, "123456789", account.Email, "HCM", "Thu Duc", "Tam Binh", "abc street", "");
+            var billingDetail = new BillingDetail("abc", "abc", "123123132", "abc@gmail.com", "HCM", "Thu Duc", "Ward", "Tan Binh", "no");
             var orderReq = new OrderRequestDto(PaymentType.COD, PaymentMethod.BANK_TRANSFER.Id.Value, "zalopay", null, true);
             var itemReqs = new List<OrderItemRequestDto>(){
                 new OrderItemRequestDto(jewelry.Id.Value, null, null, null, "Default_Jewelry_Warranty", WarrantyType.Jewelry),
             };
             var orderDetail = new CheckoutOrderInfo(orderReq, itemReqs);
-            var command = new CheckoutOrderCommand(account.Id.Value, billing, orderDetail);
+            var command = new CheckoutOrderCommand(account.Id.Value, billingDetail, orderDetail);
             var result = await _sender.Send(command);
             if (result.IsFailed)
             {

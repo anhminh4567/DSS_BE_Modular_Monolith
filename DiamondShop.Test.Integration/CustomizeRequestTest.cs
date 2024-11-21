@@ -1,4 +1,6 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Diamonds;
+using DiamondShop.Application.Dtos.Requests.Orders;
+using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Checkout;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Staff;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Customer;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Staff;
@@ -9,9 +11,15 @@ using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
+using DiamondShop.Domain.Models.DeliveryFees;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.Locations;
+using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Domain.Models.Transactions.Entities;
+using DiamondShop.Domain.Models.Warranties.Enum;
 using DiamondShop.Test.Integration.Data;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
@@ -281,6 +289,32 @@ namespace DiamondShop.Test.Integration
             Assert.NotNull(result.Value);
             var request = await _context.Set<CustomizeRequest>().FirstOrDefaultAsync(p => p.Id == requestingRequest.Id);
             Assert.Equal(CustomizeRequestStatus.Shop_Rejected, request.Status);
+        }
+        [Trait("ReturnTrue", "CheckoutRequest")]
+        [Fact]
+        public async Task Checkout_CustomizeRequest_Should_ReturnSuccess()
+        {
+            var city = new AppCities()
+            {
+                Slug = "HOCHIMINH",
+                Name = "Hồ Chí Minh",
+                Type = 1
+            };
+            await _context.AppCities.AddAsync(city);
+            var fee = DeliveryFee.CreateLocationType("", 30_00, "Hồ Chí Minh", city.Id);
+            await _context.Set<DeliveryFee>().AddAsync(fee);
+            var account = await TestData.SeedDefaultCustomer(_context, _authentication);
+            var acceptedRequest = await SeedingAcceptedRequest(account.Id);
+            Assert.Equal(CustomizeRequestStatus.Accepted, acceptedRequest.Status);
+            var billingDetail = new BillingDetail("abc", "abc", "123123132","abc@gmail.com", "Hồ Chí Minh", "Thu Duc", "Ward", "Tan Binh", "no");
+            var orderReq = new OrderRequestDto(PaymentType.COD, PaymentMethod.BANK_TRANSFER.Id.Value, "zalopay", null, true);
+            CheckoutCustomizeRequestDto requestDto = new CheckoutCustomizeRequestDto(acceptedRequest.Id.Value,billingDetail,orderReq, "Default_Jewelry_Warranty", WarrantyType.Jewelry);
+            var result = await _sender.Send(new CheckoutRequestCommand(account.Id.Value,requestDto));
+            if (result.IsFailed)
+                WriteError(result.Errors);
+            Assert.True(result.IsSuccess);
+            var order = _context.Set<Order>().FirstOrDefault();
+            Assert.NotNull(order.CustomizeRequestId);
         }
     }
 }
