@@ -4,7 +4,7 @@ using DiamondShop.Application.Dtos.Responses.JewelryModels;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 
-namespace DiamondShop.Application.Dtos.Responses.CustomizeRequest
+namespace DiamondShop.Application.Dtos.Responses.CustomizeRequests
 {
     public class CustomizeRequestDto
     {

@@ -19,5 +19,10 @@ namespace DiamondShop.Commons
         {
             return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
         }
+        public static DateTimeOffset EndOfMonth()
+        {
+            var now = DateTimeOffset.Now;
+            return new DateTimeOffset(now.Year,now.Month,DateTime.DaysInMonth(now.Year,now.Month),23,59,59,999,now.Offset);
+        }
     }
 }

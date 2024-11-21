@@ -1,5 +1,5 @@
 ﻿using DiamondShop.Application.Commons.Responses;
-using DiamondShop.Application.Dtos.Responses.CustomizeRequest;
+using DiamondShop.Application.Dtos.Responses.CustomizeRequests;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.ChangeDiamond;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Checkout;

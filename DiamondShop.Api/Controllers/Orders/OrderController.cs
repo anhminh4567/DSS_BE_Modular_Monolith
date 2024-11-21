@@ -51,6 +51,7 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return Unauthorized();
         }
+
         [HttpGet("{orderId}")]
         [Authorize]
         public async Task<ActionResult> GetUserOrderDetail([FromRoute] string orderId)
@@ -66,6 +67,8 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return Unauthorized();
         }
+
+
         [HttpGet("PaymentLink/{orderId}")]
         [AllowAnonymous]
         public async Task<ActionResult> GetPaymentLink(string orderId)

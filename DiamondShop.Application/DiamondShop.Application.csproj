@@ -11,14 +11,17 @@
     <Compile Remove="Usecases\DiamondPrices\Commands\Update\**" />
     <Compile Remove="Usecases\Orders\Commands\AddToDelivery\**" />
     <Compile Remove="Usecases\Orders\Commands\Complete\**" />
+    <Compile Remove="Usecases\Orders\Queries\Dashboard\GetTotalRevenue\**" />
     <EmbeddedResource Remove="Usecases\Deliveries\**" />
     <EmbeddedResource Remove="Usecases\DiamondPrices\Commands\Update\**" />
     <EmbeddedResource Remove="Usecases\Orders\Commands\AddToDelivery\**" />
     <EmbeddedResource Remove="Usecases\Orders\Commands\Complete\**" />
+    <EmbeddedResource Remove="Usecases\Orders\Queries\Dashboard\GetTotalRevenue\**" />
     <None Remove="Usecases\Deliveries\**" />
     <None Remove="Usecases\DiamondPrices\Commands\Update\**" />
     <None Remove="Usecases\Orders\Commands\AddToDelivery\**" />
     <None Remove="Usecases\Orders\Commands\Complete\**" />
+    <None Remove="Usecases\Orders\Queries\Dashboard\GetTotalRevenue\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,7 +34,6 @@
     <Folder Include="Usecases\JewelryModelCategories\Commands\Delete\" />
     <Folder Include="Usecases\JewelryModelCategories\Commands\Update\" />
     <Folder Include="Usecases\JewelryModels\Commands\Delete\" />
-    <Folder Include="Usecases\Orders\Queries\Dashboard\GetTotalRevenue\" />
     <Folder Include="Usecases\Transactions\Commands\CreateRefunds\" />
   </ItemGroup>
 

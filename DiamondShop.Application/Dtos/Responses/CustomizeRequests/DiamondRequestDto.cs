@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DiamondShop.Application.Dtos.Responses.Diamonds;
 
-namespace DiamondShop.Application.Dtos.Responses.CustomizeRequest
+namespace DiamondShop.Application.Dtos.Responses.CustomizeRequests
 {
     public class DiamondRequestDto
     {
