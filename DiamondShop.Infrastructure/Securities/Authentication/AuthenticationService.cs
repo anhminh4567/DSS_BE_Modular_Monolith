@@ -401,7 +401,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 roleQuery = _accountRoleRepository.QueryFilter(roleQuery, x => parsedRolesId.Contains(x.Id));
             }
             roleQuery = _accountRoleRepository.QueryInclude(roleQuery, x => x.Accounts);
-            result = roleQuery.SelectMany(x => x.Accounts).Include(x => x.Roles).AsSplitQuery().Skip(trueCurrent).Take(size).ToList();
+            result = roleQuery.SelectMany(x => x.Accounts).Distinct().Include(x => x.Roles).AsSplitQuery().Skip(trueCurrent).Take(size).ToList();
             var identityIds = result.Select(a => a.IdentityId).Distinct().ToList();
 
             var customIdentityUsers = await _userManager.Users

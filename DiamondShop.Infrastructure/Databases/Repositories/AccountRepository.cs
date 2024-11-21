@@ -38,10 +38,21 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             var roleQuery = _dbContext.AccountRoles.AsQueryable()
                 .Where(x => ids.Contains(x.Id))
                 .Include(x => x.Accounts)
-                .SelectMany(x => x.Accounts)
-                    .Include(x => x.Roles)
-                .AsSplitQuery();
+                .SelectMany(x => x.Accounts).Distinct()
+                    .Include(x => x.Roles);
             return roleQuery.ToListAsync();
+        }
+
+        public  Task<int> GetAccountCountsInRoles(List<AccountRole> roles, CancellationToken cancellationToken = default)
+        {
+            if (roles.Count == 0)
+                return Task.FromResult(0);
+            var ids = roles.Select(x => x.Id).ToList();
+            var roleQuery = _dbContext.AccountRoles.AsQueryable()
+                .Where(x => ids.Contains(x.Id))
+                .Include(x => x.Accounts)
+                .SelectMany(x => x.Accounts).Distinct().CountAsync();
+            return roleQuery;
         }
     }
 }

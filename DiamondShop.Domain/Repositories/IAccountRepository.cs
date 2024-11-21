@@ -13,5 +13,6 @@ namespace DiamondShop.Domain.Repositories
     {
         Task<Account?> GetByIdentityId(string identityId, CancellationToken cancellationToken = default);
         Task<List<Account>> GetByRoles(List<AccountRole> roles, CancellationToken cancellationToken = default);
+        Task<int> GetAccountCountsInRoles(List<AccountRole> roles, CancellationToken cancellationToken = default);
     }
 }

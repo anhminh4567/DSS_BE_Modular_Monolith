@@ -10,6 +10,7 @@ using DiamondShop.Application.Usecases.Accounts.Commands.RegisterDeliverer;
 using DiamondShop.Application.Usecases.Accounts.Commands.RegisterStaff;
 using DiamondShop.Application.Usecases.Accounts.Commands.RoleAdd;
 using DiamondShop.Application.Usecases.Accounts.Commands.RoleRemove;
+using DiamondShop.Application.Usecases.Accounts.Queries.GetCounts;
 using DiamondShop.Application.Usecases.Accounts.Queries.GetDelivererStatus;
 using DiamondShop.Application.Usecases.Accounts.Queries.GetDetail;
 using DiamondShop.Application.Usecases.Accounts.Queries.GetPaging;
@@ -270,6 +271,13 @@ namespace DiamondShop.Api.Controllers.Accounts
         public async Task<ActionResult> GetAllDelivereAndStatus()
         {
             var result = await _sender.Send(new GetDeliveresAndTheirStatusQuery());
+            return Ok(result);
+        }
+        [HttpGet("Count")]
+        [Produces(typeof(List<DelivererStatusDto>))]
+        public async Task<ActionResult> GetAllDelivereAndStatus([FromQuery]List<string> roles)
+        {
+            var result = await _sender.Send(new GetAccountCountInRolesQuery(roles));
             return Ok(result);
         }
     }

@@ -41,14 +41,43 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 var userRoles = acc.Roles;
                 var userPoint = acc.TotalPoint;
-                if (IsGoldRankQualified(acc, option, userRoles))
+                if (IsGoldRankQualified(acc, option, userRoles)) 
+                {
                     userRoles.Add(goldRank);
+                    var getSilver = userRoles.FirstOrDefault(x => x.Id == silverRank.Id);
+                    var getBronze = userRoles.FirstOrDefault(x => x.Id == bronzeRank.Id);
+                    if(getSilver != null)
+                        userRoles.Remove(getSilver);
+                    if (getBronze != null)
+                        userRoles.Remove(getBronze);
+                    return;
+                }
 
-                if (IsSilverRankQualified(acc, option, userRoles))
+
+                if (IsSilverRankQualified(acc, option, userRoles)) 
+                {
                     userRoles.Add(silverRank);
+                    var getGold = userRoles.FirstOrDefault(x => x.Id == goldRank.Id);
+                    var getBronze = userRoles.FirstOrDefault(x => x.Id == bronzeRank.Id);
+                    if(getGold != null  )
+                        userRoles.Remove(getGold);
+                    if (getBronze != null)
+                        userRoles.Remove(getBronze);
+                    return;
+                }
+
 
                 if (IsBronzeRankQualified(acc, option, userRoles))
+                {
                     userRoles.Add(bronzeRank);
+                    var getgold = userRoles.FirstOrDefault(x => x.Id == goldRank.Id);
+                    var getsilver = userRoles.FirstOrDefault(x => x.Id == silverRank.Id);
+                    if (getgold != null)
+                        userRoles.Remove(getgold);
+                    if (getsilver != null)
+                        userRoles.Remove(getsilver);
+                    return;
+                }
             }
         }
         private static bool IsGoldRankQualified(Account user, AccountRules options, List<AccountRole> roles)
