@@ -10,6 +10,7 @@ using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Infrastructure.Options;
 using FluentEmail.Core;
 using FluentResults;
+using MapsterMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -30,10 +31,11 @@ namespace DiamondShop.Infrastructure.Services.Blobs
         //https://....../blob/Jewelry_model/Jewelry_Model_Id/{metal}/{SD_1}/{SD_2}/{SD_3} / {SD_x}/{MD_x}/{MDs_x}/name_timestamp.jpeg
 
         private readonly ILogger<JewelryModelFileService> _logger;
-
-        public JewelryModelFileService(ILogger<JewelryModelFileService> _loggerSelf, BlobServiceClient blobServiceClient, ILogger<AzureBlobContainerService> logger, IOptions<ExternalUrlsOptions> externalUrlsOptions) : base(blobServiceClient, logger, externalUrlsOptions)
+        private readonly IMapper _mapper;
+        public JewelryModelFileService(ILogger<JewelryModelFileService> _loggerSelf, BlobServiceClient blobServiceClient, ILogger<AzureBlobContainerService> logger, IOptions<ExternalUrlsOptions> externalUrlsOptions, IMapper mapper) : base(blobServiceClient, logger, externalUrlsOptions)
         {
             _logger = _loggerSelf;
+            _mapper = mapper;
         }
         public Task<List<Media>> GetFolders(JewelryModel jewelryModel, CancellationToken cancellationToken = default)
         {
@@ -294,6 +296,22 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             if (stringResult.Length == 0)
                 return Result.Fail(FileUltilities.Errors.UploadFail);
             return Result.Ok(stringResult);
+        }
+
+        public async Task<Result> DeleteAllModelFiles(JewelryModel jewelryModel, CancellationToken cancellationToken = default)
+        {
+            var getGallerys = await  GetFolders(jewelryModel, cancellationToken);
+            List<MediaDto> tobeDeleteAboslutePath = _mapper.Map<List<MediaDto>>(getGallerys);
+            List<Task<Result>> deleteTasks = new();
+            foreach (var media in tobeDeleteAboslutePath)
+            {
+                deleteTasks.Add(base.DeleteFileAsync(media.MediaPath));
+            }
+            var results = await Task.WhenAll(deleteTasks);
+            var stringResult = results.Where(r => r.IsSuccess).ToArray();
+            if (stringResult.Length == 0)
+                return Result.Fail(FileUltilities.Errors.DeleteFail);
+            return Result.Ok();
         }
         //        foreach (var metal in jewelryModel.SizeMetals)
         //            {

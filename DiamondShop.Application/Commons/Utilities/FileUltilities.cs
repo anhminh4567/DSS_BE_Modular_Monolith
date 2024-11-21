@@ -84,6 +84,8 @@ namespace DiamondShop.Application.Commons.Utilities
             public static ConflictError NotCorrectPdfFileType => NotCorrectFileType("pdf");
             public static ConflictError NotCorrectExcelFileType => NotCorrectFileType("excel ,phải có đuôi là .xlsx");
             public static Error UploadFail => new Error("Không up được file");
+            public static Error DeleteFail => new Error("Không delete được file");
+
         }
     }
 }
