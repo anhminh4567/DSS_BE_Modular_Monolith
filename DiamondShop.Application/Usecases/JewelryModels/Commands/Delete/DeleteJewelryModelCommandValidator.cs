@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using DiamondShop.Application.Commons.Validators.ErrorMessages;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,9 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Delete
     {
         public DeleteJewelryModelCommandValidator()
         {
-            RuleFor(p => p.ModelId).NotEmpty();
+            RuleFor(p => p.ModelId)
+                .NotEmpty()
+                    .WithNotEmptyMessage();
         }
     }
 }

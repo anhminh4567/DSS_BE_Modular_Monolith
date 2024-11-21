@@ -1,6 +1,10 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Orders;
+using DiamondShop.Application.Dtos.Responses.Accounts;
+using DiamondShop.Application.Usecases.Accounts.Queries.GetCounts;
 using DiamondShop.Application.Usecases.Dashboard.Queries;
 using DiamondShop.Application.Usecases.Dashboard.Queries.GetOrderCompleted;
+using DiamondShop.Application.Usecases.Diamonds.Queries.DashBoard.GetBestSellingCaratRangeForShape;
+using DiamondShop.Application.Usecases.Diamonds.Queries.DashBoard.GetBestSellingForManyShape;
 using DiamondShop.Application.Usecases.Orders.Commands.Checkout;
 using DiamondShop.Domain.Models.RoleAggregate;
 using MapsterMapper;
@@ -39,6 +43,35 @@ namespace DiamondShop.Api.Controllers.Dashboard
         {
             var query = new GetOrderCompletedByRangeQuery(startDate, endDate, isCustomOrder);
             var result = await _sender.Send(query);
+            if (result.IsSuccess)
+                return Ok(result.Value);
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpGet("Account/Count")]
+        [Produces(typeof(int))]
+        public async Task<ActionResult> GetAllDelivereAndStatus([FromQuery] List<string> roles)
+        {
+            var result = await _sender.Send(new GetAccountCountInRolesQuery(roles));
+            return Ok(result);
+        }
+        [HttpGet("Diamond/TopSelling/AllShape")]
+        public async Task<ActionResult> GetTopSellingFromAllShape([FromQuery] string? startDate, [FromQuery] string? endDate)
+        {
+            var command = new GetBestSellingForShapeQuery(startDate, endDate);
+            var result = await _sender.Send(command);
+            if (result.IsSuccess)
+                return Ok(result.Value);
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpGet("Diamond/TopSelling/{shapeId}")]
+        public async Task<ActionResult> GetTopSellingFromAllShape([FromRoute] string shapeId,
+            [FromQuery] string? startDate,
+            [FromQuery] string? endDate,
+            [FromQuery] float caratFrom,
+            [FromQuery] float caratTo)
+        {
+            var command = new GetBestSellingCaratRangeForShapeQuery(shapeId, caratFrom, caratTo, startDate, endDate);
+            var result = await _sender.Send(command);
             if (result.IsSuccess)
                 return Ok(result.Value);
             return MatchError(result.Errors, ModelState);

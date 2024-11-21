@@ -163,27 +163,6 @@ namespace DiamondShop.Api.Controllers.Diamonds
                 return Ok();
             return MatchError(result.Errors, ModelState);
         }
-        [HttpGet("TopSelling/AllShape")]
-        public async Task<ActionResult> GetTopSellingFromAllShape([FromQuery]string? startDate, [FromQuery]string? endDate)
-        {
-            var command = new GetBestSellingForShapeQuery(startDate,endDate);
-            var result = await _sender.Send(command);
-            if(result.IsSuccess)
-                return Ok(result.Value);
-            return MatchError(result.Errors, ModelState);
-        }
-        [HttpGet("TopSelling/{shapeId}")]
-        public async Task<ActionResult> GetTopSellingFromAllShape([FromRoute] string shapeId,
-            [FromQuery] string? startDate,
-            [FromQuery] string? endDate,
-            [FromQuery] float caratFrom,
-            [FromQuery] float caratTo)
-        {
-            var command = new GetBestSellingCaratRangeForShapeQuery(shapeId,caratFrom,caratTo,startDate, endDate);
-            var result = await _sender.Send(command);
-            if (result.IsSuccess)
-                return Ok(result.Value);
-            return MatchError(result.Errors, ModelState);
-        }
+      
     }
 }

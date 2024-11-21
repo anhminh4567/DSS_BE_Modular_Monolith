@@ -273,12 +273,6 @@ namespace DiamondShop.Api.Controllers.Accounts
             var result = await _sender.Send(new GetDeliveresAndTheirStatusQuery());
             return Ok(result);
         }
-        [HttpGet("Count")]
-        [Produces(typeof(List<DelivererStatusDto>))]
-        public async Task<ActionResult> GetAllDelivereAndStatus([FromQuery]List<string> roles)
-        {
-            var result = await _sender.Send(new GetAccountCountInRolesQuery(roles));
-            return Ok(result);
-        }
+
     }
 }

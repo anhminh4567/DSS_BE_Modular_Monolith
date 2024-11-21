@@ -1,8 +1,11 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Application.Services.Interfaces.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
+using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
 using System;
@@ -13,18 +16,26 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Delete
 {
-    public record DeleteJewelryModelCommand(string ModelId) : IRequest<Result>;
+    public record DeleteJewelryModelCommand(string? ModelId) : IRequest<Result>;
     internal class DeleteJewelryModelCommandHandler : IRequestHandler<DeleteJewelryModelCommand, Result>
     {
         private readonly IJewelryModelRepository _jewelryModelRepository;
         private readonly IJewelryRepository _jewelryRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IJewelryService _jewelryService;
+        private readonly IJewelryModelFileService _jewelryModelFileService;
+        private readonly ISender _sender;
+        private readonly IDiamondRepository _diamondRepository;
 
-        public DeleteJewelryModelCommandHandler(IJewelryModelRepository jewelryModelRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork)
+        public DeleteJewelryModelCommandHandler(IJewelryModelRepository jewelryModelRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, IJewelryService jewelryService, IJewelryModelFileService jewelryModelFileService, ISender sender, IDiamondRepository diamondRepository)
         {
             _jewelryModelRepository = jewelryModelRepository;
             _jewelryRepository = jewelryRepository;
             _unitOfWork = unitOfWork;
+            _jewelryService = jewelryService;
+            _jewelryModelFileService = jewelryModelFileService;
+            _sender = sender;
+            _diamondRepository = diamondRepository;
         }
 
         public async Task<Result> Handle(DeleteJewelryModelCommand request, CancellationToken token)
@@ -37,7 +48,8 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Delete
             if (isExistingFlag)
                 return Result.Fail(JewelryModelErrors.JewelryModelInUseError);
             //Delete gallery first
-
+            await _jewelryModelFileService.DeleteAllModelFiles(model);
+            
             await _unitOfWork.BeginTransactionAsync(token);
             await _jewelryModelRepository.Delete(model,token);
             await _unitOfWork.SaveChangesAsync(token);
