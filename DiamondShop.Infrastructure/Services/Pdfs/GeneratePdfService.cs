@@ -45,7 +45,7 @@ namespace DiamondShop.Infrastructure.Services.Pdfs
             var iconPath = _publicBlobOptions.Value.GetPath(externalOption, publicOption.ShopIcon);
             var diamondRingIconPath = _publicBlobOptions.Value.GetPath(externalOption,publicOption.DiamondRingIcon);
             var diamondIconPath = _publicBlobOptions.Value.GetPath(externalOption,publicOption.DiamondIcon);
-            string htmlString = RazorTemplateEngine.RenderAsync($"/wwwroot/InvoiceTemplate/{OrderInvoiceTemplateFileName}", new OrderInvoiceModels
+            string htmlString = RazorTemplateEngine.RenderAsync($"/RazorTemplate/InvoiceTemplate/{OrderInvoiceTemplateFileName}", new OrderInvoiceModels
             {
                 Account = customerAccount,
                 Order = order,
@@ -83,7 +83,7 @@ namespace DiamondShop.Infrastructure.Services.Pdfs
                 imageBytes = m.ToArray();
                 string diamondBase64String = Convert.ToBase64String(imageBytes);
                 string diamondIconData = string.Format("data:image/jpg;base64, {0}", diamondBase64String);
-                string htmlString = RazorTemplateEngine.RenderAsync($"/wwwroot/InvoiceTemplate/{OrderInvoiceTemplateFileName}", new OrderInvoiceModels
+                string htmlString = RazorTemplateEngine.RenderAsync($"/RazorTemplate/InvoiceTemplate/{OrderInvoiceTemplateFileName}", new OrderInvoiceModels
                 {
                     Account = customerAccount,
                     Order = order,

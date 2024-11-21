@@ -127,6 +127,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             {
                 Email = getEmail,
                 UserName = getEmail,
+                EmailConfirmed = false,
             };
             var createResult = await _userManager.CreateAsync(identity);
             await _userManager.SetLockoutEnabledAsync(identity, false);
@@ -490,6 +491,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                     {
                         Email = getEmail,
                         UserName = getEmail,
+                        EmailConfirmed = false,
                     };
                     await _unitOfWork.BeginTransactionAsync();
                     var createResult = await _userManager.CreateAsync(identity);

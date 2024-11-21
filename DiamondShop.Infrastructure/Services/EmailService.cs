@@ -52,7 +52,7 @@ namespace DiamondShop.Infrastructure.Services
         public async  Task<Result> SendConfirmAccountEmail(Account user, string token, CancellationToken cancellationToken = default)
         {
             var callbackUrl = _urlOptions.Value.HttpsUrl + "/" + _mailOptions.Value.ConfirmCallbackEndpoint;
-            var getconfirmationEmailTemplate = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot","EmailTemplate", ConfirmEmailFileName);
+            var getconfirmationEmailTemplate = Path.Combine(Directory.GetCurrentDirectory(), "RazorTemplate", "EmailTemplate", ConfirmEmailFileName);
             if (getconfirmationEmailTemplate == null)
                 return Result.Fail(new NotFoundError());
             //var secretCode = await UserManager.GenerateEmailConfirmationTokenAsync(user);
@@ -87,7 +87,7 @@ namespace DiamondShop.Infrastructure.Services
 
         public async Task<Result> SendInvoiceEmail(Order order, Account account, CancellationToken cancellationToken = default)
         {
-            var invoiceEmail = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "InvoiceTemplate", ConfirmEmailFileName);
+            var invoiceEmail = Path.Combine(Directory.GetCurrentDirectory(), "RazorTemplate", "InvoiceTemplate", ConfirmEmailFileName);
             var mailString = _pdfService.GetTemplateHtmlStringFromOrder(order,account);
             var metadata = new EmailMetaData()
             {
