@@ -9,6 +9,7 @@ namespace DiamondShop.Domain.Models.JewelryModels.ErrorMessages
 
         public static ValidationError ExistedModelNameFound(string name) => new ValidationError($"Tên mẫu trang sức (\"{name}\") đã tồn tại");
         public static ValidationError ExistedModelCodeFound(string code) => new ValidationError($"Mã mẫu trang sức (\"{code}\") đã tồn tại");
+        public static ConflictError JewelryModelInUseError = new ConflictError("Mẫu trang sức đang được sử dụng");
         public class Category
         {
             public static NotFoundError JewelryModelCategoryNotFoundError = new NotFoundError("Không tìm thấy loại trang sức");

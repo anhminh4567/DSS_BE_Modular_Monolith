@@ -57,6 +57,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
                 p.Status == ProductStatus.Active && p.ModelId == modelId && p.MetalId == metalId
             ).Select(p => p.SizeId).Distinct();
         }
+        public async Task<bool> Existing(JewelryModelId modelId)
+        {
+            return await _set.Where(p => p.Status == ProductStatus.Active && p.ModelId == modelId).AnyAsync();
+        }
         public async Task<bool> Existing(JewelryModelId modelId, MetalId metalId, SizeId sizeId)
         {
             return await _set.Where(p => p.Status == ProductStatus.Active && p.ModelId == modelId && p.MetalId == metalId && p.SizeId == sizeId).AnyAsync();

@@ -3,6 +3,7 @@ using DiamondShop.Application.Commons.Responses;
 using DiamondShop.Application.Dtos.Responses.Jewelries;
 using DiamondShop.Application.Dtos.Responses.JewelryModels;
 using DiamondShop.Application.Usecases.JewelryModels.Commands.Create;
+using DiamondShop.Application.Usecases.JewelryModels.Commands.Delete;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetDetail;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling;
@@ -150,6 +151,17 @@ namespace DiamondShop.Api.Controllers.JewelryModels
         }
         #endregion
         #region Remove Component
+        
+        [HttpDelete("Delete/JewelryModel")]
+        public async Task<ActionResult> DeleteSizeMetal([FromQuery] DeleteJewelryModelCommand deleteJewelryModelCommand)
+        {
+            var result = await _sender.Send(deleteJewelryModelCommand);
+            if (result.IsSuccess)
+            {
+                return Ok("Delete jewelry model success");
+            }
+            return MatchError(result.Errors, ModelState);
+        }
         [HttpDelete("Delete/SizeMetal")]
         public async Task<ActionResult> DeleteSizeMetal([FromQuery] DeleteModelSizeMetalCommand deleteModelSizeMetalCommand)
         {

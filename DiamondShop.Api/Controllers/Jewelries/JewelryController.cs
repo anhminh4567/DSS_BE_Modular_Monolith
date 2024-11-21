@@ -2,6 +2,7 @@
 using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Application.Dtos.Responses.Jewelries;
 using DiamondShop.Application.Usecases.Jewelries.Commands.Create;
+using DiamondShop.Application.Usecases.Jewelries.Commands.Delete;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetAll;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetDetail;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond;
@@ -84,6 +85,16 @@ namespace DiamondShop.Api.Controllers.Jewelries
             {
                 var mappedResult = _mapper.Map<JewelryDto>(result.Value);
                 return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpDelete("Delete/Jewelry")]
+        public async Task<ActionResult> DeleteSizeMetal([FromQuery] DeleteJewelryCommand deleteJewelryCommand)
+        {
+            var result = await _sender.Send(deleteJewelryCommand);
+            if (result.IsSuccess)
+            {
+                return Ok("Delete jewelry model success");
             }
             return MatchError(result.Errors, ModelState);
         }
