@@ -5,6 +5,7 @@ namespace DiamondShop.Domain.Models.Jewelries.ErrorMessages
     public class JewelryErrors
     {
         public static NotFoundError JewelryNotFoundError = new NotFoundError("Không tìm thấy trang sức");
+        public static ConflictError JewelryInUseError = new ConflictError("Trang sức đang được sử dụng");
         public class SideDiamond
         {
             public static ValidationError UnsupportedSideDiamondError = new ValidationError("Carat của kim cương tấm không được hỗ trợ");

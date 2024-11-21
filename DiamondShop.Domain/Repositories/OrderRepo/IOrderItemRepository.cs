@@ -13,6 +13,7 @@ namespace DiamondShop.Domain.Repositories.OrderRepo
 {
     public interface IOrderItemRepository : IBaseRepository<OrderItem>
     {
+        public Task<bool> Existing(JewelryId jewelryId);
         public Task CreateRange(List<OrderItem> orderItems);
         public void UpdateRange(List<OrderItem> orderItems);
         Task<List<OrderItem>> GetOrderItemsDetail(Order order, CancellationToken cancellationToken = default);

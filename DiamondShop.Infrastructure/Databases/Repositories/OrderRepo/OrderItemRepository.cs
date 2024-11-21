@@ -2,6 +2,7 @@
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
+using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
         {
             await _set.AddRangeAsync(orderItems);
         }
-
+        public Task<bool> Existing(JewelryId jewelryId)
+        {
+            return _set.Where(p => p.Status != OrderItemStatus.Removed && p.JewelryId == jewelryId).AnyAsync();
+        }
         public Task<List<OrderItem>> GetOrderItemsDetail(Order order, CancellationToken cancellationToken = default)
         {
             return _set.Where(o => o.OrderId == order.Id)

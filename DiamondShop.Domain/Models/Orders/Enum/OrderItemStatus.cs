@@ -8,6 +8,6 @@ namespace DiamondShop.Domain.Models.Orders.Enum
 {
     public enum OrderItemStatus
     {
-        Pending, Prepared, Done, Removed, Replaced, Refunded
+        Pending, Prepared, Done, Removed
     }
 }
