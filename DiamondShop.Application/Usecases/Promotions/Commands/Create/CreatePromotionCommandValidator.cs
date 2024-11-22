@@ -11,6 +11,15 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Create
     {
         public CreatePromotionCommandValidator()
         {
+            RuleFor(x => x.promoCode)
+                .NotEmpty()
+                    .WithNotEmptyMessage();
+            RuleFor(x => x.RedemptionMode)
+                .IsInEnum()
+                    .WithIsInEnumMessage();
+            RuleFor(x => x.priority)
+                .NotNull()
+                    .WithNotEmptyMessage();
             RuleFor(x => x.name)
                 .NotEmpty()
                     .WithNotEmptyMessage();

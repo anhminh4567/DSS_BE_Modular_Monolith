@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Commons;
+using FluentResults;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,12 @@ namespace DiamondShop.Domain.Models.Orders.ErrorMessages
         {
             public static NotFoundError NotFound = new NotFoundError("Không tìm thấy log đơn hàng");
             public static NotFoundError ParentLogNotFound = new NotFoundError("Không tìm thấy log cha của log đơn hàng, có thể đơn chưa process hay chưa được giao");
+        }
+        public static Error NotComplete(string? detail = null)
+        {
+            if (detail is not null)
+                return new Error("Đơn hàng chưa hoàn thành, "+ detail);
+            return new Error("Đơn hàng chưa hoàn thành");
         }
     }
 }

@@ -173,5 +173,32 @@ namespace DiamondShop.Infrastructure.Services.Blobs
                 MediaPath = ToRelativePath(uploadResult.Value.First()),
             };
         }
+
+        public async Task<Result<Media>> GetOrCreateOrderInvoice(Order fullDetailOrder, CancellationToken cancellationToken = default)
+        {
+            var paths = GetAzureFilePath(fullDetailOrder);
+            var getFolders = await GetFolders(paths, cancellationToken);
+            var basePath = $"{paths}/{INVOICE_FOLDER}"+ "/";
+            Media foundedMedia = null;
+            foreach (var path in getFolders)
+            {
+                if (path.MediaPath.StartsWith(basePath))
+                {
+                    foundedMedia =  new Media
+                    {
+                        ContentType = path.ContentType,
+                        MediaName = path.MediaName,
+                        MediaPath = path.MediaPath,
+                    };
+                    break;
+                }
+            }
+            if(foundedMedia == null)
+            {
+                return await CreateOrderInvoice(fullDetailOrder, cancellationToken);
+            }
+            return foundedMedia;
+            //throw new NotImplementedException();
+        }
     }
 }
