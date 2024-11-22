@@ -18,20 +18,14 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverFail
     public record OrderDeliverFailCommand(string OrderId, string DelivererId) : IRequest<Result<Order>>;
     internal class OrderDeliverFailCommandHandler : IRequestHandler<OrderDeliverFailCommand, Result<Order>>
     {
-        private readonly IDiamondRepository _diamondRepository;
-        private readonly IJewelryRepository _jewelryRepository;
-        private readonly IOrderItemRepository _orderItemRepository;
         private readonly IOrderRepository _orderRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderService _orderService;
         private readonly IOrderTransactionService _orderTransactionService;
         private readonly IOrderLogRepository _orderLogRepository;
 
-        public OrderDeliverFailCommandHandler(IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IOrderItemRepository orderItemRepository, IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository)
+        public OrderDeliverFailCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository)
         {
-            _diamondRepository = diamondRepository;
-            _jewelryRepository = jewelryRepository;
-            _orderItemRepository = orderItemRepository;
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
             _orderService = orderService;
@@ -56,7 +50,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverFail
                 order.CancelledReason = DeliveryRules.MaxRedeliveryError;
                 _orderTransactionService.AddRefundUserCancel(order);
                 //Return to selling
-                await _orderService.CancelItems(order, _orderRepository, _orderItemRepository, _jewelryRepository, _diamondRepository);
+                await _orderService.CancelItems(order);
                 var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Cancelled);
                 await _orderLogRepository.Create(log);
             }

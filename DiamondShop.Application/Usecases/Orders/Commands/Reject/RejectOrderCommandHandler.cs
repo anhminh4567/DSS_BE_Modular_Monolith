@@ -18,27 +18,17 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
     internal class RejectOrderCommandHandler : IRequestHandler<RejectOrderCommand, Result<Order>>
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly IOrderItemRepository _orderItemRepository;
-        private readonly ITransactionRepository _transactionRepository;
-        private readonly IJewelryRepository _jewelryRepository;
-        private readonly IDiamondRepository _diamondRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderService _orderService;
         private readonly IOrderTransactionService _orderTransactionService;
-        private readonly IPaymentService _paymentService;
         private readonly IOrderLogRepository _orderLogRepository;
 
-        public RejectOrderCommandHandler(IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IPaymentService paymentService, IOrderLogRepository orderLogRepository)
+        public RejectOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository)
         {
             _orderRepository = orderRepository;
-            _orderItemRepository = orderItemRepository;
-            _transactionRepository = transactionRepository;
-            _jewelryRepository = jewelryRepository;
-            _diamondRepository = diamondRepository;
             _unitOfWork = unitOfWork;
             _orderService = orderService;
             _orderTransactionService = orderTransactionService;
-            _paymentService = paymentService;
             _orderLogRepository = orderLogRepository;
         }
 
@@ -57,7 +47,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
             order.CancelledDate = DateTime.UtcNow;
             order.CancelledReason = reason;
             await _orderRepository.Update(order);
-            await _orderService.CancelItems(order, _orderRepository, _orderItemRepository, _jewelryRepository, _diamondRepository);
+            await _orderService.CancelItems(order);
             var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Delivery_Failed);
             await _orderLogRepository.Create(log);
             await _unitOfWork.SaveChangesAsync(token);

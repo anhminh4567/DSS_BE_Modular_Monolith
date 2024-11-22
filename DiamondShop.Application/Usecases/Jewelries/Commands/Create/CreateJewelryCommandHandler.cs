@@ -1,10 +1,10 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Jewelries;
 using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Application.Usecases.Diamonds.Commands.AttachToJewelry;
 using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.Entities;
@@ -29,26 +29,22 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands.Create
         private readonly IJewelryModelRepository _jewelryModelRepository;
         private readonly ISizeMetalRepository _sizeMetalRepository;
         private readonly IJewelryService _jewelryService;
-        private readonly IMainDiamondRepository _mainDiamondRepository;
         private readonly IDiamondRepository _diamondRepository;
         private readonly IMainDiamondService _mainDiamondService;
         private readonly ISender _sender;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IExcelService _excelService;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public CreateJewelryCommandHandler(IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, ISizeMetalRepository sizeMetalRepository, IJewelryService jewelryService, IMainDiamondRepository mainDiamondRepository, IDiamondRepository diamondRepository, IMainDiamondService mainDiamondService, ISender sender, IUnitOfWork unitOfWork, IExcelService excelService, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
+        public CreateJewelryCommandHandler(IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, ISizeMetalRepository sizeMetalRepository, IJewelryService jewelryService, IDiamondRepository diamondRepository, IMainDiamondService mainDiamondService, ISender sender, IUnitOfWork unitOfWork, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _jewelryRepository = jewelryRepository;
             _jewelryModelRepository = jewelryModelRepository;
             _sizeMetalRepository = sizeMetalRepository;
             _jewelryService = jewelryService;
-            _mainDiamondRepository = mainDiamondRepository;
             _diamondRepository = diamondRepository;
             _mainDiamondService = mainDiamondService;
             _sender = sender;
             _unitOfWork = unitOfWork;
-            _excelService = excelService;
             _optionsMonitor = optionsMonitor;
         }
 
@@ -76,39 +72,51 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands.Create
                 var diamondQuery = _diamondRepository.GetQuery();
                 diamondQuery = _diamondRepository.QueryFilter(diamondQuery, p => convertedId.Contains(p.Id));
                 attachedDiamonds = diamondQuery.ToList();
-                var flagUnmatchedDiamonds = await _mainDiamondService.CheckMatchingDiamond(model.Id, attachedDiamonds, _mainDiamondRepository);
+                var flagUnmatchedDiamonds = await _mainDiamondService.CheckMatchingDiamond(model.Id, attachedDiamonds);
                 if (flagUnmatchedDiamonds.IsFailed)
                     return Result.Fail(flagUnmatchedDiamonds.Errors);
             }
             var serialCode = _jewelryService.GetSerialCode(model, sizeMetal.Metal, sizeMetal.Size);
             var jewelry = Jewelry.Create
-               (
-                   model.Id,
-                   sizeMetal.SizeId,
-                   sizeMetal.MetalId,
-                   sizeMetal.Weight,
-                   serialCode,
-                   status: jewelryRequest.Status
-               );
-            if (sideDiamondOptId is not null)
+          (
+              model.Id,
+              sizeMetal.SizeId,
+              sizeMetal.MetalId,
+              sizeMetal.Weight,
+              serialCode,
+              status: jewelryRequest.Status
+          );
+            if (model.SideDiamonds.Count == 0 && sideDiamondOptId != null)
+                return Result.Fail(JewelryModelErrors.SideDiamond.NoSideDiamondSupportError);
+            if (model.SideDiamonds.Count != 0)
             {
-                if (model.SideDiamonds.Count == 0)
-                    return Result.Fail(JewelryModelErrors.SideDiamond.NoSideDiamondSupportError);
-                var sideDiamond = model.SideDiamonds.FirstOrDefault(p => p.Id == SideDiamondOptId.Parse(sideDiamondOptId));
-                if (sideDiamond == null)
-                    return Result.Fail(JewelryModelErrors.SideDiamond.SideDiamondOptNotFoundError);
-                if (sideDiamond.AverageCarat > diamondRule.BiggestSideDiamondCarat)
-                    return Result.Fail(JewelryErrors.SideDiamond.UnsupportedSideDiamondError);
-
-                var jewelrySideDiamond = JewelrySideDiamond.Create(sideDiamond);
-                jewelry.SideDiamond = jewelrySideDiamond;
+                if (sideDiamondOptId == null)
+                    return Result.Fail(JewelryModelErrors.SideDiamondNeededError);
+                else
+                {
+                    var sideDiamond = model.SideDiamonds.FirstOrDefault(p => p.Id == SideDiamondOptId.Parse(sideDiamondOptId));
+                    if (sideDiamond == null)
+                        return Result.Fail(JewelryModelErrors.SideDiamond.SideDiamondOptNotFoundError);
+                    if (sideDiamond.AverageCarat > diamondRule.BiggestSideDiamondCarat)
+                        return Result.Fail(JewelryErrors.SideDiamond.UnsupportedSideDiamondError);
+                    var jewelrySideDiamond = JewelrySideDiamond.Create(sideDiamond);
+                    jewelry.SideDiamond = jewelrySideDiamond;
+                }
             }
+
             await _jewelryRepository.Create(jewelry, token);
             await _unitOfWork.SaveChangesAsync(token);
             if (attachedDiamonds.Count > 0)
             {
-                var flagAttachDiamond = await _sender.Send(new AttachDiamondCommand(jewelry.Id, attachedDiamonds));
-                if (flagAttachDiamond.IsFailed) return Result.Fail(flagAttachDiamond.Errors);
+                foreach (var diamond in attachedDiamonds)
+                {
+                    if (diamond.JewelryId != null)
+                        return Result.Fail(DiamondErrors.DiamondAssignedToJewelryAlready(jewelry.SerialCode));
+                    diamond.SetForJewelry(jewelry);
+                }
+
+                _diamondRepository.UpdateRange(attachedDiamonds);
+                await _unitOfWork.SaveChangesAsync(token);
             }
             jewelry = _jewelryService.AddPrice(jewelry, sizeMetal);
             await _unitOfWork.CommitAsync(token);

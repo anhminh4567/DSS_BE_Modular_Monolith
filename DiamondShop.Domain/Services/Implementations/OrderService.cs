@@ -29,7 +29,20 @@ namespace DiamondShop.Domain.Services.Implementations
             OrderStatus.Prepared,
             OrderStatus.Delivering,
         };
-        public OrderService() { }
+        private readonly IAccountRepository _accountRepository;
+        private readonly IOrderRepository _orderRepository;
+        private readonly IOrderItemRepository _orderItemRepository;
+        private readonly IJewelryRepository _jewelryRepository;
+        private readonly IDiamondRepository _diamondRepository;
+
+        public OrderService(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository)
+        {
+            _accountRepository = accountRepository;
+            _orderRepository = orderRepository;
+            _orderItemRepository = orderItemRepository;
+            _jewelryRepository = jewelryRepository;
+            _diamondRepository = diamondRepository;
+        }
 
         public bool CheckForSameCity(List<Order> orders)
         {
@@ -45,10 +58,10 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             return ongoingState.Contains(status);
         }
-        public async Task<Result> CancelItems(Order order, IOrderRepository _orderRepo, IOrderItemRepository _itemRepo, IJewelryRepository _jewelRepo, IDiamondRepository _diamondRepo)
+        public async Task<Result> CancelItems(Order order)
         {
-            var orderItemQuery = _itemRepo.GetQuery();
-            orderItemQuery = _itemRepo.QueryFilter(orderItemQuery, p => p.OrderId == order.Id);
+            var orderItemQuery = _orderItemRepository.GetQuery();
+            orderItemQuery = _orderItemRepository.QueryFilter(orderItemQuery, p => p.OrderId == order.Id);
             var items = orderItemQuery.ToList();
             List<IError> errors = new();
             List<Jewelry> jewelries = new List<Jewelry>();
@@ -58,17 +71,17 @@ namespace DiamondShop.Domain.Services.Implementations
                 item.Status = OrderItemStatus.Removed;
                 if (item.JewelryId != null)
                 {
-                    var jewelry = await _jewelRepo.GetById(item.JewelryId);
+                    var jewelry = await _jewelryRepository.GetById(item.JewelryId);
                     if (jewelry.Status == ProductStatus.PreOrder)
                     {
-                        await _jewelRepo.Delete(jewelry);
-                        if(jewelry.Diamonds != null)
+                        await _jewelryRepository.Delete(jewelry);
+                        if (jewelry.Diamonds != null)
                         {
-                            foreach(var diamond in jewelry.Diamonds)
+                            foreach (var diamond in jewelry.Diamonds)
                             {
-                                if(diamond.Status == ProductStatus.PreOrder)
+                                if (diamond.Status == ProductStatus.PreOrder)
                                 {
-                                    await _diamondRepo.Delete(diamond);
+                                    await _diamondRepository.Delete(diamond);
                                 }
                                 else
                                 {
@@ -94,7 +107,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 }
                 if (item.DiamondId != null)
                 {
-                    var diamond = await _diamondRepo.GetById(item.DiamondId);
+                    var diamond = await _diamondRepository.GetById(item.DiamondId);
                     if (diamond == null)
                         errors.Append(new Error($"Can't find diamond #{item.DiamondId}"));
                     else
@@ -106,9 +119,9 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             if (errors.Count > 0)
                 return Result.Fail(errors);
-            _itemRepo.UpdateRange(items);
-            _jewelRepo.UpdateRange(jewelries);
-            _diamondRepo.UpdateRange(diamonds);
+            _orderItemRepository.UpdateRange(items);
+            _jewelryRepository.UpdateRange(jewelries);
+            _diamondRepository.UpdateRange(diamonds);
             return Result.Ok();
         }
 
@@ -130,15 +143,15 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             return Result.Ok();
         }
-        public async Task<Result<Order>> AssignDeliverer(Order order, string delivererId, IAccountRepository accountRepository, IOrderRepository orderRepository)
+        public async Task<Result<Order>> AssignDeliverer(Order order, string delivererId)
         {
-            var account = await accountRepository.GetById(AccountId.Parse(delivererId));
+            var account = await _accountRepository.GetById(AccountId.Parse(delivererId));
             if (account == null)
                 return Result.Fail("This deliverer doesn't exist");
             if (account.Roles.Any(p => p.Id != AccountRole.Deliverer.Id))
                 return Result.Fail("This account is not a deliverer");
-            var orderQuery = orderRepository.GetQuery();
-            var conflictedOrderFlag = orderRepository.QueryFilter(orderQuery, p => p.DelivererId == account.Id && p.Id != order.Id).Any(p => p.Status == OrderStatus.Prepared || p.Status == OrderStatus.Delivering);
+            var orderQuery = _orderRepository.GetQuery();
+            var conflictedOrderFlag = _orderRepository.QueryFilter(orderQuery, p => p.DelivererId == account.Id && p.Id != order.Id).Any(p => p.Status == OrderStatus.Prepared || p.Status == OrderStatus.Delivering);
             if (conflictedOrderFlag)
                 return Result.Fail("This deliverer is currently unavailable");
             order.DelivererId = account.Id;

@@ -22,20 +22,14 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Delete
         private readonly IJewelryModelRepository _jewelryModelRepository;
         private readonly IJewelryRepository _jewelryRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IJewelryService _jewelryService;
         private readonly IJewelryModelFileService _jewelryModelFileService;
-        private readonly ISender _sender;
-        private readonly IDiamondRepository _diamondRepository;
 
-        public DeleteJewelryModelCommandHandler(IJewelryModelRepository jewelryModelRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, IJewelryService jewelryService, IJewelryModelFileService jewelryModelFileService, ISender sender, IDiamondRepository diamondRepository)
+        public DeleteJewelryModelCommandHandler(IJewelryModelRepository jewelryModelRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, IJewelryModelFileService jewelryModelFileService)
         {
             _jewelryModelRepository = jewelryModelRepository;
             _jewelryRepository = jewelryRepository;
             _unitOfWork = unitOfWork;
-            _jewelryService = jewelryService;
             _jewelryModelFileService = jewelryModelFileService;
-            _sender = sender;
-            _diamondRepository = diamondRepository;
         }
 
         public async Task<Result> Handle(DeleteJewelryModelCommand request, CancellationToken token)

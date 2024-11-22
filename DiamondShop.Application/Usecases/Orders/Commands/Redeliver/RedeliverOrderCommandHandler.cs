@@ -13,18 +13,16 @@ using MediatR;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Redeliver
 {
-    public record  RedeliverOrderCommand(string orderId, string delivererId) : IRequest<Result<Order>>;
+    public record RedeliverOrderCommand(string orderId, string delivererId) : IRequest<Result<Order>>;
     internal class RedeliverOrderCommandHandler : IRequestHandler<RedeliverOrderCommand, Result<Order>>
     {
-        private readonly IAccountRepository _accountRepository;
         private readonly IOrderRepository _orderRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderService _orderService;
         private readonly IOrderLogRepository _orderLogRepository;
 
-        public RedeliverOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderLogRepository orderLogRepository)
+        public RedeliverOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderLogRepository orderLogRepository)
         {
-            _accountRepository = accountRepository;
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
             _orderService = orderService;
@@ -39,9 +37,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Redeliver
             var order = _orderRepository.QueryFilter(orderQuery, p => p.Id == OrderId.Parse(orderId)).FirstOrDefault();
             if (order == null)
                 return Result.Fail(OrderErrors.OrderNotFoundError);
-            if(order.ShipFailedCount > DeliveryRules.MaxRedelivery)
+            if (order.ShipFailedCount > DeliveryRules.MaxRedelivery)
                 return Result.Fail(OrderErrors.MaxRedeliveryError);
-            await _orderService.AssignDeliverer(order, delivererId, _accountRepository, _orderRepository);
+            await _orderService.AssignDeliverer(order, delivererId);
             order.ShipFailedDate = null;
             order.Status = OrderStatus.Prepared;
             var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Delivery_Failed);

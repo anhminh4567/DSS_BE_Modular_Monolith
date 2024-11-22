@@ -22,9 +22,16 @@ namespace DiamondShop.Domain.Services.Implementations
     record CustomizeShapeHolder(DiamondShapeId? ShapeId, float? CaratFrom, float? CaratTo);
     public class MainDiamondService : IMainDiamondService
     {
-        public async Task<Result> CheckMatchingDiamond(JewelryModelId jewelryModelId, List<Diamond> diamonds, IMainDiamondRepository mainDiamondRepository)
+        private readonly IMainDiamondRepository _mainDiamondRepository;
+
+        public MainDiamondService(IMainDiamondRepository mainDiamondRepository)
         {
-            var diamondReqs = await mainDiamondRepository.GetCriteria(jewelryModelId);
+            _mainDiamondRepository = mainDiamondRepository;
+        }
+
+        public async Task<Result> CheckMatchingDiamond(JewelryModelId jewelryModelId, List<Diamond> diamonds)
+        {
+            var diamondReqs = await _mainDiamondRepository.GetCriteria(jewelryModelId);
             if (diamonds.Count != diamondReqs.Sum(p => p.Quantity))
                 return Result.Fail(JewelryModelErrors.MainDiamond.MainDiamondCountError(diamondReqs.Sum(p => p.Quantity)));
             var flagMatchedDiamonds = MatchingDiamond(diamonds, diamondReqs.ToList());
@@ -67,9 +74,9 @@ namespace DiamondShop.Domain.Services.Implementations
         }
 
 
-        public async Task<Result> CheckMatchingDiamond(JewelryModelId jewelryModelId, List<DiamondRequest> customizeRequests, IMainDiamondRepository mainDiamondRepository)
+        public async Task<Result> CheckMatchingDiamond(JewelryModelId jewelryModelId, List<DiamondRequest> customizeRequests)
         {
-            var diamondReqs = await mainDiamondRepository.GetCriteria(jewelryModelId);
+            var diamondReqs = await _mainDiamondRepository.GetCriteria(jewelryModelId);
             if (customizeRequests.Count != diamondReqs.Sum(p => p.Quantity))
                 return Result.Fail(JewelryModelErrors.MainDiamond.MainDiamondCountError(diamondReqs.Sum(p => p.Quantity)));
             var ordered = customizeRequests.OrderBy(p => p.DiamondShapeId == null).ThenBy(p => p.DiamondShape).ToList();
