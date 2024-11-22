@@ -14,6 +14,7 @@ using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Identity.Models;
 using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services;
+using FluentEmail.Core;
 using FluentResults;
 using Google.Apis.Auth;
 using MediatR;
@@ -391,7 +392,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             return await _emailService.SendConfirmAccountEmail(getUserAccount, generateToken, cancellationToken);
         }
 
-        public async Task<PagingResponseDto<Account>> GetAccountPagingIncludeIdentity(string[]? roleIds, int current = 0, int size = 10, CancellationToken cancellationToken = default)
+        public async Task<PagingResponseDto<Account>> GetAccountPagingIncludeIdentity(string[]? roleIds,string? email, int current = 0, int size = 10, CancellationToken cancellationToken = default)
         {
             //throw new NotImplementedException();
             var trueCurrent = current * size;
@@ -405,7 +406,17 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 roleQuery = _accountRoleRepository.QueryFilter(roleQuery, x => parsedRolesId.Contains(x.Id));
             }
             roleQuery = _accountRoleRepository.QueryInclude(roleQuery, x => x.Accounts);
-            result = roleQuery.SelectMany(x => x.Accounts).Distinct().Include(x => x.Roles).AsSplitQuery().Skip(trueCurrent).Take(size).ToList();
+            var accountQuery = roleQuery.SelectMany(x => x.Accounts);
+            if(email is not null)
+                accountQuery = accountQuery.Where(x => x.Email.Contains(email));
+            result = accountQuery
+                .Distinct()
+                .Include(x => x.Roles)
+                .AsSplitQuery()
+                .Skip(trueCurrent)
+                .Take(size)
+                .ToList();
+            
             var identityIds = result.Select(a => a.IdentityId).Distinct().ToList();
 
             var customIdentityUsers = await _userManager.Users
@@ -466,12 +477,12 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 {
                     var getUserByEmail = await _userManager.FindByLoginAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey);
                     if (await _userManager.IsLockedOutAsync(getUserByEmail) is true)
-                        return Result.Fail("cannot login, you are locked out");
+                        return Result.Fail(AccountErrors.LockAccount);
                     if (getUserByEmail == null)
                         return Result.Fail(new NotFoundError());
                     if (CheckIfUserIsValidToLogin(getUserByEmail))
                     {
-                        return Result.Fail("user is lock out,contact admin to unlock");
+                        return Result.Fail(AccountErrors.Login.LoginFail);
                     }
                     var getCustomer = await _accountRepository.GetByIdentityId(getUserByEmail.Id, cancellationToken);
                     if (getCustomer is null)
@@ -493,6 +504,11 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                         UserName = getEmail,
                         EmailConfirmed = false,
                     };
+                    var tryGetByEmail = await _userManager.FindByEmailAsync(getEmail);
+                    if(tryGetByEmail is not null)
+                    {
+                        return Result.Fail(AccountErrors.Register.UserExist);
+                    }
                     await _unitOfWork.BeginTransactionAsync();
                     var createResult = await _userManager.CreateAsync(identity);
                     await _userManager.SetLockoutEnabledAsync(identity, false);

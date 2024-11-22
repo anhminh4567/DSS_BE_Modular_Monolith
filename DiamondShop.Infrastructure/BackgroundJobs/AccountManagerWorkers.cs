@@ -49,7 +49,7 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
             var silverRank = getAllUserRoles.FirstOrDefault(x => x.Id == AccountRole.CustomerSilver.Id);
             var bronzeRank = getAllUserRoles.FirstOrDefault(x => x.Id == AccountRole.CustomerBronze.Id);
             var option = _optionsMonitor.CurrentValue.AccountRules;
-            var getUserAccount = await _authenticationService.GetAccountPagingIncludeIdentity(new string[] { AccountRole.Customer.Id.Value }, 0, PAGE_SIZE);
+            var getUserAccount = await _authenticationService.GetAccountPagingIncludeIdentity(new string[] { AccountRole.Customer.Id.Value },null ,0, PAGE_SIZE);
             await _accountServices.CheckAndUpdateUserRankIfQualified(getUserAccount.Values.ToList(), getAllUserRoles.ToList(), option);
             await _unitOfWork.SaveChangesAsync(jobContext.CancellationToken);
         }

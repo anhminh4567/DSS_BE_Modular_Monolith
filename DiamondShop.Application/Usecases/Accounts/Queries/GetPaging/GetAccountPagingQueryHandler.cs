@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Accounts.Queries.GetPaging
 {
-    public record GetAccountPagingQuery(string[]? roleIds, int current = 0, int size = 10) : IRequest<Result<PagingResponseDto<Account>>>;
+    public record GetAccountPagingQuery(string[]? roleIds,string? emailStr, int current = 0, int size = 10) : IRequest<Result<PagingResponseDto<Account>>>;
     internal class GetAccountPagingQueryHandler : IRequestHandler<GetAccountPagingQuery, Result<PagingResponseDto<Account>>>
     {
         private readonly IAccountRepository _accountRepository;
@@ -30,7 +30,7 @@ namespace DiamondShop.Application.Usecases.Accounts.Queries.GetPaging
 
         public async Task<Result<PagingResponseDto<Account>>> Handle(GetAccountPagingQuery request, CancellationToken cancellationToken)
         {
-            var getResult = await _authenticationService.GetAccountPagingIncludeIdentity(request.roleIds,request.current,request.size,cancellationToken);
+            var getResult = await _authenticationService.GetAccountPagingIncludeIdentity(request.roleIds, request.emailStr, request.current,request.size,cancellationToken);
             return getResult;
             //var trueCurrent = request.current * request.size;
             //List<Account> result = new();
