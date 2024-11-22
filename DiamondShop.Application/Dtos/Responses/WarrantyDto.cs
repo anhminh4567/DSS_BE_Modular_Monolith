@@ -16,5 +16,6 @@ namespace DiamondShop.Application.Dtos.Responses
         public int MonthDuration { get; set; }
         public DateTime CreateDate { get; set; }
         public decimal Price { get; set; }
+        public string MappedName { get => $"{Name} - {MonthDuration} tháng - {Price}VND"; }
     }
 }

@@ -53,7 +53,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.LockForUser
             
             else
                 getDiamond.SetLockForUser(getCustomer, request.lockHour,request.LockedPriceForCustomer);
-            
+            await _diamondRepository.Update(getDiamond);
             await _unitOfWork.SaveChangesAsync();
             return getDiamond;
         }
