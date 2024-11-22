@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Diamonds;
 using DiamondShop.Application.Dtos.Requests.Orders;
+using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Cancel;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Checkout;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Staff;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Customer;
@@ -145,7 +146,10 @@ namespace DiamondShop.Test.Integration
             Assert.NotNull(pendingRequest.DiamondRequests);
             var diamondReq = pendingRequest.DiamondRequests[0];
             Assert.NotNull(diamondReq);
-
+            var criteria = await TestData.SeedDefaultDiamondCriteria(_context, diamond.Cut,diamond.Clarity,diamond.Color,diamond.IsLabDiamond);
+            Assert.NotNull(criteria);
+            var price = await TestData.SeedDefaultDiamondPrice(_context, diamond.DiamondShapeId,criteria.Id,diamond.IsLabDiamond);
+            Assert.NotNull(price);
             DiamondRequestAssignRecord record = new(diamondReq.DiamondRequestId.Value, diamond.Id.Value, null);
             var pricedResult = await _sender.Send(new StaffProceedCustomizeRequestCommand(pendingRequest.Id.Value, null, new() { record }));
             if (pricedResult.IsFailed)
@@ -225,7 +229,7 @@ namespace DiamondShop.Test.Integration
             Assert.Equal(CustomizeRequestStatus.Accepted, request.Status);
             var product = await _context.Set<Jewelry>().FirstOrDefaultAsync(p => p.Id == request.JewelryId);
             Assert.NotNull(product);
-            Assert.Equal(ProductStatus.Locked,product.Status);
+            Assert.Equal(ProductStatus.PreOrder,product.Status);
         }
         [Trait("ReturnTrue", "CustomerRejectPriced")]
         [Fact]
@@ -242,23 +246,20 @@ namespace DiamondShop.Test.Integration
             var request = await _context.Set<CustomizeRequest>().FirstOrDefaultAsync(p => p.Id == pricedRequest.Id);
             Assert.Equal(CustomizeRequestStatus.Customer_Rejected, request.Status);
         }
-        [Trait("ReturnTrue", "CustomerRejectAccepted")]
+        [Trait("ReturnTrue", "CustomerCancelAccepted")]
         [Fact]
-        public async Task Customer_Reject_Accepting_CustomizeRequest_Should_ReturnSuccess()
+        public async Task Customer_Cancel_Accepting_CustomizeRequest_Should_ReturnSuccess()
         {
             var account = await TestData.SeedDefaultCustomer(_context, _authentication);
             var acceptedRequest = await SeedingAcceptedRequest(account.Id);
             Assert.Equal(CustomizeRequestStatus.Accepted, acceptedRequest.Status);
-            var result = await _sender.Send(new CustomerRejectRequestCommand(acceptedRequest.Id.Value, account.Id.Value));
+            var result = await _sender.Send(new CustomerCancelRequestCommand(acceptedRequest.Id.Value, account.Id.Value));
             if (result.IsFailed)
                 WriteError(result.Errors);
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Value);
             var request = await _context.Set<CustomizeRequest>().FirstOrDefaultAsync(p => p.Id == acceptedRequest.Id);
-            Assert.Equal(CustomizeRequestStatus.Customer_Rejected, request.Status);
-            var product = await _context.Set<Jewelry>().FirstOrDefaultAsync(p => p.Id == request.JewelryId);
-            Assert.NotNull(product);
-            Assert.Equal(ProductStatus.Active, product.Status);
+            Assert.Equal(CustomizeRequestStatus.Customer_Cancelled, request.Status);
         }
         [Trait("ReturnTrue", "ShopRejectPending")]
         [Fact]

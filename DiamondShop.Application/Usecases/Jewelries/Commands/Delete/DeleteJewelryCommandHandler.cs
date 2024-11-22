@@ -16,27 +16,24 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands.Delete
     {
         private readonly IJewelryRepository _jewelryRepository;
         private readonly IOrderItemRepository _orderItemRepository;
+        private readonly IDiamondRepository _diamondRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IJewelryService _jewelryService;
-        private readonly IJewelryModelFileService _jewelryModelFileService;
-        private readonly ISender _sender;
-        private readonly IDiamondRepository _diamondRepository;
 
-        public DeleteJewelryCommandHandler(IJewelryRepository jewelryRepository, IOrderItemRepository orderItemRepository, IUnitOfWork unitOfWork, IJewelryService jewelryService, IJewelryModelFileService jewelryModelFileService, ISender sender, IDiamondRepository diamondRepository)
+        public DeleteJewelryCommandHandler(IJewelryRepository jewelryRepository, IOrderItemRepository orderItemRepository, IUnitOfWork unitOfWork, IJewelryService jewelryService, IDiamondRepository diamondRepository)
         {
             _jewelryRepository = jewelryRepository;
             _orderItemRepository = orderItemRepository;
             _unitOfWork = unitOfWork;
             _jewelryService = jewelryService;
-            _jewelryModelFileService = jewelryModelFileService;
-            _sender = sender;
             _diamondRepository = diamondRepository;
         }
 
         public async Task<Result> Handle(DeleteJewelryCommand request, CancellationToken token)
         {
-            request.Deconstruct(out string modelId);
-            var jewelry = await _jewelryRepository.GetById(JewelryId.Parse(modelId));
+            request.Deconstruct(out string jewelryId);
+            await _unitOfWork.BeginTransactionAsync(token);
+            var jewelry = await _jewelryRepository.GetById(JewelryId.Parse(jewelryId));
             if (jewelry == null)
                 return Result.Fail(JewelryErrors.JewelryNotFoundError);
             var isExistingFlag = await _orderItemRepository.Existing(jewelry.Id);
@@ -47,13 +44,11 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands.Delete
             {
                 return Result.Fail(JewelryErrors.IsSold);
             }
-            var getJewelryDiamonds = await _diamondRepository.GetDiamondsJewelry(jewelry.Id);
-            foreach (var diamond in getJewelryDiamonds)
+            foreach (var diamond in jewelry.Diamonds)
             {
                 diamond.SetSell();
             }
-            await _unitOfWork.BeginTransactionAsync(token);
-            _diamondRepository.UpdateRange(getJewelryDiamonds);
+            _diamondRepository.UpdateRange(jewelry.Diamonds);
             await _unitOfWork.SaveChangesAsync();
             await _jewelryRepository.Delete(jewelry, token);
             await _unitOfWork.SaveChangesAsync(token);

@@ -19,27 +19,17 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
     public record CancelOrderCommandHandler : IRequestHandler<CancelOrderCommand, Result<Order>>
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly IOrderItemRepository _orderItemRepository;
-        private readonly ITransactionRepository _transactionRepository;
-        private readonly IJewelryRepository _jewelryRepository;
-        private readonly IDiamondRepository _diamondRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderService _orderService;
         private readonly IOrderTransactionService _orderTransactionService;
-        private readonly IPaymentService _paymentService;
         private readonly IOrderLogRepository _orderLogRepository;
 
-        public CancelOrderCommandHandler(IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IPaymentService paymentService, IOrderLogRepository orderLogRepository)
+        public CancelOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository)
         {
             _orderRepository = orderRepository;
-            _orderItemRepository = orderItemRepository;
-            _transactionRepository = transactionRepository;
-            _jewelryRepository = jewelryRepository;
-            _diamondRepository = diamondRepository;
             _unitOfWork = unitOfWork;
             _orderService = orderService;
             _orderTransactionService = orderTransactionService;
-            _paymentService = paymentService;
             _orderLogRepository = orderLogRepository;
         }
 
@@ -61,10 +51,9 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
             order.CancelledReason = reason;
             await _orderRepository.Update(order);
             //Return to selling
-            var res = await _orderService.CancelItems(order, _orderRepository, _orderItemRepository, _jewelryRepository, _diamondRepository);
+            var res = await _orderService.CancelItems(order);
             if (res.IsFailed)
                 return Result.Fail(res.Errors);
-
             var log = OrderLog.CreateByChangeStatus(order, order.Status);
             await _orderLogRepository.Create(log);
             await _unitOfWork.SaveChangesAsync(token);

@@ -6,7 +6,7 @@ namespace DiamondShop.Domain.Models.JewelryModels.ErrorMessages
     {
         public static NotFoundError JewelryModelNotFoundError = new NotFoundError("Không tìm thấy mẫu trang sức");
         public static ValidationError NoEngravingError = new ValidationError("Mẫu trang sức không hỗ trợ khắc chữ");
-
+        public static ValidationError SideDiamondNeededError = new ValidationError("Mẫu trang sức yêu cầu kim cương tấm");
         public static ValidationError ExistedModelNameFound(string name) => new ValidationError($"Tên mẫu trang sức (\"{name}\") đã tồn tại");
         public static ValidationError ExistedModelCodeFound(string code) => new ValidationError($"Mã mẫu trang sức (\"{code}\") đã tồn tại");
         public static ConflictError JewelryModelInUseError = new ConflictError("Mẫu trang sức đang được sử dụng");

@@ -13,7 +13,7 @@ namespace DiamondShop.Domain.Services.interfaces
 {
     public interface IMainDiamondService
     {
-        public Task<Result> CheckMatchingDiamond(JewelryModelId jewelryModelId, List<Diamond> diamonds, IMainDiamondRepository mainDiamondRepository);
-        public Task<Result> CheckMatchingDiamond(JewelryModelId jewelryModelId, List<DiamondRequest> customizeRequests, IMainDiamondRepository mainDiamondRepository);
+        public Task<Result> CheckMatchingDiamond(JewelryModelId jewelryModelId, List<Diamond> diamonds);
+        public Task<Result> CheckMatchingDiamond(JewelryModelId jewelryModelId, List<DiamondRequest> customizeRequests);
     }
 }

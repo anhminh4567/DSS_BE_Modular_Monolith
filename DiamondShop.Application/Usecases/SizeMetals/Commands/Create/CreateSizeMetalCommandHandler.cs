@@ -29,6 +29,7 @@ namespace DiamondShop.Application.Usecases.SizeMetals.Commands.Create
                 return Result.Fail(JewelryModelErrors.SizeMetal.SizeMetalNotFoundError);
             await _sizeMetalRepository.Create(sizeMetal, token);
             await _unitOfWork.SaveChangesAsync(token);
+            await _unitOfWork.CommitAsync(token);
             return Result.Ok();
         }
     }

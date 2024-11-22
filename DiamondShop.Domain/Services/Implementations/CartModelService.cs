@@ -343,11 +343,11 @@ namespace DiamondShop.Domain.Services.Implementations
                     else
                         return Result.Ok();
                 }
-                return _mainDiamondService.CheckMatchingDiamond(diamondJewelry.Jewelry.ModelId, new List<Diamond> { diamondJewelry.Diamond }, _mainDiamondRepository).Result;
+                return _mainDiamondService.CheckMatchingDiamond(diamondJewelry.Jewelry.ModelId, new List<Diamond> { diamondJewelry.Diamond }).Result;
             }
             else // else check with JewelryModels
             {
-                return _mainDiamondService.CheckMatchingDiamond(diamondJewelry.JewelryModel.Id, new List<Diamond> { diamondJewelry.Diamond }, _mainDiamondRepository).Result;
+                return _mainDiamondService.CheckMatchingDiamond(diamondJewelry.JewelryModel.Id, new List<Diamond> { diamondJewelry.Diamond }).Result;
             }
         }
         //TODO: add warranty to default price ==> it follows discount and promotion flow

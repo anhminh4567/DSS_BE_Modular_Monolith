@@ -40,13 +40,12 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         private readonly ISender _sender;
         private readonly IOrderService _orderService;
         private readonly IJewelryService _jewelryService;
-        private readonly IOrderTransactionService _orderTransactionService;
         private readonly IPaymentMethodRepository _paymentMethodRepository;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
         private readonly IOrderLogRepository _orderLogRepository;
         private readonly IEmailService _emailService;
 
-        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, ISizeMetalRepository sizeMetalRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IJewelryService jewelryService, IOrderTransactionService orderTransactionService, IPaymentMethodRepository paymentMethodRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderLogRepository orderLogRepository, IEmailService emailService)
+        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, ISizeMetalRepository sizeMetalRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IJewelryService jewelryService, IPaymentMethodRepository paymentMethodRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderLogRepository orderLogRepository, IEmailService emailService)
         {
             _accountRepository = accountRepository;
             _orderRepository = orderRepository;
@@ -58,7 +57,6 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             _sender = sender;
             _orderService = orderService;
             _jewelryService = jewelryService;
-            _orderTransactionService = orderTransactionService;
             _paymentMethodRepository = paymentMethodRepository;
             _optionsMonitor = optionsMonitor;
             _orderLogRepository = orderLogRepository;

@@ -16,16 +16,14 @@ namespace DiamondShop.Api.Controllers.Orders.AssignDeliverer
     public record AssignDelivererOrderCommand(string orderId, string delivererId) : IRequest<Result<Order>>;
     internal class AssignDelivererOrderCommandHandler : IRequestHandler<AssignDelivererOrderCommand, Result<Order>>
     {
-        private readonly IAccountRepository _accountRepository;
         private readonly IOrderRepository _orderRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderService _orderService;
 
-        public AssignDelivererOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IAccountRepository accountRepository, IOrderService orderService)
+        public AssignDelivererOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService)
         {
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
-            _accountRepository = accountRepository;
             _orderService = orderService;
         }
 
@@ -37,7 +35,7 @@ namespace DiamondShop.Api.Controllers.Orders.AssignDeliverer
             var order = _orderRepository.QueryFilter(orderQuery, p => p.Id == OrderId.Parse(orderId)).FirstOrDefault();
             if (order == null)
                 return Result.Fail(OrderErrors.OrderNotFoundError);
-            await _orderService.AssignDeliverer(order, delivererId, _accountRepository, _orderRepository);
+            await _orderService.AssignDeliverer(order, delivererId);
             await _orderRepository.Update(order);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
