@@ -28,7 +28,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\DiamondShop.Application\DiamondShop.Application.csproj" />
-		<ProjectReference Include="..\DiamondShop.Application\DiamondShop.Application.csproj" />
 		<ProjectReference Include="..\DiamondShop.Commons\DiamondShop.Commons.csproj" />
 		<ProjectReference Include="..\DiamondShop.Infrastructure\DiamondShop.Infrastructure.csproj" />
 	</ItemGroup>

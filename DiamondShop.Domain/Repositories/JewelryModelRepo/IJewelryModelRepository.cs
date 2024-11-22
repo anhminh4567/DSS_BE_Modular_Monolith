@@ -14,6 +14,7 @@ namespace DiamondShop.Domain.Repositories.JewelryModelRepo
         IQueryable<JewelryModel> GetSellingModelQuery();
         Task<JewelryModel?> GetSellingModelDetail(JewelryModelId modelId, MetalId metalId, SizeId sizeId);
         IQueryable<JewelryModel> IncludeMainDiamondQuery(IQueryable<JewelryModel> query);
-        bool IsExistModelCode(string serialName);
+        bool IsExistModelName(string name);
+        bool IsExistModelCode(string code);
     }
 }

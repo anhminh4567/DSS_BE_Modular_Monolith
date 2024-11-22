@@ -24,11 +24,9 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
         private readonly IJewelryModelRepository _jewelryModelRepository;
         private readonly IJewelryModelCategoryRepository _categoryRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IDiamondCriteriaRepository _diamondCriteriaRepository;
-        private readonly IDiamondPriceRepository _diamondPriceRepository;
         private readonly IDiamondServices _diamondServices;
 
-        public CreateJewelryModelCommandHandler(ISender sender, ISizeMetalRepository sizeMetalRepository, IMainDiamondRepository mainDiamondRepository, ISideDiamondRepository sideDiamondRepository, IJewelryModelRepository jewelryModelRepository, IJewelryModelCategoryRepository categoryRepository, IUnitOfWork unitOfWork, IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondPriceRepository diamondPriceRepository, IDiamondServices diamondServices)
+        public CreateJewelryModelCommandHandler(ISender sender, ISizeMetalRepository sizeMetalRepository, IMainDiamondRepository mainDiamondRepository, ISideDiamondRepository sideDiamondRepository, IJewelryModelRepository jewelryModelRepository, IJewelryModelCategoryRepository categoryRepository, IUnitOfWork unitOfWork, IDiamondServices diamondServices)
         {
             _sender = sender;
             _sizeMetalRepository = sizeMetalRepository;
@@ -37,8 +35,6 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
             _jewelryModelRepository = jewelryModelRepository;
             _categoryRepository = categoryRepository;
             _unitOfWork = unitOfWork;
-            _diamondCriteriaRepository = diamondCriteriaRepository;
-            _diamondPriceRepository = diamondPriceRepository;
             _diamondServices = diamondServices;
         }
 
@@ -47,10 +43,10 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
             await _unitOfWork.BeginTransactionAsync(token);
             request.Deconstruct(out JewelryModelRequestDto modelSpec, out List<MainDiamondRequestDto>? mainDiamondSpecs,
                 out List<SideDiamondRequestDto>? sideDiamondSpecs, out List<ModelMetalSizeRequestDto> metalSizeSpecs);
-            var category = _categoryRepository.GetQuery().FirstOrDefault(p => p.Id == JewelryModelCategoryId.Parse(modelSpec.CategoryId));
+            var category = await _categoryRepository.GetById(JewelryModelCategoryId.Parse(modelSpec.CategoryId));
             if (category is null) return Result.Fail(JewelryModelErrors.Category.JewelryModelCategoryNotFoundError);
 
-            var matchingName = _jewelryModelRepository.GetQuery().Any(p => p.Name.Trim().ToUpper() == modelSpec.Name.Trim().ToUpper());
+            var matchingName = _jewelryModelRepository.IsExistModelName(modelSpec.Name);
             if (matchingName) return Result.Fail(JewelryModelErrors.ExistedModelNameFound(modelSpec.Name));
             var matchingCode = _jewelryModelRepository.IsExistModelCode(modelSpec.Code);
             if (matchingCode) return Result.Fail(JewelryModelErrors.ExistedModelCodeFound(modelSpec.Code));

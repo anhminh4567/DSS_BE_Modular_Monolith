@@ -31,12 +31,14 @@ namespace DiamondShop.Application.Usecases.JewelryModelCategories.Commands.Creat
         public async Task<Result<JewelryModelCategory>> Handle(CreateJewelryCategoryCommand request, CancellationToken token)
         {
             string capitalized = Utilities.Capitalize(request.Name);
+            await _unitOfWork.BeginTransactionAsync(token);
             var flag1 = await _categoryRepository.CheckDuplicate(capitalized);
             if (flag1) return Result.Fail(JewelryModelErrors.Category.JewelryModelCategoryNotFoundError);
             var parentId = request.ParentCategoryId is null ? null : JewelryModelCategoryId.Parse(request.ParentCategoryId);
             var category = JewelryModelCategory.Create(capitalized, request.Description, "", request.IsGeneral, parentId);
             await _categoryRepository.Create(category, token);
             await _unitOfWork.SaveChangesAsync(token);
+            await _unitOfWork.CommitAsync(token);
             return category;
         }
     }
