@@ -24,6 +24,7 @@ namespace DiamondShop.Application.Dtos.Responses.Orders
         public UnitType? PromoType { get; set; }
         public decimal? PromoValue { get; set; }
         public string? WarrantyId { get; set; }
+        public bool IsReviewed { get; set; }
         public List<OrderItemWarrantyDto>? Warranties { get; set; } = new();
 
     }

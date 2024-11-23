@@ -13,5 +13,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo.JewelryR
             var id = (JewelryId)ids[0];
             return await _set.Include(p => p.Jewelry).FirstOrDefaultAsync(p => p.Id == id);
         }
+        public Task<bool> Exists(JewelryId id)
+        {
+            return _set.AnyAsync(p => p.Id == id);
+        }
+
     }
 }

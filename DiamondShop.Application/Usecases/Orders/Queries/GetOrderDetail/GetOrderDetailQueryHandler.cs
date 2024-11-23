@@ -3,6 +3,7 @@ using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
+using DiamondShop.Domain.Repositories.JewelryReviewRepo;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
@@ -16,12 +17,14 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderService _orderService;
         private readonly IOrderLogRepository _orderLogRepository;
+        private readonly IJewelryReviewRepository _jewelryReviewRepository;
 
-        public GetOrderDetailQueryHandler(IOrderRepository orderRepository, IOrderService orderService, IOrderLogRepository orderLogRepository)
+        public GetOrderDetailQueryHandler(IOrderRepository orderRepository, IOrderService orderService, IOrderLogRepository orderLogRepository, IJewelryReviewRepository jewelryReviewRepository)
         {
             _orderRepository = orderRepository;
             _orderService = orderService;
             _orderLogRepository = orderLogRepository;
+            _jewelryReviewRepository = jewelryReviewRepository;
         }
 
         public async Task<Result<Order>> Handle(GetOrderDetailQuery request, CancellationToken cancellationToken)
@@ -37,6 +40,17 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail
                 return Result.Fail(OrderErrors.NoPermissionToViewError);
             var orderLog = await _orderLogRepository.GetOrderLogs(order, cancellationToken);
             order.Logs = orderLog;
+            //check reviewed
+            if(order.Status == Domain.Models.Orders.Enum.OrderStatus.Success)
+            {
+                foreach (var item in order.Items)
+                {
+                    if (item.JewelryId != null)
+                    {
+                        item.IsReviewed = await _jewelryReviewRepository.Exists(item.JewelryId);
+                    }
+                }
+            }
             return order;
         }
     }

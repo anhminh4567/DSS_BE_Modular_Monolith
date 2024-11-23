@@ -16,22 +16,13 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
         private readonly IJewelryModelCategoryRepository _categoryRepository;
         private readonly IJewelryRepository _jewelryRepository;
         private readonly IJewelryModelRepository _jewelryModelRepository;
-        private readonly ISizeMetalRepository _sizeMetalRepository;
-        private readonly IMainDiamondRepository _mainDiamondRepository;
         private readonly IDiamondServices _diamondServices;
-        private readonly IJewelryModelService _jewelryModelService;
 
-        public GetSellingModelQueryHandler(
-            ISizeMetalRepository sizeMetalRepository,
-            IJewelryModelRepository jewelryModelRepository,
-            IMainDiamondRepository mainDiamondRepository, IJewelryModelCategoryRepository categoryRepository, IJewelryModelService jewelryModelService, IJewelryRepository jewelryRepository, IDiamondServices diamondServices)
+        public GetSellingModelQueryHandler(IJewelryModelCategoryRepository categoryRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, IDiamondServices diamondServices)
         {
-            _sizeMetalRepository = sizeMetalRepository;
-            _jewelryModelRepository = jewelryModelRepository;
-            _mainDiamondRepository = mainDiamondRepository;
             _categoryRepository = categoryRepository;
-            _jewelryModelService = jewelryModelService;
             _jewelryRepository = jewelryRepository;
+            _jewelryModelRepository = jewelryModelRepository;
             _diamondServices = diamondServices;
         }
 
