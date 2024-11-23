@@ -28,7 +28,7 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         {
             get
             {
-                if (SizeMetals.Count > 0)
+                if (SizeMetals != null && SizeMetals.Count > 0)
                 {
                     var metals = SizeMetals.Where(p => p.Metal != null).ToList();
                     if (metals.Count() > 0)

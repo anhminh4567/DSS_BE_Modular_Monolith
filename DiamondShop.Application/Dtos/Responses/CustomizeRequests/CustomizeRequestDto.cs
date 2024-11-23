@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Accounts;
 using DiamondShop.Application.Dtos.Responses.Jewelries;
 using DiamondShop.Application.Dtos.Responses.JewelryModels;
+using DiamondShop.Application.Dtos.Responses.Orders;
 using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 
@@ -10,6 +11,7 @@ namespace DiamondShop.Application.Dtos.Responses.CustomizeRequests
     {
         public string Id { get; set; }
         public string RequestCode { get; set; }
+        public OrderDto Order { get; set; }
         public string AccountId { get; set; }
         public AccountDto Account { get; set; }
         public string JewelryModelId { get; set; }
