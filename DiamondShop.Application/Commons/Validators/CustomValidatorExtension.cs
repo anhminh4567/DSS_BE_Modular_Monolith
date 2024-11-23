@@ -23,6 +23,10 @@ namespace DiamondShop.Application.Commons.Validators
                 .Must((command, numberInput) =>
                 {
                     var numToString = numberInput.ToString();
+                    if(numToString == "0")
+                    {
+                        return true;
+                    }
                     var getFractional = numToString.Split('.')[1];
                     if (getFractional.Length > maxFractionalNumber)
                     {

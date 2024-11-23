@@ -1,5 +1,8 @@
 ﻿using DiamondShop.Application.Commons.Responses;
+using DiamondShop.Application.Dtos.Responses.CustomizeRequests;
 using DiamondShop.Application.Dtos.Responses.Diamonds;
+using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetAll;
+using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetDetail;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Create;
 using DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeRequest;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Delete;
@@ -15,6 +18,7 @@ using DiamondShop.Application.Usecases.Diamonds.Queries.GetDiamondPricesComparis
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetFilters;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetLockItemsForUser;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging;
+using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -122,14 +126,16 @@ namespace DiamondShop.Api.Controllers.Diamonds
             return MatchError(result.Errors, ModelState);
         }
         [HttpPost("Unavailble")]
-        [Produces(typeof(DiamondDto))]
+        [Produces(typeof(CustomizeRequestDto))]
         public async Task<ActionResult> CreateUnavailable([FromBody] CreateDiamondWhenNotExistCommand createDiamondCommand)
         {
             var result = await _sender.Send(createDiamondCommand);
             if (result.IsSuccess)
             {
+                var getDetail = await _sender.Send(new GetDetailCustomizeRequestQuery(createDiamondCommand.customizeRequestId));
+                var mappedCustomizeRequest = _mapper.Map<CustomizeRequestDto>(getDetail.Value);
                 var mappedResult = _mapper.Map<DiamondDto>(result.Value);
-                return Ok(mappedResult);
+                return Ok(mappedCustomizeRequest);
             }
             return MatchError(result.Errors, ModelState);
         }

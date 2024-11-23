@@ -31,7 +31,7 @@ namespace DiamondShop.Api.Controllers.Orders
             }
             return MatchError(result.Errors,ModelState);
         }
-        [HttpGet("{orderId}/{logId}")]
+        [HttpGet("{orderId}/{logId}/Detail")]
         public async Task<ActionResult> GetOrderLogDetail([FromRoute] string orderId, [FromRoute] string logId)
         {
             var result = await _sender.Send(new GetLogDetailQuery(orderId,logId));
