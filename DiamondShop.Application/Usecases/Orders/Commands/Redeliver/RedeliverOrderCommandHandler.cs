@@ -42,7 +42,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Redeliver
             await _orderService.AssignDeliverer(order, delivererId);
             order.ShipFailedDate = null;
             order.Status = OrderStatus.Prepared;
-            var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Delivery_Failed);
+            var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Prepared);
             await _orderLogRepository.Create(log);
             await _orderRepository.Update(order);
             await _unitOfWork.SaveChangesAsync(token);
