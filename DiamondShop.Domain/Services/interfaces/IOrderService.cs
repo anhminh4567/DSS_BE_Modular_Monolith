@@ -11,10 +11,10 @@ namespace DiamondShop.Domain.Services.interfaces
     public interface IOrderService
     {
         Result CheckWarranty(string? jewelryId, string? diamondId, WarrantyType warrantyType);
-        Task<Result<Order>> AssignDeliverer(Order order, string delivererId, IAccountRepository accountRepository, IOrderRepository orderRepository);
+        Task<Result<Order>> AssignDeliverer(Order order, string delivererId);
         public bool IsCancellable(OrderStatus order);
         public bool IsProceedable(OrderStatus order);
         public bool CheckForSameCity(List<Order> orders);
-        public Task<Result> CancelItems(Order order, IOrderRepository _orderRepo, IOrderItemRepository _itemRepo, IJewelryRepository _jewelRepo, IDiamondRepository _diamondRepo);
+        public Task<Result> CancelItems(Order order);
     }
 }

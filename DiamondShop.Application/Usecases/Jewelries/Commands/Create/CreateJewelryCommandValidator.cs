@@ -25,9 +25,6 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands.Create
                     p.RuleFor(p => p.MetalId)
                         .NotEmpty();
                 });
-
-            RuleForEach(p => p.SideDiamondOptId)
-                .NotEmpty();
         }
     }
 }

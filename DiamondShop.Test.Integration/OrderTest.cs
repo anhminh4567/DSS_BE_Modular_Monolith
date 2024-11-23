@@ -8,9 +8,11 @@ using DiamondShop.Application.Usecases.Orders.Commands.Refund;
 using DiamondShop.Application.Usecases.Orders.Commands.Reject;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.DeliveryFees;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
+using DiamondShop.Domain.Models.Locations;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
@@ -47,6 +49,15 @@ namespace DiamondShop.Test.Integration
         }
         async Task<Order> SeedingPendingOrder(PaymentType paymentType = PaymentType.Payall)
         {
+            var city = new AppCities()
+            {
+                Slug = "HOCHIMINH",
+                Name = "Hồ Chí Minh",
+                Type = 1
+            };
+            await _context.AppCities.AddAsync(city);
+            var fee = DeliveryFee.CreateLocationType("", 30_00, "Hồ Chí Minh", city.Id);
+            await _context.Set<DeliveryFee>().AddAsync(fee);
             var account = await TestData.SeedDefaultCustomer(_context, _authentication);
             var jewelry = await SeedingOrderJewelry();
             var diamond2 = await TestData.SeedDefaultDiamond(_context);
@@ -54,8 +65,8 @@ namespace DiamondShop.Test.Integration
                 new OrderItemRequestDto(jewelry.Id.Value, null, null, null, "Default_Jewelry_Warranty", WarrantyType.Jewelry),
                 new OrderItemRequestDto(null, diamond2.Id.Value, null, null, "Default_Diamond_Warranty", WarrantyType.Diamond)
             };
-            var billingDetail = new BillingDetail("abc", "abc", "123123132", "HCM", "Thu Duc", "Ward", "Tan Binh", "abc street", "no");
-            var address = String.Join(" ", ["HCM", "Thu Duc", "Tam Binh", "abc street"]);
+            var billingDetail = new BillingDetail("abc", "abc", "123123132", "abc@gmail.com", "Hồ Chí Minh", "Thu Duc", "Ward", "abc street", "no");
+            var address = String.Join(" ", ["Hồ Chí Minh", "Thu Duc", "Tam Binh", "abc street"]);
             var orderDetail = new CreateOrderInfo(paymentType, PaymentMethod.BANK_TRANSFER.Id.Value, "zalopay", null, null, billingDetail, itemReqs);
             var createCommand = new CreateOrderCommand(account.Id.Value, orderDetail);
             var createResult = await _sender.Send(createCommand);
@@ -125,9 +136,18 @@ namespace DiamondShop.Test.Integration
         [Fact]
         public async Task Checkout_Should_Create_Order()
         {
+            var city = new AppCities()
+            {
+                Slug = "HOCHIMINH",
+                Name = "Hồ Chí Minh",
+                Type = 1
+            };
+            await _context.AppCities.AddAsync(city);
+            var fee = DeliveryFee.CreateLocationType("", 30_00, "Hồ Chí Minh", city.Id);
+            await _context.Set<DeliveryFee>().AddAsync(fee);
             var account = await TestData.SeedDefaultCustomer(_context, _authentication);
             var jewelry = await SeedingOrderJewelry();
-            var billingDetail = new BillingDetail("abc", "abc", "123123132", "abc@gmail.com", "HCM", "Thu Duc", "Ward", "Tan Binh", "no");
+            var billingDetail = new BillingDetail("abc", "abc", "123123132", "abc@gmail.com", "Hồ Chí Minh", "Thu Duc", "Ward", "Tan Binh", "no");
             var orderReq = new OrderRequestDto(PaymentType.COD, PaymentMethod.BANK_TRANSFER.Id.Value, "zalopay", null, true);
             var itemReqs = new List<OrderItemRequestDto>(){
                 new OrderItemRequestDto(jewelry.Id.Value, null, null, null, "Default_Jewelry_Warranty", WarrantyType.Jewelry),

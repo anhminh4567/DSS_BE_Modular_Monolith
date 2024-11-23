@@ -31,6 +31,7 @@ namespace DiamondShop.Application.Usecases.SideDiamonds.Commands.Create
             var sideDiamond = SideDiamondOpt.Create(JewelryModelId.Parse(modelId), DiamondShapeId.Parse(sideDiamondSpecs.ShapeId), sideDiamondSpecs.ColorMin, sideDiamondSpecs.ColorMax, sideDiamondSpecs.ClarityMin, sideDiamondSpecs.ClarityMax, sideDiamondSpecs.SettingType, sideDiamondSpecs.CaratWeight, sideDiamondSpecs.Quantity, sideDiamondSpecs.IsLabDiamond);
             await _sideDiamondRepository.Create(sideDiamond, token);
             await _unitOfWork.SaveChangesAsync(token);
+            await _unitOfWork.CommitAsync(token);
             return sideDiamond;
         }
     }

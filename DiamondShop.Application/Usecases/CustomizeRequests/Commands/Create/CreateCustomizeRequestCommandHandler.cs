@@ -2,7 +2,6 @@
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests;
 using DiamondShop.Domain.Models.CustomizeRequests.Entities;
-using DiamondShop.Domain.Models.CustomizeRequests.Enums;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
@@ -20,24 +19,20 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendReques
     {
         private readonly ICustomizeRequestRepository _customizeRequestRepository;
         private readonly IDiamondRequestRepository _diamondRequestRepository;
-        private readonly IMainDiamondRepository _mainDiamondRepository;
         private readonly ISideDiamondRepository _sideDiamondRepository;
         private readonly ISizeMetalRepository _sizeMetalRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDiamondServices _diamondServices;
         private readonly IMainDiamondService _mainDiamondService;
-        private readonly IAuthenticationService _authenticationService;
 
-        public CreateCustomizeRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, IAuthenticationService authenticationService, ISideDiamondRepository sideDiamondRepository, ISizeMetalRepository sizeMetalRepository, IMainDiamondService mainDiamondService, IDiamondRequestRepository diamondRequestRepository, IMainDiamondRepository mainDiamondRepository, IDiamondServices diamondServices)
+        public CreateCustomizeRequestCommandHandler(ICustomizeRequestRepository customizeRequestRepository, IUnitOfWork unitOfWork, ISideDiamondRepository sideDiamondRepository, ISizeMetalRepository sizeMetalRepository, IMainDiamondService mainDiamondService, IDiamondRequestRepository diamondRequestRepository, IDiamondServices diamondServices)
         {
             _customizeRequestRepository = customizeRequestRepository;
             _unitOfWork = unitOfWork;
-            _authenticationService = authenticationService;
             _sideDiamondRepository = sideDiamondRepository;
             _sizeMetalRepository = sizeMetalRepository;
             _mainDiamondService = mainDiamondService;
             _diamondRequestRepository = diamondRequestRepository;
-            _mainDiamondRepository = mainDiamondRepository;
             _diamondServices = diamondServices;
         }
 
@@ -46,7 +41,6 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendReques
             request.Deconstruct(out string accountId, out CustomizeModelRequest modelRequest);
             modelRequest.Deconstruct(out string jewelryModelId, out string metalId, out string sizeId, out string? sideDiamondOptId, out string? engravedText, out string? engravedFont, out string? note, out List<CustomizeDiamondRequest>? diamondRequests);
             await _unitOfWork.BeginTransactionAsync(token);
-            //var account = _authenticationService.
             var modelQuery = _sizeMetalRepository.GetQuery();
             modelQuery = _sizeMetalRepository.QueryInclude(modelQuery, p => p.Model);
             modelQuery = _sizeMetalRepository.QueryFilter(modelQuery, p =>
@@ -88,7 +82,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendReques
                 customizedRequest.SetPending();
                 await _customizeRequestRepository.Update(customizedRequest);
                 var diamonds = diamondRequests.Select(p => DiamondRequest.Create(customizedRequest.Id, DiamondShapeId.Parse(p.DiamondShapeId), p.clarityFrom, p.clarityTo, p.colorFrom, p.colorTo, p.cutFrom, p.cutTo, p.caratFrom, p.caratTo, p.isLabGrown, p.polish, p.symmetry, p.girdle, p.culet)).ToList();
-                var flagMainDiamond = await _mainDiamondService.CheckMatchingDiamond(modelOpt.ModelId, diamonds, _mainDiamondRepository);
+                var flagMainDiamond = await _mainDiamondService.CheckMatchingDiamond(modelOpt.ModelId, diamonds);
                 if (flagMainDiamond.IsFailed)
                     return Result.Fail(flagMainDiamond.Errors);
                 await _diamondRequestRepository.CreateRange(diamonds);
