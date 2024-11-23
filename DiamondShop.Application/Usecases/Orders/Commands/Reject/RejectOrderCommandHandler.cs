@@ -48,7 +48,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
             order.CancelledReason = reason;
             await _orderRepository.Update(order);
             await _orderService.CancelItems(order);
-            var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Delivery_Failed);
+            var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Rejected);
             await _orderLogRepository.Create(log);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
