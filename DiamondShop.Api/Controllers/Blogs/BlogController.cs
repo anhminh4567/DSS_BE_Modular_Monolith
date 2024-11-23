@@ -68,7 +68,7 @@ namespace DiamondShop.Api.Controllers.Blogs
             else
                 return Unauthorized();
         }
-        [HttpPost("Update")]
+        [HttpPut("Update")]
         [Authorize(Roles = AccountRole.StaffId)]
         public async Task<ActionResult> UpdateJewelryReview([FromForm] UpdateBlogRequestDto updateBlogRequestDto)
         {
@@ -87,7 +87,7 @@ namespace DiamondShop.Api.Controllers.Blogs
             else
                 return Unauthorized();
         }
-        [HttpPost("Remove")]
+        [HttpDelete("Remove")]
         [Authorize(Roles = AccountRole.StaffId)]
         public async Task<ActionResult> CreateJewelryReview([FromQuery] string BlogId)
         {
