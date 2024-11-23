@@ -5,13 +5,14 @@ using DiamondShop.Domain.Models.Blogs.ErrorMessages;
 using DiamondShop.Domain.Models.Blogs.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.ErrorMessages;
+using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories.BlogRepo;
 using FluentResults;
 using MediatR;
 
 namespace DiamondShop.Application.Usecases.Blogs.Commands.Delete
 {
-    public record DeleteBlogCommand(string BlogId, string AccountId) : IRequest<Result>;
+    public record DeleteBlogCommand(string BlogId, List<string> Roles, string AccountId) : IRequest<Result>;
     internal class DeleteBlogCommandHandler : IRequestHandler<DeleteBlogCommand, Result>
     {
         private readonly IBlogRepository _blogRepository;
@@ -27,12 +28,12 @@ namespace DiamondShop.Application.Usecases.Blogs.Commands.Delete
 
         public async Task<Result> Handle(DeleteBlogCommand request, CancellationToken token)
         {
-            request.Deconstruct(out string blogId, out string accountId);
+            request.Deconstruct(out string blogId, out List<string> roles, out string accountId);
             await _unitOfWork.BeginTransactionAsync(token);
             var blog = await _blogRepository.GetById(BlogId.Parse(blogId));
             if (blog == null)
                 return Result.Fail(BlogErrors.BlogNotFoundError);
-            if (blog.AccountId != AccountId.Parse(accountId))
+            if (!roles.Contains(AccountRole.ManagerId)&& blog.AccountId != AccountId.Parse(accountId))
                 return Result.Fail(BlogErrors.NoPermissionError);
             List<Task<Result>> tasks = new()
             {

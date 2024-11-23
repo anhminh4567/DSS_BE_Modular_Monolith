@@ -19,6 +19,7 @@ using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.Locations;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Domain.Models.Transactions;
 using DiamondShop.Domain.Models.Transactions.Entities;
 using DiamondShop.Domain.Models.Warranties.Enum;
 using DiamondShop.Test.Integration.Data;

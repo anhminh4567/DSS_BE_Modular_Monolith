@@ -36,15 +36,12 @@ namespace DiamondShop.Application.Usecases.Blogs.Commands.Create
             Blog blog = Blog.Create(blogTags.Select(p => new BlogTag(p)).ToList(), AccountId.Parse(accountId), title);
             await _blogRepository.Create(blog);
             await _unitOfWork.SaveChangesAsync(token);
-            if (thumbnail != null)
-            {
-                var thumbnailResult = await _blogFileService.UploadThumbnail(blog.Id, new FileData("thumbnail", thumbnail.FileName, thumbnail.ContentType, thumbnail.OpenReadStream()), token);
-                if (thumbnailResult.IsFailed)
-                    return Result.Fail(thumbnailResult.Errors);
-                blog.Thumbnail = thumbnailResult.Value;
-                await _blogRepository.Update(blog);
-                await _unitOfWork.SaveChangesAsync(token);
-            }
+            var thumbnailResult = await _blogFileService.UploadThumbnail(blog.Id, new FileData("thumbnail", thumbnail.FileName, thumbnail.ContentType, thumbnail.OpenReadStream()), token);
+            if (thumbnailResult.IsFailed)
+                return Result.Fail(thumbnailResult.Errors);
+            blog.Thumbnail = thumbnailResult.Value;
+            await _blogRepository.Update(blog);
+            await _unitOfWork.SaveChangesAsync(token);
             var result = await _blogFileService.UploadContent(blog.Id, content);
             if (result.IsFailed)
                 return Result.Fail(result.Errors);

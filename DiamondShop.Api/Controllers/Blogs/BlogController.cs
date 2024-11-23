@@ -29,6 +29,7 @@ namespace DiamondShop.Api.Controllers.Blogs
         }
         #region Staff,Manager
         [HttpGet("Staff/All")]
+        [Authorize(Roles = AccountRole.StaffId)]
         public async Task<ActionResult> GetAllStaff([FromQuery] GetAllBlogQuery getAllBlogQuery)
         {
             var result = await _sender.Send(getAllBlogQuery);
@@ -36,6 +37,7 @@ namespace DiamondShop.Api.Controllers.Blogs
             return Ok(mappedResult);
         }
         [HttpGet("Staff/Detail")]
+        [Authorize(Roles = AccountRole.StaffId)]
         public async Task<ActionResult> GetDetailStaff([FromQuery] GetDetailBlogQuery getDetailBlogQuery)
         {
             var result = await _sender.Send(getDetailBlogQuery);
@@ -89,10 +91,11 @@ namespace DiamondShop.Api.Controllers.Blogs
         [Authorize(Roles = AccountRole.StaffId)]
         public async Task<ActionResult> CreateJewelryReview([FromQuery] string BlogId)
         {
+            var userRole = User.FindAll(IJwtTokenProvider.ROLE_CLAIM_NAME);
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
-            if (userId != null)
+            if (userRole != null && userId != null)
             {
-                var result = await _sender.Send(new DeleteBlogCommand(BlogId, userId.Value));
+                var result = await _sender.Send(new DeleteBlogCommand(BlogId, userRole.Select(p => p.Value).ToList(), userId.Value));
                 if (result.IsSuccess)
                     return Ok();
                 else
