@@ -170,7 +170,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 var transaction = transactions.FirstOrDefault();
                 if (transaction == null)
                     throw new Exception("No transaction found");
-                bool isDeposit = order.PaymentStatus == PaymentStatus.Deposited;
+                bool isDeposit = transactions.Sum(x => x.TotalAmount) < order.TotalPrice;
                 if (isDeposit)
                 {
                     // day la so am do Total = amount - fine ==> de total > 0 thi fine < 0
