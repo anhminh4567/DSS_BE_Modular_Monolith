@@ -114,52 +114,81 @@ namespace DiamondShop.Domain.Services.Implementations
             return leftAmount;
         }
 
-        public void AddRefundShopReject(Order order)
+        public void AddRefundShopReject(Order order, OrderStatus previousStatus)
         {
+            decimal refundAmount = 0;
+            decimal finedAmount = 0;
+            List<Transaction> transactions = new();
             if (order.Status == OrderStatus.Pending)
             {
-                var paymentInTransac = Transaction.CreateManualPayment(order.Id, $"Manual payment for order#{order.OrderCode}", order.TotalPrice, TransactionType.Pay);
-                order.AddTransaction(paymentInTransac);
-                var refundOutTransac = Transaction.CreateManualRefund(order.Id, $"Maunual refund for order#{order.OrderCode}", paymentInTransac.TotalAmount);
-                order.AddRefund(refundOutTransac);
                 return;
             }
-            //TODO: Calculate in case of second order 
-            var transactions = order.Transactions
-                .Where(p => p.TransactionType == TransactionType.Pay);
-            var transaction = transactions.FirstOrDefault();
-            if (transaction == null)
-                throw new Exception("No transaction found");
-            var refundAmount = transactions
-                .Sum(p => p.TotalAmount);
-            if (transaction.IsManual)
+            if(previousStatus != OrderStatus.Pending)
             {
-                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.OrderCode}", refundAmount);
+                //TODO: Calculate in case of second order 
+                transactions = order.Transactions
+                     .Where(p => p.TransactionType == TransactionType.Pay).ToList();
+                var transaction = transactions.FirstOrDefault();
+                if (transaction == null)
+                    throw new Exception("No transaction found");
+
+                bool isDeposit = order.PaymentStatus == PaymentStatus.Deposited;
+                if (isDeposit)
+                {
+                    refundAmount = transactions.Sum(p => p.TotalAmount);
+                    finedAmount = 0;
+                }
+                else
+                {
+                    var totalPaid = transactions.Sum(p => p.TotalAmount);
+                    refundAmount = totalPaid;
+                    refundAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(refundAmount);
+                    finedAmount = refundAmount - totalPaid;
+                }
+                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.OrderCode}", refundAmount, finedAmount);
                 order.AddRefund(transac);
+            }else
+            {
+                return;
             }
+
         }
-        public void AddRefundUserCancel(Order order)
+        public void AddRefundUserCancel(Order order, OrderStatus previousStatus)
         {
+            decimal refundAmount = 0;
+            decimal finedAmount = 0;
+            List<Transaction> transactions = new();
             if (order.Status == OrderStatus.Pending)
             {
-                var paymentInTransac = Transaction.CreateManualPayment(order.Id, $"Manual payment for order#{order.OrderCode}", order.TotalPrice, TransactionType.Pay);
-                order.AddTransaction(paymentInTransac);
-                var refundOutTransac = Transaction.CreateManualRefund(order.Id, $"Maunual refund for order#{order.OrderCode}", paymentInTransac.TotalAmount);
-                order.AddRefund(refundOutTransac);
                 return;
             }
-            var transactions = order.Transactions
-                .Where(p => p.TransactionType == TransactionType.Pay);
-            var transaction = transactions.FirstOrDefault();
-            if (transaction == null)
-                throw new Exception("No transaction found");
-            var refundAmount = transactions
-                .Sum(p => p.TotalAmount) * (1m - 0.01m * OrderPaymentRules.PayAllFine);
-            refundAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(refundAmount);
-            if (transaction.IsManual)
+            if (previousStatus != OrderStatus.Pending)
             {
-                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.OrderCode}", refundAmount);
+                //TODO: Calculate in case of second order 
+                transactions = order.Transactions
+                     .Where(p => p.TransactionType == TransactionType.Pay).ToList();
+                var transaction = transactions.FirstOrDefault();
+                if (transaction == null)
+                    throw new Exception("No transaction found");
+                bool isDeposit = order.PaymentStatus == PaymentStatus.Deposited;
+                if (isDeposit)
+                {
+                    // day la so am do Total = amount - fine ==> de total > 0 thi fine < 0
+                    finedAmount = -transactions.Sum(p => p.TotalAmount);
+                    refundAmount = 0; // lay luon coc neu bi phat
+                }
+                else
+                {
+                    var totalPaid = transactions.Sum(p => p.TotalAmount);
+                    refundAmount = totalPaid * (1m - 0.01m * OrderPaymentRules.PayAllFine);
+                    refundAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(refundAmount);
+                    finedAmount = refundAmount - totalPaid;
+                }
+                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.OrderCode}", refundAmount, finedAmount);
                 order.AddRefund(transac);
+            }else
+            {
+                return;
             }
         }
 

@@ -38,7 +38,7 @@ namespace DiamondShop.Application.Usecases.Transactions.Commands.AddManualRefund
             if(getOrder == null)
                 return Result.Fail(new NotFoundError("Order not found"));
              decimal refundAmount =  _orderTransactionService.GetRefundAmountFromOrder(getOrder, request.fineAmount);
-            Transaction newtrans = Transaction.CreateManualRefund(getOrder.Id,request.description,refundAmount - request.fineAmount);
+            Transaction newtrans = Transaction.CreateManualRefund(getOrder.Id,request.description,refundAmount - request.fineAmount, request.fineAmount);
             getOrder.AddRefund(newtrans);
             await _unitOfWork.BeginTransactionAsync();
             await _transactionRepository.Create(newtrans);

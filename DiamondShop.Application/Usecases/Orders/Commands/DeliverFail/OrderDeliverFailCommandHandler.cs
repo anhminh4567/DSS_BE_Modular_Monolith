@@ -12,6 +12,7 @@ using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
+using Newtonsoft.Json;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverFail
 {
@@ -44,11 +45,12 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverFail
                 return Result.Fail(OrderErrors.OrderNotFoundError);
             if (order.ShipFailedCount > DeliveryRules.MaxRedelivery)
             {
+                var currentStatus = JsonConvert.DeserializeObject<OrderStatus>( JsonConvert.SerializeObject(order.Status));
                 order.Status = OrderStatus.Cancelled;
                 order.PaymentStatus = PaymentStatus.Refunding;
                 order.CancelledDate = DateTime.UtcNow;
                 order.CancelledReason = DeliveryRules.MaxRedeliveryError;
-                _orderTransactionService.AddRefundUserCancel(order);
+                _orderTransactionService.AddRefundUserCancel(order, currentStatus);
                 //Return to selling
                 await _orderService.CancelItems(order);
                 var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Cancelled);

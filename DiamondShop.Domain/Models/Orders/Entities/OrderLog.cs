@@ -18,6 +18,7 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public DateTime CreatedDate { get; set; }
         public OrderLogId? PreviousLogId { get; set; }
         public OrderLog? PreviousLog { get; set; }
+        public List<OrderLog>? ChildLogs { get; set; } = new();
         public OrderStatus Status { get; set; }
         public List<Media>? LogImages { get; set; }
         [NotMapped]

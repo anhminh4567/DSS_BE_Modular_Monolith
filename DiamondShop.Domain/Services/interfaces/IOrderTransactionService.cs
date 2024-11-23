@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
+using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Transactions;
 using FluentResults;
 using System;
@@ -23,8 +24,8 @@ namespace DiamondShop.Domain.Services.interfaces
 
         //refunding 
         decimal GetRefundUserCancelBeforeProcessing(Order order);
-        void AddRefundShopReject(Order order);
-        void AddRefundUserCancel(Order order);
+        void AddRefundShopReject(Order order, OrderStatus previousStatus);
+        void AddRefundUserCancel(Order order, OrderStatus previousStatus);
         void AddCODPayment(Order order);
 
         decimal GetRefundUserCancelDuringProcessingAndPrepared(Order order);

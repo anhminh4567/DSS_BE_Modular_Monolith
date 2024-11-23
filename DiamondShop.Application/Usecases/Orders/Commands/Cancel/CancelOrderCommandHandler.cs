@@ -44,7 +44,7 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
                 return Result.Fail(OrderErrors.UncancellableError);
             if (order.AccountId != AccountId.Parse(accountId))
                 return Result.Fail(OrderErrors.NoPermissionToCancelError);
-            _orderTransactionService.AddRefundUserCancel(order);
+            //_orderTransactionService.AddRefundUserCancel(order);
             order.Status = OrderStatus.Cancelled;
             order.PaymentStatus = PaymentStatus.Refunding;
             order.CancelledDate = DateTime.UtcNow;

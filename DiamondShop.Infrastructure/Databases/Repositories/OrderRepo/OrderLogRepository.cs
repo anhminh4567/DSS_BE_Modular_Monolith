@@ -29,5 +29,12 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
             var orderId = order.Id;
             return _set.Where(x => x.OrderId == orderId).ToListAsync(cancellationToken);
         }
+
+        public Task<List<OrderLog>> GetStateChangingLog(Order order)
+        {
+            return _set.Where(x => x.OrderId == order.Id && x.PreviousLogId == null)
+                .OrderBy(x => x.CreatedDate)
+                .ToListAsync();
+        }
     }
 }

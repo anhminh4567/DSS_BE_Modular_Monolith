@@ -83,7 +83,7 @@ namespace DiamondShop.Domain.Models.Transactions
                 IsManual = true,
             };
         }
-        public static Transaction CreateManualRefund(OrderId orderId, string description, decimal amount)
+        public static Transaction CreateManualRefund(OrderId orderId, string description, decimal amount, decimal finedAmount)
         {
             var dateTimeNow = DateTime.UtcNow;
             return new Transaction
@@ -98,6 +98,7 @@ namespace DiamondShop.Domain.Models.Transactions
                 OrderId = orderId,
                 PayDate = dateTimeNow,
                 TimeStampe = dateTimeNow.ToString(TransactionRule.TransactionTimeStamp),
+                FineAmount = finedAmount,
                 IsManual = true,
             };
         }

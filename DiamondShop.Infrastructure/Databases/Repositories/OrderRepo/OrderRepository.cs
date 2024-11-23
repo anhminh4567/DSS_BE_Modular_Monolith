@@ -25,7 +25,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
 
         public override Task<Order?> GetById(params object[] ids)
         {
-            return _set.Include(o => o.Transactions)
+            return _set.Include(o => o.Transactions).ThenInclude(x => x.PayMethod)
                 .Include(x => x.Account)
                 .Include(x => x.Items)
                     .ThenInclude(x => x.Jewelry)

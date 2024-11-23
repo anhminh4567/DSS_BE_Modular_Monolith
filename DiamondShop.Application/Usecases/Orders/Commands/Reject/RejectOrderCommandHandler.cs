@@ -41,7 +41,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
                 return Result.Fail(OrderErrors.OrderNotFoundError);
             else if (!_orderService.IsCancellable(order.Status))
                 return Result.Fail(OrderErrors.UncancellableError);
-            _orderTransactionService.AddRefundShopReject(order);
+            //_orderTransactionService.AddRefundShopReject(order);
             order.Status = OrderStatus.Rejected;
             order.PaymentStatus = PaymentStatus.Refunding;
             order.CancelledDate = DateTime.UtcNow;

@@ -103,7 +103,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
                 if (lastSlashIndex >= 0)
                 {
                     var key = tobeComparedPath.Substring(0, lastSlashIndex);
-                    if (gallery.Gallery.ContainsKey(key))
+                    if (!gallery.Gallery.ContainsKey(key))
                         gallery.Gallery[key] = new List<Media>();
                     gallery.Gallery[key].Add(originalMedia);
                 }

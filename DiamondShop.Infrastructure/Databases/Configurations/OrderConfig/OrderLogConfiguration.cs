@@ -32,7 +32,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
                 childBuilder.WithOwner();
                 childBuilder.ToJson();
             });
-            builder.HasOne(o => o.PreviousLog).WithOne().HasForeignKey<OrderLog>(o => o.PreviousLogId).IsRequired(false);
+            builder.HasOne(o => o.PreviousLog).WithMany(x => x.ChildLogs)
+                .HasForeignKey(o => o.PreviousLogId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
             builder.Property(o => o.Status).HasConversion<string>();
             builder.HasKey(o => o.Id);
         }
