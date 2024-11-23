@@ -44,10 +44,10 @@ namespace DiamondShop.Infrastructure.Services.Blobs
         {
             var gallery = GetCachedGalleryTemplate(order, cancellationToken);
             var key = $"{ORDERLOG_FOLDER}/{GetOrderLogNameIdentifier(orderLog)}";
-            var getMedia = gallery.Gallery[key];
-            if (getMedia == null)
+            var isSuccess = gallery.Gallery.TryGetValue(key, out var media);
+            if (isSuccess== false)
                 return new List<Media>();
-            return getMedia;
+            return media;
         }
 
         public async Task<Result<List<Media>>> GetOrderTransactionImages(Order order, Transaction transaction, CancellationToken cancellationToken = default)
