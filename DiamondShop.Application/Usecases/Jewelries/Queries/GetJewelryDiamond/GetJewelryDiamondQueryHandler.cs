@@ -24,20 +24,12 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond
     internal class GetJewelryDiamondQueryHandler : IRequestHandler<GetJewelryDiamondQuery, Result<PagingResponseDto<Jewelry>>>
     {
         private readonly IJewelryModelRepository _jewelryModelRepository;
-        private readonly IDiamondRepository _diamondRepository;
-        private readonly ISideDiamondRepository _sideDiamondRepository;
-        private readonly ISizeMetalRepository _sizeMetalRepository;
-        private readonly IJewelryModelService _jewelryModelService;
         private readonly IJewelryService _jewelryService;
 
-        public GetJewelryDiamondQueryHandler(IJewelryService jewelryService, ISizeMetalRepository sizeMetalRepository, IJewelryModelService jewelryModelService, IDiamondRepository diamondRepository, ISideDiamondRepository sideDiamondRepository, IJewelryModelRepository jewelryModelRepository)
+        public GetJewelryDiamondQueryHandler(IJewelryModelRepository jewelryModelRepository, IJewelryService jewelryService)
         {
-            _jewelryService = jewelryService;
-            _sizeMetalRepository = sizeMetalRepository;
-            _jewelryModelService = jewelryModelService;
-            _diamondRepository = diamondRepository;
-            _sideDiamondRepository = sideDiamondRepository;
             _jewelryModelRepository = jewelryModelRepository;
+            _jewelryService = jewelryService;
         }
 
         public async Task<Result<PagingResponseDto<Jewelry>>> Handle(GetJewelryDiamondQuery request, CancellationToken cancellationToken)

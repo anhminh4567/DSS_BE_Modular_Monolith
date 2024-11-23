@@ -11,7 +11,8 @@ namespace DiamondShop.Application.Usecases.Blogs.Commands.Delete
     {
         public DeleteBlogCommandValidator()
         {
-            RuleFor(x => x.BlogId).NotEmpty();
+            RuleFor(p => p.BlogId).NotEmpty();
+            RuleFor(p => p.AccountId).NotEmpty();
         }
     }
 }

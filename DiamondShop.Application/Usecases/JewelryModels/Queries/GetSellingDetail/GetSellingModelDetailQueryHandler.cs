@@ -15,12 +15,10 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
 
         private readonly IJewelryRepository _jewelryRepository;
         private readonly IJewelryModelRepository _modelRepository;
-        private readonly IJewelryModelService _modelService;
         private readonly IDiamondServices _diamondServices;
-        public GetSellingModelDetailQueryHandler(IJewelryModelRepository modelRepository, IJewelryModelService modelService, IJewelryRepository jewelryRepository, IDiamondServices diamondServices)
+        public GetSellingModelDetailQueryHandler(IJewelryModelRepository modelRepository, IJewelryRepository jewelryRepository, IDiamondServices diamondServices)
         {
             _modelRepository = modelRepository;
-            _modelService = modelService;
             _jewelryRepository = jewelryRepository;
             _diamondServices = diamondServices;
         }
