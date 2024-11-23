@@ -43,14 +43,14 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Queries.GetAllOrderLogs
             var getParentLog = mappedLogs.Where(x => x.IsParentLog).ToList();
             var getChildLog = mappedLogs.Where(x => !x.IsParentLog).ToList();
 
-            foreach (var child in getChildLog)
-            {
-                var parent = getParentLog.FirstOrDefault(x => x.Id == child.PreviousLogId);
-                if (parent != null)
-                {
-                    parent.ChildLog.Add(child);
-                }
-            }
+            //foreach (var child in getChildLog)
+            //{
+            //    var parent = getParentLog.FirstOrDefault(x => x.Id == child.PreviousLogId);
+            //    if (parent != null)
+            //    {
+            //        parent.ChildLog.Add(child);
+            //    }
+            //}
             return getParentLog.OrderBy(x => x.CreatedDate).ToList();
         }
     }

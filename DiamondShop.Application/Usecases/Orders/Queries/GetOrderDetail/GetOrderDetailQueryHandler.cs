@@ -1,5 +1,7 @@
-﻿using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+﻿using DiamondShop.Application.Dtos.Responses.Orders;
+using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
@@ -7,7 +9,9 @@ using DiamondShop.Domain.Repositories.JewelryReviewRepo;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
+using MapsterMapper;
 using MediatR;
+using Serilog;
 
 namespace DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail
 {
@@ -18,13 +22,15 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail
         private readonly IOrderService _orderService;
         private readonly IOrderLogRepository _orderLogRepository;
         private readonly IJewelryReviewRepository _jewelryReviewRepository;
+        private readonly IMapper _mapper;
 
-        public GetOrderDetailQueryHandler(IOrderRepository orderRepository, IOrderService orderService, IOrderLogRepository orderLogRepository, IJewelryReviewRepository jewelryReviewRepository)
+        public GetOrderDetailQueryHandler(IOrderRepository orderRepository, IOrderService orderService, IOrderLogRepository orderLogRepository, IJewelryReviewRepository jewelryReviewRepository, IMapper mapper)
         {
             _orderRepository = orderRepository;
             _orderService = orderService;
             _orderLogRepository = orderLogRepository;
             _jewelryReviewRepository = jewelryReviewRepository;
+            _mapper = mapper;
         }
 
         public async Task<Result<Order>> Handle(GetOrderDetailQuery request, CancellationToken cancellationToken)
@@ -39,7 +45,21 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail
                 (role == AccountRole.DelivererId && order.DelivererId != AccountId.Parse(accountId)))
                 return Result.Fail(OrderErrors.NoPermissionToViewError);
             var orderLog = await _orderLogRepository.GetOrderLogs(order, cancellationToken);
-            order.Logs = orderLog;
+            List<OrderLog> returnLogDetail = new();
+            ////var mappedLogs = _mapper.Map<List<OrderLogDto>>(orderLog);
+            var getParentLog = orderLog.Where(x => x.IsParentLog).ToList();
+            //var getChildLog = orderLog.Where(x => !x.IsParentLog).ToList();
+
+            //foreach (var child in getChildLog)
+            //{
+            //    var parent = getParentLog.FirstOrDefault(x => x.Id == child.PreviousLogId);
+            //    if (parent != null)
+            //    {
+            //        parent.ChildLogs.Add(child);
+            //    }
+            //}
+            getParentLog.OrderBy(x => x.CreatedDate).ToList();
+            order.Logs = getParentLog;
             //check reviewed
             if(order.Status == Domain.Models.Orders.Enum.OrderStatus.Success)
             {

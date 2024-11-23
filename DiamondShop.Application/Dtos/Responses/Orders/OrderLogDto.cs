@@ -17,7 +17,8 @@ namespace DiamondShop.Application.Dtos.Responses.Orders
 
         public List<MediaDto>? LogImages { get; set; }
         public string? DeliveryPackageId { get; set; }
-        public List<OrderLogDto> ChildLog { get; set; } = new();
+        //public List<OrderLogDto> ChildLog { get; set; } = new();
+        public List<OrderLogDto>? ChildLogs { get; set; }
         public bool IsParentLog { get; set; }
     }
 }
