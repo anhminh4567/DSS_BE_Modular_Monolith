@@ -34,13 +34,15 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
         private readonly IDiscountService _discountService;
         private readonly IDiscountRepository _discountRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IAccountRepository _accountRepository;
         private List<Discount> ActiveDiscount = new();
         private List<DiamondShape> Shapes = new();
         private int Count = 0;
         private bool IncludeJewelryDiamond = false;
         private int TotalTake = 0;
         private int MaxInDb = 0;
-        public GetDiamondPagingQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, IDiamondServices diamondService, IDiamondShapeRepository diamondShapeRepository, IDiscountService discountService, IDiscountRepository discountRepository, IHttpContextAccessor httpContextAccessor)
+
+        public GetDiamondPagingQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, IDiamondServices diamondService, IDiamondShapeRepository diamondShapeRepository, IDiscountService discountService, IDiscountRepository discountRepository, IHttpContextAccessor httpContextAccessor, IAccountRepository accountRepository)
         {
             _diamondRepository = diamondRepository;
             _diamondPriceRepository = diamondPriceRepository;
@@ -49,6 +51,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             _discountService = discountService;
             _discountRepository = discountRepository;
             _httpContextAccessor = httpContextAccessor;
+            _accountRepository = accountRepository;
         }
 
         public async Task<Result<PagingResponseDto<Diamond>>> Handle(GetDiamondPagingQuery request, CancellationToken cancellationToken)
@@ -72,7 +75,16 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             TotalTake = (start + 1) * pageSize;
             MaxInDb = _diamondRepository.GetCount();
             var finalResult = await GetData(diamondListResponse, 0, pageSize, 0, request);
-
+            var selectLockedDiamond = diamondListResponse
+                .Where(x => x.Status == Domain.Common.Enums.ProductStatus.LockForUser && x.ProductLock != null)
+                .ToList();
+            var getAccounts = await _accountRepository.GetAccounts(selectLockedDiamond.Select(x => x.ProductLock.AccountId).ToList());   
+            foreach (var diamond in selectLockedDiamond)
+            {
+                var accountLocked = getAccounts.FirstOrDefault(x => x.Id == diamond.ProductLock.AccountId);
+                diamond.Status = Domain.Common.Enums.ProductStatus.Active;
+                diamond.ProductLock.Account = accountLocked;
+            }
             var totalPage = (int)Math.Ceiling((decimal)Count / (decimal)pageSize);
             var response = new PagingResponseDto<Diamond>(
                 TotalPage: totalPage,

@@ -46,6 +46,7 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public decimal? SoldPrice { get; set; }
         public decimal? DefaultPrice { get; set; }
         public DiscountDto? Discount { get; set; }
+        public ProductLockDto? ProductLock { get; set; }
         public decimal TruePrice { get; set; }
         //public decimal? DiscountPrice { get; set; }
         public decimal DiscountReducedAmount { get; set; } 

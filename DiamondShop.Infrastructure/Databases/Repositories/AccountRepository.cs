@@ -54,5 +54,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                 .SelectMany(x => x.Accounts).Distinct().CountAsync();
             return roleQuery;
         }
+
+        public Task<List<Account>> GetAccounts(List<AccountId> accountIds, CancellationToken cancellationToken = default)
+        {
+            return _set.Where(x => accountIds.Contains(x.Id)).ToListAsync();
+        }
     }
 }

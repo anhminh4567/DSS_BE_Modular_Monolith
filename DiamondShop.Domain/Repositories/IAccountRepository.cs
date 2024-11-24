@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Models.AccountAggregate;
+using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.RoleAggregate;
 using System;
 using System.Collections;
@@ -14,5 +15,6 @@ namespace DiamondShop.Domain.Repositories
         Task<Account?> GetByIdentityId(string identityId, CancellationToken cancellationToken = default);
         Task<List<Account>> GetByRoles(List<AccountRole> roles, CancellationToken cancellationToken = default);
         Task<int> GetAccountCountsInRoles(List<AccountRole> roles, CancellationToken cancellationToken = default);
+        Task<List<Account>> GetAccounts(List<AccountId> accountIds, CancellationToken cancellationToken = default);
     }
 }

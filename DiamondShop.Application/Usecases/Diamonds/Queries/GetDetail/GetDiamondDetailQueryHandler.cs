@@ -26,8 +26,9 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail
         private readonly IDiamondServices _diamondServices;
         private readonly IDiscountService _discountService;
         private readonly IDiscountRepository _discountRepository;
+        private readonly IAccountRepository _accountRepository;
 
-        public GetDiamondDetailQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, ILogger<GetDiamondDetail> logger, IDiamondServices diamondServices, IDiscountService discountService, IDiscountRepository discountRepository)
+        public GetDiamondDetailQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, ILogger<GetDiamondDetail> logger, IDiamondServices diamondServices, IDiscountService discountService, IDiscountRepository discountRepository, IAccountRepository accountRepository)
         {
             _diamondRepository = diamondRepository;
             _diamondPriceRepository = diamondPriceRepository;
@@ -35,6 +36,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail
             _diamondServices = diamondServices;
             _discountService = discountService;
             _discountRepository = discountRepository;
+            _accountRepository = accountRepository;
         }
 
         public async Task<Result<Diamond>> Handle(GetDiamondDetail request, CancellationToken cancellationToken)
@@ -53,6 +55,14 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail
             //var testingOnly = await _diamondRepository.GetByIdIncludeDiscountAndPromotion(parsedId);
             var getAllDiscount = await _discountRepository.GetActiveDiscount();
             _diamondServices.AssignDiamondDiscount(getResult, getAllDiscount).Wait();
+            if(getResult.ProductLock != null && getResult.Status == Domain.Common.Enums.ProductStatus.LockForUser)
+            {
+                if(getResult.ProductLock.AccountId != null)
+                {
+                    var account = await _accountRepository.GetById(getResult.ProductLock.AccountId);
+                    getResult.ProductLock.Account = account;
+                }
+            }
             return Result.Ok(getResult);
         }
     }
