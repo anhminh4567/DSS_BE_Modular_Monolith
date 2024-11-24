@@ -225,6 +225,10 @@ namespace DiamondShop.Domain.Models.Diamonds
             {
                 DefaultPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(LockedPriceForCustomer.Value);
             }
+            else
+            {
+                DefaultPrice = null;
+            }
                 
         }
         public void PreOrder(decimal? askingPrice)

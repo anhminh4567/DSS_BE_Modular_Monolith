@@ -162,14 +162,15 @@ namespace DiamondShop.Infrastructure.Services.Pdfs
             {
                 GlobalSettings = {
                     ColorMode = ColorMode.Color,
-                    Orientation = Orientation.Landscape,
-                    PaperSize = PaperKind.A4Plus,
+                    Orientation = Orientation.Portrait,
+                    PaperSize = PaperKind.A4,
                 },
                 Objects = {
                     new ObjectSettings() {
                         PagesCount = true,
                         HtmlContent = htmlString,
-                        WebSettings = { DefaultEncoding = "utf-8" },
+                        WebSettings = { LoadImages = true },
+                        
                         //HeaderSettings = { FontSize = 9, Right = "Page [page] of [toPage]", Line = true, Spacing = 2.812 }
                     }
                 }
