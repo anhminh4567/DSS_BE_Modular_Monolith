@@ -20,7 +20,10 @@ namespace DiamondShop.Infrastructure.Services.Pdfs
         private const string OrderInvoiceTemplateFileName = "OrderInvoiceTemplate.cshtml";
         private readonly IOptions<PublicBlobOptions> _publicBlobOptions;
         private readonly IOptions<ExternalUrlsOptions> _externalUrlsOptions;
-
+        static GeneratePdfService()
+        {
+            SelectPdf.GlobalProperties.EnableFallbackToRestrictedRenderingEngine = true;
+        }
         public GeneratePdfService(IOptions<PublicBlobOptions> publicBlobOptions, IOptions<ExternalUrlsOptions> externalUrlsOptions)
         {
             _publicBlobOptions = publicBlobOptions;
