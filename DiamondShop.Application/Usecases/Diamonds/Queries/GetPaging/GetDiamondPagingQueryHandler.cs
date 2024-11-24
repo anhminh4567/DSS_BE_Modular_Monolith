@@ -82,7 +82,6 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             foreach (var diamond in selectLockedDiamond)
             {
                 var accountLocked = getAccounts.FirstOrDefault(x => x.Id == diamond.ProductLock.AccountId);
-                diamond.Status = Domain.Common.Enums.ProductStatus.Active;
                 diamond.ProductLock.Account = accountLocked;
             }
             var totalPage = (int)Math.Ceiling((decimal)Count / (decimal)pageSize);

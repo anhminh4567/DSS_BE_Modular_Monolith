@@ -68,7 +68,6 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         {
             return _set.IgnoreQueryFilters().Where(x => x.ProductLock != null 
             && x.ProductLock.AccountId == accountId 
-            && x.IsLabDiamond 
             && x.Status == ProductStatus.LockForUser)
                 .ToListAsync(cancellationToken);
         }
