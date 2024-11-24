@@ -63,6 +63,10 @@ using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using FluentValidation;
+using DinkToPdf.Contracts;
+using DinkToPdf;
+using System.Runtime.Loader;
+using System.Runtime.InteropServices;
 namespace DiamondShop.Infrastructure
 {
     public static class DependencyInjections
@@ -238,6 +242,15 @@ namespace DiamondShop.Infrastructure
             }
             fluentEmailBuilder.AddRazorRenderer();
             services.AddTransient<IEmailService, EmailService>();
+            var libraryFileName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "libwkhtmltox.dll" : "libwkhtmltox.so";
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Library file name: " + libraryFileName);
+            Console.ResetColor();
+            var wkHtmlToPdfPath = Path.Combine(AppContext.BaseDirectory, "wkhtmltox", libraryFileName);
+            var context = new CustomAssemblyLoadContext();//Path.Combine(Directory.GetCurrentDirectory(), "libwkhtmltox.dll")
+            context.LoadUnmanagedLibrary(wkHtmlToPdfPath);
+            services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+
             return services;
         }
         internal static IServiceCollection AddPayments(this IServiceCollection services, IConfiguration configuration) 
@@ -343,6 +356,22 @@ namespace DiamondShop.Infrastructure
             }
 
             return new string(chars);
+        }
+    }
+    internal class CustomAssemblyLoadContext : AssemblyLoadContext
+    {
+        public IntPtr LoadUnmanagedLibrary(string absolutePath)
+        {
+            return LoadUnmanagedDll(absolutePath);
+        }
+        protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
+        {
+            return LoadUnmanagedDllFromPath(unmanagedDllName);
+        }
+
+        protected override Assembly Load(AssemblyName assemblyName)
+        {
+            throw new NotImplementedException();
         }
     }
 }

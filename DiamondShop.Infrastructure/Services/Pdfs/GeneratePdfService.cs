@@ -3,9 +3,12 @@ using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services.Pdfs.Models;
+using DinkToPdf;
+using DinkToPdf.Contracts;
 using Microsoft.Extensions.Options;
 using Razor.Templating.Core;
 using SelectPdf;
+using Syncfusion.HtmlConverter;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -20,25 +23,68 @@ namespace DiamondShop.Infrastructure.Services.Pdfs
         private const string OrderInvoiceTemplateFileName = "OrderInvoiceTemplate.cshtml";
         private readonly IOptions<PublicBlobOptions> _publicBlobOptions;
         private readonly IOptions<ExternalUrlsOptions> _externalUrlsOptions;
+        private IConverter _converter;
+
         static GeneratePdfService()
         {
             SelectPdf.GlobalProperties.EnableFallbackToRestrictedRenderingEngine = true;
+
         }
-        public GeneratePdfService(IOptions<PublicBlobOptions> publicBlobOptions, IOptions<ExternalUrlsOptions> externalUrlsOptions)
+        public GeneratePdfService(IOptions<PublicBlobOptions> publicBlobOptions, IOptions<ExternalUrlsOptions> externalUrlsOptions, IConverter converter)
         {
             _publicBlobOptions = publicBlobOptions;
             _externalUrlsOptions = externalUrlsOptions;
+            _converter = converter;
         }
 
         public static Stream GeneratePdfDoc(string htmlString)
         {
-            Stream returnStream = new MemoryStream();
-            returnStream.Position = 0;
-            HtmlToPdf converter = new HtmlToPdf();
-            PdfDocument doc = converter.ConvertHtmlString(htmlString);
-            doc.Save(returnStream);
-            returnStream.Position = 0;
-            return returnStream;
+            //Dink to pdf convertere
+            var converter = new SynchronizedConverter(new PdfTools());
+            var doc = new HtmlToPdfDocument()
+            {
+                GlobalSettings = {
+                    ColorMode = ColorMode.Color,
+                    Orientation = Orientation.Landscape,
+                    PaperSize = PaperKind.A4Plus,
+                },
+                Objects = {
+                    new ObjectSettings() {
+                        PagesCount = true,
+                        HtmlContent = htmlString,
+                        WebSettings = { DefaultEncoding = "utf-8" },
+                        //HeaderSettings = { FontSize = 9, Right = "Page [page] of [toPage]", Line = true, Spacing = 2.812 }
+                    }
+                }
+            };
+            byte[] pdf = converter.Convert(doc);
+            MemoryStream stream = new MemoryStream(pdf);
+            stream.Position = 0;
+            return stream;
+            //Syncfucntion Convertere
+            //HtmlToPdfConverter htmlConverter = new HtmlToPdfConverter();
+            //BlinkConverterSettings settings = new BlinkConverterSettings();
+            ////Set command line arguments to run without sandbox.
+            //settings.CommandLineArguments.Add("--no-sandbox");
+            //settings.CommandLineArguments.Add("--disable-setuid-sandbox");
+            ////Assign Blink converter settings to the HTML converter 
+            //htmlConverter.ConverterSettings = settings;
+            //Syncfusion.Pdf.PdfDocument document = htmlConverter.Convert(htmlString, string.Empty);
+            //MemoryStream stream = new MemoryStream();
+            //document.Save(stream);
+            //stream.Position = 0;
+            ////Close the document
+            //document.Close(true);
+            //return stream;
+
+            //SelectPdf
+            //Stream returnStream = new MemoryStream();
+            //returnStream.Position = 0;
+            //HtmlToPdf converter = new HtmlToPdf();
+            //PdfDocument doc = converter.ConvertHtmlString(htmlString);
+            //doc.Save(returnStream);
+            //returnStream.Position = 0;
+            //return returnStream;
         }
 
         public string GetTemplateHtmlStringFromOrder(Order order, Account customerAccount)
@@ -111,6 +157,27 @@ namespace DiamondShop.Infrastructure.Services.Pdfs
 
         public Stream ParseHtmlToPdf(string htmlString)
         {
+            var converter = _converter;
+            var doc = new HtmlToPdfDocument()
+            {
+                GlobalSettings = {
+                    ColorMode = ColorMode.Color,
+                    Orientation = Orientation.Landscape,
+                    PaperSize = PaperKind.A4Plus,
+                },
+                Objects = {
+                    new ObjectSettings() {
+                        PagesCount = true,
+                        HtmlContent = htmlString,
+                        WebSettings = { DefaultEncoding = "utf-8" },
+                        //HeaderSettings = { FontSize = 9, Right = "Page [page] of [toPage]", Line = true, Spacing = 2.812 }
+                    }
+                }
+            };
+            byte[] pdf = converter.Convert(doc);
+            MemoryStream stream = new MemoryStream(pdf);
+            stream.Position = 0;
+            return stream;
             return GeneratePdfDoc(htmlString);
         }
     }

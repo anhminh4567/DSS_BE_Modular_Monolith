@@ -49,17 +49,24 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Queries.GetLogDetails
             {
                 config.Default
                     .PreserveReference(true) // To avoid circular references
-                    .MaxDepth((2)); // Apply depth from context
+                    .MaxDepth((3)); // Apply depth from context
             });
-            
-            var mappedLogs = logs.Adapt<List<OrderLogDto>>(config); //_mapper.Map<List<OrderLogDto>>(logs);
-            var getMappedLog = getLog.Adapt<OrderLogDto>(config);// _mapper.Map<OrderLogDto>(getLog);
-            getMappedLog.PreviousLog = mappedLogs.FirstOrDefault(x => x.Id == getMappedLog.PreviousLogId);
-            
+
+            //var mappedLogs = logs.Adapt<List<OrderLogDto>>(config); //_mapper.Map<List<OrderLogDto>>(logs);
+            //var getMappedLog = getLog.Adapt<OrderLogDto>(config);// _mapper.Map<OrderLogDto>(getLog);
+            //getMappedLog.PreviousLog = mappedLogs.FirstOrDefault(x => x.Id == getMappedLog.PreviousLogId);
+
             var getImages = await _orderFileServices.GetOrderLogImages(getOrder, getLog, cancellationToken);
-            
-            getMappedLog.LogImages = _mapper.Map<List<MediaDto>>(getImages.Value);
-            return getMappedLog;
+            foreach (var childLog in getLog.ChildLogs)
+            {
+                var getImagesChild = await _orderFileServices.GetOrderLogImages(getOrder, childLog, cancellationToken);
+                childLog.LogImages = getImagesChild.Value;
+            }
+            var mappedLogs = getLog.Adapt<OrderLogDto>(config);
+            //getMappedLog.LogImages = _mapper.Map<List<MediaDto>>(getImages.Value);
+            //return getMappedLog;
+
+            return mappedLogs;
         }
     }
 }
