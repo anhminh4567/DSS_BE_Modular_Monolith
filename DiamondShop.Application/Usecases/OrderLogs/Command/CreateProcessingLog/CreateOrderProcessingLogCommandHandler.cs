@@ -69,7 +69,7 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Command.CreateProcessingLog
                         return Result.Fail(FileUltilities.Errors.NotCorrectImageFileType);
                     if (FileUltilities.IsImageFileContentType(image.ContentType) == false)
                         return Result.Fail(FileUltilities.Errors.NotCorrectImageFileType);
-                    FileData fileData = new FileData(image.FileName, ext, image.ContentType, image.OpenReadStream());
+                    FileData fileData = new FileData(image.FileName, ext.Replace(".",""), image.ContentType, image.OpenReadStream());
                     imageDatas.Add(fileData);
                 }
                 var result = await _orderFileServices.UploadOrderLogImage(getOrder, processingLog, imageDatas.ToArray());

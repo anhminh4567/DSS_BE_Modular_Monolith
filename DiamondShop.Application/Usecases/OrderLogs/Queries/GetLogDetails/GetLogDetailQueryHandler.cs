@@ -6,6 +6,7 @@ using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using FluentResults;
 using FluentValidation.Results;
+using Mapster;
 using MapsterMapper;
 using MediatR;
 using System;
@@ -44,10 +45,19 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Queries.GetLogDetails
             if (getLog == null)
                 return Result.Fail(new NotFoundError("Log not found"));
 
-            var mappedLogs = _mapper.Map<List<OrderLogDto>>(logs);
-            var getMappedLog = _mapper.Map<OrderLogDto>(getLog);
+            var config = TypeAdapterConfig.GlobalSettings.Fork(config =>
+            {
+                config.Default
+                    .PreserveReference(true) // To avoid circular references
+                    .MaxDepth((2)); // Apply depth from context
+            });
+            
+            var mappedLogs = logs.Adapt<List<OrderLogDto>>(config); //_mapper.Map<List<OrderLogDto>>(logs);
+            var getMappedLog = getLog.Adapt<OrderLogDto>(config);// _mapper.Map<OrderLogDto>(getLog);
             getMappedLog.PreviousLog = mappedLogs.FirstOrDefault(x => x.Id == getMappedLog.PreviousLogId);
+            
             var getImages = await _orderFileServices.GetOrderLogImages(getOrder, getLog, cancellationToken);
+            
             getMappedLog.LogImages = _mapper.Map<List<MediaDto>>(getImages.Value);
             return getMappedLog;
         }

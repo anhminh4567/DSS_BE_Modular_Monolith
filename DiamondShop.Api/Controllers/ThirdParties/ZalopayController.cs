@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services.Payments.Zalopays;
+using DiamondShop.Infrastructure.Services.Payments.Zalopays.Constants;
 using DiamondShop.Infrastructure.Services.Payments.Zalopays.Models;
 using DiamondShop.Infrastructure.Services.Payments.Zalopays.Models.Responses;
 using MapsterMapper;
@@ -79,8 +80,12 @@ namespace DiamondShop.Api.Controllers.ThirdParties
         public async Task<ActionResult> Return()
         {
             //this will redirect client to the frontend, but not important for now, so just return ok
+            var data = HttpContext.Request.Query;
+            var sucessStatus = ZalopayReturnCode.SUCCESS;
+            var status = data["return_code"];
             var redirectUrl = _frontendOptions.Value.FailedPaymentUrl;
-            return Redirect(redirectUrl + "/"+HttpContext.Request.QueryString.Value);
+            var returnUrl = _frontendOptions.Value.SuccessPaymentUrl;
+            return Redirect(returnUrl + "/"+HttpContext.Request.QueryString.Value);
             //return Ok(HttpContext.Request.QueryString.Value);
         }
     }

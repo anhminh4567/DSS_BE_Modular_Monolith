@@ -165,7 +165,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             string basePath = GetAzureFilePath(fullDetailOrder);
             basePath = $"{basePath}/{INVOICE_FOLDER}";
             string fileName = fullDetailOrder.OrderCode;
-            var uploadResult = await UploadFromBasePath(basePath, new FileData[] { new FileData(fileName,"application/pdf", ".pdf",uploadStream) }, cancellationToken);
+            var uploadResult = await UploadFromBasePath(basePath, new FileData[] { new FileData(fileName, "pdf", "application/pdf", uploadStream) }, cancellationToken);
             return new Media
             {
                 ContentType = "application/pdf",
@@ -180,7 +180,7 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             var getFolders = await GetFolders(paths, cancellationToken);
             var basePath = $"{paths}/{INVOICE_FOLDER}"+ "/";
             Media foundedMedia = null;
-            foreach (var path in getFolders)
+             foreach (var path in getFolders)
             {
                 if (path.MediaPath.StartsWith(basePath))
                 {

@@ -1,10 +1,12 @@
-﻿using DiamondShop.Application.Dtos.Responses.Orders;
+﻿using DiamondShop.Application.Dtos.Responses;
+using DiamondShop.Application.Dtos.Responses.Orders;
 using DiamondShop.Application.Services.Interfaces.Orders;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using FluentResults;
+using Mapster;
 using MapsterMapper;
 using MediatR;
 using System;
@@ -38,11 +40,18 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Queries.GetAllOrderLogs
             if (getOrder == null)
                 return Result.Fail(new NotFoundError("Order not found"));
             var logs = await _orderLogRepository.GetOrderLogs(getOrder, cancellationToken);
-            var mappedLogs = _mapper.Map<List<OrderLogDto>>(logs);
+            //var mappedLogs = _mapper.Map<List<OrderLogDto>>(logs);
 
-            var getParentLog = mappedLogs.Where(x => x.IsParentLog).ToList();
-            var getChildLog = mappedLogs.Where(x => !x.IsParentLog).ToList();
-
+            //var getParentLog = mappedLogs.Where(x => x.IsParentLog).ToList();
+            //var getChildLog = mappedLogs.Where(x => !x.IsParentLog).ToList();
+            var getParentLog = logs.Where(x => x.IsParentLog).ToList();
+            var getChildLog = logs.Where(x => !x.IsParentLog).ToList();
+            var config = TypeAdapterConfig.GlobalSettings.Fork(config =>
+            {
+                config.Default
+                    .PreserveReference(true) // To avoid circular references
+                    .MaxDepth((3)); // Apply depth from context
+            });
             //foreach (var child in getChildLog)
             //{
             //    var parent = getParentLog.FirstOrDefault(x => x.Id == child.PreviousLogId);
@@ -51,7 +60,22 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Queries.GetAllOrderLogs
             //        parent.ChildLog.Add(child);
             //    }
             //}
-            return getParentLog.OrderBy(x => x.CreatedDate).ToList();
+            foreach(var parentLog in getParentLog)
+            {
+                if(parentLog.ChildLogs != null && parentLog.ChildLogs.Count > 0)
+                {
+                    foreach (var child in getChildLog)
+                    {
+                        var getImages = await _orderFileServices.GetOrderLogImages(getOrder, child, cancellationToken);
+                        child.LogImages = getImages.Value;
+                    }
+                }
+            }
+            var mappedLogs = getParentLog.Adapt<List<OrderLogDto>>(config); //_mapper.Map<List<OrderLogDto>>(logs);
+            //getMappedLog.PreviousLog = mappedLogs.FirstOrDefault(x => x.Id == getMappedLog.PreviousLogId);
+
+
+            return mappedLogs;// getParentLog.OrderBy(x => x.CreatedDate).ToList();
         }
     }
 
