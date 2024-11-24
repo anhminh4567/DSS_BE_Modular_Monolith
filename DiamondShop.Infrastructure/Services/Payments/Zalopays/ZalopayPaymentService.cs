@@ -190,7 +190,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             }
             var callbackUrl = string.Concat(_urlOptions.Value.HttpsUrl,"/", CallbackUri);
             var returnUrl = string.Concat(_urlOptions.Value.HttpsUrl,"/", ReturnUri);
-
+            //var returnUrl = string.Concat("https://3wkrskcn-7160.asse.devtunnels.ms", "/", ReturnUri);
             var order = paymentLinkRequest.Order;
             var embed_data = new ZalopayEmbeddedData
             {
