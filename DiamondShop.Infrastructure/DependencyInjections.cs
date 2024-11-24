@@ -286,6 +286,7 @@ namespace DiamondShop.Infrastructure
 
             //configure changeable settings
             services.Configure<ApplicationSettingGlobal>(config => { });
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NDaF1cX2hIfEx0QXxbf1x0ZFNMYV9bQHFPMyBoS35RckRiW3tednddRGFbVUJ/");
             return services;
         }
         // test if origin change work

@@ -157,27 +157,44 @@ namespace DiamondShop.Infrastructure.Services.Pdfs
 
         public Stream ParseHtmlToPdf(string htmlString)
         {
-            var converter = _converter;
-            var doc = new HtmlToPdfDocument()
-            {
-                GlobalSettings = {
-                    ColorMode = ColorMode.Color,
-                    Orientation = Orientation.Portrait,
-                    PaperSize = PaperKind.A4,
-                },
-                Objects = {
-                    new ObjectSettings() {
-                        PagesCount = true,
-                        HtmlContent = htmlString,
-                        WebSettings = { LoadImages = true },
-                        
-                        //HeaderSettings = { FontSize = 9, Right = "Page [page] of [toPage]", Line = true, Spacing = 2.812 }
-                    }
-                }
-            };
-            byte[] pdf = converter.Convert(doc);
-            MemoryStream stream = new MemoryStream(pdf);
+            //var converter = _converter;
+            //var doc = new HtmlToPdfDocument()
+            //{
+            //    GlobalSettings = {
+            //        ColorMode = ColorMode.Color,
+            //        Orientation = Orientation.Portrait,
+            //        PaperSize = PaperKind.A4,
+
+            //    },
+            //    Objects = {
+            //        new ObjectSettings() {
+            //            PagesCount = true,
+            //            HtmlContent = htmlString,
+            //            WebSettings = { LoadImages = true },
+            //            LoadSettings = { JSDelay  =3000 },
+            //            //HeaderSettings = { FontSize = 9, Right = "Page [page] of [toPage]", Line = true, Spacing = 2.812 }
+            //        }
+            //    },
+            //};
+            //byte[] pdf = converter.Convert(doc);
+            ////doc.Objects.h
+            //MemoryStream stream = new MemoryStream(pdf);
+            //stream.Position = 0;
+            //return stream;
+            //Syncfucntion Convertere
+            HtmlToPdfConverter htmlConverter = new HtmlToPdfConverter();
+            BlinkConverterSettings settings = new BlinkConverterSettings();
+            //Set command line arguments to run without sandbox.
+            settings.CommandLineArguments.Add("--no-sandbox");
+            settings.CommandLineArguments.Add("--disable-setuid-sandbox");
+            //Assign Blink converter settings to the HTML converter 
+            htmlConverter.ConverterSettings = settings;
+            Syncfusion.Pdf.PdfDocument document = htmlConverter.Convert(htmlString, string.Empty);
+            MemoryStream stream = new MemoryStream();
+            document.Save(stream);
             stream.Position = 0;
+            //Close the document
+            document.Close(true);
             return stream;
             return GeneratePdfDoc(htmlString);
         }
