@@ -246,7 +246,7 @@ namespace DiamondShop.Infrastructure
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("Library file name: " + libraryFileName);
             Console.ResetColor();
-            var wkHtmlToPdfPath = Path.Combine(AppContext.BaseDirectory, "wkhtmltox", libraryFileName);
+            var wkHtmlToPdfPath = Path.Combine(Directory.GetCurrentDirectory(), libraryFileName);
             var context = new CustomAssemblyLoadContext();//Path.Combine(Directory.GetCurrentDirectory(), "libwkhtmltox.dll")
             context.LoadUnmanagedLibrary(wkHtmlToPdfPath);
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));

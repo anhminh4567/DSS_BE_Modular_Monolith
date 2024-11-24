@@ -55,22 +55,4 @@
 			<_Parameter1>DiamondShop.Test.General</_Parameter1>
 		</AssemblyAttribute>
 	</ItemGroup>
-
-	<ItemGroup>
-	  <None Update="wkhtmltox\libwkhtmltox.dll">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		  <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-
-	  </None>
-	  <None Update="wkhtmltox\libwkhtmltox.dylib">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		  <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-
-	  </None>
-	  <None Update="wkhtmltox\libwkhtmltox.so">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		  <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-
-	  </None>
-	</ItemGroup>
 </Project>
