@@ -14,6 +14,7 @@ using FluentEmail.Core;
 using FluentResults;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Org.BouncyCastle.Utilities.IO;
 using System.IO;
 using System.Threading;
 
@@ -51,10 +52,29 @@ namespace DiamondShop.Infrastructure.Services.Blobs
                 return base.GetFolders(basePath, token);
             }
         }
-        public Task<Result> DeleteFiles(Jewelry jewelry, CancellationToken token = default)
+        public async Task<Result> DeleteFiles(Jewelry jewelry, CancellationToken token = default)
         {
             string basePath = $"{GetAzureFilePath(jewelry)}/{ReviewFileFolder(jewelry.SerialCode)}";
-            return base.DeleteFileAsync(basePath, token);
+            var medias = await base.GetFolders(basePath, token);
+            List<Task<Result>> deleteTasks = new();
+            foreach (var media in medias)
+            {
+                deleteTasks.Add(Task.Run(async () =>
+                {
+                    await base.DeleteFileAsync(media.MediaPath, token);
+                    return Result.Ok();
+                }));
+            }
+            var results = await Task.WhenAll(deleteTasks);
+            var successResults = results.Where(r => r.IsSuccess).ToArray();
+            if (successResults.Count() == results.Count())
+                return Result.Ok();
+            else
+            {
+                List<IError> errors = new List<IError>() { new Error("Failed to upload some file") };
+                results.Where(r => r.IsFailed).ForEach(r => errors.AddRange(r.Errors));
+                return Result.Fail(errors);
+            }
         }
         public async Task<Result<string[]>> UploadReview(Jewelry jewelry, FileData[] streams, CancellationToken token = default)
         {
@@ -101,6 +121,6 @@ namespace DiamondShop.Infrastructure.Services.Blobs
         string GetAzureFilePath(JewelryModelId modelId) => $"{PARENT_FOLDER}/{modelId.Value}";
         string GetAzureFilePath(JewelryModelId modelId, MetalId metalId) => $"{PARENT_FOLDER}/{modelId.Value}/{metalId.Value}";
 
-        
+
     }
 }

@@ -15,21 +15,21 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.JewelryReviews.Commands.Remove
 {
-    public record RemoveJewelryReviewCommand(string AccountId, string JewelryId) : IRequest<Result>;
-    internal class RemoveJewelryReviewCommandHandler : IRequestHandler<RemoveJewelryReviewCommand, Result>
+    public record DeleteJewelryReviewCommand(string AccountId, string JewelryId) : IRequest<Result>;
+    internal class DeleteJewelryReviewCommandHandler : IRequestHandler<DeleteJewelryReviewCommand, Result>
     {
         private readonly IJewelryReviewRepository _jewelryReviewRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IJewelryReviewFileService _jewelryReviewFileService;
 
-        public RemoveJewelryReviewCommandHandler(IJewelryReviewRepository jewelryReviewRepository, IUnitOfWork unitOfWork, IJewelryReviewFileService jewelryReviewFileService)
+        public DeleteJewelryReviewCommandHandler(IJewelryReviewRepository jewelryReviewRepository, IUnitOfWork unitOfWork, IJewelryReviewFileService jewelryReviewFileService)
         {
             _jewelryReviewRepository = jewelryReviewRepository;
             _unitOfWork = unitOfWork;
             _jewelryReviewFileService = jewelryReviewFileService;
         }
 
-        public async Task<Result> Handle(RemoveJewelryReviewCommand request, CancellationToken token)
+        public async Task<Result> Handle(DeleteJewelryReviewCommand request, CancellationToken token)
         {
             request.Deconstruct(out string accountId, out string jewelryId);
             await _unitOfWork.BeginTransactionAsync(token);

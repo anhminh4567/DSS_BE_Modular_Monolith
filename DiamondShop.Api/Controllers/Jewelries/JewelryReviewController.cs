@@ -66,14 +66,14 @@ namespace DiamondShop.Api.Controllers.Jewelries
             else
                 return MatchError(result.Errors, ModelState);
         }
-        [HttpDelete("Remove")]
+        [HttpDelete("Delete")]
         [Authorize(Roles = AccountRole.CustomerId)]
         public async Task<ActionResult> HideJewelryReview([FromQuery] string JewelryId)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
             {
-                var result = await _sender.Send(new RemoveJewelryReviewCommand(userId.Value, JewelryId));
+                var result = await _sender.Send(new DeleteJewelryReviewCommand(userId.Value, JewelryId));
                 if (result.IsSuccess)
                 {
                     return Ok("Đã xóa nhận xét");
