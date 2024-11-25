@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Commons.Responses;
 using DiamondShop.Application.Dtos.Responses.CustomizeRequests;
 using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Cancel;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.ChangeDiamond;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Checkout;
 using DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Customer;
@@ -187,12 +188,31 @@ namespace DiamondShop.Api.Controllers.CustomRequest
         }
         [HttpPut("Reject")]
         [Authorize(Roles = AccountRole.CustomerId)]
-        public async Task<ActionResult> CheckRequestPrice([FromQuery] string CustomizeRequestId)
+        public async Task<ActionResult> CustomerRejectRequest([FromQuery] string CustomizeRequestId)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
             {
                 var result = await _sender.Send(new CustomerRejectRequestCommand(CustomizeRequestId, userId.Value));
+                if (result.IsSuccess)
+                {
+                    var mappedResult = _mapper.Map<CustomizeRequestDto>(result.Value);
+                    return Ok(mappedResult);
+                }
+                else
+                    return MatchError(result.Errors, ModelState);
+            }
+            else
+                return Unauthorized();
+        }
+        [HttpPut("Cancel")]
+        [Authorize(Roles = AccountRole.CustomerId)]
+        public async Task<ActionResult> CustomerCancelRequest([FromQuery] string CustomizeRequestId)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(new CustomerCancelRequestCommand(CustomizeRequestId, userId.Value));
                 if (result.IsSuccess)
                 {
                     var mappedResult = _mapper.Map<CustomizeRequestDto>(result.Value);

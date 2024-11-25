@@ -17,7 +17,6 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
     public record CreateJewelryModelCommand(JewelryModelRequestDto ModelSpec, List<MainDiamondRequestDto>? MainDiamondSpecs, List<SideDiamondRequestDto>? SideDiamondSpecs, List<ModelMetalSizeRequestDto> MetalSizeSpecs) : IRequest<Result<JewelryModel>>;
     internal class CreateJewelryModelCommandHandler : IRequestHandler<CreateJewelryModelCommand, Result<JewelryModel>>
     {
-        private readonly ISender _sender;
         private readonly ISizeMetalRepository _sizeMetalRepository;
         private readonly IMainDiamondRepository _mainDiamondRepository;
         private readonly ISideDiamondRepository _sideDiamondRepository;
@@ -26,9 +25,8 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDiamondServices _diamondServices;
 
-        public CreateJewelryModelCommandHandler(ISender sender, ISizeMetalRepository sizeMetalRepository, IMainDiamondRepository mainDiamondRepository, ISideDiamondRepository sideDiamondRepository, IJewelryModelRepository jewelryModelRepository, IJewelryModelCategoryRepository categoryRepository, IUnitOfWork unitOfWork, IDiamondServices diamondServices)
+        public CreateJewelryModelCommandHandler(ISizeMetalRepository sizeMetalRepository, IMainDiamondRepository mainDiamondRepository, ISideDiamondRepository sideDiamondRepository, IJewelryModelRepository jewelryModelRepository, IJewelryModelCategoryRepository categoryRepository, IUnitOfWork unitOfWork, IDiamondServices diamondServices)
         {
-            _sender = sender;
             _sizeMetalRepository = sizeMetalRepository;
             _mainDiamondRepository = mainDiamondRepository;
             _sideDiamondRepository = sideDiamondRepository;

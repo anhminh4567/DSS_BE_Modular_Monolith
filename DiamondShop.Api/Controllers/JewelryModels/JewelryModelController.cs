@@ -12,8 +12,10 @@ using DiamondShop.Application.Usecases.SideDiamonds.Commands.Create;
 using DiamondShop.Application.Usecases.SizeMetals.Commands.Create;
 using DiamondShop.Application.Usecases.SizeMetals.Commands.Delete;
 using DiamondShop.Application.Usecases.SizeMetals.Commands.Update;
+using DiamondShop.Domain.Models.RoleAggregate;
 using MapsterMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiamondShop.Api.Controllers.JewelryModels
@@ -139,6 +141,7 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             return MatchError(result.Errors, ModelState);
         }
         [HttpPut("Update/CraftmanFee")]
+        [Authorize(Roles = AccountRole.ManagerId)]
         public async Task<ActionResult> UpdateCraftmanFee([FromBody] UpdateModelFeeCommand updateModelFeeCommand)
         {
             var result = await _sender.Send(updateModelFeeCommand);
