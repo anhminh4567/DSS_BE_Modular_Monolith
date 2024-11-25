@@ -73,9 +73,9 @@ namespace DiamondShop.Domain.Models.Promotions
                 return Result.Fail("cannot set active for a promo that have no requirement at all");
             if (Gifts.Any() is false)
                 return Result.Fail("cannot set active for a promo that have no requirement at all");
-            if (DateTime.UtcNow < StartDate)
-                return Result.Fail("cannot set active since the start time is not up yet");
-            if (Status != Status.Scheduled && Status != Status.Paused)
+            //if (DateTime.UtcNow < StartDate)
+            //    return Result.Fail("cannot set active since the start time is not up yet");
+            if (Status != Status.Scheduled && Status != Status.Paused && Status != Status.Active)
                 return Result.Fail("cannot set active for a promo that is not in scheduled or paused state");
             Status = Status.Active;
             return Result.Ok();

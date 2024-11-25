@@ -18,8 +18,8 @@ using DiamondShop.Domain.Models.CustomizeRequests.ErrorMessages;
 
 namespace DiamondShop.Application.Usecases.Diamonds.Commands.DeletePreOrderDiamondFromCustomizeRequest
 {
-    public record DeletePreOrderDiamondCommand (string diamondId, string customizeRequestId, string diamondRequestId) :  IRequest<Result>;
-    internal class DeletePreOrderDiamondCommandHandler : IRequestHandler<DeletePreOrderDiamondCommand, Result>
+    public record DeletePreOrderDiamondCommand (string diamondId, string customizeRequestId, string diamondRequestId) :  IRequest<Result<string>>;
+    internal class DeletePreOrderDiamondCommandHandler : IRequestHandler<DeletePreOrderDiamondCommand, Result<string>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDiamondRepository _diamondRepository;
@@ -42,7 +42,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.DeletePreOrderDiamo
             _mapper = mapper;
         }
 
-        public async Task<Result> Handle(DeletePreOrderDiamondCommand request, CancellationToken cancellationToken)
+        public async Task<Result<string>> Handle(DeletePreOrderDiamondCommand request, CancellationToken cancellationToken)
         {
             var diamondId = DiamondId.Parse(request.diamondId);
             var customizeRequestId = CustomizeRequestId.Parse(request.customizeRequestId);
@@ -66,7 +66,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.DeletePreOrderDiamo
             _diamondRepository.Delete(diamond).Wait();
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
-            return Result.Ok();
+            return Result.Ok("finish");
             throw new NotImplementedException();
         }
     }

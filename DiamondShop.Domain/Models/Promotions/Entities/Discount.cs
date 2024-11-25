@@ -51,8 +51,8 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
                 return Result.Fail("cannot set active for a discount that is already expired or cancelled");
             if(DiscountReq.Any() is false)
                 return Result.Fail("cannot set active for a discount that have no requirement at all");
-            if(DateTime.UtcNow < StartDate)
-                return Result.Fail( "cannot set active since the start time is not up yet");
+            //if(DateTime.UtcNow < StartDate)
+            //    return Result.Fail( "cannot set active since the start time is not up yet");
             Status = Status.Active;
             return Result.Ok();
         }

@@ -21,7 +21,18 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.CreateFull
             {
                 RuleForEach(x => x.Requirements)
                     .Must(req => req.TargetType != Domain.Models.Promotions.Enum.TargetType.Order)
-                    .WithMessage((command,req) => DiscountErrors.OrderTargetNotAllowed.Message +", requirent với tên là " + req.Name);
+                    .WithMessage((command,req) => DiscountErrors.OrderTargetNotAllowed.Message +", requirent với tên là " + req.Name)
+                    .ChildRules(requirement =>
+                    {
+                        requirement.RuleFor(x => x.Name)
+                            .NotEmpty()
+                                .WithNotEmptyMessage();
+                        requirement.RuleFor(x => x.TargetType).Cascade(CascadeMode.Stop)
+                            .NotNull()
+                                .WithNotEmptyMessage()
+                            .IsInEnum()
+                                .WithIsInEnumMessage();
+                    });
             });
             //When(x => x.Requirements != null, () =>
             //{

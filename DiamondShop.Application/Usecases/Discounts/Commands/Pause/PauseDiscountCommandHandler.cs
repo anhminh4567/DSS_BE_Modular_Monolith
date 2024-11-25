@@ -37,17 +37,22 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Pause
             var getDiscount = await _discountRepository.GetById(parsedId);
             if (getDiscount is null)
                 return Result.Fail(DiscountErrors.NotFound);
-            var result = getDiscount.Pause();
-            if (result.IsSuccess)
+            if (getDiscount.Status == Status.Scheduled)
             {
-                await _discountRepository.Update(getDiscount);
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-                return getDiscount;
+                var result = getDiscount.SetActive();
+                if (result.IsFailed)
+                    return Result.Fail(result.Errors);
             }
             else
             {
-                return Result.Fail(result.Errors);
+                var result = getDiscount.Pause();
+                if (result.IsFailed)
+                    return Result.Fail(result.Errors);
             }
+            await _discountRepository.Update(getDiscount);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return getDiscount;
+
         }
     }
 }

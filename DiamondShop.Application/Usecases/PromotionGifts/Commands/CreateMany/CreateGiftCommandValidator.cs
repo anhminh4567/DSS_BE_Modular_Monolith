@@ -42,7 +42,24 @@ namespace DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany
                 RuleFor(x => x.DiamondRequirementSpec.caratFrom).GreaterThanOrEqualTo(0).WithMessage("carat must greater than 0");
                 RuleFor(x => x.DiamondRequirementSpec.caratTo).GreaterThanOrEqualTo(0).WithMessage("carat must greater than 0");
                 RuleFor(x => x.DiamondRequirementSpec.caratFrom).LessThanOrEqualTo(x => x.DiamondRequirementSpec.caratTo).WithMessage("carat from must be less than carat to"); ;
-
+                RuleFor(x => x.DiamondRequirementSpec.cutFrom)
+                    .IsInEnum()
+                    .WithIsInEnumMessage();
+                RuleFor(x => x.DiamondRequirementSpec.cutTo)
+                    .IsInEnum()
+                    .WithIsInEnumMessage();
+                RuleFor(x => x.DiamondRequirementSpec.colorFrom)
+                    .IsInEnum()
+                    .WithIsInEnumMessage();
+                RuleFor(x => x.DiamondRequirementSpec.colorTo)
+                    .IsInEnum()
+                    .WithIsInEnumMessage();
+                RuleFor(x => x.DiamondRequirementSpec.clarityFrom)
+                    .IsInEnum()
+                    .WithIsInEnumMessage();
+                RuleFor(x => x.DiamondRequirementSpec.clarityTo)
+                    .IsInEnum()
+                    .WithIsInEnumMessage();
                 RuleFor(x => (int)x.DiamondRequirementSpec.cutFrom).LessThanOrEqualTo(x => (int)x.DiamondRequirementSpec.cutTo).WithMessage("cut from must be less than cut to");
                 RuleFor(x => (int)x.DiamondRequirementSpec.clarityFrom).LessThanOrEqualTo(x => (int)x.DiamondRequirementSpec.clarityTo).WithMessage("clarity from must be less than clarity to");
                 RuleFor(x => (int)x.DiamondRequirementSpec.colorFrom).LessThanOrEqualTo(x => (int)x.DiamondRequirementSpec.colorTo).WithMessage("color from must be less than color to");

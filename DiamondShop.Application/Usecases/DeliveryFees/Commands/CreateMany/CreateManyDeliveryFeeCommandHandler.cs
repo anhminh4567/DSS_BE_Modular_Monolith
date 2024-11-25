@@ -34,7 +34,7 @@ namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.CreateMany
             var getAllDeliveryFee = await _deliveryFeeRepository.GetAll(cancellationToken);
             List<DeliveryFee> tobeAddedFees = new();
             foreach (var fee in request.fees)
-            {
+            { 
                 DeliveryFee newFee;
                 var province = getProvince.FirstOrDefault(x => x.Id == fee.provinceId);
                 if(province is null)
@@ -54,7 +54,7 @@ namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.CreateMany
             }
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
             await _deliveryFeeRepository.CreateRange(tobeAddedFees, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken); 
             await _unitOfWork.CommitAsync(cancellationToken);
             return tobeAddedFees;
         }

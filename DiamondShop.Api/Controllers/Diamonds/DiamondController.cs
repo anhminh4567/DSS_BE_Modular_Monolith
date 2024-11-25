@@ -166,7 +166,7 @@ namespace DiamondShop.Api.Controllers.Diamonds
         {
             var result = await _sender.Send(command);
             if (result.IsSuccess)
-                return Ok();
+                return Ok(result.Value);
             return MatchError(result.Errors, ModelState);
         }
       

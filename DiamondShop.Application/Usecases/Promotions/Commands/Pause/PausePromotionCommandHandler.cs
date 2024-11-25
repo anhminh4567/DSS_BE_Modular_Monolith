@@ -33,20 +33,24 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.UpdateStatus
         public async Task<Result<Promotion>> Handle(PausePromotionCommand request, CancellationToken cancellationToken)
         {
             var parsedId = PromotionId.Parse(request.promotionId);
-            var getPromotion= await _promotionRepository.GetById(parsedId);
-            if(getPromotion is null)
+            var getPromotion = await _promotionRepository.GetById(parsedId);
+            if (getPromotion is null)
                 return Result.Fail(PromotionError.NotFound);
-            var result = getPromotion.Paused();
-            if (result.IsSuccess)
+            if (getPromotion.Status == Status.Scheduled)
             {
-                await _promotionRepository.Update(getPromotion);
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-                return getPromotion;
+                var result = getPromotion.SetActive();
+                if (result.IsFailed)
+                    return Result.Fail(result.Errors);
             }
             else
             {
-                return Result.Fail(result.Errors);
+                var result = getPromotion.Paused();
+                if (result.IsFailed)
+                    return Result.Fail(result.Errors);
             }
+            await _promotionRepository.Update(getPromotion);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return getPromotion;
         }
     }
 }
