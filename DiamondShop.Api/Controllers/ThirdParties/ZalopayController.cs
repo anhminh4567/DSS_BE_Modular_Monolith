@@ -80,12 +80,20 @@ namespace DiamondShop.Api.Controllers.ThirdParties
         public async Task<ActionResult> Return()
         {
             //this will redirect client to the frontend, but not important for now, so just return ok
-            var data = HttpContext.Request.Query;
-            var sucessStatus = ZalopayReturnCode.SUCCESS;
-            var status = data["return_code"];
             var redirectUrl = _frontendOptions.Value.FailedPaymentUrl;
             var returnUrl = _frontendOptions.Value.SuccessPaymentUrl;
-            return RedirectPermanent(returnUrl + "/"+HttpContext.Request.QueryString.Value);
+            var data = HttpContext.Request.Query;
+            if (data == null && data.Count == 0)
+            {
+                return RedirectPermanent(returnUrl + "/" + HttpContext.Request.QueryString.Value);
+            }
+            else
+            {
+                var sucessStatus = ZalopayReturnCode.SUCCESS;
+                var status = data["return_code"];
+                return RedirectPermanent(returnUrl + "/" + HttpContext.Request.QueryString.Value);
+            }
+
             //return Ok(HttpContext.Request.QueryString.Value);
         }
     }

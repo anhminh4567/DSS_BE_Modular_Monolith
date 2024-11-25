@@ -71,7 +71,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
                     await _diamondPriceRepository.Create(newPrice);
                 }
                 else
-                {
+                { 
                     var tryGetCriteria = getCriteria.FirstOrDefault(c => c.Id == price.CriteriaId && c.IsSideDiamond == true);
                     if (tryGetCriteria is null)
                         return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.NotFoundError);

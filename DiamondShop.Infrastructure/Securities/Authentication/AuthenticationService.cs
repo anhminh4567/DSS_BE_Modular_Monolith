@@ -356,6 +356,11 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 return Result.Fail(new NotFoundError("user with this email not found to confirm"));
             var codeDecodedBytes = WebEncoders.Base64UrlDecode(token);
             var codeDecoded = Encoding.UTF8.GetString(codeDecodedBytes);
+            var isTokenValid = await _userManager.VerifyUserTokenAsync(getUser, _userManager.Options.Tokens.EmailConfirmationTokenProvider, "EmailConfirmation", codeDecoded);
+            if(isTokenValid == false)
+            {
+                return Result.Fail(new ConflictError("unknown token might expired or invalid token : " + codeDecoded));
+            }
             var checkResult = await _userManager.ConfirmEmailAsync(getUser, codeDecoded);
             if (checkResult.Succeeded is false)
                 return Result.Fail(new ConflictError("unknown token might expired or invalid token"));
@@ -387,6 +392,8 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             var getUserIdentity = await _userManager.FindByIdAsync(getUserAccount.IdentityId);
             if (getUserIdentity is null)
                 return Result.Fail(new NotFoundError());
+            if (getUserIdentity.IsEmailConfirmed)
+                return Result.Fail(new Error("mail đã xác thực "));
             var generateToken = await _userManager.GenerateEmailConfirmationTokenAsync(getUserIdentity);
             generateToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(generateToken));
             return await _emailService.SendConfirmAccountEmail(getUserAccount, generateToken, cancellationToken);
