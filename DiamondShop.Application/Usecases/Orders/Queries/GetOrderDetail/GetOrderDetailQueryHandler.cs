@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Orders;
+using DiamondShop.Application.Services.Interfaces.JewelryReviews;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
@@ -12,6 +13,7 @@ using FluentResults;
 using MapsterMapper;
 using MediatR;
 using Serilog;
+using static DiamondShop.Domain.Models.Jewelries.ErrorMessages.JewelryErrors;
 
 namespace DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail
 {
@@ -21,15 +23,15 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderService _orderService;
         private readonly IOrderLogRepository _orderLogRepository;
-        private readonly IJewelryReviewRepository _jewelryReviewRepository;
+        private readonly IJewelryReviewFileService _jewelryReviewFileService;
         private readonly IMapper _mapper;
 
-        public GetOrderDetailQueryHandler(IOrderRepository orderRepository, IOrderService orderService, IOrderLogRepository orderLogRepository, IJewelryReviewRepository jewelryReviewRepository, IMapper mapper)
+        public GetOrderDetailQueryHandler(IOrderRepository orderRepository, IOrderService orderService, IOrderLogRepository orderLogRepository, IJewelryReviewFileService jewelryReviewFileService, IMapper mapper)
         {
             _orderRepository = orderRepository;
             _orderService = orderService;
             _orderLogRepository = orderLogRepository;
-            _jewelryReviewRepository = jewelryReviewRepository;
+            _jewelryReviewFileService = jewelryReviewFileService;
             _mapper = mapper;
         }
 
@@ -58,7 +60,13 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail
             //        parent.ChildLogs.Add(child);
             //    }
             //}
+            foreach(var item in order.Items)
+            {
+                if(item.Jewelry?.Review != null)
+                    item.Jewelry.Review.Medias = await _jewelryReviewFileService.GetFolders(item.Jewelry);
+            }
             getParentLog.OrderBy(x => x.CreatedDate).ToList();
+            
             order.Logs = getParentLog;
             return order;
         }

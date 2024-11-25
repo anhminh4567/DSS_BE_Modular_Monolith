@@ -53,7 +53,20 @@ namespace DiamondShop.Api.Controllers.Jewelries
             else
                 return Unauthorized();
         }
-        [HttpPut("Remove")]
+        [HttpPut("ChangeVisibility")]
+        [Authorize(Roles = AccountRole.StaffId)]
+        public async Task<ActionResult> ChangeVisibilityJewelryReview([FromQuery] string JewelryId)
+        {
+            var result = await _sender.Send(new ChangeVisibilityJewelryReviewCommand(JewelryId));
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<JewelryReviewDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            else
+                return MatchError(result.Errors, ModelState);
+        }
+        [HttpDelete("Remove")]
         [Authorize(Roles = AccountRole.CustomerId)]
         public async Task<ActionResult> HideJewelryReview([FromQuery] string JewelryId)
         {
@@ -70,19 +83,6 @@ namespace DiamondShop.Api.Controllers.Jewelries
             }
             else
                 return Unauthorized();
-        }
-        [HttpPut("ChangeVisibility")]
-        [Authorize(Roles = AccountRole.StaffId)]
-        public async Task<ActionResult> ChangeVisibilityJewelryReview([FromQuery] string JewelryId)
-        {
-            var result = await _sender.Send(new ChangeVisibilityJewelryReviewCommand(JewelryId));
-            if (result.IsSuccess)
-            {
-                var mappedResult = _mapper.Map<JewelryReviewDto>(result.Value);
-                return Ok(mappedResult);
-            }
-            else
-                return MatchError(result.Errors, ModelState);
         }
     }
 }
