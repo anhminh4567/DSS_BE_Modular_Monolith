@@ -252,11 +252,11 @@ namespace DiamondShop.Infrastructure
             context.LoadUnmanagedLibrary(wkHtmlToPdfPath);
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 
-            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
-            {
-                string shellFilePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "installpdfdependencies.sh");
-                InstallDependecies(shellFilePath);
-            }
+            //if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
+            //{
+            //    string shellFilePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "installpdfdependencies.sh");
+            //    InstallDependecies(shellFilePath);
+            //}
             return services;
         }
         internal static IServiceCollection AddPayments(this IServiceCollection services, IConfiguration configuration) 
