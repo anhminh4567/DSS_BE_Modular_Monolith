@@ -2,17 +2,12 @@
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
 {
     internal class JewelryModelCategoryConfiguration : IEntityTypeConfiguration<JewelryModelCategory>
     {
-        private static List<JewelryModelCategory> CATEGORIES = new()
+        public List<JewelryModelCategory> CATEGORIES = new()
         {
             JewelryModelCategory.Create("Ring", "A normal ring", "", true, null, JewelryModelCategoryId.Parse("1")),
             JewelryModelCategory.Create("Necklace", "A normal necklace", "", true, null, JewelryModelCategoryId.Parse("2")),

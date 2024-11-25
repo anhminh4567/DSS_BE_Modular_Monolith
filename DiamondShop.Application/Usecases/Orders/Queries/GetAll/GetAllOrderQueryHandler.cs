@@ -23,7 +23,7 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetAll
         public async Task<Result<PagingResponseDto<Order>>> Handle(GetAllOrderQuery request, CancellationToken cancellationToken)
         {
             request.Deconstruct(out string role, out string accountId, out OrderPaging? orderPaging);
-            orderPaging.Deconstruct(out int pageSize, out int start, out OrderStatus? status, out DateTime? createdDate, out DateTime? expectedDate, out string? email);
+            orderPaging.Deconstruct(out int pageSize, out int start, out bool? isCustomize, out OrderStatus? status, out DateTime? createdDate, out DateTime? expectedDate, out string? email);
             var query = _orderRepository.GetQuery();
             query = _orderRepository.QueryInclude(query, p => p.Account);
             //customer
@@ -36,6 +36,7 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetAll
             {
                 query = _orderRepository.QueryFilter(query, p => p.DelivererId == AccountId.Parse(accountId));
             }
+            if(isCustomize != null) query = _orderRepository.QueryFilter(query, p => isCustomize.Value ? p.CustomizeRequestId != null : p.CustomizeRequestId == null);
             //query = _orderRepository.QueryInclude(query, p => p.Account);
             if (status != null) query = _orderRepository.QueryFilter(query, p => p.Status == status);
             if (createdDate != null) query = _orderRepository.QueryFilter(query, p => p.CreatedDate >= createdDate);

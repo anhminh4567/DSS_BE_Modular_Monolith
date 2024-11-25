@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Dtos.Responses.JewelryModels;
 using DiamondShop.Application.Usecases.JewelryModelCategories.Commands.Create;
+using DiamondShop.Application.Usecases.JewelryModelCategories.Commands.Delete;
 using DiamondShop.Application.Usecases.JewelryModelCategories.Queries.GetAll;
 using MapsterMapper;
 using MediatR;
@@ -35,6 +36,16 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             {
                 var mappedResult = _mapper.Map<JewelryModelCategoryDto>(result.Value);
                 return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpDelete("Delete")]
+        public async Task<ActionResult> Delete([FromQuery] DeleteJewelryCategoryCommand command)
+        {
+            var result = await _sender.Send(command);
+            if (result.IsSuccess)
+            {
+                return Ok("Xóa loại trang sức thành công");
             }
             return MatchError(result.Errors, ModelState);
         }

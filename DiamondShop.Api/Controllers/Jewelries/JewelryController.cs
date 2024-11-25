@@ -88,13 +88,13 @@ namespace DiamondShop.Api.Controllers.Jewelries
             }
             return MatchError(result.Errors, ModelState);
         }
-        [HttpDelete("Delete/Jewelry")]
-        public async Task<ActionResult> DeleteSizeMetal([FromQuery] DeleteJewelryCommand deleteJewelryCommand)
+        [HttpDelete("Delete")]
+        public async Task<ActionResult> DeleteJewelry([FromQuery] DeleteJewelryCommand deleteJewelryCommand)
         {
             var result = await _sender.Send(deleteJewelryCommand);
             if (result.IsSuccess)
             {
-                return Ok("Delete jewelry model success");
+                return Ok("Xóa trang sức thành công");
             }
             return MatchError(result.Errors, ModelState);
         }

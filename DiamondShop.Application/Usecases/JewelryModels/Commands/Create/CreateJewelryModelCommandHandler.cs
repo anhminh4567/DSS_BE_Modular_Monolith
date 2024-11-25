@@ -44,9 +44,9 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
             var category = await _categoryRepository.GetById(JewelryModelCategoryId.Parse(modelSpec.CategoryId));
             if (category is null) return Result.Fail(JewelryModelErrors.Category.JewelryModelCategoryNotFoundError);
 
-            var matchingName = _jewelryModelRepository.IsExistModelName(modelSpec.Name);
+            var matchingName = _jewelryModelRepository.ExistingModelName(modelSpec.Name);
             if (matchingName) return Result.Fail(JewelryModelErrors.ExistedModelNameFound(modelSpec.Name));
-            var matchingCode = _jewelryModelRepository.IsExistModelCode(modelSpec.Code);
+            var matchingCode = _jewelryModelRepository.ExistingModelCode(modelSpec.Code);
             if (matchingCode) return Result.Fail(JewelryModelErrors.ExistedModelCodeFound(modelSpec.Code));
             var newModel = JewelryModel.Create(modelSpec.Name, modelSpec.Code.ToUpper(), category.Id, modelSpec.craftmanFee, modelSpec.Width, modelSpec.Length, modelSpec.IsEngravable, modelSpec.IsRhodiumFinish, modelSpec.BackType, modelSpec.ClaspType, modelSpec.ChainType);
             await _jewelryModelRepository.Create(newModel, token);

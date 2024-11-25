@@ -15,6 +15,7 @@ namespace DiamondShop.Domain.Common
         public DiamondPriceRules DiamondPriceRules { get; set; } = DiamondPriceRules.Default;
         public WarrantyRules WarrantyRules { get; set; } = WarrantyRules.Default;
         public JewelryReviewRules JewelryReviewRules { get; set; } = JewelryReviewRules.Default;
+        public JewelryModelCategoryRules JewelryModelCategoryRules { get; set; } = JewelryModelCategoryRules.Default;
         public BlogRules BlogRules { get; set; } = BlogRules.Default;
         public TransactionRule TransactionRule { get; set; } = TransactionRule.Default;
         public LoggingRules LoggingRules { get; set; } = LoggingRules.Default;

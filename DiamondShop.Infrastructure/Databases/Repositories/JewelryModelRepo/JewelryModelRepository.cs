@@ -65,15 +65,18 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
         {
             return query.Include(p => p.MainDiamonds).ThenInclude(p => p.Shapes).AsSplitQuery();
         }
-        public bool IsExistModelName(string name)
+        public bool ExistingModelName(string name)
         {
             return _set.Any(p => p.Name.Trim().ToUpper() == name.Trim().ToUpper());
         }
 
-        public bool IsExistModelCode(string code)
+        public bool ExistingModelCode(string code)
         {
             return _set.Any(p => p.ModelCode == code.ToUpper());
         }
-
+        public bool ExistingCategory(JewelryModelCategoryId modelCategoryId)
+        {
+            return _set.Any(p => p.CategoryId == modelCategoryId);
+        }
     }
 }
