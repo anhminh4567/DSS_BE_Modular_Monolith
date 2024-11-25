@@ -13,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Usecases.JewelryReviews.Commands.Remove
+namespace DiamondShop.Application.Usecases.JewelryReviews.Commands.Delete
 {
     public record DeleteJewelryReviewCommand(string AccountId, string JewelryId) : IRequest<Result>;
     internal class DeleteJewelryReviewCommandHandler : IRequestHandler<DeleteJewelryReviewCommand, Result>

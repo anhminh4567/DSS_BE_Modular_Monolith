@@ -3,7 +3,7 @@ using DiamondShop.Application.Dtos.Responses.Jewelries;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.JewelryReviews.Commands.ChangeVisibility;
 using DiamondShop.Application.Usecases.JewelryReviews.Commands.Create;
-using DiamondShop.Application.Usecases.JewelryReviews.Commands.Remove;
+using DiamondShop.Application.Usecases.JewelryReviews.Commands.Delete;
 using DiamondShop.Application.Usecases.JewelryReviews.Queries.GetAll;
 using DiamondShop.Domain.Models.RoleAggregate;
 using MapsterMapper;
