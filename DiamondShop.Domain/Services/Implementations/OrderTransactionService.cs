@@ -204,7 +204,7 @@ namespace DiamondShop.Domain.Services.Implementations
             var remainAmount = order.TotalPrice - transaction.TotalAmount;
             if (transaction.IsManual)
             {
-                var transac = Transaction.CreateManualPayment(order.Id, $"hoàn tiền cho đơn hàng mã #{order.OrderCode}", remainAmount, TransactionType.Pay);
+                var transac = Transaction.CreateManualPayment(order.Id, $"trả phần còn lại cho đơn hàng mã #{order.OrderCode}", remainAmount, TransactionType.Pay);
                 order.AddTransaction(transac);
                 order.PaymentStatus = PaymentStatus.PaidAll;
             }
