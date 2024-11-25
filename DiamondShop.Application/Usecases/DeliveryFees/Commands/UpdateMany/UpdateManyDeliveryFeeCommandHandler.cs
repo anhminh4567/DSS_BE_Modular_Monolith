@@ -35,15 +35,16 @@ namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.UpdateMany
             await _unitOfWork.BeginTransactionAsync();
             foreach (var deliveryFee in getDeliveryFees)
             {
-                var newPrice = mappedDeliveryFees.FirstOrDefault(x => x.FeeId == deliveryFee.Id);
+                var newPrice = mappedDeliveryFees.FirstOrDefault(x => x.FeeId == deliveryFee.Id); 
                 if (newPrice == null)
                     continue;
                 if(newPrice.Price != null)
                     deliveryFee.ChangeCost(newPrice.Price.Value);
-                if (newPrice.Name != null)
+                if (newPrice.Name != null) 
                     deliveryFee.ChangeName(newPrice.Name);
                 if (newPrice.SetActive != null)
                     deliveryFee.SetEnable(newPrice.SetActive.Value);
+                _deliveryFeeRepository.Update(deliveryFee).Wait();
             }
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);

@@ -52,7 +52,8 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
         {
             query = query
                 .Include(p => p.Account);
-            query = query.Include(p => p.Transactions);
+            query = query.Include(p => p.Transactions)
+                .ThenInclude(x => x.PayMethod);
             if (isIncludeJewelry)
             {
                 query = query
