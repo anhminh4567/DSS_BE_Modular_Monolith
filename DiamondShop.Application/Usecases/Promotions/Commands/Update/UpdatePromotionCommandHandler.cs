@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Services.Interfaces;
+﻿using DiamondShop.Application.Dtos.Requests.Promotions;
+using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany;
 using DiamondShop.Application.Usecases.PromotionRequirements.Commands.CreateMany;
 using DiamondShop.Application.Usecases.Promotions.Commands.UpdateGifts;
@@ -22,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Promotions.Commands.Update
 {
-    public record UpdatePromotionRequest( UpdatePromotionInformationCommand? UpdatePromotionParams, List<RequirementSpec>? addedRquirements, List<GiftSpec>? addedGifts, List<string>? removedRequirement, List<string>? removedGifts) : IRequest<Result<Promotion>>;
+    public record UpdatePromotionRequest(string? promotionId, string? name, string? description, UpdateStartEndDate? UpdateStartEndDate, List<RequirementSpec>? requirements, List<GiftSpec>? gifts, List<string>? removedRequirements, List<string>? removedGifts) : IRequest<Result<Promotion>>;
     public record UpdatePromotionCommand(string promotionId, UpdatePromotionInformationCommand? UpdatePromotionParams, List<RequirementSpec>? addedRquirements, List<GiftSpec>? addedGifts, List<string>? removedRequirements, List<string>? removedGifts) : IRequest<Result<Promotion>>;
     internal class UpdatePromotionCommandHandler : IRequestHandler<UpdatePromotionCommand, Result<Promotion>>
     {

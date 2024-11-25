@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Discounts.Commands.Update
 {
+    public record UpdateDiscountRequestDto( string? name, int? discountPercent, string? startDate, string? endDate, List<DiscountRequirement>? requirements, List<string>? removedRequirements);
     public record UpdateDiscountInfoRequest(string? name, int? discountPercent, string? startDate, string? endDate);
     public record UpdateDiscountCommand(string discountId, UpdateDiscountInfoRequest discountInfo, List<DiscountRequirement>? addedRquirements, List<string>? removedRequirements) : IRequest<Result<Discount>>;
     internal class UpdateDiscountCommandHandler : IRequestHandler<UpdateDiscountCommand, Result<Discount>>
@@ -47,7 +48,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Update
         }
 
         public async Task<Result<Discount>> Handle(UpdateDiscountCommand request, CancellationToken cancellationToken)
-        {
+        { 
             var parsedId = DiscountId.Parse(request.discountId);
             Discount? getDiscount = await _discountRepository.GetById(parsedId);
             if(getDiscount is null)
