@@ -13,6 +13,8 @@ namespace DiamondShop.Domain.Models.JewelryModels.ErrorMessages
         public class Category
         {
             public static NotFoundError JewelryModelCategoryNotFoundError = new NotFoundError("Không tìm thấy loại trang sức");
+            public static ConflictError DeleteDefaultJewelryModelCategoryError = new ConflictError("Không thể xóa loại trang sức mặc định");
+            public static ConflictError DeleteJewelryModelCategoryInUseError = new ConflictError("Không thể xóa loại trang sức đang được sử dụng");
         }
         public class SizeMetal
         {
