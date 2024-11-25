@@ -156,5 +156,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             }
             return query.CountAsync();
         }
+
+        public Task<List<Diamond>> GetWhereSkuContain(string containingString, int skip, int take, CancellationToken cancellationToken = default)
+        {
+            return _set.Where(x => x.SerialCode.Contains(containingString)).Skip(skip).Take(take).ToListAsync(cancellationToken);
+        }
     }
 }

@@ -254,7 +254,7 @@ namespace DiamondShop.Infrastructure
 
             if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
             {
-                string shellFilePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "dependenciesInstall.sh");
+                string shellFilePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "installpdfdependencies.sh");
                 InstallDependecies(shellFilePath);
             }
             return services;

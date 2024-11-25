@@ -25,6 +25,6 @@ namespace DiamondShop.Domain.Repositories
         Task<List<Diamond>> GetRange(List<DiamondId> diamondIds, CancellationToken cancellationToken = default);
         Task<List<Diamond>> GetTotalSoldDiamonds(DateTime? startDate = null, DateTime? endDate = null, CancellationToken cancellationToken = default);
         Task<List<Diamond>> GetTotalSoldDiamondsByShape(DiamondShape shape,DateTime? startDate = null, DateTime? endDate = null, CancellationToken cancellationToken = default);
-
+        Task<List<Diamond>> GetWhereSkuContain(string containingString, int skip, int take, CancellationToken cancellationToken = default);
     }
 }
