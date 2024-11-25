@@ -16,6 +16,7 @@ using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Warranties.ValueObjects;
 using DiamondShop.Domain.Models.Warranties;
 using System.ComponentModel.DataAnnotations.Schema;
+using DiamondShop.Domain.Models.Jewelries.Entities;
 
 namespace DiamondShop.Domain.Models.Orders.Entities
 {
@@ -36,8 +37,7 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public UnitType? PromoType { get; set; }
         public decimal? PromoValue { get; set; }
         public decimal WarrantyPrice { get; set; }
-        [NotMapped]
-        public bool IsReviewed { get; set; } = false;
+
         //public List<OrderItemWarranty>? Warranties { get; set; } = new();
         public OrderItemWarrantyId? WarrantyId { get; set; }
         public OrderItemWarranty? Warranty { get; set; }

@@ -60,17 +60,6 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail
             //}
             getParentLog.OrderBy(x => x.CreatedDate).ToList();
             order.Logs = getParentLog;
-            //check reviewed
-            if(order.Status == Domain.Models.Orders.Enum.OrderStatus.Success)
-            {
-                foreach (var item in order.Items)
-                {
-                    if (item.JewelryId != null)
-                    {
-                        item.IsReviewed = await _jewelryReviewRepository.Exists(item.JewelryId);
-                    }
-                }
-            }
             return order;
         }
     }
