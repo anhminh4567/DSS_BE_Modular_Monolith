@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.Promotions.Commands.Update
 {
     public record UpdatePromotionRequest( UpdatePromotionInformationCommand? UpdatePromotionParams, List<RequirementSpec>? addedRquirements, List<GiftSpec>? addedGifts, List<string>? removedRequirement, List<string>? removedGifts) : IRequest<Result<Promotion>>;
-    public record UpdatePromotionCommand(string promotionId, UpdatePromotionInformationCommand? UpdatePromotionParams, List<RequirementSpec>? addedRquirements, List<GiftSpec>? addedGifts, List<string>? removedRequirement, List<string>? removedGifts) : IRequest<Result<Promotion>>;
+    public record UpdatePromotionCommand(string promotionId, UpdatePromotionInformationCommand? UpdatePromotionParams, List<RequirementSpec>? addedRquirements, List<GiftSpec>? addedGifts, List<string>? removedRequirements, List<string>? removedGifts) : IRequest<Result<Promotion>>;
     internal class UpdatePromotionCommandHandler : IRequestHandler<UpdatePromotionCommand, Result<Promotion>>
     {
         private readonly IMapper _mapper;
@@ -60,9 +60,9 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Update
                     return Result.Fail(updatePromoInfoResult.Errors);
                 }
             }
-            if(request.removedRequirement != null)
+            if(request.removedRequirements != null)
             {
-                var removeRequirementCommands = new UpdatePromotionRequirementCommand(request.promotionId, request.removedRequirement.ToArray(), false);
+                var removeRequirementCommands = new UpdatePromotionRequirementCommand(request.promotionId, request.removedRequirements.ToArray(), false);
                 var removeRequirementResult = await _sender.Send(removeRequirementCommands, cancellationToken);
                 if (removeRequirementResult.IsFailed)
                 {

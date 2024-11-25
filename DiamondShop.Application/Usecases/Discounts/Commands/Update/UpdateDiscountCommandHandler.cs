@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.Discounts.Commands.Update
 {
     public record UpdateDiscountInfoRequest(string? name, int? discountPercent, string? startDate, string? endDate);
-    public record UpdateDiscountCommand(string discountId, UpdateDiscountInfoRequest discountInfo, List<DiscountRequirement>? addedRquirements, List<string>? removedRequirement) : IRequest<Result<Discount>>;
+    public record UpdateDiscountCommand(string discountId, UpdateDiscountInfoRequest discountInfo, List<DiscountRequirement>? addedRquirements, List<string>? removedRequirements) : IRequest<Result<Discount>>;
     internal class UpdateDiscountCommandHandler : IRequestHandler<UpdateDiscountCommand, Result<Discount>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -66,9 +66,9 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Update
                     return Result.Fail(updatePromoInfoResult.Errors);
                 }
             }
-            if (request.removedRequirement != null && request.removedRequirement.Count > 0 )
+            if (request.removedRequirements != null && request.removedRequirements.Count > 0 )
             {
-                var removeRequirementCommands = new UpdateDiscountRequirementCommand(request.discountId, request.removedRequirement.ToArray(), true );
+                var removeRequirementCommands = new UpdateDiscountRequirementCommand(request.discountId, request.removedRequirements.ToArray(), true );
                 var removeRequirementResult = await _sender.Send(removeRequirementCommands, cancellationToken);
                 if (removeRequirementResult.IsFailed)
                 {
