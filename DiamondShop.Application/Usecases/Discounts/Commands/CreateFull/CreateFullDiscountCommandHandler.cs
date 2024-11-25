@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Discounts.Commands.CreateFull
 {
-    public record DiscountRequirement(string Name, TargetType TargetType, string? JewelryModelID, DiamondRequirementSpec? DiamondRequirementSpec);
+    public record DiscountRequirement(string Name, TargetType TargetType, string? JewelryModelId, DiamondRequirementSpec? DiamondRequirementSpec);
     //(string Name, TargetType TargetType, Operator Operator, decimal? MoneyAmount, int? Quantity, string? JewelryModelID, DiamondRequirementSpec? DiamondRequirementSpec, bool isPromotion = true);
     public record CreateFullDiscountCommand(CreateDiscountCommand CreateDiscount, List<DiscountRequirement> Requirements) : IRequest<Result<Discount>>;
     internal class CreateFullDiscountCommandHandler : IRequestHandler<CreateFullDiscountCommand, Result<Discount>>

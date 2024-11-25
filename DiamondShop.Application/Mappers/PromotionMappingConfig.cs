@@ -83,7 +83,7 @@ namespace DiamondShop.Application.Mappers
                 .Map(dest => dest.DiamondRequirementSpec.caratTo, src => src.DiamondRequirementSpec.caratTo, src => src.DiamondRequirementSpec != null)
                 .Map(dest => dest.MoneyAmount, src=> 0.0m)
                 .Map(dest => dest.Quantity, src=> 1)
-                .Map(dest => dest.JewelryModelID, src => src.JewelryModelID)
+                .Map(dest => dest.JewelryModelID, src => src.JewelryModelId)
                 .Map(dest => dest.isPromotion, src => false)
                 .Map(dest => dest.Operator , src => Operator.Equal_Or_Larger);
 

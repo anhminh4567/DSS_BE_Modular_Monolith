@@ -8,6 +8,6 @@ namespace DiamondShop.Domain.Models.Promotions.Enum
 {
     public enum Status
     {
-        Scheduled = 1, Active, Paused, Expired, Cancelled
+        Scheduled = 1, Active = 2, Paused = 3, Expired = 4 , Cancelled = 5
     }
 }
