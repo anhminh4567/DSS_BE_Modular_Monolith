@@ -97,7 +97,7 @@ namespace DiamondShop.Api.Controllers.Promotions
         [Produces(type: typeof(DiscountDto))]
         public async Task<ActionResult> UpdateFull([FromRoute] string discountId, [FromBody] UpdateDiscountRequestDto updateDiscountRequest)
         {
-            var command = new UpdateDiscountCommand(discountId,new UpdateDiscountInfoRequest(updateDiscountRequest.name,updateDiscountRequest.discountPercent,updateDiscountRequest.startDate,updateDiscountRequest.endDate),updateDiscountRequest.Requirements,updateDiscountRequest.removedRequirements); //updateDiscountCommand with { discountId = discountId };
+            var command = new UpdateDiscountCommand(discountId,new UpdateDiscountInfoRequest(updateDiscountRequest.name,updateDiscountRequest.discountPercent,updateDiscountRequest.startDate,updateDiscountRequest.endDate),updateDiscountRequest.requirements,updateDiscountRequest.removedRequirements); //updateDiscountCommand with { discountId = discountId };
             var result = await _sender.Send(command);
             if (result.IsSuccess)
             {
