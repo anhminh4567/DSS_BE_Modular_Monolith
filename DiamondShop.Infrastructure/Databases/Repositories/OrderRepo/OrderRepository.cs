@@ -21,7 +21,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
     {
         public OrderRepository(DiamondShopDbContext dbContext) : base(dbContext)
         {
-            
+
         }
 
         public override Task<Order?> GetById(params object[] ids)
@@ -44,8 +44,8 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
 
         public Task<Order?> GetDelivererCurrentlyHandledOrder(Account delivererAccount, CancellationToken cancellationToken = default)
         {
-            return _set.FirstOrDefaultAsync(x => (x.Status == OrderStatus.Delivering || x.Status == OrderStatus.Prepared) 
-            &&x.DelivererId != null && x.DelivererId == delivererAccount.Id);
+            return _set.FirstOrDefaultAsync(x => (x.Status == OrderStatus.Delivering || x.Status == OrderStatus.Prepared)
+            && x.DelivererId != null && x.DelivererId == delivererAccount.Id);
         }
 
         public IQueryable<Order> GetDetailQuery(IQueryable<Order> query, bool isIncludeJewelry = true, bool isIncludeDiamond = true)
@@ -54,6 +54,11 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
                 .Include(p => p.Account);
             query = query.Include(p => p.Transactions);
             if (isIncludeJewelry)
+            {
+                query = query
+                .Include(p => p.Items)
+                    .ThenInclude(c => c.Jewelry)
+                    .ThenInclude(c => c.Review);
                 query = query
                 .Include(p => p.Items)
                     .ThenInclude(c => c.Jewelry)
@@ -63,6 +68,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
                         .ThenInclude(c => c.Jewelry)
                         .ThenInclude(c => c.Diamonds)
                         .ThenInclude(c => c.DiamondShape);
+            }
             if (isIncludeDiamond)
                 query = query
                 .Include(p => p.Items)
@@ -70,7 +76,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
                     .ThenInclude(c => c.DiamondShape);
             return query.AsSplitQuery();
         }
-       
+
         public bool IsRequestCreated(CustomizeRequestId customizeRequestId)
         {
             return _set.Any(p => p.CustomizeRequestId == customizeRequestId);

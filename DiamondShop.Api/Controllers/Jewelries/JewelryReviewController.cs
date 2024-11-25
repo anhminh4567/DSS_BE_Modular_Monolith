@@ -3,7 +3,7 @@ using DiamondShop.Application.Dtos.Responses.Jewelries;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.JewelryReviews.Commands.ChangeVisibility;
 using DiamondShop.Application.Usecases.JewelryReviews.Commands.Create;
-using DiamondShop.Application.Usecases.JewelryReviews.Commands.Update;
+using DiamondShop.Application.Usecases.JewelryReviews.Commands.Remove;
 using DiamondShop.Application.Usecases.JewelryReviews.Queries.GetAll;
 using DiamondShop.Domain.Models.RoleAggregate;
 using MapsterMapper;
@@ -53,26 +53,6 @@ namespace DiamondShop.Api.Controllers.Jewelries
             else
                 return Unauthorized();
         }
-
-        [HttpPut("Update")]
-        [Authorize(Roles = AccountRole.CustomerId)]
-        public async Task<ActionResult> UpdateJewelryReview([FromForm] UpdateJewelryReviewCommand updateJewelryReviewCommand)
-        {
-            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
-            if (userId != null)
-            {
-                var result = await _sender.Send(updateJewelryReviewCommand);
-                if (result.IsSuccess)
-                {
-                    var mappedResult = _mapper.Map<JewelryReviewDto>(result.Value);
-                    return Ok(mappedResult);
-                }
-                else
-                    return MatchError(result.Errors, ModelState);
-            }
-            else
-                return Unauthorized();
-        }
         [HttpPut("Remove")]
         [Authorize(Roles = AccountRole.CustomerId)]
         public async Task<ActionResult> HideJewelryReview([FromQuery] string JewelryId)
@@ -80,11 +60,10 @@ namespace DiamondShop.Api.Controllers.Jewelries
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
             {
-                var result = await _sender.Send(new ChangeVisibilityJewelryReviewCommand(userId.Value, AccountRole.CustomerId, JewelryId));
+                var result = await _sender.Send(new RemoveJewelryReviewCommand(userId.Value, JewelryId));
                 if (result.IsSuccess)
                 {
-                    var mappedResult = _mapper.Map<JewelryReviewDto>(result.Value);
-                    return Ok(mappedResult);
+                    return Ok("Đã xóa nhận xét");
                 }
                 else
                     return MatchError(result.Errors, ModelState);
@@ -96,21 +75,14 @@ namespace DiamondShop.Api.Controllers.Jewelries
         [Authorize(Roles = AccountRole.StaffId)]
         public async Task<ActionResult> ChangeVisibilityJewelryReview([FromQuery] string JewelryId)
         {
-            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
-            var userRoles = User.FindAll(IJwtTokenProvider.ROLE_CLAIM_NAME);
-            if (userId != null && userRoles.Count() > 0)
+            var result = await _sender.Send(new ChangeVisibilityJewelryReviewCommand(JewelryId));
+            if (result.IsSuccess)
             {
-                var result = await _sender.Send(new ChangeVisibilityJewelryReviewCommand(userId.Value, AccountRole.StaffId, JewelryId));
-                if (result.IsSuccess)
-                {
-                    var mappedResult = _mapper.Map<JewelryReviewDto>(result.Value);
-                    return Ok(mappedResult);
-                }
-                else
-                    return MatchError(result.Errors, ModelState);
+                var mappedResult = _mapper.Map<JewelryReviewDto>(result.Value);
+                return Ok(mappedResult);
             }
             else
-                return Unauthorized();
+                return MatchError(result.Errors, ModelState);
         }
     }
 }

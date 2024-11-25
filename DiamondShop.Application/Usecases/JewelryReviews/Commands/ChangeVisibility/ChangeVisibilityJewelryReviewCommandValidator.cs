@@ -6,8 +6,6 @@ namespace DiamondShop.Application.Usecases.JewelryReviews.Commands.ChangeVisibil
     {
         public ChangeVisibilityJewelryReviewCommandValidator()
         {
-            RuleFor(c => c.AccountId).NotEmpty();
-            RuleFor(c => c.AccountRole).NotEmpty();
             RuleFor(c => c.JewelryId).NotEmpty();
         }
     }
