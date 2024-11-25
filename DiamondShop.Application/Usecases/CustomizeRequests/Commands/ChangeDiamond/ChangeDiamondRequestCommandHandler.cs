@@ -17,7 +17,7 @@ using static DiamondShop.Application.Commons.Utilities.FileUltilities;
 
 namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.ChangeDiamond
 {
-    public record ChangeDiamondRequestCommand(string CustomizeRequestId, string DiamondRequestId, string? DiamondId, CreateDiamondCommand? CreateDiamondCommand) : IRequest<Result<DiamondRequest>>;
+    public record ChangeDiamondRequestCommand(string CustomizeRequestId, string DiamondRequestId, string? DiamondId, CreateDiamondCommand? CreateDiamondCommand, decimal? lockPrice = null) : IRequest<Result<DiamondRequest>>;
     internal class ChangeDiamondRequestCommandHandler : IRequestHandler<ChangeDiamondRequestCommand, Result<DiamondRequest>>
     {
         private readonly IDiamondRepository _diamondRepository;
@@ -41,7 +41,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.ChangeDiam
 
         public async Task<Result<DiamondRequest>> Handle(ChangeDiamondRequestCommand request, CancellationToken token)
         {
-            request.Deconstruct(out string customizeRequestId, out string diamondRequestId, out string? diamondId, out CreateDiamondCommand? createDiamondCommand);
+            request.Deconstruct(out string customizeRequestId, out string diamondRequestId, out string? diamondId, out CreateDiamondCommand? createDiamondCommand, out decimal? lockPrice);
             await _unitOfWork.BeginTransactionAsync(token);
             var customizeRequest = await _customizeRequestRepository.GetById(CustomizeRequestId.Parse(customizeRequestId));
             if (customizeRequest == null)
@@ -78,7 +78,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.ChangeDiam
             }
             if (createDiamondCommand != null)
             {
-                var createFlag = await _sender.Send(new CreateDiamondWhenNotExistCommand(createDiamondCommand, diamondRequest.CustomizeRequestId.Value, diamondRequestId, null));
+                var createFlag = await _sender.Send(new CreateDiamondWhenNotExistCommand(createDiamondCommand, diamondRequest.CustomizeRequestId.Value, diamondRequestId, lockPrice));
                 if (createFlag.IsFailed)
                     return Result.Fail(createFlag.Errors);
             }
