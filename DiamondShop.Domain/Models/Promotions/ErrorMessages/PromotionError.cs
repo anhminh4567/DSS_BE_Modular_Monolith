@@ -52,6 +52,7 @@ namespace DiamondShop.Domain.Models.Promotions.ErrorMessages
             public static Error NotInCorrectState = new Error("Quà tặng không ở trạng thái yêu cầu để thực hiện hành động này");
             public static Error DeleteUnallowed = new Error("Không thể xóa quà tặng này");
             public static ValidationError ValidationError = new ValidationError("Lỗi dữ liệu quà tặng, không thể tạo hay xóa");
+            public static Error CountIsZero = new Error("Số lượng quà tặng phải lớn hơn 0");
         }
         public class RequirementError
         {
@@ -74,6 +75,7 @@ namespace DiamondShop.Domain.Models.Promotions.ErrorMessages
                     return new Error("Không thể xóa yêu cầu này, lý do " + detail);
                 return new Error("Không thể xóa yêu cầu này");
             }
+            public static Error CountIsZero = new Error("Số lượng requirement phải lớn hơn 0");
         }
         public class ApplyingError
         {

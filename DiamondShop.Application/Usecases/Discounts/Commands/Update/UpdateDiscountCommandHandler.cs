@@ -95,6 +95,11 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Update
                 await _unitOfWork.RollBackAsync();
                 return Result.Fail(DiscountErrors.OrderTargetNotAllowed);
             }
+            if(getDiscount.DiscountReq.Count <= 0)
+            {
+                await _unitOfWork.RollBackAsync();
+                return Result.Fail(" requirement phải lớn hơn 0");
+            }
             await _discountRepository.Update(getDiscount);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);

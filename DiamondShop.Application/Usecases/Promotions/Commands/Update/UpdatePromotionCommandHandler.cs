@@ -115,6 +115,17 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Update
                 await _unitOfWork.RollBackAsync();
                 return Result.Fail(PromotionError.GiftTypeLimit(TargetType.Order, 1));
             }
+            if (getPromotion.Gifts.Count == 0)
+            {
+                await _unitOfWork.RollBackAsync(); 
+                return Result.Fail(PromotionError.GiftError.CountIsZero);
+            }
+                
+            if(getPromotion.PromoReqs.Count == 0)
+            {
+                await _unitOfWork.RollBackAsync();
+                return Result.Fail(PromotionError.RequirementError.CountIsZero);
+            }
             await _promotionRepository.Update(getPromotion);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);

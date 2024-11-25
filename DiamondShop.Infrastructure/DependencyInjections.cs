@@ -67,6 +67,7 @@ using DinkToPdf.Contracts;
 using DinkToPdf;
 using System.Runtime.Loader;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 namespace DiamondShop.Infrastructure
 {
     public static class DependencyInjections
@@ -251,6 +252,11 @@ namespace DiamondShop.Infrastructure
             context.LoadUnmanagedLibrary(wkHtmlToPdfPath);
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
+            {
+                string shellFilePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "dependenciesInstall.sh");
+                InstallDependecies(shellFilePath);
+            }
             return services;
         }
         internal static IServiceCollection AddPayments(this IServiceCollection services, IConfiguration configuration) 
@@ -305,6 +311,21 @@ namespace DiamondShop.Infrastructure
             //   .Map(dest => dest.Gallery , src => src.Gallery.ToDictionary(kvp => kvp.Key, kvp => $"{getOption.Azure.BaseUrl}/{getOption.Azure.ContainerName}/{kvp.Value}"));
             services.AddSingleton(config);
             return services;
+        }
+        private static void InstallDependecies(string shellFilePath)
+        {
+            Process process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "/bin/bash",
+                    Arguments = "-c " + shellFilePath,
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                }
+            };
+            process.Start();
+            process.WaitForExit();
         }
     }
     public class CamelCasePropertyNameResolver
@@ -374,5 +395,7 @@ namespace DiamondShop.Infrastructure
         {
             throw new NotImplementedException();
         }
+       
     }
+   
 }
