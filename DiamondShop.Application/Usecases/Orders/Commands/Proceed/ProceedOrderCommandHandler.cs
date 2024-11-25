@@ -76,12 +76,30 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             var orderItems = orderItemQuery.ToList();
             if (order.Status == OrderStatus.Pending)
             {
-                Transaction trans = Transaction.CreateManualPayment(order.Id, $"Chuyển khoản từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", _orderTransactionService.GetFullPaymentValueForOrder(order), TransactionType.Pay);
-                trans.AppTransactionCode = "";
-                trans.PaygateTransactionCode = "";
-                await _transactionRepository.Create(trans);
-                order.Status = OrderStatus.Processing;
-                order.PaymentStatus = order.PaymentType == PaymentType.Payall ? PaymentStatus.PaidAll : PaymentStatus.Deposited;
+                if(order.PaymentType == PaymentType.Payall)
+                {
+                    Transaction trans = Transaction.CreateManualPayment(order.Id, $"Chuyển khoản từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", _orderTransactionService.GetFullPaymentValueForOrder(order), TransactionType.Pay);
+                    trans.AppTransactionCode = "";
+                    trans.PaygateTransactionCode = "";
+                    await _transactionRepository.Create(trans);
+                    order.Status = OrderStatus.Processing;
+                    order.PaymentStatus = order.PaymentType == PaymentType.Payall ? PaymentStatus.PaidAll : PaymentStatus.Deposited;
+                }
+                else
+                {
+                    decimal depositAmount = 0;
+                    if (order.IsCustomOrder)
+                        depositAmount = _orderTransactionService.GetCorrectAmountFromOrder(order);
+                    else
+                        depositAmount = _orderTransactionService.GetCorrectAmountFromOrder(order);
+                    Transaction trans = Transaction.CreateManualPayment(order.Id, $"Chuyển khoản từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", depositAmount, TransactionType.Pay);
+                    trans.AppTransactionCode = "";
+                    trans.PaygateTransactionCode = "";
+                    await _transactionRepository.Create(trans);
+                    order.Status = OrderStatus.Processing;
+                    order.PaymentStatus = order.PaymentType == PaymentType.Payall ? PaymentStatus.PaidAll : PaymentStatus.Deposited;
+                }
+
                 await _orderRepository.Update(order);
                 var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Processing);
                 await _orderLogRepository.Create(log);

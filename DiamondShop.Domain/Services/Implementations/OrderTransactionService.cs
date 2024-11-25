@@ -121,6 +121,7 @@ namespace DiamondShop.Domain.Services.Implementations
             List<Transaction> transactions = new();
             if (order.Status == OrderStatus.Pending)
             {
+                order.PaymentStatus = PaymentStatus.Refunded;
                 return;
             }
             if(previousStatus != OrderStatus.Pending)
@@ -149,6 +150,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 order.AddRefund(transac);
             }else
             {
+                order.PaymentStatus = PaymentStatus.Refunded;
                 return;
             }
 
@@ -160,6 +162,7 @@ namespace DiamondShop.Domain.Services.Implementations
             List<Transaction> transactions = new();
             if (order.Status == OrderStatus.Pending)
             {
+                order.PaymentStatus = PaymentStatus.Refunded;
                 return;
             }
             if (previousStatus != OrderStatus.Pending)
@@ -182,12 +185,13 @@ namespace DiamondShop.Domain.Services.Implementations
                     var totalPaid = transactions.Sum(p => p.TotalAmount);
                     refundAmount = totalPaid * (1m - 0.01m * OrderPaymentRules.PayAllFine);
                     refundAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(refundAmount);
-                    finedAmount = refundAmount - totalPaid;
+                    finedAmount = -(refundAmount - totalPaid);
                 }
-                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.OrderCode}", refundAmount, finedAmount);
+                var transac = Transaction.CreateManualRefund(order.Id, $"hoàn tiền cho đơn hàng mã #{order.OrderCode}", refundAmount, finedAmount);
                 order.AddRefund(transac);
             }else
             {
+                order.PaymentStatus = PaymentStatus.Refunded;
                 return;
             }
         }
@@ -200,7 +204,7 @@ namespace DiamondShop.Domain.Services.Implementations
             var remainAmount = order.TotalPrice - transaction.TotalAmount;
             if (transaction.IsManual)
             {
-                var transac = Transaction.CreateManualPayment(order.Id, $"Manual remaining COD payment for order#{order.OrderCode}", remainAmount, TransactionType.Pay);
+                var transac = Transaction.CreateManualPayment(order.Id, $"hoàn tiền cho đơn hàng mã #{order.OrderCode}", remainAmount, TransactionType.Pay);
                 order.AddTransaction(transac);
                 order.PaymentStatus = PaymentStatus.PaidAll;
             }

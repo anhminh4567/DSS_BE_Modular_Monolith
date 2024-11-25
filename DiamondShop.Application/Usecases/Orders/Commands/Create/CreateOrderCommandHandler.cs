@@ -2,6 +2,8 @@
 using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson;
+using DiamondShop.Application.Usecases.Orders.Commands.Proceed;
+using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.AccountAggregate.ErrorMessages;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
@@ -11,6 +13,7 @@ using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.Transactions.Entities;
 using DiamondShop.Domain.Models.Transactions.ErrorMessages;
 using DiamondShop.Domain.Models.Transactions.ValueObjects;
@@ -135,6 +138,14 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 if (cartModelResult.Value.OrderPrices.FinalPrice > transactionRule.MaximumPerTransaction)
                     return Result.Fail( TransactionErrors.PaygateError.MaxTransactionError(paymentName,transactionRule.MaximumPerTransaction));
             }
+            if (paymentType == PaymentType.COD)
+            {
+                if (cartModel.OrderPrices.IsFreeOrder)
+                    return Result.Fail("đơn hàng miễn phí không được chọn loại COD");
+                //if (cartModelResult.Value.OrderPrices.FinalPrice < OrderPaymentRules.MinAmountForCOD)
+                //    return Result.Fail(OrderErrors.NotValidForCODType);
+            }
+
             var customizeRequestId = requestId == null ? null : CustomizeRequestId.Parse(requestId);
             var orderPromo = cartModel.Promotion.Promotion;
             var address = billingDetail.GetAddressString();
@@ -191,6 +202,13 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             order.Account = account;
             //no wait to send email
             _emailService.SendInvoiceEmail(order, account);
+
+            // if order price = 0 then auto proceed;
+            if(order.TotalPrice == 0)
+            {
+                var proceedOrderCommand = new ProceedOrderCommand(order.Id.Value, order.AccountId.Value);
+                var result = await _sender.Send(proceedOrderCommand);
+            }
             return order;
         }
 

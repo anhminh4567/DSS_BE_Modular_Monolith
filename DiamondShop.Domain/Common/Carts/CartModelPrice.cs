@@ -25,6 +25,7 @@ namespace DiamondShop.Domain.Common.Carts
                 MoneyVndRoundUpRules
                 .RoundAmountFromDecimal(DefaultPrice - DiscountAmountSaved - PromotionAmountSaved - OrderAmountSaved - UserRankDiscountAmount + TotalShippingPrice + TotalWarrantyPrice)
             ,0m, decimal.MaxValue); }
+        public bool IsFreeOrder { get => FinalPrice == 0; }
         
         
     }

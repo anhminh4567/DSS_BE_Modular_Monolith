@@ -85,7 +85,7 @@ namespace DiamondShop.Api.Controllers.ThirdParties
             var status = data["return_code"];
             var redirectUrl = _frontendOptions.Value.FailedPaymentUrl;
             var returnUrl = _frontendOptions.Value.SuccessPaymentUrl;
-            return RedirectPermanent(redirectUrl + "/"+HttpContext.Request.QueryString.Value);
+            return RedirectPermanent(returnUrl + "/"+HttpContext.Request.QueryString.Value);
             //return Ok(HttpContext.Request.QueryString.Value);
         }
     }

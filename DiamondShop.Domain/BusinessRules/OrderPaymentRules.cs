@@ -12,5 +12,7 @@ namespace DiamondShop.Domain.BusinessRules
         public static int CODPercent { get; set; } = 10;
         public static int CODPercentCustom { get; set; } = 50;
         public static int PayAllFine { get; set; } = 10;
+        public static decimal MaxMoneyFine { get; set; } = 5_000_000m;
+        public static decimal MinAmountForCOD { get; set; } = 100_000m;
     }
 }

@@ -2,6 +2,7 @@
 using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
@@ -12,6 +13,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using Mapster;
 using MediatR;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,17 +29,21 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
         private readonly IDiamondShapeRepository _diamondShapeRepository;
         private readonly ISender _sender;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public CreateCriteriaFromRangeCommandHandler(IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondShapeRepository diamondShapeRepository, ISender sender, IUnitOfWork unitOfWork)
+        public CreateCriteriaFromRangeCommandHandler(IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondShapeRepository diamondShapeRepository, ISender sender, IUnitOfWork unitOfWork, IOptionsMonitor<ApplicationSettingGlobal> options)
         {
             _diamondCriteriaRepository = diamondCriteriaRepository;
             _diamondShapeRepository = diamondShapeRepository;
             _sender = sender;
             _unitOfWork = unitOfWork;
+            _optionsMonitor = options;
         }
 
         public async Task<Result<List<DiamondCriteria>>> Handle(CreateCriteriaFromRangeCommand request, CancellationToken cancellationToken)
         {
+            var diamondPriceRule = _optionsMonitor.CurrentValue.DiamondPriceRules;
+            var diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
             List<(float CaratFrom, float CaratTo)> allAvailableCaratRangeForThisShape = new();
             var getAllShape = await _diamondShapeRepository.GetAllIncludeSpecialShape();
             var getShape = getAllShape.FirstOrDefault(s => s.Id == DiamondShapeId.Parse(request.diamondShapeId));
@@ -84,7 +90,17 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
                     }
                 }
             }
-
+            // check if valid according to the rule
+            if (request.IsSideDiamond)
+            {
+                if(request.caratTo > diamondRule.BiggestSideDiamondCarat)
+                    return Result.Fail("range tối đa của side diammond trong cấu hình là "+diamondRule.BiggestSideDiamondCarat + "carat ");
+            }
+            else
+            {
+                if (request.caratFrom < diamondRule.SmallestMainDiamondCarat)
+                    return Result.Fail("range smallest của main diammond trong cấu hình là " + diamondRule.SmallestMainDiamondCarat + "carat ");
+            }
 
             //when all is valid
             List<DiamondCriteriaRequestDto> requests = new();
