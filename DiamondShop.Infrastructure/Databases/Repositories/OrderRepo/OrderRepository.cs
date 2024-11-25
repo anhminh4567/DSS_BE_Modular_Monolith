@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
@@ -69,9 +70,19 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
                     .ThenInclude(c => c.DiamondShape);
             return query.AsSplitQuery();
         }
+       
         public bool IsRequestCreated(CustomizeRequestId customizeRequestId)
         {
             return _set.Any(p => p.CustomizeRequestId == customizeRequestId);
+        }
+        public IQueryable<Order> GetSoldJewelry()
+        {
+            var query = _set.AsQueryable();
+            query = query.Include(p => p.Items).ThenInclude(p => p.Jewelry).ThenInclude(p => p.Metal);
+            query = query.Include(p => p.Items).ThenInclude(p => p.Jewelry).ThenInclude(p => p.Model);
+            query = query.Where(p => p.Status == OrderStatus.Success);
+            query = query.Where(p => p.Items.Any(k => k.JewelryId != null));
+            return query.AsSplitQuery();
         }
     }
 }

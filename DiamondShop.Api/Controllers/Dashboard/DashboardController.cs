@@ -5,6 +5,7 @@ using DiamondShop.Application.Usecases.Dashboard.Queries;
 using DiamondShop.Application.Usecases.Dashboard.Queries.GetOrderCompleted;
 using DiamondShop.Application.Usecases.Diamonds.Queries.DashBoard.GetBestSellingCaratRangeForShape;
 using DiamondShop.Application.Usecases.Diamonds.Queries.DashBoard.GetBestSellingForManyShape;
+using DiamondShop.Application.Usecases.Diamonds.Queries.DashBoard.GetBestSellingJewelry;
 using DiamondShop.Application.Usecases.Orders.Commands.Checkout;
 using DiamondShop.Domain.Models.RoleAggregate;
 using MapsterMapper;
@@ -72,6 +73,14 @@ namespace DiamondShop.Api.Controllers.Dashboard
         {
             var command = new GetBestSellingCaratRangeForShapeQuery(shapeId, caratFrom, caratTo, startDate, endDate);
             var result = await _sender.Send(command);
+            if (result.IsSuccess)
+                return Ok(result.Value);
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpGet("Jewelry/TopSelling")]
+        public async Task<ActionResult> GetTopSellingJewelry()
+        {
+            var result = await _sender.Send(new GetBestSellingJewelryQuery());
             if (result.IsSuccess)
                 return Ok(result.Value);
             return MatchError(result.Errors, ModelState);

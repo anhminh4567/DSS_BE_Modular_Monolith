@@ -39,5 +39,13 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
 
         public void UpdateRange(List<OrderItem> orderItems) => _set.UpdateRange(orderItems);
 
+        public IQueryable<OrderItem> GetSoldJewelry()
+        {
+            var query = _set.AsQueryable();
+            query = query.Include(p => p.Jewelry).ThenInclude(p => p.Metal);
+            query = query.Include(p => p.Jewelry).ThenInclude(p => p.Model);
+            query = query.Where(p => p.Status == OrderItemStatus.Done && p.JewelryId != null);
+            return query.AsSplitQuery();
+        }
     }
 }

@@ -17,5 +17,7 @@ namespace DiamondShop.Domain.Repositories.OrderRepo
         public Task CreateRange(List<OrderItem> orderItems);
         public void UpdateRange(List<OrderItem> orderItems);
         Task<List<OrderItem>> GetOrderItemsDetail(Order order, CancellationToken cancellationToken = default);
+        IQueryable<OrderItem> GetSoldJewelry();
+
     }
 }

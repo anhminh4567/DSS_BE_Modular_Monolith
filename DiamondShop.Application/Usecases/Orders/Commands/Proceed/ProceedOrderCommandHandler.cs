@@ -145,6 +145,11 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                 if (order.PaymentType == PaymentType.COD)
                     //TODO: Add payment here
                     _orderTransactionService.AddCODPayment(order);
+                var items = order.Items;
+                foreach (var item in items)
+                {
+                    item.Status = OrderItemStatus.Done;
+                }
                 order.Status = OrderStatus.Success;
                 var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Success);
                 await _orderLogRepository.Create(log);
