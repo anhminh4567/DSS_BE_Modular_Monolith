@@ -35,7 +35,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Cancel
 
         public async Task<Result<CustomizeRequest>> Handle(CustomerCancelRequestCommand request, CancellationToken token)
         {
-
+            request.Deconstruct(out string customizeRequestId, out string accountId);
             await _unitOfWork.BeginTransactionAsync(token);
             var customizeRequest = await _customizeRequestRepository.GetById(CustomizeRequestId.Parse(customizeRequestId));
             if (customizeRequest == null)
