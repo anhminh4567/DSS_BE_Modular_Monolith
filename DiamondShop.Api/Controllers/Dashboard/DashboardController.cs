@@ -56,9 +56,9 @@ namespace DiamondShop.Api.Controllers.Dashboard
             return Ok(result);
         }
         [HttpGet("Diamond/TopSelling/AllShape")]
-        public async Task<ActionResult> GetTopSellingFromAllShape([FromQuery] string? startDate, [FromQuery] string? endDate)
+        public async Task<ActionResult> GetTopSellingFromAllShape([FromQuery] string? startDate, [FromQuery] string? endDate, [FromQuery] bool? isLab)
         {
-            var command = new GetBestSellingForShapeQuery(startDate, endDate);
+            var command = new GetBestSellingForShapeQuery(startDate, endDate, isLab);
             var result = await _sender.Send(command);
             if (result.IsSuccess)
                 return Ok(result.Value);
@@ -69,9 +69,10 @@ namespace DiamondShop.Api.Controllers.Dashboard
             [FromQuery] string? startDate,
             [FromQuery] string? endDate,
             [FromQuery] float caratFrom,
-            [FromQuery] float caratTo)
+            [FromQuery] float caratTo,
+            [FromQuery] bool? isLab)
         {
-            var command = new GetBestSellingCaratRangeForShapeQuery(shapeId, caratFrom, caratTo, startDate, endDate);
+            var command = new GetBestSellingCaratRangeForShapeQuery(shapeId, caratFrom, isLab, caratTo , startDate, endDate);
             var result = await _sender.Send(command);
             if (result.IsSuccess)
                 return Ok(result.Value);

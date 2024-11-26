@@ -179,9 +179,9 @@ namespace DiamondShop.Api.Controllers.Accounts
         }
         [HttpPut("Ban")]
         [Authorize(Roles = AccountRole.StaffId)]
-        public async Task<ActionResult> BanAccount([FromQuery] string identityId, CancellationToken cancellationToken = default)
+        public async Task<ActionResult> BanAccount([FromQuery] string identityId, [FromQuery] string? banEndDate, CancellationToken cancellationToken = default)
         {
-            var result = await _sender.Send(new BanAccountCommand(identityId), cancellationToken);
+            var result = await _sender.Send(new BanAccountCommand(identityId,banEndDate), cancellationToken);
             if (result.IsSuccess is false)
                 return MatchError(result.Errors, ModelState);
             return Ok();

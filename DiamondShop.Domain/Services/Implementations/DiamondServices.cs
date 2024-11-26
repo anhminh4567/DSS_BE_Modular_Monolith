@@ -242,8 +242,8 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 if (diamond.Color == criteria.Color
                 && diamond.Clarity == criteria.Clarity
-                && diamond.Carat < criteria.CaratTo
-                && diamond.Carat >= criteria.CaratFrom
+                && diamond.Carat <= criteria.CaratTo
+                && diamond.Carat > criteria.CaratFrom
                 && diamond.IsLabDiamond == price.IsLabDiamond)
                 {
                     return true;

@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Diamonds.Queries.DashBoard.GetBestSellingCaratRangeForShape
 {
-    public record GetBestSellingCaratRangeForShapeQuery(string shapeId, float caratFrom, float caratTo, string? startDate, string? endDate) : IRequest<Result<DiamondBestSellingCaratRangePerShapeDto>>;
+    public record GetBestSellingCaratRangeForShapeQuery(string shapeId, float caratFrom, bool? isLab, float caratTo, string? startDate, string? endDate) : IRequest<Result<DiamondBestSellingCaratRangePerShapeDto>>;
     internal class GetBestSellingCaratRangeForShapeQueryHandler : IRequestHandler<GetBestSellingCaratRangeForShapeQuery, Result<DiamondBestSellingCaratRangePerShapeDto>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
@@ -63,7 +63,9 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.DashBoard.GetBestSel
                 response.To = _mapper.Map<string>(endDate);
             }
             response.Shape = _mapper.Map<DiamondShapeDto>(getShape);
-            var getSoldShapes = await _diamondRepository.GetTotalSoldDiamondsByShape(getShape);
+            var getSoldShapes = await _diamondRepository.GetTotalSoldDiamondsByShape(getShape,request.isLab);
+            if (request.isLab != null)
+                getSoldShapes = getSoldShapes.Where(x => x.IsLabDiamond == request.isLab).ToList();
             var totalSold = getSoldShapes.Count;
             var totalRevenue = getSoldShapes.Sum(x => x.SoldPrice);
             List<string> soldIds = _mapper.Map<List<string>>(getSoldShapes.Select(x => x.Id));

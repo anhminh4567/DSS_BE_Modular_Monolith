@@ -80,7 +80,14 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             if (user is null)
                 return false;
             if (!user.LockoutEnabled)
+            {
+                if(user.LockoutEnd != null)
+                {
+                    if (DateTime.Compare(user.LockoutEnd.Value.DateTime.ToUniversalTime(), DateTime.UtcNow) <= 0)
+                        return true;
+                }
                 return false;
+            }
             return true;
         }
         public async Task<Result<AuthenticationResultDto>> ExternalLogin(CancellationToken cancellationToken = default)
@@ -336,12 +343,37 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             return Result.Fail(AccountErrors.TokenNotMatchError);
         }
 
-        public async Task<Result> BanAccount(string identityID, CancellationToken cancellationToken = default)
+        public async Task<Result> BanAccount(string identityID, DateTime? endDateTime, CancellationToken cancellationToken = default)
         {
             var tryGetAccount = await _userManager.FindByIdAsync(identityID);
             if (tryGetAccount is null)
-                return Result.Fail(new NotFoundError()); ;
+                return Result.Fail(new NotFoundError()); 
             tryGetAccount.LockoutEnabled = !tryGetAccount.LockoutEnabled;
+            if(tryGetAccount.LockoutEnabled == true)
+            {
+                if(endDateTime != null)
+                {
+                    if(endDateTime <= DateTime.UtcNow)
+                    {
+                        return Result.Fail("ngày hết hạn khóa phải lớn hơn bây giờ");
+                    }
+                    tryGetAccount.LockoutEnd = endDateTime;
+                }
+            }
+            else
+            {
+                tryGetAccount.LockoutEnd = null;
+            }
+            // if date time is present, then auto lock
+            if (endDateTime != null)
+            {
+                if (endDateTime <= DateTime.UtcNow)
+                {
+                    return Result.Fail("ngày hết hạn khóa phải lớn hơn bây giờ");
+                }
+                tryGetAccount.LockoutEnd = endDateTime;
+                tryGetAccount.LockoutEnabled = true;
+            }
             await _userManager.UpdateSecurityStampAsync(tryGetAccount);
             await _userManager.UpdateAsync(tryGetAccount);
             return Result.Ok();
