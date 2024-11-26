@@ -13,11 +13,11 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
             _optionsMonitor = optionsMonitor;
             RuleForEach(c => c.SideDiamondSpecs)
                 .NotEmpty()
-                .Must((req) => 
+                .Must((req) =>
                 {
                     var diamondRules = _optionsMonitor.CurrentValue.DiamondRule;
                     var maxSideDiamond = diamondRules.BiggestSideDiamondCarat;
-                    var averageCarat  = req.CaratWeight / (float)req.Quantity;
+                    var averageCarat = req.CaratWeight / (float)req.Quantity;
                     if (averageCarat > (float)maxSideDiamond)
                     {
                         return false;
@@ -37,10 +37,13 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
                 {
                     items.RuleFor(c => c.Name)
                         .NotEmpty();
-                    
+
+                    items.RuleFor(c => c.Code)
+                        .NotEmpty();
+
                     items.RuleFor(c => c.Width)
                         .GreaterThan(0).When(c => c.Width.HasValue);
-                    
+
                     items.RuleFor(c => c.Length)
                         .GreaterThan(0).When(c => c.Length.HasValue);
 
