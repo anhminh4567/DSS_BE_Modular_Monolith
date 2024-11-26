@@ -8,8 +8,9 @@ namespace DiamondShop.Domain.Models.Orders.Enum
 {
     public enum OrderStatus
     {
-        Pending = 1, Processing = 2, Rejected = 3, Cancelled = 4, Prepared = 5, Delivering = 6, Delivery_Failed = 7, Success = 8, Refused = 9
+        Pending = 1, Processing = 2, Rejected = 3, Cancelled = 4, Prepared = 5, Delivering = 6, Delivery_Failed = 7, Success = 8
     }
+
     public static class OrderStatusExtension
     {
         public static string ToFriendlyString(this OrderStatus me)
@@ -32,8 +33,6 @@ namespace DiamondShop.Domain.Models.Orders.Enum
                     return "Giao hàng thất bại";
                 case OrderStatus.Success:
                     return "Giao hàng thành công";
-                case OrderStatus.Refused:
-                    return "Giao hàng nhưng khách từ chối";
                 default:
                     throw new Exception("Unknonw messagae");
             }

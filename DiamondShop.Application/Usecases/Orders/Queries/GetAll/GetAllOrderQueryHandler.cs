@@ -42,7 +42,7 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetAll
             if (createdDate != null) query = _orderRepository.QueryFilter(query, p => p.CreatedDate >= createdDate);
             if (expectedDate != null) query = _orderRepository.QueryFilter(query, p => p.ExpectedDate >= expectedDate);
             if (email != null) query = _orderRepository.QueryFilter(query, p => p.Account.Email.ToUpper().Contains(email.ToUpper()));
-            query = _orderRepository.QueryOrderBy(query, p => p.OrderBy(p => p.Status));
+            query = _orderRepository.QueryOrderBy(query, p => p.OrderByDescending(k => k.CreatedDate));
             var count = query.Count();
             query.Skip(start * pageSize);
             query.Take(pageSize);
