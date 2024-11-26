@@ -19,6 +19,8 @@ namespace DiamondShop.Domain.Common
         public BlogRules BlogRules { get; set; } = BlogRules.Default;
         public TransactionRule TransactionRule { get; set; } = TransactionRule.Default;
         public LoggingRules LoggingRules { get; set; } = LoggingRules.Default;
+        public FrontendDisplayConfiguration FrontendDisplayConfiguration { get; set; } = FrontendDisplayConfiguration.Default;
+        public CartModelRules CartModelRules { get; set; } = CartModelRules.Default;
         public static Dictionary<string, object> DEFAULTS = new Dictionary<string, object>
         {
             { DiamondRule.key, DiamondRule.Default },
@@ -29,7 +31,9 @@ namespace DiamondShop.Domain.Common
             { WarrantyRules.key , WarrantyRules.Default },
             { JewelryReviewRules.key, JewelryReviewRules.Default },
             { BlogRules.key, BlogRules.Default },
-            { LoggingRules.key, LoggingRules.Default }
+            { LoggingRules.key, LoggingRules.Default },
+            { FrontendDisplayConfiguration.Key, FrontendDisplayConfiguration.Default },
+            { CartModelRules.key, CartModelRules.Default}
         };
         public static List<string> RULE_KEYS = new List<string>
         {
@@ -43,5 +47,22 @@ namespace DiamondShop.Domain.Common
             BlogRules.key,
             LoggingRules.key
         };
+        private Dictionary<string, object > _extraSetting= new();
+        public Dictionary<string, object> ExtraSettings { get => _extraSetting; }
+        public void SetExtraSetting<T>(string key, T value) where T: class 
+        {
+            if (ExtraSettings.ContainsKey(key))
+                ExtraSettings[key] = value;
+            else
+                ExtraSettings.Add(key, value);
+        }
+        public T? GetExtraSetting<T>(string key) where T : class
+        {
+            if (ExtraSettings.ContainsKey(key))
+                return (T)ExtraSettings[key];
+            else
+                return null;
+        }
+
     }
 }

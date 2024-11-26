@@ -1,6 +1,5 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Application.Services.Interfaces.AdminConfigurations.DiamondRuleConfig;
-using DiamondShop.Application.Services.Interfaces.AdminConfigurations.DiamondRuleConfig.Models;
+using DiamondShop.Application.Services.Interfaces.AdminConfigurations.PromotionRuleConfig;
 using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
@@ -15,28 +14,28 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Services.AdminConfigurations
 {
-    internal class DiamondRuleConfigurationService : IDiamondRuleConfigurationService
+    internal class PromotionRuleConfigurationService : IPromotionRuleConfigurationService
     {
         private readonly IApplicationSettingService _applicationSettingService;
-        private readonly IValidator<DiamondRule> _validator;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
+        private readonly IValidator<PromotionRule> _validator;
 
-        public DiamondRuleConfigurationService(IApplicationSettingService applicationSettingService, IValidator<DiamondRule> validator, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
+        public PromotionRuleConfigurationService(IApplicationSettingService applicationSettingService, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IValidator<PromotionRule> validator)
         {
             _applicationSettingService = applicationSettingService;
-            _validator = validator;
             _optionsMonitor = optionsMonitor;
+            _validator = validator;
         }
 
-        public Task<DiamondRule> GetConfiguration()
+        public Task<PromotionRule> GetConfiguration()
         {
-            return Task.FromResult(_optionsMonitor.CurrentValue.DiamondRule);
+            return Task.FromResult(_optionsMonitor.CurrentValue.PromotionRule);
         }
 
-        public async Task<Result> SetConfiguration(DiamondRule newValidatedConfiguration)
+        public async Task<Result> SetConfiguration(PromotionRule newValidatedConfiguration)
         {
-            var diamondRule = newValidatedConfiguration;
-            var validationResult = _validator.Validate(diamondRule);
+            var promotionRule = newValidatedConfiguration;
+            var validationResult = _validator.Validate(promotionRule);
             if (validationResult.IsValid is false)
             {
                 Dictionary<string, object> validationErrors = new();
@@ -56,7 +55,7 @@ namespace DiamondShop.Infrastructure.Services.AdminConfigurations
             }
             else
             {
-                _applicationSettingService.Set(DiamondRule.key, diamondRule);   
+                _applicationSettingService.Set(PromotionRule.key, promotionRule);
             }
             return Result.Ok();
             throw new NotImplementedException();

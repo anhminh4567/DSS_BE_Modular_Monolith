@@ -1,13 +1,8 @@
 ﻿using DiamondShop.Application.Commons.Validators.ErrorMessages;
-using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.BusinessRules;
 using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Services.Interfaces.AdminConfigurations.FrontendDisplays
+namespace DiamondShop.Application.Services.Interfaces.AdminConfigurations.FrontendDisplays.Models
 {
     public class FrontendDisplayConfigurationValidator : AbstractValidator<FrontendDisplayConfiguration>
     {
@@ -29,17 +24,5 @@ namespace DiamondShop.Application.Services.Interfaces.AdminConfigurations.Fronte
             RuleFor(x => x.DisplayTimeInSeconds).GreaterThan(1)
                 .WithGreaterThanMessage();
         }
-    }
-    public class FrontendDisplayConfiguration
-    {
-        public const string CAROUSEL_FOLDERS = "Carousel";
-        public const string Key = "FrontendDisplayConfigurationVer.1";
-        public int MaxCarouselImages { get; set; } = 10;
-        public int MinCarouselImages { get; set; } = 3;
-        public int DisplayTimeInSeconds { get; set; } = 5;
-    }
-    public interface FrontendDisplayRulesConfigurationService : IBaseConfigurationService<FrontendDisplayConfiguration>
-    {
-        Task<List<Media>> GetAllCarouselImages();
     }
 }

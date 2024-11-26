@@ -65,7 +65,14 @@ namespace DiamondShop.Infrastructure.Services.ApplicationConfigurations
             }
             //_cache.Remove(key);
             //var setValue = _cache.Set(key, value, TimeSpan.FromDays(365 * 10));
-            MapObjectToSetting(value, _optionsMonitor.CurrentValue);
+            var isMapped = MapObjectToSetting(value, _optionsMonitor.CurrentValue);
+            //this is when the settings are not part of domain but rather the application layer
+            if (isMapped is false)
+            {
+                _optionsMonitor.CurrentValue.SetExtraSetting(key, value);
+                var tryGet = _optionsMonitor.CurrentValue.GetExtraSetting<object>(key);
+                return tryGet;
+            }
             return value;
             //return setValue;
         }
@@ -88,20 +95,24 @@ namespace DiamondShop.Infrastructure.Services.ApplicationConfigurations
                 }
             }
         }
-        private void MapObjectToSetting(object tobeMappedObject, ApplicationSettingGlobal applicationSetting)
+        private bool MapObjectToSetting(object tobeMappedObject, ApplicationSettingGlobal applicationSetting)
         {
-            if (tobeMappedObject == null) return;
+            if (tobeMappedObject == null) return false;
 
             var tobeMappedObjectType = tobeMappedObject.GetType();
             var targetProperties = typeof(ApplicationSettingGlobal).GetProperties();
+            bool foundInApplicationSettingGlobal = false;
             foreach (var targetProp in targetProperties)
             {
                 if (tobeMappedObjectType == targetProp.PropertyType)
                 {
                     targetProp.SetValue(applicationSetting, tobeMappedObject);
+                    foundInApplicationSettingGlobal = true;
                     break; // Move to the next source property
                 }
             }
+            return foundInApplicationSettingGlobal;
+
         }
     }
 }
