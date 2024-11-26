@@ -85,7 +85,7 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
         }
         public bool IsInRange(float caratFrom, float caratTo)
         {
-            if (caratFrom <= AverageCarat && caratTo> AverageCarat)
+            if (caratFrom < AverageCarat && caratTo >= AverageCarat)
             {
                 return true;
             }

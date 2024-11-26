@@ -44,7 +44,7 @@ namespace DiamondShop.Domain.Models.Diamonds.ErrorMessages
                 return new ConflictError(messageBase +", " + detail);
             return new ConflictError(messageBase);
         } 
-        public static ConflictError DiamondNotExistInAnyCriteria = new ConflictError("Kim cương không thuộc bất kỳ tiêu chí nào");
+        public static ConflictError DiamondNotExistInAnyCriteria = new ConflictError("Kim cương không thuộc bất kỳ tiêu chí nào trong tiệm, hãy vào bảng giá, thêm khoảng carat range để có thể add");
         public static ConflictError DiamondNotMeetingRequirementSpec => new ConflictError("Kim cương không đáp ứng yêu cầu về thông số");
         public static Error LockPriceNotValid(string? detail = null)
         {

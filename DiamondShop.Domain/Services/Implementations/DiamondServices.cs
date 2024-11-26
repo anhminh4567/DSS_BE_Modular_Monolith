@@ -199,9 +199,10 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             //sideDiamond.IsFancyShape, 
             List<DiamondPrice> diamondPrices = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamond.IsLabGrown, sideDiamond.AverageCarat);
-            return await GetSideDiamondPriceGlobal(sideDiamond, diamondPrices);
+            var diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
+            return await GetSideDiamondPriceGlobal(sideDiamond, diamondPrices, diamondRule);
         }
-        public static async Task<List<DiamondPrice>> GetSideDiamondPriceGlobal(JewelrySideDiamond sideDiamond, List<DiamondPrice> diamondPrices)
+        public static async Task<List<DiamondPrice>> GetSideDiamondPriceGlobal(JewelrySideDiamond sideDiamond, List<DiamondPrice> diamondPrices, DiamondRule rule)
         {
             List<DiamondPrice> matchPrices = new();
             //DiamondPrice matchPrice = null;
@@ -221,10 +222,18 @@ namespace DiamondShop.Domain.Services.Implementations
             if (matchPrices.Count == 0)
             {
                 matchPrices.Add(DiamondPrice.CreateUnknownSideDiamondPrice(sideDiamond.IsLabGrown));
+                sideDiamond.DiamondPrice = matchPrices;
+                sideDiamond.AveragePricePerCarat = MoneyVndRoundUpRules.RoundAmountFromDecimal(matchPrices.Average(x => x.Price));
+            }else
+            {
+                sideDiamond.DiamondPrice = matchPrices;
+                var averagePrice = matchPrices.Average(x => x.Price);
+                var trueAveragePrice = Math.Clamp(averagePrice, rule.MinimalSideDiamondAveragePrice, decimal.MaxValue);
+                sideDiamond.AveragePricePerCarat = MoneyVndRoundUpRules.RoundAmountFromDecimal(trueAveragePrice);
             }
             //sideDiamond.DiamondPriceFound = matchPrices;
-            sideDiamond.DiamondPrice = matchPrices;
-            sideDiamond.AveragePricePerCarat = MoneyVndRoundUpRules.RoundAmountFromDecimal(matchPrices.Average(x => x.Price));
+            //sideDiamond.DiamondPrice = matchPrices;
+            //sideDiamond.AveragePricePerCarat = MoneyVndRoundUpRules.RoundAmountFromDecimal(matchPrices.Average(x => x.Price));
             //sideDiamond.AveragePrice = matchPrice.Price;
             //sideDiamond.SetCorrectPrice();
             return sideDiamond.DiamondPrice;
@@ -277,9 +286,10 @@ namespace DiamondShop.Domain.Services.Implementations
         public async Task<List<DiamondPrice>> GetSideDiamondPrice(SideDiamondOpt sideDiamondOption)
         {
             //sideDiamondOption.IsFancyShape
+            var rule = _optionsMonitor.CurrentValue.DiamondRule;
             List<DiamondPrice> diamondPrices = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat( sideDiamondOption.IsLabGrown, sideDiamondOption.AverageCarat);
             JewelrySideDiamond fakeDiamond = JewelrySideDiamond.Create(JewelryId.Create(), sideDiamondOption.CaratWeight, sideDiamondOption.Quantity, sideDiamondOption.ColorMin, sideDiamondOption.ColorMax, sideDiamondOption.ClarityMin, sideDiamondOption.ClarityMax, sideDiamondOption.SettingType);
-            var price = await GetSideDiamondPriceGlobal(fakeDiamond, diamondPrices);
+            var price = await GetSideDiamondPriceGlobal(fakeDiamond, diamondPrices,rule);
             //sideDiamondOption.DiamondPriceFound = fakeDiamond.DiamondPriceFound;
             sideDiamondOption.DiamondPrice = fakeDiamond.DiamondPrice;
             sideDiamondOption.AveragePricePerCarat = MoneyVndRoundUpRules.RoundAmountFromDecimal(sideDiamondOption.DiamondPrice.Average(x => x.Price));

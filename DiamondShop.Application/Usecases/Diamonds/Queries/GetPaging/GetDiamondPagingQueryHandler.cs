@@ -166,7 +166,11 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             {
                 if (request.GetDiamond_ManagerQuery.sku is not null)
                 {
-                    trueResult = await _diamondRepository.GetWhereSkuContain(request.GetDiamond_ManagerQuery.sku,0, TotalTake);
+                    var getResult = await _diamondRepository.GetWhereSkuContain(request.GetDiamond_ManagerQuery.sku, 0, TotalTake );
+                    var trueResultSku = getResult.Skip(trueSkip).Take(request.pageSize).ToList();
+                    responseList.AddRange(trueResult);
+                    Count = getResult.Count;
+                    return trueResultSku;
                 }
             }
             responseList.AddRange(trueResult);

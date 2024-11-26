@@ -15,7 +15,7 @@ namespace DiamondShop.Domain.BusinessRules
     {
         public static DiamondRule Default = new DiamondRule();
         public static string Type = typeof(DiamondRule).AssemblyQualifiedName;
-        public static string key = "DiamondRule4";
+        public static string key = "DiamondRuleVer1";
 
         public static string GetDiamondSerialCode(Diamond diamond,DiamondShape shape)
         {
@@ -28,6 +28,11 @@ namespace DiamondShop.Domain.BusinessRules
             var format = $"D{origin}{getshapechars}_{caratString}{cut}{color}{clarity}_{RandomGenerators.GetRandomString(5)}";
             return format;
         }
+        // gia toi thieu sideDiamond, neu tim thay gia, tinh TB 1 vien, ra gia, ma gia nos be hon 
+        // gia toi thieu, thi gia se la gia toi thieu
+        public decimal MinimalSideDiamondAveragePrice { get; set; } = 1000.0m ;
+        public decimal MinimalMainDiamondPrice { get; set; } = 10000.0m;
+
         public decimal MinPriceOffset{ get; set; } = -2.00m;
         public decimal MaxPriceOffset { get; set; } = +2.00m;
         public decimal MinCaratRange { get; set; } = 0.15m;

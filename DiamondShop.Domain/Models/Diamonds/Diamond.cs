@@ -205,15 +205,17 @@ namespace DiamondShop.Domain.Models.Diamonds
             ProductLock = null;
             UpdatedAt = DateTime.UtcNow;
         }   
-        public void SetCorrectPrice(decimal truePrice, DiamondRule rulesToSetCutOffSet)
+        public void SetCorrectPrice(decimal truePrice, DiamondRule rule)
         {
             var priceAfterCarat = truePrice * (decimal)Carat;
             decimal correctOffset = 1 + PriceOffset;
-            var priceAfterOffset = MoneyVndRoundUpRules.RoundAmountFromDecimal(priceAfterCarat * correctOffset);
+            var priceAfterOffset = priceAfterCarat * correctOffset;//MoneyVndRoundUpRules.RoundAmountFromDecimal(
+            var truePriceAfterCheckingMinDiamondPriceRule = Math.Clamp(priceAfterOffset, rule.MinimalMainDiamondPrice, decimal.MaxValue);
+            var finalPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(truePriceAfterCheckingMinDiamondPriceRule);
             if (TruePrice < 0)
                 throw new Exception();
             else
-                TruePrice = priceAfterOffset;
+                TruePrice = finalPrice;
         }
         public void SetLockForUser(Account userAccount , int lockHour, decimal? LockedPriceForCustomer)
         {

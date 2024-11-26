@@ -1,5 +1,7 @@
-﻿using DiamondShop.Domain.Models.DiamondPrices;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.DiamondPrices.Entities;
+using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.Jewelries.Entities;
@@ -25,6 +27,7 @@ namespace DiamondShop.Test.Domain
         private Clarity clarityFrom = Clarity.VVS2;
         private Clarity clarityTo = Clarity.VVS1;
         private JewelryId jewelryId = JewelryId.Parse("1");
+        private DiamondRule BaseDiamondRule = new();
         public DiamondServiceTest()
         {
             bool Islab = true;
@@ -57,7 +60,7 @@ namespace DiamondShop.Test.Domain
             var exptectAveragePrice = _diamondPrices.Average(x => x.Price);
             var exptectedTotalPrice = exptectAveragePrice * sideDiamond.Quantity;
             //act
-            await DiamondServices.GetSideDiamondPriceGlobal(sideDiamond, _diamondPrices);
+            await DiamondServices.GetSideDiamondPriceGlobal(sideDiamond, _diamondPrices, BaseDiamondRule);
 
             //assert
             sideDiamond.TotalPriceMatched.Should().Be(expectedPriceFound);
@@ -79,7 +82,7 @@ namespace DiamondShop.Test.Domain
             var exptectAveragePrice = listRemoveONEprice.Average(x => x.Price);
             var exptectedTotalPrice = exptectAveragePrice * sideDiamond.Quantity;
             //act
-            await DiamondServices.GetSideDiamondPriceGlobal(sideDiamond, listRemoveONEprice);
+            await DiamondServices.GetSideDiamondPriceGlobal(sideDiamond, listRemoveONEprice, BaseDiamondRule);
 
             //assert
             sideDiamond.TotalPriceMatched.Should().Be(expectedPriceFound);
@@ -106,7 +109,7 @@ namespace DiamondShop.Test.Domain
             var exptectAveragePrice = _diamondPrices.Average(x => x.Price);
             var exptectedTotalPrice = exptectAveragePrice * sideDiamond.Quantity;
             //act
-            await DiamondServices.GetSideDiamondPriceGlobal(sideDiamond, listAddOnePriceOutOfRange);
+            await DiamondServices.GetSideDiamondPriceGlobal(sideDiamond, listAddOnePriceOutOfRange, BaseDiamondRule);
 
             //assert
             sideDiamond.TotalPriceMatched.Should().Be(expectedPriceFound);
@@ -127,7 +130,7 @@ namespace DiamondShop.Test.Domain
             var exptectedTotalPrice = 0;
             var expectedUnknownPrice = DiamondPrice.CreateUnknownSideDiamondPrice(true);
             //act
-            await DiamondServices.GetSideDiamondPriceGlobal(sideDiamond, new List<DiamondPrice>());
+            await DiamondServices.GetSideDiamondPriceGlobal(sideDiamond, new List<DiamondPrice>(), BaseDiamondRule);
 
             //assert
             sideDiamond.TotalPriceMatched.Should().Be(expectedPriceFound);
@@ -135,6 +138,56 @@ namespace DiamondShop.Test.Domain
             sideDiamond.TotalPrice.Should().Be(exptectedTotalPrice);
             sideDiamond.DiamondPrice.Count.Should().Be(1);
             sideDiamond.DiamondPrice.First().ForUnknownPrice.Should().NotBeNullOrEmpty();
+        }
+        [Fact]
+        public async Task SideDiamondPrice_PricefoundButtooSmall_Should_Return_MinSideDiamondAveragePriceFromRule()
+        {
+            //arrange
+
+            var sideDiamond = JewelrySideDiamond.Create(jewelryId, 0.2f, 10, colorFrom, colorTo, clarityFrom, clarityTo, SettingType.Flush);
+            sideDiamond.DiamondShape = DiamondShape.FANCY_SHAPES;
+            sideDiamond.DiamondShapeId = sideDiamond.DiamondShape.Id;
+
+            var criteria = DiamondCriteria.CreateSideDiamondCriteria(0.001f,sideDiamond.AverageCarat,sideDiamond.ClarityMin,sideDiamond.ColorMin,sideDiamond.DiamondShape);
+            var sideDiamondPrice = DiamondPrice.CreateSideDiamondPrice(criteria.Id, 1000m, true, sideDiamond.DiamondShape);
+            sideDiamondPrice.Criteria = criteria;
+
+            var expectedPriceFound = 1;
+            var exptectAveragePriceWithoutRule = sideDiamond.Quantity * sideDiamondPrice.Price;
+            var exptectAveragePriceWithRule = Math.Clamp(exptectAveragePriceWithoutRule, BaseDiamondRule.MinimalSideDiamondAveragePrice,decimal.MaxValue);
+
+            //act
+            await DiamondServices.GetSideDiamondPriceGlobal(sideDiamond, new List<DiamondPrice>() { sideDiamondPrice }, BaseDiamondRule);
+
+            //assert
+            sideDiamond.TotalPriceMatched.Should().Be(1);
+            sideDiamond.AveragePricePerCarat.Should().Be(sideDiamondPrice.Price);
+            (sideDiamond.Quantity * sideDiamond.DiamondPrice.Sum(x => x.Price)).Should().Be(exptectAveragePriceWithoutRule);//this is the price without rule
+            sideDiamond.TotalPrice.Should().Be(exptectAveragePriceWithRule);
+        }
+        [Fact]
+        public async Task MainPrice_PriceFound_Truepricetoosmall_Trueprice_Should_MinpriceRule()
+        {
+            //arrange
+            var diamondRule = new DiamondRule();
+            var diamond4c = new Diamond_4C(Cut.Very_Good, Color.I, Clarity.VVS1, 0.15f, true);
+            Diamond mainDiamond = Diamond.Create(DiamondShape.ROUND, diamond4c, new Diamond_Details(Polish.Good, Symmetry.Good, Girdle.Medium, Fluorescence.Medium, Culet.Medium), new Diamond_Measurement(2f, 22f, 2f, "whatever 2"), 1, "asdfasdf");
+            mainDiamond.DiamondShape = DiamondShape.ROUND;
+
+            DiamondCriteria mainCriteria = DiamondCriteria.Create(diamond4c.Cut,diamond4c.Clarity,diamond4c.Color,diamond4c.Carat -0.1f,diamond4c.Carat+ 0.1f,DiamondShape.ROUND);
+
+            DiamondPrice mainPrice = DiamondPrice.Create(DiamondShape.ROUND.Id, mainCriteria.Id, 20000, diamond4c.isLabDiamond);
+            mainPrice.Criteria = mainCriteria;
+
+            var expectedPriceWithoutRules = mainPrice.Price * (decimal) mainDiamond.Carat;
+            var eppectedPriceWithRules = Math.Clamp(expectedPriceWithoutRules, diamondRule.MinimalMainDiamondPrice, decimal.MaxValue);
+            //act
+            await DiamondServices.GetDiamondPriceGlobal(mainDiamond, new List<DiamondPrice>() { mainPrice }, diamondRule);
+
+            //assert
+            mainDiamond.DiamondPrice.Should().Be(mainPrice);
+            (mainDiamond.DiamondPrice.Price * (decimal)mainDiamond.Carat).Should().Be(expectedPriceWithoutRules);
+            mainDiamond.TruePrice.Should().Be(eppectedPriceWithRules);
         }
     }
 }
