@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Dtos.Responses.Promotions;
+﻿using DiamondShop.Application.Commons.Responses;
+using DiamondShop.Application.Dtos.Responses.Promotions;
 using DiamondShop.Application.Usecases.Discounts.Commands.Cancel;
 using DiamondShop.Application.Usecases.Discounts.Commands.Create;
 using DiamondShop.Application.Usecases.Discounts.Commands.CreateFull;
@@ -10,6 +11,8 @@ using DiamondShop.Application.Usecases.Discounts.Commands.UpdateInfo;
 using DiamondShop.Application.Usecases.Discounts.Commands.UpdateRequirements;
 using DiamondShop.Application.Usecases.Discounts.Queries.GetAll;
 using DiamondShop.Application.Usecases.Discounts.Queries.GetDetail;
+using DiamondShop.Application.Usecases.Discounts.Queries.GetPaging;
+using DiamondShop.Domain.Models.Promotions.Entities;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +39,14 @@ namespace DiamondShop.Api.Controllers.Promotions
             var mappedResult = _mapper.Map<List<DiscountDto>>(response);
             return Ok(mappedResult);
         }
-
+        [HttpGet]
+        [Produces(type: typeof(PagingResponseDto<DiscountDto>))]
+        public async Task<ActionResult> GetPaging([FromQuery] GetDiscountPagingQuery query)
+        {
+            var response = await _sender.Send(query);
+            var mappedResult = _mapper.Map<PagingResponseDto<DiscountDto>>(response);
+            return Ok(mappedResult);
+        }
         [HttpGet("{discountId}")]
         [Produces(type: typeof(DiscountDto))]
         public async Task<ActionResult> Get([FromRoute] string? discountId, [FromQuery] string? discountCode)

@@ -103,7 +103,8 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Update
             await _discountRepository.Update(getDiscount);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
-            return getDiscount;
+            var getNewFullDetail = await _discountRepository.GetById(parsedId);
+            return getNewFullDetail;
         }
     }
 }

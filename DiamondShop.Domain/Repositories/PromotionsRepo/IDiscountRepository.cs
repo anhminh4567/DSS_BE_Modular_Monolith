@@ -13,5 +13,6 @@ namespace DiamondShop.Domain.Repositories.PromotionsRepo
         Task<List<Discount>> GetActiveDiscount(bool isDateComparisonRequired = false,CancellationToken cancellationToken =default);
         Task<Discount?> GetByCode(string discountCode, CancellationToken cancellationToken = default);
         IQueryable<Discount> QueryByStatuses(IQueryable<Discount> query,List<Status> statuses);
+        Task<List<Discount>> GetContainingCode(string code, int start, int take, CancellationToken cancellationToken = default);
     }
 }

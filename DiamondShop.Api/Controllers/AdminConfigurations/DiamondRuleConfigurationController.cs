@@ -1,5 +1,5 @@
-﻿using DiamondShop.Application.Dtos.Requests.ApplicationConfigurations.Diamonds;
-using DiamondShop.Application.Services.Interfaces;
+﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Application.Services.Interfaces.AdminConfigurations.DiamondRuleConfig.Models;
 using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;

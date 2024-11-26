@@ -48,6 +48,11 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo
                 .FirstOrDefaultAsync(d => d.Id == (DiscountId)ids[0]);
         }
 
+        public Task<List<Discount>> GetContainingCode(string code, int start, int take, CancellationToken cancellationToken = default)
+        {
+            return _set.Where(x => x.DiscountCode.ToUpper().Contains(code.ToUpper())).Skip(start).Take(take).ToListAsync(cancellationToken);
+        }
+
         public IQueryable<Discount> QueryByStatuses(IQueryable<Discount> query, List<Status> statuses)
         {
             return query.Where(d => statuses.Contains(d.Status));

@@ -1,5 +1,4 @@
-﻿using DiamondShop.Application.Dtos.Requests.ApplicationConfigurations.Promotions;
-using DiamondShop.Domain.BusinessRules;
+﻿using DiamondShop.Domain.BusinessRules;
 using Mapster;
 using System;
 using System.Collections.Generic;

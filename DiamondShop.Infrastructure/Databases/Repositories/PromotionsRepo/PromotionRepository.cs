@@ -58,5 +58,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo
         {
            return query.Where(p => statuses.Contains(p.Status));
         }
+
+        public Task<List<Promotion>> GetContainingCode(string code, int start, int take, CancellationToken cancellationToken = default)
+        {
+            return _set.Where(x => x.PromoCode.ToUpper().Contains(code.ToUpper())).Skip(start).Take(take).ToListAsync(cancellationToken);
+        }
     }
 }

@@ -2,11 +2,11 @@
 using DiamondShop.Domain.BusinessRules;
 using FluentValidation;
 
-namespace DiamondShop.Application.Dtos.Requests.ApplicationConfigurations.Promotions
+namespace DiamondShop.Application.Services.Interfaces.AdminConfigurations.PromotionRuleConfig.Models
 {
     public class PromotionRuleValidator : AbstractValidator<PromotionRule>
     {
-        
+
         public PromotionRuleValidator()
         {
             RuleFor(x => x.MaxDiscountPercent)

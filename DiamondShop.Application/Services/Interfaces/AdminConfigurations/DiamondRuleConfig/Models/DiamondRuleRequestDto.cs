@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Dtos.Requests.ApplicationConfigurations.Diamonds
+namespace DiamondShop.Application.Services.Interfaces.AdminConfigurations.DiamondRuleConfig.Models
 {
     public class DiamondRuleRequestDto
     {

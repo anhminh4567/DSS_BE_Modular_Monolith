@@ -2,7 +2,7 @@
 using DiamondShop.Domain.BusinessRules;
 using FluentValidation;
 
-namespace DiamondShop.Application.Dtos.Requests.ApplicationConfigurations.Diamonds
+namespace DiamondShop.Application.Services.Interfaces.AdminConfigurations.DiamondRuleConfig.Models
 {
     public class DiamondRuleValidator : AbstractValidator<DiamondRule>
     {
