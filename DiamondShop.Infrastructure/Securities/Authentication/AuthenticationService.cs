@@ -111,14 +111,14 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
         {
             var info = await _signinManager.GetExternalLoginInfoAsync();
             if (info == null)
-                return Result.Fail(new NotFoundError("not found user principle"));
+                return Result.Fail(AccountErrors.AccountNotFoundError);
             if ((info.Principal.Claims.FirstOrDefault(c => c.Type == "FAILURE") is not null))
             {
-                return Result.Fail("Cannot call request to user infor in google , try again later");
+                return Result.Fail(AccountErrors.GoogleAccountFailureError);
             }
             var tryLogin = await _signinManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
             if (tryLogin.Succeeded)
-                return Result.Fail(new ConflictError("user already exist"));
+                return Result.Fail(AccountErrors.Register.EmailExist);
             var getEmail = info.Principal.FindFirstValue(ExternalAuthenticationOptions.EXTERNAL_EMAIL_CLAIM_NAME);
             var getUsername = info.Principal.FindFirstValue(ExternalAuthenticationOptions.EXTERNAL_USERNAME_CLAIM_NAME);
             var getProfileImage = info.Principal.FindFirstValue(ExternalAuthenticationOptions.EXTERNAL_PROFILE_IMAGE_CLAIM_NAME);
@@ -133,10 +133,10 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             var createResult = await _userManager.CreateAsync(identity);
             await _userManager.SetLockoutEnabledAsync(identity, false);
             if (createResult.Succeeded is false)
-                return Result.Fail("fail to create identity");
+                return Result.Fail(AccountErrors.Register.IdentityCreateFail);
             var createLogin = await _userManager.AddLoginAsync(identity, info);
             if (createLogin.Succeeded is false)
-                return Result.Fail("fail to create login");
+                return Result.Fail(AccountErrors.Register.LoginCreateFail);
             FullName fullname;
             string[] splitedName = getUsername.Split(" ", StringSplitOptions.RemoveEmptyEntries);
             if (splitedName.Length >= 2)
@@ -169,7 +169,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             }
             if (isSchemeExist is false)
             {
-                return Result.Fail(new NotFoundError("not found the login requested"));
+                return Result.Fail(AccountErrors.Login.NoSchemeFoundError);
             }
             AuthenticationProperties authProperties = _signinManager.ConfigureExternalAuthenticationProperties(providerName, callback_URL);
             return Result.Ok(authProperties);
@@ -255,11 +255,11 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             var userIdentity = loginValidateResult.Value;
             if (CheckIfUserIsValidToLogin(userIdentity))
             {
-                return Result.Fail("user is lock out,contact admin to unlock");
+                return Result.Fail(AccountErrors.LockAccount);
             }
             var getStaff = await _accountRepository.GetByIdentityId(userIdentity.Id, cancellationToken);
             if (getStaff is null)
-                return Result.Fail(new NotFoundError("staff not found"));
+                return Result.Fail(AccountErrors.AccountNotFoundError);
 
             var authTokenDto = await GenerateTokenForUser(getStaff.Roles, getStaff.Email, getStaff.IdentityId, getStaff.Id.Value, getStaff.FullName.Value, cancellationToken);
             return Result.Ok(authTokenDto);
@@ -270,12 +270,12 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             var tryGetAccount = await _userManager.FindByEmailAsync(email);
             if (tryGetAccount is null)
             {
-                return Result.Fail(new NotFoundError("account Not Found"));
+                return Result.Fail(AccountErrors.AccountNotFoundError);
             }
             if (await _userManager.CheckPasswordAsync(tryGetAccount, password) is false)
-                return Result.Fail(new Error("password not match"));
+                return Result.Fail(AccountErrors.IncorrectUserNamePassword);
             if (await _userManager.IsLockedOutAsync(tryGetAccount) is true)
-                return Result.Fail("can't sign, you might have been block ");
+                return Result.Fail(AccountErrors.LockAccount);
             return Result.Ok(tryGetAccount);
         }
         public async Task<Result<(string? refreshToken, DateTime? ExpiredDate)>> GetRefreshToken(string identityId, CancellationToken cancellationToken = default)
@@ -285,11 +285,11 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 return Result.Fail(new NotFoundError());
             if (CheckIfUserIsValidToLogin(userIdentity))
             {
-                return Result.Fail("user is lock out,contact admin to unlock");
+                return Result.Fail(AccountErrors.LockAccount);
             }
             var getIdentity = await _userManager.GetRefreshTokenAsync(identityId, cancellationToken);
             if (getIdentity.refreshToken is null)
-                return Result.Fail("no token found");
+                return Result.Fail(AccountErrors.TokenNotFoundError);
             return Result.Ok((getIdentity.refreshToken, getIdentity.expiredTime));
             //throw new NotImplementedException();
         }
@@ -299,10 +299,10 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             var httpContext = _contextAccessor.HttpContext;
             var accessToken = httpContext.Request.Headers.Authorization.ToString().Substring(BEARER_HEADER.Length);
             if (accessToken.IsNullOrEmpty())
-                return Result.Fail("no access token found, login to get it");
+                return Result.Fail(AccountErrors.TokenNotFoundError);
             ClaimsPrincipal? tryGetClaimFromAccessToken = _jwtTokenProvider.GetPrincipalFromExpiredToken(accessToken);
             if (tryGetClaimFromAccessToken == null)
-                return Result.Fail("cannot get principle from the token, try login again");
+                return Result.Fail(AccountErrors.PrincipalNotFoundError);
             return Result.Ok(tryGetClaimFromAccessToken);
         }
 
@@ -318,7 +318,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 // if date time now is greater than expired time, means pass the expired or equal
                 if (DateTime.Compare(_dateTimeProvider.UtcNow, expiredTime.Value) >= 0)
                 {
-                    Result.Fail("Token Expired, Login again");
+                    Result.Fail(AccountErrors.TokenExpiredError);
                 }
                 var claims = _jwtTokenProvider.GetUserClaims(roles, email, identityId, userId, fullname);
                 var newAccToken = _jwtTokenProvider.GenerateAccessToken(claims);
@@ -333,7 +333,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                     expiredRefresh: newRefreshToken.expiredDate
                 ));
             }
-            return Result.Fail("Token not match");
+            return Result.Fail(AccountErrors.TokenNotMatchError);
         }
 
         public async Task<Result> BanAccount(string identityID, CancellationToken cancellationToken = default)
@@ -350,10 +350,10 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
         {
             var getAccount = await _accountRepository.GetById(AccountId.Parse(accountId));
             if (getAccount is null)
-                return Result.Fail(new NotFoundError("user with this email not found to confirm"));
+                return Result.Fail(AccountErrors.AccountNotFoundError);
             var getUser = await _userManager.FindByIdAsync(getAccount.IdentityId);
             if (getUser is null)
-                return Result.Fail(new NotFoundError("user with this email not found to confirm"));
+                return Result.Fail(AccountErrors.AccountNotFoundError);
             var codeDecodedBytes = WebEncoders.Base64UrlDecode(token);
             var codeDecoded = Encoding.UTF8.GetString(codeDecodedBytes);
             var isTokenValid = await _userManager.VerifyUserTokenAsync(getUser, _userManager.Options.Tokens.EmailConfirmationTokenProvider, "EmailConfirmation", codeDecoded);
@@ -379,7 +379,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 {
                     errors.Add(error.Code,new List<object> { "lỗi thay đổi password, hãy chắc ràng password " } );
                 }
-                return Result.Fail(new ValidationError("lõi thay đỏi password", errors));
+                return Result.Fail(new ValidationError("lỗi thay đỏi password", errors));
             }
             return Result.Ok();
         }
@@ -393,7 +393,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             if (getUserIdentity is null)
                 return Result.Fail(new NotFoundError());
             if (getUserIdentity.IsEmailConfirmed)
-                return Result.Fail(new Error("mail đã xác thực "));
+                return Result.Fail(new Error("Email đã xác thực"));
             var generateToken = await _userManager.GenerateEmailConfirmationTokenAsync(getUserIdentity);
             generateToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(generateToken));
             return await _emailService.SendConfirmAccountEmail(getUserAccount, generateToken, cancellationToken);
@@ -520,10 +520,10 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                     var createResult = await _userManager.CreateAsync(identity);
                     await _userManager.SetLockoutEnabledAsync(identity, false);
                     if (createResult.Succeeded is false)
-                        return Result.Fail("fail to create identity");
+                        return Result.Fail(AccountErrors.Register.IdentityCreateFail);
                     var createLogin = await _userManager.AddLoginAsync(identity, externalLoginInfo);
                     if (createLogin.Succeeded is false)
-                        return Result.Fail("fail to create login");
+                        return Result.Fail(AccountErrors.Register.LoginCreateFail);
                     FullName fullname;
                     string[] splitedName = getUsername.Split(" ", StringSplitOptions.RemoveEmptyEntries);
                     if (splitedName.Length >= 2)
@@ -544,7 +544,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             }
             catch (Exception ex)
             {
-                return Result.Fail(new Error("Invalid google credential"));
+                return Result.Fail(AccountErrors.GoogleInvalidError);
             }
             throw new NotImplementedException();
         }
