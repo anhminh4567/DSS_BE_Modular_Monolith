@@ -39,7 +39,7 @@ namespace DiamondShop.Api.Controllers.Promotions
             var mappedResult = _mapper.Map<List<DiscountDto>>(response);
             return Ok(mappedResult);
         }
-        [HttpGet]
+        [HttpGet("Page")]
         [Produces(type: typeof(PagingResponseDto<DiscountDto>))]
         public async Task<ActionResult> GetPaging([FromQuery] GetDiscountPagingQuery query)
         {

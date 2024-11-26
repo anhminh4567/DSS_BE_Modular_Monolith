@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Services.Interfaces.AdminConfigurations.FrontendDisplays;
+using FluentResults;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,6 @@ namespace DiamondShop.Application.Services.Interfaces.AdminConfigurations
     public interface IBaseConfigurationService<TConfiguration> where TConfiguration : class
     {
         Task<TConfiguration> GetConfiguration();
-        Task SetConfiguration(TConfiguration newValidatedConfiguration);
+        Task<Result> SetConfiguration(TConfiguration newValidatedConfiguration);
     }
 }
