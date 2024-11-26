@@ -42,9 +42,9 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomer
             }
             if (status != null)
                 query = _customizeRequestRepository.QueryFilter(query, p => p.Status == status);
+            query = _customizeRequestRepository.QueryOrderBy(query, p => p.OrderByDescending(k => k.CreatedDate));
             int maxPage = (int)Math.Ceiling((decimal)query.Count() / pageSize);
-            var orderedQuery = _customizeRequestRepository.QueryOrderBy(query, p => p.OrderBy(k => k.CreatedDate));
-            var list = orderedQuery.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+            var list = query.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
             return new PagingResponseDto<CustomizeRequest>(maxPage, currentPage, list);
         }
     }
