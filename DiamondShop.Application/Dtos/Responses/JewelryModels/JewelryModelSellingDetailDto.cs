@@ -20,6 +20,7 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         public List<MetalDto>? Metals { get; set; } = new();
         public List<SideDiamondOptDto>? SideDiamonds { get; set; } = new();
         public List<JewelryReviewDto>? Reviews { get; set; }
+        public MediaDto? Thumbnail { get; set; }
     }
     public class SellingDetailMetalDto
     {

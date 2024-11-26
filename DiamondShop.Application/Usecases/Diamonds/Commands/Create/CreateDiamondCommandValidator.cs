@@ -28,10 +28,11 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
                         return false;
                     return true;
                 }).WithMessage($"kim cương chính chỉ có thể để input {diamondRule.MainDiamondMaxFractionalNumber} (s) phần thập phân");
-            RuleFor(c => c.measurement.Depth).NotEmpty().WithNotEmptyMessage().GreaterThan(0);
-            RuleFor(c => c.measurement.withLenghtRatio).NotEmpty().WithNotEmptyMessage().GreaterThan(0);
-            RuleFor(c => c.measurement.table).NotEmpty().WithNotEmptyMessage().GreaterThan(0) ;
-            RuleFor(c => c.measurement.Measurement).NotEmpty().WithNotEmptyMessage().MinimumLength(3);
+            RuleFor(c => c.measurement.Depth).NotEmpty().WithNotEmptyMessage()
+                .GreaterThan(0).WithGreaterThanMessage();
+            RuleFor(c => c.measurement.withLenghtRatio).NotEmpty().WithNotEmptyMessage().GreaterThan(0).WithGreaterThanMessage();
+            RuleFor(c => c.measurement.table).NotEmpty().WithNotEmptyMessage().GreaterThan(0).WithGreaterThanMessage() ;
+            RuleFor(c => c.measurement.Measurement).NotEmpty().WithNotEmptyMessage().MinimumLength(3).WithMinLenghtMessage();
           
             RuleFor(c => c.details.Symmetry).NotEmpty().WithNotEmptyMessage().IsInEnum().WithIsInEnumMessage();
             RuleFor(c => c.details.Culet).NotEmpty().WithNotEmptyMessage().IsInEnum().WithIsInEnumMessage();
