@@ -9,7 +9,7 @@ using MediatR;
 
 namespace DiamondShop.Application.Usecases.Warranties.Commands.Create
 {
-    public record CreateWarrantyCommand(WarrantyType Type, string Name, string Code, int MonthDuration, decimal Price) : IRequest<Result<Warranty>>;
+    public record CreateWarrantyCommand(WarrantyType Type, string Name, string LocalizedName, string Code, int MonthDuration, decimal Price) : IRequest<Result<Warranty>>;
     internal class CreateWarrantyCommandHandler : IRequestHandler<CreateWarrantyCommand, Result<Warranty>>
     {
         private readonly IWarrantyRepository _warrantyRepository;
@@ -23,13 +23,13 @@ namespace DiamondShop.Application.Usecases.Warranties.Commands.Create
 
         public async Task<Result<Warranty>> Handle(CreateWarrantyCommand request, CancellationToken token)
         {
-            request.Deconstruct(out WarrantyType type, out string name, out string code, out int duration, out decimal price);
+            request.Deconstruct(out WarrantyType type, out string name, out string localizedName, out string code, out int duration, out decimal price);
             await _unitOfWork.BeginTransactionAsync(token);
             if (_warrantyRepository.IsNameExist(name))
                 return Result.Fail(WarrantyErrors.ExistedWarrantyNameFound(name));
             if (_warrantyRepository.IsCodeExist(code))
                 return Result.Fail(WarrantyErrors.ExistedWarrantyCodeFound(code));
-            Warranty warranty = Warranty.Create(type, name, code, duration, price);
+            Warranty warranty = Warranty.Create(type, name, localizedName, code, duration, price);
             await _warrantyRepository.Create(warranty);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);

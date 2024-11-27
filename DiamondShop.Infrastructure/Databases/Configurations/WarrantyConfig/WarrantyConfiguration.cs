@@ -16,10 +16,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.WarrantyConfig
     {
         private static List<Warranty> WARRANTIES = new()
         {
-            Warranty.Create(WarrantyType.Jewelry, "Default_Jewelry_Warranty",nameof(WarrantyRules.THREE_MONTHS),WarrantyRules.Default.THREE_MONTHS,0,WarrantyId.Parse(1.ToString())),
-            Warranty.Create(WarrantyType.Diamond, "Default_Diamond_Warranty",nameof(WarrantyRules.THREE_MONTHS),WarrantyRules.Default.THREE_MONTHS,0,WarrantyId.Parse(2.ToString())),
-            Warranty.Create(WarrantyType.Jewelry, "One_Year_Jewelry_Warranty",nameof(WarrantyRules.ONE_YEAR),WarrantyRules.Default.ONE_YEAR,150_000,WarrantyId.Parse(3.ToString())),
-            Warranty.Create(WarrantyType.Diamond, "One_Year_Diamond_Warranty",nameof(WarrantyRules.ONE_YEAR),WarrantyRules.Default.ONE_YEAR,120_000,WarrantyId.Parse(4.ToString())),
+            Warranty.Create(WarrantyType.Jewelry, "Default_Jewelry_Warranty", "Bảo hành trang sức 3 tháng",nameof(WarrantyRules.THREE_MONTHS),WarrantyRules.Default.THREE_MONTHS,0,WarrantyId.Parse(1.ToString())),
+            Warranty.Create(WarrantyType.Diamond, "Default_Diamond_Warranty", "Bảo hành kim cương 3 tháng", nameof(WarrantyRules.THREE_MONTHS),WarrantyRules.Default.THREE_MONTHS,0,WarrantyId.Parse(2.ToString())),
+            Warranty.Create(WarrantyType.Jewelry, "One_Year_Jewelry_Warranty","Bảo hành trang sức 1 năm",nameof(WarrantyRules.ONE_YEAR),WarrantyRules.Default.ONE_YEAR,150_000,WarrantyId.Parse(3.ToString())),
+            Warranty.Create(WarrantyType.Diamond, "One_Year_Diamond_Warranty","Bảo hành trang sức 1 năm",nameof(WarrantyRules.ONE_YEAR),WarrantyRules.Default.ONE_YEAR,120_000,WarrantyId.Parse(4.ToString())),
 
         };
         new public void Configure(EntityTypeBuilder<Warranty> builder)
@@ -31,6 +31,6 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.WarrantyConfig
             builder.Property(o => o.Type).HasConversion<string>();
             builder.HasKey(o => o.Id);
             builder.HasData(WARRANTIES);
-        }   
+        }
     }
 }
