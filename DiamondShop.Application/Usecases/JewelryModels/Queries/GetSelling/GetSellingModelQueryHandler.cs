@@ -104,7 +104,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                                 gallery.Gallery.TryGetValue(key, out List<Media>? sideDiamondImages);
                                 var thumbnail = sideDiamondImages?.FirstOrDefault();
                                 if (sideDiamondImages != null && sideDiamondImages.Count >= 3)
-                                    thumbnail = sideDiamondImages[3];
+                                    thumbnail = sideDiamondImages[2];
                                 return JewelryModelSelling.CreateWithSide(
                             thumbnail, model.Name, sizeMetal.Metal.Name, 0, 0,
                             model.CraftmanFee, sizeMetal.Min.Price, sizeMetal.Max.Price,
@@ -126,7 +126,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                         var images = gallery.BaseMetals.Where(p => p.MediaPath.Contains($"Metals/{sizeMetal.Metal.Id.Value}")).ToList();
                         var thumbnail = images.FirstOrDefault();
                         if (images != null && images.Count >= 3)
-                            thumbnail = images[3];
+                            thumbnail = images[2];
                         var created_noside = JewelryModelSelling.CreateNoSide(
                             thumbnail, model.Name, sizeMetal.Metal.Name, 0, 0,
                             model.CraftmanFee, sizeMetal.Min.Price, sizeMetal.Max.Price, model.Id, sizeMetal.Metal.Id);
