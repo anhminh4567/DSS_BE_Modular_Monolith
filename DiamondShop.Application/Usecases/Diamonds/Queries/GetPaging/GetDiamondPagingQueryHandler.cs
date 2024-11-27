@@ -170,6 +170,14 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
                     var trueResultSku = getResult.Skip(trueSkip).Take(request.pageSize).ToList();
                     responseList.AddRange(trueResult);
                     Count = getResult.Count;
+                    foreach (var diamond in trueResultSku)
+                    {
+                        DiamondPrice diamondPrice;
+                        diamond.DiamondShape = Shapes.FirstOrDefault(s => s.Id == diamond.DiamondShapeId);
+                        var diamondPriceBySHape = await _diamondPriceRepository.GetPrice(diamond.Cut.Value, diamond.DiamondShape, diamond.IsLabDiamond);
+                        diamondPrice = await _diamondService.GetDiamondPrice(diamond, diamondPriceBySHape);
+                        _diamondService.AssignDiamondDiscount(diamond, ActiveDiscount).Wait();
+                    }
                     return trueResultSku;
                 }
             }

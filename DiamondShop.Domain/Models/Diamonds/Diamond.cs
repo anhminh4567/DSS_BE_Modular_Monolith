@@ -207,6 +207,11 @@ namespace DiamondShop.Domain.Models.Diamonds
         }   
         public void SetCorrectPrice(decimal truePrice, DiamondRule rule)
         {
+            if(DiamondPrice != null && DiamondPrice.ForUnknownPrice != null)
+            {
+                TruePrice = 0;
+                return;
+            }    
             var priceAfterCarat = truePrice * (decimal)Carat;
             decimal correctOffset = 1 + PriceOffset;
             var priceAfterOffset = priceAfterCarat * correctOffset;//MoneyVndRoundUpRules.RoundAmountFromDecimal(
