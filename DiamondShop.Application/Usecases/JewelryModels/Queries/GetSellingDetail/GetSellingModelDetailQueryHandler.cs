@@ -1,4 +1,6 @@
-﻿using DiamondShop.Domain.Models.JewelryModels.Entities;
+﻿using DiamondShop.Application.Services.Interfaces.JewelryModels;
+using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
@@ -16,14 +18,16 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
         private readonly IJewelryRepository _jewelryRepository;
         private readonly IJewelryModelRepository _modelRepository;
         private readonly IDiamondServices _diamondServices;
-        public GetSellingModelDetailQueryHandler(IJewelryModelRepository modelRepository, IJewelryRepository jewelryRepository, IDiamondServices diamondServices)
+        private readonly IJewelryModelFileService _jewelryModelFileService;
+        public GetSellingModelDetailQueryHandler(IJewelryModelRepository modelRepository, IJewelryRepository jewelryRepository, IDiamondServices diamondServices, IJewelryModelFileService jewelryModelFileService)
         {
             _modelRepository = modelRepository;
             _jewelryRepository = jewelryRepository;
             _diamondServices = diamondServices;
+            _jewelryModelFileService = jewelryModelFileService;
         }
 
-        public async Task<Result<JewelryModelSellingDetail>> Handle(GetSellingModelDetailQuery request, CancellationToken cancellationToken)
+        public async Task<Result<JewelryModelSellingDetail>> Handle(GetSellingModelDetailQuery request, CancellationToken token)
         {
             request.Deconstruct(out string modelId);
             var query = _modelRepository.GetSellingModelQuery();
@@ -38,28 +42,33 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
                 .GroupBy(p => p.Metal);
             List<Metal> metalList = metalGroup.Select(p => p.Key).ToList();
             List<SellingDetailMetal> metalGroups = new();
+            var medias = await _jewelryModelFileService.GetFolders(model, token);
+            var gallery = _jewelryModelFileService.MapPathsToCorrectGallery(model, medias, token);
             foreach (var metals in metalGroup)
             {
                 if (sideDiamonds != null && sideDiamonds.Count > 0)
                 {
-                    foreach(var side in sideDiamonds)
+                    foreach (var side in sideDiamonds)
                     {
+                        var key = $"Categories/{metals.Key.Id.Value}/{side.Id.Value}";
+                        gallery.Gallery.TryGetValue(key, out List<Media>? sideDiamondImages);
                         var sizesInStock = _jewelryRepository.GetSizesInStock(model.Id, metals.Key.Id, side);
                         await _diamondServices.GetSideDiamondPrice(side);
                         metalGroups.Add(
                             SellingDetailMetal.CreateWithSide(
-                                model.Name, metals.Key, side.TotalPrice > 0, side, null,
+                                model.Name, metals.Key, side.TotalPrice > 0, side, sideDiamondImages,
                                 metals.Select(k =>
-                                SellingDetailSize.Create(k.Size.Value,side.TotalPrice != null ? side.TotalPrice + model.CraftmanFee + k.Price : 0, sizesInStock.Contains(k.SizeId))).ToList()
+                                SellingDetailSize.Create(k.Size.Value, side.TotalPrice != null ? side.TotalPrice + model.CraftmanFee + k.Price : 0, sizesInStock.Contains(k.SizeId))).ToList()
                             ));
                     };
                 }
                 else
                 {
+                    var images = gallery.BaseMetals.Where(p => p.MediaPath.Contains($"Metals/{metals.Key.Id.Value}")).ToList();
                     var sizesInStock = _jewelryRepository.GetSizesInStock(model.Id, metals.Key.Id);
                     metalGroups.Add(
                         SellingDetailMetal.CreateNoSide(
-                            model.Name, metals.Key, null,
+                            model.Name, metals.Key, images,
                             metals.Select(p => SellingDetailSize.Create(p.Size.Value, p.Price + model.CraftmanFee, sizesInStock.Contains(p.SizeId))).ToList()
                         ));
                 }

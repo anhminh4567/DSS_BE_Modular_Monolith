@@ -1,6 +1,9 @@
-﻿using DiamondShop.Application.Commons.Responses;
+﻿using DiamondShop.Application.Commons.Models;
+using DiamondShop.Application.Commons.Responses;
 using DiamondShop.Application.Dtos.Responses.JewelryModels;
+using DiamondShop.Application.Services.Interfaces.JewelryModels;
 using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
@@ -13,17 +16,20 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
     public record GetSellingModelQuery(int page = 0, string? Category = null, string? MetalId = null, decimal? MinPrice = null, decimal? MaxPrice = null, bool? IsRhodiumFinished = null, bool? IsEngravable = null) : IRequest<Result<PagingResponseDto<JewelryModelSelling>>>;
     internal class GetSellingModelQueryHandler : IRequestHandler<GetSellingModelQuery, Result<PagingResponseDto<JewelryModelSelling>>>
     {
+        private readonly Dictionary<string, JewelryModelGalleryTemplate?> cachedGallery = new();
         private readonly IJewelryModelCategoryRepository _categoryRepository;
         private readonly IJewelryRepository _jewelryRepository;
         private readonly IJewelryModelRepository _jewelryModelRepository;
+        private readonly IJewelryModelFileService _jewelryModelFileService;
         private readonly IDiamondServices _diamondServices;
 
-        public GetSellingModelQueryHandler(IJewelryModelCategoryRepository categoryRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, IDiamondServices diamondServices)
+        public GetSellingModelQueryHandler(IJewelryModelCategoryRepository categoryRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, IDiamondServices diamondServices, IJewelryModelFileService jewelryModelFileService)
         {
             _categoryRepository = categoryRepository;
             _jewelryRepository = jewelryRepository;
             _jewelryModelRepository = jewelryModelRepository;
             _diamondServices = diamondServices;
+            _jewelryModelFileService = jewelryModelFileService;
         }
 
         public async Task<Result<PagingResponseDto<JewelryModelSelling>>> Handle(GetSellingModelQuery request, CancellationToken cancellationToken)
@@ -83,6 +89,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                             Max = max,
                         };
                     });
+                var gallery = await GetModelGallery(model);
                 foreach (var sizeMetal in sizeMetals)
                 {
                     //check if model has product
@@ -91,10 +98,15 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                     if (sideDiamonds != null && sideDiamonds.Count > 0)
                     {
                         var created_side = sideDiamonds
-                            .Select(p => JewelryModelSelling.CreateWithSide(
-                            "", model.Name, sizeMetal.Metal.Name, 0, 0,
+                            .Select(p =>
+                            {
+                                var key = $"Categories/{sizeMetal.Metal.Id.Value}/{p.Id.Value}";
+                                gallery.Gallery.TryGetValue(key, out List<Media>? sideDiamondImages);
+                                return JewelryModelSelling.CreateWithSide(
+                            sideDiamondImages?.FirstOrDefault(), model.Name, sizeMetal.Metal.Name, 0, 0,
                             model.CraftmanFee, sizeMetal.Min.Price, sizeMetal.Max.Price,
-                            model.Id, sizeMetal.Metal.Id, p))
+                            model.Id, sizeMetal.Metal.Id, p);
+                            })
                         .Where(p =>
                         {
                             bool flag = true;
@@ -108,8 +120,9 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                     }
                     else
                     {
+                        var thumbnail = gallery.BaseMetals.FirstOrDefault(p => p.MediaPath.Contains($"Metals/{sizeMetal.Metal.Id.Value}"));
                         var created_noside = JewelryModelSelling.CreateNoSide(
-                            "", model.Name, sizeMetal.Metal.Name, 0, 0,
+                            thumbnail, model.Name, sizeMetal.Metal.Name, 0, 0,
                             model.CraftmanFee, sizeMetal.Min.Price, sizeMetal.Max.Price, model.Id, sizeMetal.Metal.Id);
                         if (maxPrice != null)
                             if (created_noside.MinPrice > maxPrice) continue;
@@ -123,6 +136,19 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                 return await GetData(sellingModels, query, page + 1, metalId, minPrice, maxPrice);
             else
                 return page;
+        }
+
+        private async Task<JewelryModelGalleryTemplate> GetModelGallery(JewelryModel model)
+        {
+            cachedGallery.TryGetValue(model.Id.Value, out JewelryModelGalleryTemplate? gallery);
+            if (gallery is null)
+            {
+                var medias = await _jewelryModelFileService.GetFolders(model);
+                gallery = _jewelryModelFileService.MapPathsToCorrectGallery(model, medias);
+                cachedGallery.Add(model.Id.Value, gallery);
+                model.Gallery = medias;
+            }
+            return gallery;
         }
     }
 }

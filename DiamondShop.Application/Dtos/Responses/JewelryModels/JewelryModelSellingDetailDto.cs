@@ -28,7 +28,7 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         public string MetalId { get; set; }
         public string? SideDiamondId { get; set; }
         public bool IsPriced { get; set; }
-        public List<string>? Images { get; set; } = new();
+        public List<MediaDto>? Images { get; set; } = new();
         public List<SellingDetailSizeDto> SizeGroups { get; set; } = new();
     }
     public class SellingDetailSizeDto

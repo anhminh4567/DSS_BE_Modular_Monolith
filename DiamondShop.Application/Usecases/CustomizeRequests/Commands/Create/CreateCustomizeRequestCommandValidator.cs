@@ -30,8 +30,8 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Create
                         k.RuleFor(j => j.colorTo).IsInEnum();
                         k.RuleFor(j => j.cutFrom).IsInEnum();
                         k.RuleFor(j => j.cutTo).IsInEnum();
-                        k.RuleFor(j => j.caratFrom).NotEmpty();
-                        k.RuleFor(j => j.caratTo).NotEmpty();
+                        k.RuleFor(j => j.caratFrom).GreaterThanOrEqualTo(0);
+                        k.RuleFor(j => j.caratTo).GreaterThanOrEqualTo(0);
                         k.RuleFor(j => j).Must(j =>
                         {
                             return j.clarityTo >= j.clarityFrom &&

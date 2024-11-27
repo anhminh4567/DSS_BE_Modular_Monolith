@@ -8,10 +8,11 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
     public class Metal : Entity<MetalId>
     {
         public string Name { get; set; }
+        public string LocalizedName { get; set; }
         public decimal Price { get; set; }
         public Media? Thumbnail { get; set; }
         public Metal() { }
-        public static Metal Create(string name, decimal price, MetalId? givenId = null) => new Metal() { Id = givenId is null ? MetalId.Create() : givenId, Name = name, Price = price };
+        public static Metal Create(string name, string localizedName, decimal price, MetalId? givenId = null) => new Metal() { Id = givenId is null ? MetalId.Create() : givenId, Name = name, LocalizedName = localizedName, Price = price };
         public void Update(decimal price) => Price = price;
         [NotMapped]
         public string CodeName

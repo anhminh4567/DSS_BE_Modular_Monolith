@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.JewelryModels.Entities;
+﻿using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 
 namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
@@ -6,7 +7,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
     public class JewelryModelSelling
     {
         public string Name { get; set; }
-        public string ThumbnailPath { get; set; }
+        public Media? Thumbnail { get; set; }
         public int StarRating { get; set; }
         public int ReviewCount { get; set; }
         public decimal MinPrice { get; set; }
@@ -14,14 +15,14 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
         public JewelryModelId JewelryModelId { get; set; }
         public MetalId MetalId { get; set; }
         public SideDiamondOptId SideDiamondOptId { get; set; }
-        public static JewelryModelSelling CreateWithSide(string thumbnail, string modelName, string metalName, int star, int reviewCount,
+        public static JewelryModelSelling CreateWithSide(Media? thumbnail, string modelName, string metalName, int star, int reviewCount,
             decimal craftmanFee, decimal minMetalPrice, decimal maxMetalPrice,
             JewelryModelId modelId, MetalId metalId, SideDiamondOpt sideDiamondOpt)
         {
             return new JewelryModelSelling()
             {
                 Name = $"{modelName} in {metalName} ({sideDiamondOpt.CaratWeight} Tw)",
-                ThumbnailPath = "",
+                Thumbnail = thumbnail,
                 StarRating = 0,
                 ReviewCount = 0,
                 MinPrice = craftmanFee + minMetalPrice + sideDiamondOpt.TotalPrice,
@@ -31,14 +32,14 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                 SideDiamondOptId = sideDiamondOpt.Id
             };
         }
-        public static JewelryModelSelling CreateNoSide(string thumbnail, string modelName, string metalName, int star, int reviewCount,
+        public static JewelryModelSelling CreateNoSide(Media? thumbnail, string modelName, string metalName, int star, int reviewCount,
             decimal craftmanFee, decimal minMetalPrice, decimal maxMetalPrice,
             JewelryModelId modelId, MetalId metalId)
         {
             return new JewelryModelSelling()
             {
                 Name = $"{modelName} in {metalName}",
-                ThumbnailPath = "",
+                Thumbnail = thumbnail,
                 StarRating = 0,
                 ReviewCount = 0,
                 MinPrice = craftmanFee + minMetalPrice,

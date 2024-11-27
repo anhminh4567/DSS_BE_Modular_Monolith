@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.Jewelries.Entities;
+﻿using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.Enum;
@@ -52,10 +53,10 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
         public MetalId MetalId { get; set; }
         public SideDiamondOptId? SideDiamondId { get; set; }
         public bool IsPriced { get; set; }
-        public List<string>? Images { get; set; } = new();
+        public List<Media>? Images { get; set; } = new();
         public List<SellingDetailSize> SizeGroups { get; set; } = new();
         public static SellingDetailMetal CreateWithSide(string modelName, Metal metal, bool isPriced, SideDiamondOpt sideDiamondOpt,
-            List<string> images, List<SellingDetailSize> sizeGroup)
+            List<Media>? images, List<SellingDetailSize> sizeGroup)
         {
             return new SellingDetailMetal
             {
@@ -68,7 +69,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
             };
         }
         public static SellingDetailMetal CreateNoSide(string modelName, Metal metal,
-            List<string> images, List<SellingDetailSize> sizeGroup)
+            List<Media>? images, List<SellingDetailSize> sizeGroup)
         {
             return new SellingDetailMetal
             {
