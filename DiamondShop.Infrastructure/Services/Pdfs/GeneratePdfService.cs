@@ -23,18 +23,17 @@ namespace DiamondShop.Infrastructure.Services.Pdfs
         private const string OrderInvoiceTemplateFileName = "OrderInvoiceTemplate.cshtml";
         private readonly IOptions<PublicBlobOptions> _publicBlobOptions;
         private readonly IOptions<ExternalUrlsOptions> _externalUrlsOptions;
-        private IConverter _converter;
 
         static GeneratePdfService()
         {
             SelectPdf.GlobalProperties.EnableFallbackToRestrictedRenderingEngine = true;
 
         }
-        public GeneratePdfService(IOptions<PublicBlobOptions> publicBlobOptions, IOptions<ExternalUrlsOptions> externalUrlsOptions, IConverter converter)
+
+        public GeneratePdfService(IOptions<PublicBlobOptions> publicBlobOptions, IOptions<ExternalUrlsOptions> externalUrlsOptions)
         {
             _publicBlobOptions = publicBlobOptions;
             _externalUrlsOptions = externalUrlsOptions;
-            _converter = converter;
         }
 
         public static Stream GeneratePdfDoc(string htmlString)

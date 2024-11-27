@@ -87,7 +87,7 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
             }
             else
             {
-                return  await _promotionRepository.GetActivePromotion();
+                return new List<Promotion>();
             }
         }
         //private async Task<ShippingPrice> GetShippingPrice(AddressRequestDto addressRequestDto)

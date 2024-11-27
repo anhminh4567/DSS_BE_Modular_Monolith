@@ -24,6 +24,8 @@ namespace DiamondShop.Application.Mappers
                 .Map(dest => dest.AverageOffsetVeryGoodCutFromIdealCut_FANCY_SHAPE, src => src.AverageOffsetVeryGoodCutFromIdealCut_FANCY_SHAPE);
             
             config.NewConfig<PromotionRule, PromotionRule>();
+            config.NewConfig<FrontendDisplayConfiguration, FrontendDisplayConfiguration>()
+                .IgnoreNullValues(true);
         }
     }
 }

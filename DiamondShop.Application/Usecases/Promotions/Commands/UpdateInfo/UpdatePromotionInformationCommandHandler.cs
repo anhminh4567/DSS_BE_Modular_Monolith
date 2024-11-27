@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.Promotions.Commands.UpdateInfo
 {
 
-    public record UpdatePromotionInformationCommand(string? promotionId, string? name, string? description, UpdateStartEndDate? UpdateStartEndDate) : IRequest<Result<Promotion>>;
+    public record UpdatePromotionInformationCommand(string? promotionId,bool? isExcludeQualifierProduct, string? name, string? description, UpdateStartEndDate? UpdateStartEndDate) : IRequest<Result<Promotion>>;
     internal class UpdatePromotionInformationCommandHandler : IRequestHandler<UpdatePromotionInformationCommand, Result<Promotion>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -51,6 +51,8 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.UpdateInfo
 
             if (request.description != null)
                 getPromotion.Description = request.description;
+            if(request.isExcludeQualifierProduct != null)
+                getPromotion.IsExcludeQualifierProduct = request.isExcludeQualifierProduct.Value;
 
             if (request.UpdateStartEndDate != null)
             {

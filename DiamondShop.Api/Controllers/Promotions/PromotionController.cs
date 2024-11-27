@@ -141,7 +141,7 @@ namespace DiamondShop.Api.Controllers.Promotions
         [ProducesResponseType(typeof(PromotionDto), 200)]
         public async Task<ActionResult> UpdatePromotionFull([FromRoute] string promotionId,[FromBody] UpdatePromotionRequest request)
         {
-            var result = await _sender.Send(new UpdatePromotionCommand(promotionId,new UpdatePromotionInformationCommand(promotionId,request.name,request.description,request.UpdateStartEndDate), request.requirements,request.gifts,request.removedRequirements,request.removedGifts));
+            var result = await _sender.Send(new UpdatePromotionCommand(promotionId,new UpdatePromotionInformationCommand(promotionId,request.isExcludeQualifierProduct,request.name,request.description,request.UpdateStartEndDate), request.requirements,request.gifts,request.removedRequirements,request.removedGifts));
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<PromotionDto>(result.Value);

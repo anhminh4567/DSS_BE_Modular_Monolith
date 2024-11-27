@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.AdminConfigurations.DiamondRuleConfig.Models;
+using DiamondShop.Application.Usecases.AdminConfigurations.Diamonds;
 using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
@@ -21,53 +22,54 @@ namespace DiamondShop.Api.Controllers.AdminConfigurations
     {
         private readonly ISender _sender;
         private readonly IMapper _mapper;
-        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
-        private readonly IApplicationSettingService _applicationSettingService;
-        private readonly IValidator<DiamondRule> _validator;
+        //private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
+        //private readonly IApplicationSettingService _applicationSettingService;
+        //private readonly IValidator<DiamondRule> _validator;
 
-        public DiamondRuleConfigurationController(ISender sender, IMapper mapper, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IApplicationSettingService applicationSettingService, IValidator<DiamondRule> validator)
+        public DiamondRuleConfigurationController(ISender sender,IMapper mapper)
         {
             _sender = sender;
             _mapper = mapper;
-            _optionsMonitor = optionsMonitor;
-            _applicationSettingService = applicationSettingService;
-            _validator = validator;
         }
-
         [HttpGet()]
         public async Task<ActionResult> GetDiamondRule()
         {
-            var diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
-            return Ok(diamondRule);
+            var diamondRule = await _sender.Send(new GetDiamondRuleQuery());
+            return Ok(diamondRule.Value);
         }
         [HttpPost()]
         public async Task<ActionResult> UpdateDiamondRule([FromForm] DiamondRuleRequestDto diamondRuleRequestDto)
         {
-            var diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
-            diamondRuleRequestDto.Adapt(diamondRule);
-            var validationResult = _validator.Validate(diamondRule);
-            if(validationResult.IsValid is false)
+            var updateResul = await _sender.Send(new UpdateDiamondRuleCommand(diamondRuleRequestDto));
+            //var diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
+            //diamondRuleRequestDto.Adapt(diamondRule);
+            //var validationResult = _validator.Validate(diamondRule);
+            //if (validationResult.IsValid is false)
+            //{
+            //    Dictionary<string, object> validationErrors = new();
+            //    validationResult.Errors
+            //        .ForEach(input =>
+            //        {
+            //            if (validationErrors.ContainsKey(input.PropertyName))
+            //            {
+            //                var errorList = (List<object>)validationErrors[input.PropertyName];
+            //                errorList.Add(input.ErrorMessage);
+            //            }
+            //            else
+            //                validationErrors.Add(input.PropertyName, new List<object> { input.ErrorMessage });
+            //        });
+            //    ValidationError validationError = new ValidationError($"validation error ", validationErrors);
+            //    return MatchError(Result.Fail(validationError).Errors, ModelState);
+            //}
+            //else
+            //{
+            //    _applicationSettingService.Set(DiamondRule.key, diamondRule);
+            //}
+            if(updateResul.IsFailed)
             {
-                Dictionary<string, object> validationErrors = new();
-                validationResult.Errors
-                    .ForEach(input =>
-                    {
-                        if (validationErrors.ContainsKey(input.PropertyName))
-                        {
-                            var errorList = (List<object>)validationErrors[input.PropertyName];
-                            errorList.Add(input.ErrorMessage);
-                        }
-                        else
-                            validationErrors.Add(input.PropertyName, new List<object> { input.ErrorMessage });
-                    });
-                ValidationError validationError = new ValidationError($"validation error ", validationErrors);
-                return MatchError(Result.Fail(validationError).Errors, ModelState);
+                return MatchError(updateResul.Errors, ModelState);
             }
-            else
-            {
-                _applicationSettingService.Set(DiamondRule.key,diamondRule);
-            }
-            return Ok(diamondRule);
+            return Ok(updateResul.Value);
         }
     }
 }

@@ -71,6 +71,7 @@ using System.Diagnostics;
 using DiamondShop.Application.Services.Interfaces.AdminConfigurations.DiamondRuleConfig;
 using DiamondShop.Infrastructure.Services.AdminConfigurations;
 using DiamondShop.Application.Services.Interfaces.AdminConfigurations.PromotionRuleConfig;
+using DiamondShop.Application.Services.Interfaces.AdminConfigurations.FrontendDisplays;
 namespace DiamondShop.Infrastructure
 {
     public static class DependencyInjections
@@ -229,6 +230,7 @@ namespace DiamondShop.Infrastructure
             //admin confi
             services.AddScoped<IDiamondRuleConfigurationService, DiamondRuleConfigurationService>();
             services.AddScoped<IPromotionRuleConfigurationService,PromotionRuleConfigurationService>();
+            services.AddScoped<IFrontendDisplayRulesConfigurationService,FrontendDisplayRulesConfigurationService>();
             var serviceProviderInstrance = services.BuildServiceProvider();
             var mailOptions = serviceProviderInstrance.GetRequiredService<IOptions<MailOptions>>().Value;
             var fluentEmailBuilder = services.AddFluentEmail(mailOptions.SenderEmail);
@@ -249,14 +251,14 @@ namespace DiamondShop.Infrastructure
             }
             fluentEmailBuilder.AddRazorRenderer();
             services.AddTransient<IEmailService, EmailService>();
-            var libraryFileName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "libwkhtmltox.dll" : "libwkhtmltox.so";
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Library file name: " + libraryFileName);
-            Console.ResetColor();
-            var wkHtmlToPdfPath = Path.Combine(Directory.GetCurrentDirectory(), libraryFileName);
-            var context = new CustomAssemblyLoadContext();//Path.Combine(Directory.GetCurrentDirectory(), "libwkhtmltox.dll")
-            context.LoadUnmanagedLibrary(wkHtmlToPdfPath);
-            services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+            //var libraryFileName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "libwkhtmltox.dll" : "libwkhtmltox.so";
+            //Console.ForegroundColor = ConsoleColor.Red;
+            //Console.WriteLine("Library file name: " + libraryFileName);
+            //Console.ResetColor();
+            //var wkHtmlToPdfPath = Path.Combine(Directory.GetCurrentDirectory(), libraryFileName);
+            //var context = new CustomAssemblyLoadContext();//Path.Combine(Directory.GetCurrentDirectory(), "libwkhtmltox.dll")
+            //context.LoadUnmanagedLibrary(wkHtmlToPdfPath);
+            //services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 
             //if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
             //{

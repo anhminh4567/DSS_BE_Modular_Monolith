@@ -23,23 +23,28 @@ namespace DiamondShop.Application.Commons.Validators
                 .Must((command, numberInput) =>
                 {
                     var numToString = numberInput.ToString();
-                    if(numToString == "0")
+                    if (numToString == "0")
                     {
                         return true;
                     }
+
                     var getFractional = numToString.Split('.')[1];
+                    if (getFractional.Length == 1)
+                    {
+                        return true;
+                    }
                     if (getFractional.Length > maxFractionalNumber)
                     {
                         return false;
                     }
                     return true;
-                }).WithMessage("phần thập phân của số chỉ có thể là max "+ maxFractionalNumber + "(s) số sau thập phân");
+                }).WithMessage("phần thập phân của số chỉ có thể là max " + maxFractionalNumber + "(s) số sau thập phân");
         }
         public static IRuleBuilderOptions<T, string> ValidDate<T>(this IRuleBuilder<T, string> ruleBuilder)
         {
             return ruleBuilder
                 .NotEmpty()
-                .Must(DateTimeUtil.BeAValidDate).WithMessage("format ngày tháng không hợp lệ, phải là "+ DateTimeFormatingRules.DateTimeFormat);
+                .Must(DateTimeUtil.BeAValidDate).WithMessage("format ngày tháng không hợp lệ, phải là " + DateTimeFormatingRules.DateTimeFormat);
         }
         public static IRuleBuilderOptions<T, string> ValidDateGreaterThanUTCNow<T>(this IRuleBuilder<T, string> ruleBuilder)
         {
