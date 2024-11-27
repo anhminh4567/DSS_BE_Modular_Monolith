@@ -120,7 +120,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                     }
                     else
                     {
-                        var thumbnail = gallery.BaseMetals.FirstOrDefault(p => p.MediaPath.Contains($"Metals/{sizeMetal.Metal.Id.Value}"));
+                        var thumbnail = gallery.BaseMetals.Where(p => p.MediaPath.Contains($"Metals/{sizeMetal.Metal.Id.Value}")).ToList()[3];
                         var created_noside = JewelryModelSelling.CreateNoSide(
                             thumbnail, model.Name, sizeMetal.Metal.Name, 0, 0,
                             model.CraftmanFee, sizeMetal.Min.Price, sizeMetal.Max.Price, model.Id, sizeMetal.Metal.Id);
