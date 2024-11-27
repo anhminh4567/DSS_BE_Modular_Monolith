@@ -1,9 +1,11 @@
 ﻿using DiamondShop.Api.Controllers.JewelryModels.UpdateFee;
 using DiamondShop.Application.Commons.Responses;
+using DiamondShop.Application.Dtos.Responses;
 using DiamondShop.Application.Dtos.Responses.Jewelries;
 using DiamondShop.Application.Dtos.Responses.JewelryModels;
 using DiamondShop.Application.Usecases.JewelryModels.Commands.Create;
 using DiamondShop.Application.Usecases.JewelryModels.Commands.Delete;
+using DiamondShop.Application.Usecases.JewelryModels.Files.Queries;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetDetail;
 using DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling;
@@ -91,6 +93,12 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<JewelryModelSellingDetailDto>(result.Value);
+                var getGallery = await _sender.Send(new GetAllModelImagesQuery(mappedResult.Id));
+                if(getGallery != null)
+                {
+                    var mappedGallery = _mapper.Map<JewelryModelGalleryTemplateDto>(getGallery);
+                    mappedResult.GalleryTemplate = mappedGallery;
+                }
                 return Ok(mappedResult);
             }
             return MatchError(result.Errors, ModelState);

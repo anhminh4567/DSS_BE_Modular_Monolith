@@ -9,6 +9,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
 {
     public class JewelryModelSellingDetail
     {
+        public JewelryModelId Id { get; set; }
         public string Name { get; set; }
         public string Category { get; set; }
         public float? Width { get; set; }
@@ -29,6 +30,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
         {
             return new JewelryModelSellingDetail()
             {
+                Id = model.Id,
                 Name = model.Name,
                 Category = model.Category.Name,
                 Width = model.Width,

@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Commons.Models;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common.ValueObjects;
+using FluentResults;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace DiamondShop.Application.Services.Interfaces.AdminConfigurations.Fronte
     public interface IFrontendDisplayRulesConfigurationService : IBaseConfigurationService<FrontendDisplayConfiguration>
     {
         Task<List<Media>> GetAllCarouselImages();
-        Task<Media> SetNewImage(FileData newImage);
-        Task RemoveImage(string absolutePath);
+        Task<Result<Media>> SetNewImage(FileData newImage);
+        Task<Result> RemoveImage(string absolutePath);
     }
 }

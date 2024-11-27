@@ -1,10 +1,12 @@
-﻿using DiamondShop.Application.Dtos.Responses.Jewelries;
+﻿using DiamondShop.Application.Commons.Models;
+using DiamondShop.Application.Dtos.Responses.Jewelries;
 using DiamondShop.Domain.Models.JewelryModels.Enum;
 
 namespace DiamondShop.Application.Dtos.Responses.JewelryModels
 {
     public class JewelryModelSellingDetailDto
     {
+        public string Id { get; set; }
         public string Name { get; set; }
         public string Category { get; set; }
         public float? Width { get; set; }
@@ -21,6 +23,7 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         public List<SideDiamondOptDto>? SideDiamonds { get; set; } = new();
         public List<JewelryReviewDto>? Reviews { get; set; }
         public MediaDto? Thumbnail { get; set; }
+        public JewelryModelGalleryTemplateDto? GalleryTemplate { get; set; }
     }
     public class SellingDetailMetalDto
     {
