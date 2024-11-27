@@ -4,6 +4,7 @@ using DiamondShop.Application.Dtos.Responses.Jewelries;
 using DiamondShop.Application.Usecases.Jewelries.Commands.Create;
 using DiamondShop.Application.Usecases.Jewelries.Commands.Delete;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetAll;
+using DiamondShop.Application.Usecases.Jewelries.Queries.GetAvailable;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetDetail;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond;
 using DiamondShop.Domain.Models.RoleAggregate;
@@ -61,6 +62,18 @@ namespace DiamondShop.Api.Controllers.Jewelries
                 return Ok(mappedResult);
             }
             return MatchError(result.Errors, ModelState);
+        }
+        [HttpGet("Available")]
+        public async Task<ActionResult> GetAll([FromQuery] GetAvailableJewelryQuery getAvailableJewelryQuery)
+        {
+            var result = await _sender.Send(getAvailableJewelryQuery);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<JewelryDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            else
+                return MatchError(result.Errors, ModelState);
         }
 
         [HttpGet("Detail/{jewelryId}")]

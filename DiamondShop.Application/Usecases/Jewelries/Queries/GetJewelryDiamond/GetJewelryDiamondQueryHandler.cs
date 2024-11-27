@@ -20,7 +20,7 @@ using System.Collections;
 
 namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond
 {
-    public record GetJewelryDiamondQuery(int CurrentPage, int PageSize, string ModelId, string MetalId, string SizeId, string? SideDiamondOptId, decimal? MinPrice = null, decimal? MaxPrice = null) : IRequest<Result<PagingResponseDto<Jewelry>>>;
+    public record GetJewelryDiamondQuery(int CurrentPage, int PageSize, string ModelId, string MetalId, string SizeId, string? SideDiamondOptId, decimal? MinPrice = null, decimal? MaxPrice = null, bool OrderByDesc = true) : IRequest<Result<PagingResponseDto<Jewelry>>>;
     internal class GetJewelryDiamondQueryHandler : IRequestHandler<GetJewelryDiamondQuery, Result<PagingResponseDto<Jewelry>>>
     {
         private readonly IJewelryModelRepository _jewelryModelRepository;
@@ -34,7 +34,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond
 
         public async Task<Result<PagingResponseDto<Jewelry>>> Handle(GetJewelryDiamondQuery request, CancellationToken cancellationToken)
         {
-            request.Deconstruct(out int currentPage, out int pageSize, out string modelId, out string metalId, out string sizeId, out string? sideDiamondOptId, out decimal? minPrice, out decimal? maxPrice);
+            request.Deconstruct(out int currentPage, out int pageSize, out string modelId, out string metalId, out string sizeId, out string? sideDiamondOptId, out decimal? minPrice, out decimal? maxPrice, out bool orderByDesc);
             pageSize = pageSize == 0 ? JewelryRule.MinimumItemPerPaging : pageSize;
             currentPage = currentPage == 0 ? 1 : currentPage;
             var model = await _jewelryModelRepository.GetSellingModelDetail(JewelryModelId.Parse(modelId), MetalId.Parse(metalId), SizeId.Parse(sizeId));
@@ -62,15 +62,15 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond
             var addPriceFlag = _jewelryService.SetupUnmapped(jewelries, sizeMetal);
             if (!addPriceFlag)
                 return Result.Fail("Can't get jewelries' price");
-            jewelries = jewelries.Where(p =>
-            {
-                bool flag = true;
-                if (minPrice != null)
-                    flag = flag && p.D_Price >= minPrice;
-                if (maxPrice != null)
-                    flag = flag && p.D_Price <= maxPrice;
-                return flag;
-            }).Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+            if(minPrice != null)
+                jewelries = jewelries.Where(p => p.D_Price >= minPrice).ToList();
+            if(maxPrice != null)
+                jewelries = jewelries.Where(p => p.D_Price <= maxPrice).ToList();
+            if (orderByDesc)
+                jewelries = jewelries.OrderByDescending(p => p.TotalPrice).ToList();
+            else
+                jewelries = jewelries.OrderBy(p => p.TotalPrice).ToList();
+            jewelries.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
             return new PagingResponseDto<Jewelry>(maxPage, currentPage, jewelries);
         }
     }

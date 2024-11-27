@@ -321,6 +321,8 @@ namespace DiamondShop.Test.Integration
                 }
                 Assert.True(cancelResult.IsSuccess);
                 //check payment
+                Assert.Equal(PaymentStatus.Refunding, order.PaymentStatus);
+                var refundResult = await _sender.Send(new RefundOrderCommand(order.Id.Value));
                 var transacs = _context.Set<Transaction>().ToList();
                 foreach (var transac in transacs)
                 {
@@ -328,11 +330,11 @@ namespace DiamondShop.Test.Integration
                 }
                 //Assert that refund only BR amount
                 var payAmount = transacs.Where(p => p.TransactionType == TransactionType.Pay).Sum(p => p.TotalAmount);
-                var refundAmount = transacs.Where(p => p.TransactionType == TransactionType.Refund || p.TransactionType == TransactionType.Partial_Refund).Sum(p => p.TotalAmount);
+                var refundAmount = transacs.Where(p => p.TransactionType == TransactionType.Refund || p.TransactionType == TransactionType.Partial_Refund).Sum(p => p.TransactionAmount);
                 if (order.PaymentType == PaymentType.Payall)
                     Assert.Equal(MoneyVndRoundUpRules.RoundAmountFromDecimal(payAmount * (1m - 0.01m * OrderPaymentRules.PayAllFine)), refundAmount);
                 Assert.Equal(OrderStatus.Cancelled, order.Status);
-                Assert.Equal(PaymentStatus.Refunding, order.PaymentStatus);
+                Assert.Equal(PaymentStatus.Refunded, order.PaymentStatus);
                 jewelries = _context.Set<Jewelry>().ToList();
                 _output.WriteLine("After cancel");
                 foreach (Jewelry jewelry in jewelries)
@@ -367,6 +369,8 @@ namespace DiamondShop.Test.Integration
                     }
                 }
                 Assert.True(rejectResult.IsSuccess);
+                Assert.Equal(PaymentStatus.Refunding, order.PaymentStatus);
+                var refundResult = await _sender.Send(new RefundOrderCommand(order.Id.Value));
                 //check payment
                 var transacs = _context.Set<Transaction>().ToList();
                 foreach (var transac in transacs)
@@ -375,10 +379,10 @@ namespace DiamondShop.Test.Integration
                 }
                 //Assert that refund only BR amount
                 var payAmount = transacs.Where(p => p.TransactionType == TransactionType.Pay).Sum(p => p.TotalAmount);
-                var refundAmount = transacs.Where(p => p.TransactionType == TransactionType.Refund || p.TransactionType == TransactionType.Partial_Refund).Sum(p => p.TotalAmount);
+                var refundAmount = transacs.Where(p => p.TransactionType == TransactionType.Refund || p.TransactionType == TransactionType.Partial_Refund).Sum(p => p.TransactionAmount);
                 Assert.Equal(MoneyVndRoundUpRules.RoundAmountFromDecimal(payAmount), refundAmount);
                 Assert.Equal(OrderStatus.Rejected, order.Status);
-                Assert.Equal(PaymentStatus.Refunding, order.PaymentStatus);
+                Assert.Equal(PaymentStatus.Refunded, order.PaymentStatus);
             }
         }
         [Trait("ReturnTrue", "CompleteRefund")]
@@ -406,6 +410,13 @@ namespace DiamondShop.Test.Integration
                     }
                 }
                 Assert.True(rejectResult.IsSuccess);
+                Assert.Equal(PaymentStatus.Refunding, order.PaymentStatus);
+                var refundCommand = await _sender.Send(new RefundOrderCommand(order.Id.Value));
+                if (refundCommand.IsFailed)
+                    WriteError(refundCommand.Errors);
+                Assert.True(refundCommand.IsSuccess);
+                Assert.NotNull(refundCommand.Value);
+                Assert.Equal(PaymentStatus.Refunded, refundCommand.Value.PaymentStatus);
                 //check payment
                 var transacs = _context.Set<Transaction>().ToList();
                 foreach (var transac in transacs)
@@ -414,17 +425,10 @@ namespace DiamondShop.Test.Integration
                 }
                 //Assert that refund only BR amount
                 var payAmount = transacs.Where(p => p.TransactionType == TransactionType.Pay).Sum(p => p.TotalAmount);
-                var refundAmount = transacs.Where(p => p.TransactionType == TransactionType.Refund || p.TransactionType == TransactionType.Partial_Refund).Sum(p => p.TotalAmount);
-                Assert.Equal(MoneyVndRoundUpRules.RoundAmountFromDecimal(payAmount), refundAmount);
+                var refundAmount = transacs.Where(p => p.TransactionType == TransactionType.Refund || p.TransactionType == TransactionType.Partial_Refund).Sum(p => p.TransactionAmount);
+                if (order.PaymentType == PaymentType.Payall)
+                    Assert.Equal(MoneyVndRoundUpRules.RoundAmountFromDecimal(payAmount), refundAmount);
                 Assert.Equal(OrderStatus.Rejected, order.Status);
-                Assert.Equal(PaymentStatus.Refunding, order.PaymentStatus);
-                var refundedCommand = new RefundOrderCommand(order.Id.Value);
-                var refundedResult = await _sender.Send(refundedCommand);
-                if (refundedResult.IsFailed)
-                    WriteError(refundedResult.Errors);
-                Assert.True(refundedResult.IsSuccess);
-                Assert.NotNull(refundedResult.Value);
-                Assert.Equal(PaymentStatus.Refunded, refundedResult.Value.PaymentStatus);
             }
         }
     }
