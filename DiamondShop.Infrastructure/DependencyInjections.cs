@@ -2,9 +2,6 @@
 using DiamondShop.Application.Commons.Models;
 using DiamondShop.Application.Dtos.Responses;
 using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Application.Services.Interfaces.AdminConfigurations.DiamondRuleConfig;
-using DiamondShop.Application.Services.Interfaces.AdminConfigurations.FrontendDisplays;
-using DiamondShop.Application.Services.Interfaces.AdminConfigurations.PromotionRuleConfig;
 using DiamondShop.Application.Services.Interfaces.Blogs;
 using DiamondShop.Application.Services.Interfaces.Deliveries;
 using DiamondShop.Application.Services.Interfaces.Diamonds;
@@ -45,7 +42,6 @@ using DiamondShop.Infrastructure.Outbox;
 using DiamondShop.Infrastructure.Securities;
 using DiamondShop.Infrastructure.Securities.Authentication;
 using DiamondShop.Infrastructure.Services;
-using DiamondShop.Infrastructure.Services.AdminConfigurations;
 using DiamondShop.Infrastructure.Services.ApplicationConfigurations;
 using DiamondShop.Infrastructure.Services.Blobs;
 using DiamondShop.Infrastructure.Services.Deliveries;
@@ -70,8 +66,6 @@ using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Loader;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
 namespace DiamondShop.Infrastructure
 {
     public static class DependencyInjections

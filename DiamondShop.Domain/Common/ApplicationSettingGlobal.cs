@@ -36,7 +36,7 @@ namespace DiamondShop.Domain.Common
             { LoggingRules.key, LoggingRules.Default },
             { FrontendDisplayConfiguration.Key, FrontendDisplayConfiguration.Default },
             { CartModelRules.key, CartModelRules.Default},
-            { OrderPaymentRules.key, OrderPaymentRules.Default}
+            { OrderPaymentRules.key, OrderPaymentRules.Default},
             { OrderRule.key, OrderRule.Default }
         };
         public static List<string> RULE_KEYS = new List<string>
