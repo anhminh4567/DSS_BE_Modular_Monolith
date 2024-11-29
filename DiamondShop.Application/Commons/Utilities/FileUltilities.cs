@@ -50,6 +50,14 @@ namespace DiamondShop.Application.Commons.Utilities
             }
             return true;
         }
+        public static bool IsVideoFileContentType(string contentType)
+        {
+            if (!string.Equals(contentType, "video/mp4", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+            return true;
+        }
         public static string? IsExcelFileExtension(string fileExtension)
         {
             if (!string.Equals(fileExtension, ".xlsx"))

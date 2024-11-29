@@ -14,6 +14,7 @@ namespace DiamondShop.Application.Services.Interfaces
         Task<Result<BlobFileResponseDto>> DownloadFileAsync(string filePath, CancellationToken cancellationToken = default);
         Task<Result<string>> UploadFileAsync(string filePath, Stream stream, string contentType, CancellationToken cancellationToken = default);
         Task<List<Media>> GetFolders(string folderPath, CancellationToken cancellationToken = default);
+        Task<bool> IsAnyFileExist(string folderPath, CancellationToken cancellationToken = default);
         string ToAbsolutePath(string relativePath);
         string ToRelativePath(string absolutePath);
     }

@@ -1,5 +1,6 @@
-﻿using DiamondShop.Application.Services.Interfaces.AdminConfigurations.PromotionRuleConfig.Models;
-using DiamondShop.Application.Usecases.AdminConfigurations.Frontends;
+﻿using DiamondShop.Application.Usecases.AdminConfigurations.Frontends;
+using DiamondShop.Application.Usecases.AdminConfigurations.Frontends.Commands;
+using DiamondShop.Application.Usecases.AdminConfigurations.Frontends.Queries;
 using DiamondShop.Domain.BusinessRules;
 using MapsterMapper;
 using MediatR;

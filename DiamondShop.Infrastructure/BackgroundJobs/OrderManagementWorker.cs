@@ -1,10 +1,12 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Quartz;
 using System;
 using System.Collections.Generic;
@@ -19,11 +21,14 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<OrderManagementWorker> _logger;
         private readonly IOrderRepository _orderRepository;
-        public OrderManagementWorker(IUnitOfWork unitOfWork, ILogger<OrderManagementWorker> logger, IOrderRepository orderRepository)
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
+
+        public OrderManagementWorker(IUnitOfWork unitOfWork, ILogger<OrderManagementWorker> logger, IOrderRepository orderRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _orderRepository = orderRepository;
+            _optionsMonitor = optionsMonitor;
         }
 
         public async Task Execute(IJobExecutionContext context)
@@ -32,9 +37,10 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
         }
         private async Task CheckExpiredOrder(IJobExecutionContext context)
         {
+            var orderRule = _optionsMonitor.CurrentValue.OrderRule;
             var query = _orderRepository.GetQuery();
             DateTime utcNow = DateTime.UtcNow;
-            DateTime correctExpiredTime = utcNow.Subtract(TimeSpan.FromHours(OrderRules.ExpiredOrderHour));
+            DateTime correctExpiredTime = utcNow.Subtract(TimeSpan.FromHours(orderRule.ExpiredOrderHour));
             query = query.Where(o => o.ExpiredDate == null
             && o.CancelledDate == null
             && o.CancelledReason == null
@@ -51,6 +57,14 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
                 _orderRepository.Update(order).Wait();
             }
             await _unitOfWork.SaveChangesAsync();
+        }
+        private async Task CheckExpireOrderAtStore(IJobExecutionContext context)
+        {
+            var orderRule = _optionsMonitor.CurrentValue.OrderRule;
+            var query = _orderRepository.GetQuery();
+            DateTime utcNow = DateTime.UtcNow;
+            DateTime correctExpiredTime = utcNow.Subtract(TimeSpan.FromDays(orderRule.DaysWaitForCustomerToPay));
+            
         }
     }
 }

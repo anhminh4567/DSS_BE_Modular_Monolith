@@ -31,6 +31,7 @@ using DiamondShop.Domain.Common;
 using Microsoft.Extensions.Caching.Memory;
 using DiamondShop.Domain.Models.Transactions.Events;
 using Azure.Storage.Blobs.Models;
+using QRCoder;
 
 namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
 {
@@ -181,7 +182,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             if(tryGetFromCache != null)
             {
                 paymentLink = tryGetFromCache as string;
-                return new PaymentLinkResponse() { PaymentUrl  =  paymentLink} ;
+                return new PaymentLinkResponse() { PaymentUrl  =  paymentLink, QrCode = GenQRImagePng(paymentLink)} ;
             }
             double? secondsExpired = GetSecondPaymentTimeOut(paymentLinkRequest.Order);
             if(secondsExpired == null)
@@ -236,8 +237,9 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             var result = await HttpHelper.PostFormAsync<ZalopayCreateOrderResponse>(create_order_url, param);
             if (result.return_code != 1)
                 return Result.Fail($"fail with message from paygate: {result.sub_return_message} and code: {result.return_code} ");
+            
             _cache.Set(cacheKey, result.order_url, TimeSpan.FromSeconds(secondsExpired.Value));
-            return Result.Ok(new PaymentLinkResponse { PaymentUrl = result.order_url ,QrCode = result.qr_code });
+            return Result.Ok(new PaymentLinkResponse { PaymentUrl = result.order_url ,QrCode = GenQRImagePng(result.order_url) });
         }
 
         public async Task<PaymentRefundDetail> GetRefundDetail(Transaction refundTransactionType)
@@ -395,6 +397,14 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             }
             else
                 return null;
+        }
+        private string GenQRImagePng(string paymentUrl)
+        {
+            QRCodeGenerator QrGenerator = new QRCodeGenerator();
+            QRCodeData QrCodeInfo = QrGenerator.CreateQrCode(paymentUrl, QRCodeGenerator.ECCLevel.Q);
+            using var qrCode = new PngByteQRCode(QrCodeInfo);
+            var qrCodeImage = qrCode.GetGraphic(20);
+            return  $"data:image/png;base64,{Convert.ToBase64String(qrCodeImage)}";
         }
     }
 }

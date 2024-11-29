@@ -15,7 +15,8 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.TransactionConfig
         public static List<PaymentMethod> Seed = new List<PaymentMethod>
         {
             PaymentMethod.BANK_TRANSFER,
-            PaymentMethod.ZALOPAY
+            PaymentMethod.ZALOPAY,
+            PaymentMethod.CASH,
             //PaymentMethod.Create("BANK_TRANSFER","1"),
             //PaymentMethod.Create("ZALOPAY","2")
         };

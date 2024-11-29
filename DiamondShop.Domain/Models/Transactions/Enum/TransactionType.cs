@@ -8,6 +8,6 @@ namespace DiamondShop.Domain.Models.Transactions.Enum
 {
     public enum TransactionType
     {
-        Pay = 1, Refund = 3, Partial_Refund = 4
+        Pay = 1, Refund = 3, Partial_Refund = 4, Deposit = 5, Pay_Remain = 6
     }
 }

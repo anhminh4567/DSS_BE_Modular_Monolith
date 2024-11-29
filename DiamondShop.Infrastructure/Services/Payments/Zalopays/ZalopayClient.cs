@@ -7,8 +7,10 @@ using DiamondShop.Infrastructure.Services.Payments.Zalopays.Models;
 using DiamondShop.Infrastructure.Services.Payments.Zalopays.Models.Responses;
 using DiamondShop.Infrastructure.Services.Payments.Zalopays.Utils;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using QRCoder;
 
 namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
 {
@@ -86,8 +88,13 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                 + param["app_time"] + "|" + param["embed_data"] + "|" + param["item"];
             param.Add("mac", HmacHelper.Compute(ZaloPayHMAC.HMACSHA256, key1, data));
 
-            var result = await HttpHelper.PostFormAsync<ZalopayCreateOrderResponse>(create_order_url, param);
 
+            var result = await HttpHelper.PostFormAsync<ZalopayCreateOrderResponse>(create_order_url, param);
+            QRCodeGenerator QrGenerator = new QRCodeGenerator();
+            QRCodeData QrCodeInfo = QrGenerator.CreateQrCode(result.order_url, QRCodeGenerator.ECCLevel.Q);
+            using var qrCode = new PngByteQRCode(QrCodeInfo);
+            var qrCodeImage = qrCode.GetGraphic(20);
+            result.qr_code = $"data:image/png;base64,{Convert.ToBase64String(qrCodeImage)}";
             //foreach (var entry in result)
             //{
             //    Console.WriteLine("{0} = {1}", entry.Key, entry.Value);

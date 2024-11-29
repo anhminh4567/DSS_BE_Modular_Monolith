@@ -131,5 +131,15 @@ namespace DiamondShop.Infrastructure.Services
         {
             return DateTime.UtcNow.Ticks.ToString();
         }
+
+        public async Task<bool> IsAnyFileExist(string folderPath, CancellationToken cancellationToken = default)
+        {
+            BlobContainerClient blobContainerClient = GetCorrectBlobClient();
+            var blobItems = blobContainerClient.GetBlobClient(folderPath);
+            if (blobItems.Exists())
+                return true;
+            else
+                return false;
+        }
     }
 }
