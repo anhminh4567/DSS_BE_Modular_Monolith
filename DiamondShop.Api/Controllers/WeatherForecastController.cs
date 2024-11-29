@@ -195,7 +195,7 @@ namespace DiamondShopSystem.Controllers
         public async Task<ActionResult> testzalopayservice()
         {
             Account falseAccount = Account.CreateBaseCustomer(FullName.Create("minh", "tran"), "abc@gmail.com", "asdf", new List<AccountRole> { AccountRole.Customer });
-            Order falseOrder = Order.Create(falseAccount.Id, PaymentType.Payall, PaymentMethod.ZALOPAY.Id, 100000m, 10000m, "adfads");
+            Order falseOrder = Order.Create(falseAccount.Id, PaymentType.Payall, PaymentMethod.ZALOPAY.Id, 100000m, 0, 10000m, "adfads");
             PaymentLinkRequest falseRequest = new PaymentLinkRequest()
             {
                 Account = falseAccount,
@@ -384,7 +384,7 @@ namespace DiamondShopSystem.Controllers
         {
             var pdf = _pdfService;
             var account = Account.Create(FullName.Create("a", "b"), "testing@gmail");
-            var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, "abc", null, null, 40_000,0, OrderId.Parse("1"));
+            var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 0, 20_000, "abc", null, null, 40_000,0, null, OrderId.Parse("1"));
             order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, null, null, null, null, null, 0));
             order.Items.Add(OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, null, null, null, null, null, 0));
 
@@ -398,7 +398,7 @@ namespace DiamondShopSystem.Controllers
         {
             var pdf = _pdfService;
             var account = Account.Create(FullName.Create("a", "b"), "testing@gmail");
-            var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, "abc", null, null, 40_000,0, OrderId.Parse("1"));
+            var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 0, 20_000, "abc", null, null, 40_000,0,null, OrderId.Parse("1"));
             order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, null, null, null, null, null,0));
             order.Items.Add(OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, null, null, null, null, null, 0));
 
@@ -413,7 +413,7 @@ namespace DiamondShopSystem.Controllers
         {
             var pdf = _pdfService;
             var account = Account.Create(FullName.Create("a", "b"), "testingwebandstuff@gmail.com");
-            var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, "abc", null, null, 40_000,20_000, OrderId.Parse("1"));
+            var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 0, 20_000, "abc", null, null, 40_000,20_000, null, OrderId.Parse("1"));
             order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null, null, 0));
             order.Items.Add(OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, 20_000_000, null, null, null, null, 0));
 

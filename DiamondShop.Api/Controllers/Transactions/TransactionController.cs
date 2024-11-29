@@ -1,12 +1,10 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Transactions;
 using DiamondShop.Application.Services.Models;
 using DiamondShop.Application.Usecases.Transactions.Commands.AddManualPayments;
-using DiamondShop.Application.Usecases.Transactions.Commands.AddManualRefunds;
 using DiamondShop.Application.Usecases.Transactions.Commands.CreatePaymentLink;
 using DiamondShop.Application.Usecases.Transactions.Queries.GetAll;
 using MapsterMapper;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiamondShop.Api.Controllers.Transactions
@@ -45,18 +43,18 @@ namespace DiamondShop.Api.Controllers.Transactions
             }
             return MatchError(result.Errors, ModelState);
         }
-        [HttpPost("Refund/Manual")]
-        [Produces(typeof(TransactionDto))]
-        public async Task<ActionResult> CreateManualRefund(AddManualRefundCommand addManualRefundCommand)
-        {
-            var result = await _sender.Send(addManualRefundCommand);
-            if (result.IsSuccess)
-            {
-                var mappedResult = _mapper.Map<TransactionDto>(result.Value);
-                return Ok(mappedResult);
-            }
-            return MatchError(result.Errors, ModelState);
-        }
+        //[HttpPost("Refund/Manual")]
+        //[Produces(typeof(TransactionDto))]
+        //public async Task<ActionResult> CreateManualRefund(AddManualRefundCommand addManualRefundCommand)
+        //{
+        //    var result = await _sender.Send(addManualRefundCommand);
+        //    if (result.IsSuccess)
+        //    {
+        //        var mappedResult = _mapper.Map<TransactionDto>(result.Value);
+        //        return Ok(mappedResult);
+        //    }
+        //    return MatchError(result.Errors, ModelState);
+        //}
         [HttpGet("All")]
         [Produces(typeof(List<TransactionDto>))]
         public async Task<ActionResult> GetAllTransaction(GetAllTransactionQuery getAll, CancellationToken cancellationToken = default)

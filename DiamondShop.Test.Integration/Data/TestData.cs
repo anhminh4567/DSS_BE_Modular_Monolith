@@ -315,6 +315,16 @@ namespace DiamondShop.Test.Integration.Data
             await SeedingAccount(_context, user);
             return user;
         }
+        public static async Task<Account> SeedDefaultManager(DiamondShopDbContext _context, IAuthenticationService _authentication)
+        {
+            var roles = await _context.Set<AccountRole>().ToListAsync();
+            string email = "abc@manager.com";
+            FullName username = FullName.parse("", "Manager_A");
+            var register = await _authentication.Register(email, "123", username, true);
+            var user = DefaultManager(username, email, register.Value, roles);
+            await SeedingAccount(_context, user);
+            return user;
+        }
         public static async Task<Account> SeedDefaultDeliverer(DiamondShopDbContext _context, IAuthenticationService _authentication)
         {
             var roles = await _context.Set<AccountRole>().ToListAsync();

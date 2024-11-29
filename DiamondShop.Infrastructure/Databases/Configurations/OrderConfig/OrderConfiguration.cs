@@ -31,7 +31,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.OrderConfig
             builder.Property(o => o.PaymentType).HasConversion<string>();
             builder.Property(o => o.PaymentStatus).HasConversion<string>();
 
-            builder.HasMany(o => o.Transactions).WithOne().HasForeignKey(o => o.OrderId).IsRequired(false);
+            builder.HasMany(o => o.Transactions).WithOne(k => k.Order).HasForeignKey(o => o.OrderId).IsRequired(false);
             builder.HasMany(o => o.Items).WithOne().HasForeignKey(p => p.OrderId).IsRequired();
             builder.HasMany(o => o.Logs).WithOne().HasForeignKey(p => p.OrderId).IsRequired();
             builder.HasOne(p => p.Promotion).WithMany().HasForeignKey(p => p.PromotionId).IsRequired(false);

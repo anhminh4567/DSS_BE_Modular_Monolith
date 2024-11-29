@@ -25,6 +25,7 @@ namespace DiamondShop.Application.Dtos.Responses.Orders
         public string? PaymentMethodId { get; set; }
         public PaymentMethodDto? PaymentMethod { get; set; }
         public decimal ShippingFee { get; set; }
+        public decimal DepositFee { get; set; }
         public decimal TotalPrice { get; set; }
         public decimal OrderAmountSaved { get; set; } 
         public decimal UserRankAmountSaved { get; set; } 

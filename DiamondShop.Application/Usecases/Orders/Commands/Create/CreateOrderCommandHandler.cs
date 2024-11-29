@@ -70,6 +70,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         {
             var transactionRule = _optionsMonitor.CurrentValue.TransactionRule;
             var logRule = _optionsMonitor.CurrentValue.LoggingRules;
+            var paymentRule = _optionsMonitor.CurrentValue.OrderPaymentRules;
             await _unitOfWork.BeginTransactionAsync(token);
             request.Deconstruct(out string accountId, out CreateOrderInfo createOrderInfo);
             createOrderInfo.Deconstruct(out PaymentType paymentType, out string methodId, out string paymentName, out string? requestId, out string? promotionId, out BillingDetail billingDetail, out List<OrderItemRequestDto> orderItemReqs);
@@ -149,8 +150,11 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             var customizeRequestId = requestId == null ? null : CustomizeRequestId.Parse(requestId);
             var orderPromo = cartModel.Promotion.Promotion;
             var address = billingDetail.GetAddressString();
-            var order = Order.Create(account.Id, paymentType, paymentMethod.Id, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice,
-                address, customizeRequestId, orderPromo, cartModel.OrderPrices.OrderAmountSaved, cartModel.OrderPrices.UserRankDiscountAmount);
+            decimal depositFee = paymentType == PaymentType.Payall ? 0m : (0.01m * paymentRule.CODPercent) * cartModel.OrderPrices.FinalPrice;
+            depositFee = MoneyVndRoundUpRules.RoundAmountFromDecimal(depositFee);
+            DateTime? expiredDate = paymentMethod.Id == PaymentMethod.BANK_TRANSFER.Id ? DateTime.UtcNow.AddHours(paymentRule.CODHourTimeLimit) : null;
+            var order = Order.Create(account.Id, paymentType, paymentMethod.Id, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice, depositFee,
+                address, customizeRequestId, orderPromo, cartModel.OrderPrices.OrderAmountSaved, cartModel.OrderPrices.UserRankDiscountAmount,expiredDate);
             //create log
             var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Pending);
             List<OrderItem> orderItems = new();

@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
@@ -28,7 +29,7 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 throw new Exception("this is not of type COD ");
             }
-            var codPercent = OrderPaymentRules.CODPercent;
+            var codPercent = OrderPaymentRules.Default.CODPercent;
             var neededToPayAmountRaw = order.TotalPrice * (Decimal.Divide(codPercent, 100));
             var roundedValue = MoneyVndRoundUpRules.RoundAmountFromDecimal(neededToPayAmountRaw); //Math.Round(Decimal.Divide(neededToPayAmountRaw, 1000), 1) * 1000;//the function is tested in linq pad
             return roundedValue;
@@ -82,7 +83,7 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 throw new Exception("this is not of type COD ");
             }
-            var depositPercent = OrderPaymentRules.DepositPercent;
+            var depositPercent = OrderPaymentRules.Default.DepositPercent;
             var neededToPayAmountRaw = order.TotalPrice * (Decimal.Divide(depositPercent, 100));
             var roundedValue = MoneyVndRoundUpRules.RoundAmountFromDecimal(neededToPayAmountRaw); //Math.Round(Decimal.Divide(neededToPayAmountRaw, 1000), 1) * 1000;//the function is tested in linq pad
             return roundedValue;
@@ -103,7 +104,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 .Where(t => t.TransactionType == TransactionType.Pay)
                 .Sum(x => x.TotalAmount);
             var refundTrans = order.Transactions
-                .Where(t => t.TransactionType == TransactionType.Refund || t.TransactionType == TransactionType.Partial_Refund)
+                .Where(t => t.TransactionType == TransactionType.Refund)
                 .Sum(x => x.TotalAmount);
             var leftAmount = sumTransactions - refundTrans;
 
@@ -114,7 +115,7 @@ namespace DiamondShop.Domain.Services.Implementations
             return leftAmount;
         }
 
-        public void AddRefundShopReject(Order order, OrderStatus previousStatus)
+        public void AddRefundShopReject(Order order, AccountId VerifierId, string TransactionCode, OrderStatus previousStatus)
         {
             decimal refundAmount = 0;
             decimal finedAmount = 0;
@@ -146,7 +147,7 @@ namespace DiamondShop.Domain.Services.Implementations
                     refundAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(refundAmount);
                     finedAmount = refundAmount - totalPaid;
                 }
-                var transac = Transaction.CreateManualRefund(order.Id, $"Manual refund for order#{order.OrderCode}", refundAmount, finedAmount);
+                var transac = Transaction.CreateManualRefund(order.Id, VerifierId, TransactionCode, $"Manual refund for order#{order.OrderCode}", refundAmount);
                 order.AddRefund(transac);
             }else
             {
@@ -155,7 +156,7 @@ namespace DiamondShop.Domain.Services.Implementations
             }
 
         }
-        public void AddRefundUserCancel(Order order, OrderStatus previousStatus)
+        public void AddRefundUserCancel(Order order, AccountId VerifierId, string TransactionCode, OrderStatus previousStatus)
         {
             decimal refundAmount = 0;
             decimal finedAmount = 0;
@@ -183,11 +184,11 @@ namespace DiamondShop.Domain.Services.Implementations
                 else
                 {
                     var totalPaid = transactions.Sum(p => p.TotalAmount);
-                    refundAmount = totalPaid * (1m - 0.01m * OrderPaymentRules.PayAllFine);
+                    refundAmount = totalPaid * (1m - 0.01m * OrderPaymentRules.Default.PayAllFine);
                     refundAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(refundAmount);
                     finedAmount = -(refundAmount - totalPaid);
                 }
-                var transac = Transaction.CreateManualRefund(order.Id, $"hoàn tiền cho đơn hàng mã #{order.OrderCode}", refundAmount, finedAmount);
+                var transac = Transaction.CreateManualRefund(order.Id,VerifierId, TransactionCode, $"hoàn tiền cho đơn hàng mã #{order.OrderCode}", refundAmount);
                 order.AddRefund(transac);
             }else
             {
@@ -206,7 +207,7 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 var transac = Transaction.CreateManualPayment(order.Id, $"trả phần còn lại cho đơn hàng mã #{order.OrderCode}", remainAmount, TransactionType.Pay);
                 order.AddTransaction(transac);
-                order.PaymentStatus = PaymentStatus.PaidAll;
+                order.PaymentStatus = PaymentStatus.Paid;
             }
         }
         public decimal GetRefundUserCancelAfterDelivery(Order order)

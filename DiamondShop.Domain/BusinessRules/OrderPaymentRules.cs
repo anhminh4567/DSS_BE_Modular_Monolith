@@ -8,11 +8,15 @@ namespace DiamondShop.Domain.BusinessRules
 {
     public class OrderPaymentRules
     {
-        public static int DepositPercent { get; set; } = 50;
-        public static int CODPercent { get; set; } = 10;
-        public static int CODPercentCustom { get; set; } = 50;
-        public static int PayAllFine { get; set; } = 10;
-        public static decimal MaxMoneyFine { get; set; } = 5_000_000m;
-        public static decimal MinAmountForCOD { get; set; } = 100_000m;
+        public static OrderPaymentRules Default = new OrderPaymentRules();
+        public static string Type = typeof(OrderPaymentRules).AssemblyQualifiedName;
+        public static string key = "OrderPaymentRule";
+        public int DepositPercent { get; set; } = 50;
+        public int CODPercent { get; set; } = 10;
+        public int CODPercentCustom { get; set; } = 50;
+        public int PayAllFine { get; set; } = 10;
+        public decimal MaxMoneyFine { get; set; } = 5_000_000m;
+        public decimal MinAmountForCOD { get; set; } = 100_000m;
+        public int CODHourTimeLimit { get; set; } = 4;
     }
 }
