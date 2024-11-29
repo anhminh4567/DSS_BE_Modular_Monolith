@@ -2,6 +2,7 @@
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Transactions.Enum;
 using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Securities;
 using DiamondShop.Infrastructure.Services.Pdfs;
@@ -12,6 +13,7 @@ using FluentResults;
 using HtmlAgilityPack.CssSelectors.NetCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,10 +32,12 @@ namespace DiamondShop.Infrastructure.Services
         private readonly CustomUserManager _userManager;
         private const string ConfirmEmailFileName = "ConfirmEmailTemplate.cshtml";
         private const string InvoiceEmailFileName = "OrderInvoiceTemplate.cshtml";
+        private const string OrderPreparedEmailFileName = "OrderPreparedNotificationEmailTemplate.cshtml";
         private const string IconFileName = "ShopIcon.png";
         private readonly IPdfService _pdfService;
+        private readonly IOptions<FrontendOptions> _frontendOptions;
 
-        public EmailService(IFluentEmail fluentEmailServices, IOptions<MailOptions> mailOptions, IOptions<UrlOptions> urlOptions, IOptions<PublicBlobOptions> publicBlobOptions, IOptions<ExternalUrlsOptions> externalUrlsOptions, CustomUserManager userManager, IPdfService pdfService)
+        public EmailService(IFluentEmail fluentEmailServices, IOptions<MailOptions> mailOptions, IOptions<UrlOptions> urlOptions, IOptions<PublicBlobOptions> publicBlobOptions, IOptions<ExternalUrlsOptions> externalUrlsOptions, CustomUserManager userManager, IPdfService pdfService, IOptions<FrontendOptions> frontendOptions)
         {
             _fluentEmailServices = fluentEmailServices;
             _mailOptions = mailOptions;
@@ -42,6 +46,7 @@ namespace DiamondShop.Infrastructure.Services
             _externalUrlsOptions = externalUrlsOptions;
             _userManager = userManager;
             _pdfService = pdfService;
+            _frontendOptions = frontendOptions;
         }
 
         public Task<Result> Send(string toEmail, string title, string description, string bodyContentHtml, CancellationToken cancellationToken = default)
@@ -87,7 +92,7 @@ namespace DiamondShop.Infrastructure.Services
 
         public async Task<Result> SendInvoiceEmail(Order order, Account account, CancellationToken cancellationToken = default)
         {
-            var invoiceEmail = Path.Combine(Directory.GetCurrentDirectory(), "RazorTemplate", "InvoiceTemplate", ConfirmEmailFileName);
+            var invoiceEmail = Path.Combine(Directory.GetCurrentDirectory(), "RazorTemplate", "EmailTemplate", ConfirmEmailFileName);
             var mailString = _pdfService.GetTemplateHtmlStringFromOrder(order,account);
             var metadata = new EmailMetaData()
             {
@@ -110,6 +115,25 @@ namespace DiamondShop.Infrastructure.Services
             if (sendResult.Successful is false)
                 return Result.Fail("cant send email");
             return Result.Ok();
+        }
+
+        public async Task<Result> SendOrderPreparedEmail(Order order, Account account, DateTime completeeDate, CancellationToken cancellationToken = default)
+        {
+            var getOrderPreparedEmail = Path.Combine(Directory.GetCurrentDirectory(), "RazorTemplate", "EmailTemplate", OrderPreparedEmailFileName);
+            if (getOrderPreparedEmail == null)
+                return Result.Fail(new NotFoundError());
+            //var secretCode = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+            var metadata = new EmailMetaData()
+            {
+                ToEmail = account.Email,
+                Subject = "order prepared",
+            };
+            var orderDetailurl = _frontendOptions.Value.OrderDetailUrl+ "?id"+ order.Id;
+            var totalTransAmount = order.Transactions.Where(x => x.TransactionType == TransactionType.Pay || x.TransactionType == TransactionType.Pay_Remain)
+                .Sum(x => x.TransactionAmount);
+            var model = new EmailOrderPreparedModel(order, account, completeeDate, orderDetailurl, totalTransAmount);
+            return await SendEmailWithTemplate(metadata, getOrderPreparedEmail, model, cancellationToken);
+            throw new NotImplementedException();
         }
     }
     public class EmailMetaData

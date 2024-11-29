@@ -191,6 +191,7 @@ namespace DiamondShopSystem.Controllers
             await _emailService.SendConfirmAccountEmail(Account.CreateBaseCustomer(FullName.Create("1232", "123"), "testingwebandstuff@gmail.com", "sdfasdf", new List<AccountRole>() { AccountRole.Customer }), "testtoken");
             return Ok();
         }
+
         [HttpGet("testzalopayservice")]
         public async Task<ActionResult> testzalopayservice()
         {
@@ -421,6 +422,33 @@ namespace DiamondShopSystem.Controllers
 
             //HttpContext.Response.Headers.ContentType = "text/html; charset=utf-8";
             return Ok();
+        }
+        [HttpGet("testOrderPreparedEmail")]
+        public async Task<ActionResult> TestOrderPreparedEmail()
+        {
+            var pdf = _pdfService;
+            var account = Account.Create(FullName.Create("a", "b"), "testingwebandstuff@gmail.com");
+            var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, 0,"abc", null, null, 40_000, 20_000, DateTime.UtcNow,OrderId.Parse("1"));
+            order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null, null, 0));
+            order.Items.Add(OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, 20_000_000, null, null, null, null, 0));
+
+            await _emailService.SendOrderPreparedEmail(order, account,DateTime.UtcNow);
+
+            //HttpContext.Response.Headers.ContentType = "text/html; charset=utf-8";
+            return Ok();
+        }
+        [HttpGet("testPdfFromSync")]
+        public async Task<ActionResult> TestPdfFromSync()
+        {
+            var pdf = _pdfService;
+            var account = Account.Create(FullName.Create("a", "b"), "testingwebandstuff@gmail.com");
+            var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, 0.312m,"abc", null, null, 40_000, 20_000, DateTime.UtcNow,OrderId.Parse("1"));
+            order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null, null, 0));
+            order.Items.Add(OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, 20_000_000, null, null, null, null, 0));
+
+            var stream = GeneratePdfService.CreatePdfInvoice(order, account);
+            //HttpContext.Response.Headers.ContentType = "text/html; charset=utf-8";
+            return File(stream, "application/pdf","test"+order.OrderCode+".pdf");
         }
     }
 }

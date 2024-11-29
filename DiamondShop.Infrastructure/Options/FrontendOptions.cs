@@ -15,5 +15,6 @@ namespace DiamondShop.Infrastructure.Options
         public string FailedPaymentUrl { get; set; }
         public string ConfirmEmailSuccessUrl { get; set; }
         public string ConfirmEmailFailedUrl { get; set; }
+        public string OrderDetailUrl { get; set; }
     }
 }

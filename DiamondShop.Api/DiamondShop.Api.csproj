@@ -36,6 +36,12 @@
 		<Content Update="appsettings.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
+		<Content Update="RazorTemplate\EmailTemplate\OrderInvoiceTemplate.cshtml">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="RazorTemplate\EmailTemplate\OrderPreparedNotificationEmailTemplate.cshtml">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Update="wwwroot\Images\ShopIcon.png">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>

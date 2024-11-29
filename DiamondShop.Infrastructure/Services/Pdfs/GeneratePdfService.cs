@@ -1,20 +1,24 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services.Pdfs.Models;
 using DinkToPdf;
 using DinkToPdf.Contracts;
 using Microsoft.Extensions.Options;
 using Razor.Templating.Core;
-using SelectPdf;
 using Syncfusion.HtmlConverter;
+using Syncfusion.Pdf.Graphics;
+using Syncfusion.Pdf.Grid;
+using Syncfusion.Pdf;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
 
 namespace DiamondShop.Infrastructure.Services.Pdfs
 {
@@ -196,6 +200,11 @@ namespace DiamondShop.Infrastructure.Services.Pdfs
             document.Close(true);
             return stream;
             return GeneratePdfDoc(htmlString);
+        }
+        public static Stream CreatePdfInvoice(Order order, Account account)
+        {
+            throw new NotImplementedException();
+            //return stream;
         }
     }
 }
