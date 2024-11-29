@@ -58,7 +58,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Transfer.Customer
             if(transactions.Count() != 0)
                 return Result.Fail(TransactionErrors.TransactionExistError);
             var payAmount = order.PaymentType == PaymentType.Payall ? order.TotalPrice : order.DepositFee;
-            var manualPayment = Transaction.CreateManualPayment(order.Id, $"Cọc trước từ khách hàng {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", payAmount, TransactionType.Pay);
+
+            var manualPayment = Transaction.CreateManualPayment(order.Id, $"{(order.PaymentType == PaymentType.Payall ? "Trả hết" : "Cọc trước")} từ khách hàng {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", payAmount, TransactionType.Pay);
             await _transactionRepository.Create(manualPayment, token);
             //add evidence to blob
             var uploadResult = await _transferFileService.UploadTransferImage(manualPayment, new FileData(evidence.FileName, null, evidence.ContentType, evidence.OpenReadStream()));

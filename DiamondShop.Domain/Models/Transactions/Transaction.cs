@@ -87,7 +87,7 @@ namespace DiamondShop.Domain.Models.Transactions
             return new Transaction
             {
                 Id = TransactionId.Create(),
-                PayMethodId = null,
+                PayMethodId = PaymentMethod.BANK_TRANSFER.Id,
                 TransactionType = type,
                 Description = description,
                 TransactionAmount = amount,
@@ -105,8 +105,8 @@ namespace DiamondShop.Domain.Models.Transactions
             return new Transaction
             {
                 Id = TransactionId.Create(),
+                PayMethodId = PaymentMethod.BANK_TRANSFER.Id,
                 VerifierId = verifierId,
-                PayMethodId = null,
                 AppTransactionCode = transactionCode,
                 TransactionType = TransactionType.Refund,
                 Description = description,
@@ -116,7 +116,7 @@ namespace DiamondShop.Domain.Models.Transactions
                 TimeStamp = dateTimeNow.ToString(TransactionRule.TransactionTimeStamp),
                 //FineAmount = finedAmount,
                 IsManual = true,
-                Status = TransactionStatus.Verifying
+                Status = TransactionStatus.Valid
             };
         }
 
