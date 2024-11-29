@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.Transactions.Enum
 {
-    public enum TransactionType
+    public enum TransactionStatus
     {
-        Pay = 1, Refund = 2, Deposit = 3, Pay_Remain = 4
+        Verifying = 1, Valid = 2, Invalid = 3
     }
 }

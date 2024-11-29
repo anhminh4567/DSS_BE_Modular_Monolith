@@ -25,7 +25,6 @@ namespace DiamondShop.Domain.Services.Implementations
             OrderStatus.Delivering,
         };
         List<OrderStatus> ongoingState = new() {
-            OrderStatus.Pending,
             OrderStatus.Processing,
             OrderStatus.Prepared,
             OrderStatus.Delivering,

@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.Builder;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
 {
-    public record ProceedOrderCommand(string orderId, string accountId) : IRequest<Result<Order>>;
+    public record ProceedOrderCommand(string orderId, string? accountId) : IRequest<Result<Order>>;
     internal class ProceedOrderCommandHandler : IRequestHandler<ProceedOrderCommand, Result<Order>>
     {
         private readonly IAccountRepository _accountRepository;
@@ -74,37 +74,38 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             orderItemQuery = _orderItemRepository.QueryInclude(orderItemQuery, p => p.Jewelry);
             orderItemQuery = _orderItemRepository.QueryInclude(orderItemQuery, p => p.Diamond);
             var orderItems = orderItemQuery.ToList();
-            if (order.Status == OrderStatus.Pending)
-            {
-                if(order.PaymentType == PaymentType.Payall)
-                {
-                    Transaction trans = Transaction.CreateManualPayment(order.Id, $"Chuyển khoản từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", _orderTransactionService.GetFullPaymentValueForOrder(order), TransactionType.Pay);
-                    trans.AppTransactionCode = "";
-                    trans.PaygateTransactionCode = "";
-                    await _transactionRepository.Create(trans);
-                    order.Status = OrderStatus.Processing;
-                    order.PaymentStatus = order.PaymentType == PaymentType.Payall ? PaymentStatus.PaidAll : PaymentStatus.Deposited;
-                }
-                else
-                {
-                    decimal depositAmount = 0;
-                    if (order.IsCustomOrder)
-                        depositAmount = _orderTransactionService.GetCorrectAmountFromOrder(order);
-                    else
-                        depositAmount = _orderTransactionService.GetCorrectAmountFromOrder(order);
-                    Transaction trans = Transaction.CreateManualPayment(order.Id, $"Chuyển khoản từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", depositAmount, TransactionType.Pay);
-                    trans.AppTransactionCode = "";
-                    trans.PaygateTransactionCode = "";
-                    await _transactionRepository.Create(trans);
-                    order.Status = OrderStatus.Processing;
-                    order.PaymentStatus = order.PaymentType == PaymentType.Payall ? PaymentStatus.PaidAll : PaymentStatus.Deposited;
-                }
+            //if (order.Status == OrderStatus.Pending)
+            //{
+            //    if(order.PaymentType == PaymentType.Payall)
+            //    {
+            //        Transaction trans = Transaction.CreateManualPayment(order.Id, $"Chuyển khoản từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", _orderTransactionService.GetFullPaymentValueForOrder(order), TransactionType.Pay);
+            //        trans.AppTransactionCode = "";
+            //        trans.PaygateTransactionCode = "";
+            //        await _transactionRepository.Create(trans);
+            //        order.Status = OrderStatus.Processing;
+            //        order.PaymentStatus = order.PaymentType == PaymentType.Payall ? PaymentStatus.Paid : PaymentStatus.Deposited;
+            //    }
+            //    else
+            //    {
+            //        decimal depositAmount = 0;
+            //        if (order.IsCustomOrder)
+            //            depositAmount = _orderTransactionService.GetCorrectAmountFromOrder(order);
+            //        else
+            //            depositAmount = _orderTransactionService.GetCorrectAmountFromOrder(order);
+            //        Transaction trans = Transaction.CreateManualPayment(order.Id, $"Chuyển khoản từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", depositAmount, TransactionType.Pay);
+            //        trans.AppTransactionCode = "";
+            //        trans.PaygateTransactionCode = "";
+            //        await _transactionRepository.Create(trans);
+            //        order.Status = OrderStatus.Processing;
+            //        order.PaymentStatus = order.PaymentType == PaymentType.Payall ? PaymentStatus.Paid : PaymentStatus.Deposited;
+            //    }
 
-                await _orderRepository.Update(order);
-                var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Processing);
-                await _orderLogRepository.Create(log);
-            }
-            else if (order.Status == OrderStatus.Processing)
+            //    await _orderRepository.Update(order);
+            //    var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Processing);
+            //    await _orderLogRepository.Create(log);
+            //}
+            //else 
+            if (order.Status == OrderStatus.Processing)
             {
                 //Change jewelry status if customize
                 var items = order.Items;
@@ -142,9 +143,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                     return Result.Fail(OrderErrors.NoDelivererToAssignError);
                 if (order.DelivererId?.Value != accountId)
                     return Result.Fail(OrderErrors.OnlyDelivererAllowedError);
-                if (order.PaymentType == PaymentType.COD)
-                    //TODO: Add payment here
-                    _orderTransactionService.AddCODPayment(order);
+                if (order.PaymentStatus != PaymentStatus.Paid)
+                    return Result.Fail(OrderErrors.UnpaidError);
                 var items = order.Items;
                 foreach (var item in items)
                 {

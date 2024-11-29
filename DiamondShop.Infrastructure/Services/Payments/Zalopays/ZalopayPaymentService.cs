@@ -246,7 +246,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
         {
             Dictionary<string, string> param = new Dictionary<string, string>();
             param.Add("app_id", appid);
-            param.Add("timestamp", refundTransactionType.TimeStampe);
+            param.Add("timestamp", refundTransactionType.TimeStamp);
             param.Add("m_refund_id", refundTransactionType.AppTransactionCode);//"190308_2553_xxxxxx");
 
             var data = appid + "|" + param["m_refund_id"] + "|" + param["timestamp"];
@@ -381,7 +381,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                 return null;
             if(order.ExpiredDate != null)
                 return null;
-            if(order.PaymentStatus == PaymentStatus.PaidAll)
+            if(order.PaymentStatus == PaymentStatus.Paid)
                 return null;
             if (order.Status == OrderStatus.Pending)
             {

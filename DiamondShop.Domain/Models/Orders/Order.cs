@@ -36,11 +36,12 @@ namespace DiamondShop.Domain.Models.Orders
         public DateTime? CancelledDate { get; set; }
         public string? CancelledReason { get; set; }
         public OrderStatus Status { get; set; }
-        public PaymentType PaymentType { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
+        public PaymentType PaymentType { get; set; }
         public PaymentMethodId? PaymentMethodId { get; set; }
         public PaymentMethod? PaymentMethod { get; set; }
         public decimal ShippingFee { get; set; }
+        public decimal DepositFee { get; set; }
         public decimal TotalPrice { get; set; }
         public decimal OrderAmountSaved { get; set; } = 0;
         public decimal UserRankAmountSaved { get; set; } = 0;
@@ -75,8 +76,8 @@ namespace DiamondShop.Domain.Models.Orders
 
         public Order() { }
         public static Order Create(AccountId accountId, PaymentType paymentType, PaymentMethodId paymentMethodId,
-            decimal totalPrice, decimal shippingFee, string shippingAddress, CustomizeRequestId? customizeRequestId = null,
-            Promotion? promotion = null, decimal orderSavedAmount = 0 , decimal UserRankAmountSaved = 0, OrderId givenId = null)
+            decimal totalPrice, decimal shippingFee, decimal depositFee, string shippingAddress, CustomizeRequestId? customizeRequestId = null,
+            Promotion? promotion = null, decimal orderSavedAmount = 0 , decimal UserRankAmountSaved = 0, DateTime? expiredDate = null, OrderId givenId = null)
         {
             return new Order()
             {
@@ -95,7 +96,8 @@ namespace DiamondShop.Domain.Models.Orders
                 OrderAmountSaved = orderSavedAmount,
                 UserRankAmountSaved = UserRankAmountSaved,
                 PaymentMethodId = paymentMethodId,
-                
+                DepositFee = depositFee,
+                ExpiredDate = expiredDate,
             };
         }
         public void Deposit(Transaction depositedTransaction)
@@ -113,7 +115,7 @@ namespace DiamondShop.Domain.Models.Orders
                 throw new InvalidOperationException("Transaction pay all must be equal the order, this is not pay all transaction");
             AddTransaction(payAllTransaction);
             Status = OrderStatus.Processing;
-            PaymentStatus = PaymentStatus.PaidAll;
+            PaymentStatus = PaymentStatus.Paid;
             Items.ForEach(p => p.Status = OrderItemStatus.Pending);
         }
         public void PayRemainingForDepositOrder(Transaction payRemainingTransaction)
@@ -124,7 +126,7 @@ namespace DiamondShop.Domain.Models.Orders
                 throw new InvalidOperationException("Transaction for the remaining is not valid");
             AddTransaction(payRemainingTransaction);
             Status = OrderStatus.Success;
-            PaymentStatus = PaymentStatus.PaidAll;
+            PaymentStatus = PaymentStatus.Paid;
             Items.ForEach(p => p.Status = OrderItemStatus.Done);
         }
         public void SetExpired(DateTime expiredTime)

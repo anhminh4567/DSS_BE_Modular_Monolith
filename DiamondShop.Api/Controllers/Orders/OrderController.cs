@@ -10,6 +10,9 @@ using DiamondShop.Application.Usecases.Orders.Commands.Proceed;
 using DiamondShop.Application.Usecases.Orders.Commands.Redeliver;
 using DiamondShop.Application.Usecases.Orders.Commands.Refund;
 using DiamondShop.Application.Usecases.Orders.Commands.Reject;
+using DiamondShop.Application.Usecases.Orders.Commands.Transfer.Customer;
+using DiamondShop.Application.Usecases.Orders.Commands.Transfer.Deliverer;
+using DiamondShop.Application.Usecases.Orders.Commands.Transfer.Manager;
 using DiamondShop.Application.Usecases.Orders.Queries.GetAll;
 using DiamondShop.Application.Usecases.Orders.Queries.GetOrderFilter;
 using DiamondShop.Application.Usecases.Orders.Queries.GetPaymentLink;
@@ -78,7 +81,7 @@ namespace DiamondShop.Api.Controllers.Orders
                 return MatchError(result.Errors, ModelState);
             return Ok(result.Value);
         }
-
+        #region Customer
         [HttpPost("Checkout")]
         [Authorize(Roles = AccountRole.CustomerId)]
         public async Task<ActionResult> Checkout([FromBody] CheckoutRequestDto checkoutRequestDto)
@@ -87,6 +90,23 @@ namespace DiamondShop.Api.Controllers.Orders
             if (userId != null)
             {
                 var result = await _sender.Send(new CheckoutOrderCommand(userId.Value, checkoutRequestDto.BillingDetail, checkoutRequestDto.CreateOrderInfo));
+                if (result.IsSuccess)
+                {
+                    return Ok(result.Value);
+                }
+                return MatchError(result.Errors, ModelState);
+            }
+            else
+                return Unauthorized();
+        }
+        [HttpPost("AddTransfer")]
+        [Authorize(Roles = AccountRole.CustomerId)]
+        public async Task<ActionResult> AddTransfer([FromBody] TransferVerifyRequestDto transferSubmitRequestDto)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(new CustomerTransferCommand(userId.Value, transferSubmitRequestDto));
                 if (result.IsSuccess)
                 {
                     return Ok(result.Value);
@@ -116,7 +136,8 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return Unauthorized();
         }
-
+        #endregion
+        #region Staff
         [HttpPut("Reject")]
         [Authorize(Roles = AccountRole.StaffId)]
         public async Task<ActionResult> ShopRejectOrder([FromQuery] string orderId, string reason)
@@ -125,26 +146,6 @@ namespace DiamondShop.Api.Controllers.Orders
             if (userId != null)
             {
                 var result = await _sender.Send(new RejectOrderCommand(orderId, userId.Value, reason));
-                if (result.IsSuccess)
-                {
-                    var mappedResult = _mapper.Map<OrderDto>(result.Value);
-                    return Ok(mappedResult);
-                }
-                else
-                    return MatchError(result.Errors, ModelState);
-            }
-            else
-                return Unauthorized();
-        }
-
-        [HttpPut("Proceed")]
-        [Authorize(Roles = AccountRole.StaffId + "," + AccountRole.DelivererId)]
-        public async Task<ActionResult> ProceedOrder([FromQuery] string orderId)
-        {
-            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
-            if (userId != null)
-            {
-                var result = await _sender.Send(new ProceedOrderCommand(orderId, userId.Value));
                 if (result.IsSuccess)
                 {
                     var mappedResult = _mapper.Map<OrderDto>(result.Value);
@@ -170,6 +171,7 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return MatchError(result.Errors, ModelState);
         }
+
         [HttpPut("Redeliver")]
         [Authorize(Roles = AccountRole.StaffId)]
         public async Task<ActionResult> RedeliverOrder([FromQuery] RedeliverOrderCommand redeliverOrderCommand)
@@ -183,6 +185,28 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return MatchError(result.Errors, ModelState);
         }
+
+        #endregion
+        [HttpPut("Proceed")]
+        [Authorize(Roles = AccountRole.StaffId + "," + AccountRole.DelivererId)]
+        public async Task<ActionResult> ProceedOrder([FromQuery] string orderId)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(new ProceedOrderCommand(orderId, userId.Value));
+                if (result.IsSuccess)
+                {
+                    var mappedResult = _mapper.Map<OrderDto>(result.Value);
+                    return Ok(mappedResult);
+                }
+                else
+                    return MatchError(result.Errors, ModelState);
+            }
+            else
+                return Unauthorized();
+        }
+
         [HttpPut("DeliverFail")]
         [Authorize(Roles = AccountRole.DelivererId)]
         public async Task<ActionResult> DeliverFail([FromQuery] string orderId)
@@ -202,19 +226,62 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return Unauthorized();
         }
-
-        [HttpPut("CompleteRefund")]
-        [Authorize(Roles = AccountRole.StaffId)]
-        public async Task<ActionResult> CompleteOrderRefund([FromQuery] RefundOrderCommand refundOrderCommand)
+        [HttpPut("ConfirmCOD")]
+        [Authorize(Roles = AccountRole.DelivererId)]
+        public async Task<ActionResult> DeliverConfirmCODTransfer([FromQuery] TransferVerifyRequestDto transferConfirmRequestDto)
         {
-            var result = await _sender.Send(refundOrderCommand);
-            if (result.IsSuccess)
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
             {
-                var mappedResult = _mapper.Map<OrderDto>(result.Value);
-                return Ok(mappedResult);
+                var result = await _sender.Send(new DelivererSendTransferCommand(userId.Value, transferConfirmRequestDto));
+                if (result.IsSuccess)
+                {
+                    var mappedResult = _mapper.Map<OrderDto>(result.Value);
+                    return Ok(mappedResult);
+                }
+                else
+                    return MatchError(result.Errors, ModelState);
             }
             else
+                return Unauthorized();
+        }
+
+        [HttpPost("CompleteTransfer")]
+        [Authorize(Roles = AccountRole.ManagerId)]
+        public async Task<ActionResult> CompleteTransfer([FromBody] TransferConfirmRequestDto transferCompleteRequestDto)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(new StaffConfirmPendingTransferCommand(userId.Value, transferCompleteRequestDto));
+                if (result.IsSuccess)
+                {
+                    return Ok(result.Value);
+                }
                 return MatchError(result.Errors, ModelState);
+            }
+            else
+                return Unauthorized();
+        }
+
+        [HttpPut("CompleteRefund")]
+        [Authorize(Roles = AccountRole.ManagerId)]
+        public async Task<ActionResult> CompleteOrderRefund([FromQuery] RefundConfirmRequestDto refundConfirmRequestDto)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(new RefundOrderCommand(userId.Value, refundConfirmRequestDto));
+                if (result.IsSuccess)
+                {
+                    var mappedResult = _mapper.Map<OrderDto>(result.Value);
+                    return Ok(mappedResult);
+                }
+                else
+                    return MatchError(result.Errors, ModelState);
+            }
+            else
+                return Unauthorized();
         }
     }
 }
