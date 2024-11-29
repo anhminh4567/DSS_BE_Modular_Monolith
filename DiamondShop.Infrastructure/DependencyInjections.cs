@@ -70,6 +70,8 @@ using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
 namespace DiamondShop.Infrastructure
 {
     public static class DependencyInjections
@@ -227,9 +229,6 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IPdfService, GeneratePdfService>();
             services.AddScoped<ITransferFileService, TransferFileService>();
             //admin confi
-            services.AddScoped<IDiamondRuleConfigurationService, DiamondRuleConfigurationService>();
-            services.AddScoped<IPromotionRuleConfigurationService,PromotionRuleConfigurationService>();
-            services.AddScoped<IFrontendDisplayRulesConfigurationService,FrontendDisplayRulesConfigurationService>();
             var serviceProviderInstrance = services.BuildServiceProvider();
             var mailOptions = serviceProviderInstrance.GetRequiredService<IOptions<MailOptions>>().Value;
             var fluentEmailBuilder = services.AddFluentEmail(mailOptions.SenderEmail);

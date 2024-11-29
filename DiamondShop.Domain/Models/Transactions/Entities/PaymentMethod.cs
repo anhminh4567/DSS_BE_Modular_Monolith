@@ -12,6 +12,7 @@ namespace DiamondShop.Domain.Models.Transactions.Entities
     {
         public static PaymentMethod BANK_TRANSFER = PaymentMethod.Create("BANK_TRANSFER", PaymentMethodId.Parse("1"));
         public static PaymentMethod ZALOPAY = PaymentMethod.Create("ZALOPAY", PaymentMethodId.Parse("2"));
+        public static PaymentMethod CASH = PaymentMethod.Create("CASH", PaymentMethodId.Parse("3"));
         public string MethodName { get; set; }
         public string? MethodThumbnailPath { get; set; }
         public bool Status { get; set; }

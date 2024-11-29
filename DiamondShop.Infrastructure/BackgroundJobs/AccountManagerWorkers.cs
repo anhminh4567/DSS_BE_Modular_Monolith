@@ -40,7 +40,8 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
 
         public async Task Execute(IJobExecutionContext context)
         {
-            await UpdateUserRank(context);
+            //put it there not run, the useer rank is alreeady check when complete order
+            //await UpdateUserRank(context);
         }
         private async Task UpdateUserRank(IJobExecutionContext jobContext)
         {

@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Application.Services.Interfaces.AdminConfigurations.PromotionRuleConfig.Models;
 using DiamondShop.Application.Usecases.AdminConfigurations.Promotions;
+using DiamondShop.Application.Usecases.AdminConfigurations.Promotions.Commands;
+using DiamondShop.Application.Usecases.AdminConfigurations.Promotions.Queries;
 using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;

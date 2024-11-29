@@ -56,6 +56,9 @@ namespace DiamondShop.Domain.Services.Implementations
 
                 if (IsSilverRankQualified(acc, option, userRoles)) 
                 {
+                    //if already a gold member, no need to check for silver
+                    if (userRoles.Any(userRoles => userRoles.Id == AccountRole.CustomerGold.Id))
+                        return;
                     userRoles.Add(silverRank);
                     var getGold = userRoles.FirstOrDefault(x => x.Id == goldRank.Id);
                     var getBronze = userRoles.FirstOrDefault(x => x.Id == bronzeRank.Id);
@@ -69,6 +72,12 @@ namespace DiamondShop.Domain.Services.Implementations
 
                 if (IsBronzeRankQualified(acc, option, userRoles))
                 {
+                    //if already a gold member, no need to check for bronze
+                    if (userRoles.Any(userRoles => userRoles.Id == AccountRole.CustomerGold.Id))
+                        return;
+                    //if already a silver member, no need to check for bronze
+                    if (userRoles.Any(userRoles => userRoles.Id == AccountRole.CustomerSilver.Id))
+                        return;
                     userRoles.Add(bronzeRank);
                     var getgold = userRoles.FirstOrDefault(x => x.Id == goldRank.Id);
                     var getsilver = userRoles.FirstOrDefault(x => x.Id == silverRank.Id);

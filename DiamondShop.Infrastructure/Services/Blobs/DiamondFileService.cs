@@ -59,6 +59,12 @@ namespace DiamondShop.Infrastructure.Services.Blobs
             var basePath = GetAzureFilePath(diamond);
             return _blobFileServices.GetFolders(basePath, cancellationToken);
         }
+
+        public Task<bool> IsAnyFileExist(string folderPath, CancellationToken cancellationToken = default)
+        {
+            return _blobFileServices.IsAnyFileExist(folderPath, cancellationToken);
+        }
+
         // in diamond there is no category to worry about, so the base image will store all the image
         public GalleryTemplate MapPathsToCorrectGallery(Diamond diamond, List<Media> paths, CancellationToken cancellationToken = default)
         {

@@ -30,7 +30,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Dtos\Requests\ApplicationConfigurations\Promotions\" />
     <Folder Include="Usecases\Addresses\Queries\GetAllUserAddresses\" />
     <Folder Include="Usecases\Transactions\Commands\CreateRefunds\" />
   </ItemGroup>

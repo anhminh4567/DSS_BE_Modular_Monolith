@@ -24,6 +24,9 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public string? ItemId { get; set; }
         public UnitType UnitType { get; set; }
         public decimal UnitValue { get; set; }
+        //tobe added later
+        [NotMapped]
+        public decimal? MaxAmout { get; set; } = null;
         public int Amount { get; set; }
         //diamond config
         public List<DiamondShapeId>? DiamondGiftShapes { get; set; } = new();
@@ -111,6 +114,12 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
                 _ => throw new Exception("un detected unit type for this one"),
             };
             return trueUnitValue;
+        }
+        public void SetMaxAmount(decimal maxAmount)
+        {
+            if (UnitType == UnitType.Fix_Price)
+                throw new Exception("không thể set giá max cho lại gift là tiền, phần trăm mới được max price");
+            MaxAmout = maxAmount;
         }
         public Gift() { }
     }

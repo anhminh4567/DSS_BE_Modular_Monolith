@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
-using DiamondShop.Application.Services.Interfaces.AdminConfigurations.DiamondRuleConfig.Models;
 using DiamondShop.Application.Usecases.AdminConfigurations.Diamonds;
+using DiamondShop.Application.Usecases.AdminConfigurations.Diamonds.Commands;
+using DiamondShop.Application.Usecases.AdminConfigurations.Diamonds.Queries;
 using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
@@ -41,30 +42,6 @@ namespace DiamondShop.Api.Controllers.AdminConfigurations
         public async Task<ActionResult> UpdateDiamondRule([FromForm] DiamondRuleRequestDto diamondRuleRequestDto)
         {
             var updateResul = await _sender.Send(new UpdateDiamondRuleCommand(diamondRuleRequestDto));
-            //var diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
-            //diamondRuleRequestDto.Adapt(diamondRule);
-            //var validationResult = _validator.Validate(diamondRule);
-            //if (validationResult.IsValid is false)
-            //{
-            //    Dictionary<string, object> validationErrors = new();
-            //    validationResult.Errors
-            //        .ForEach(input =>
-            //        {
-            //            if (validationErrors.ContainsKey(input.PropertyName))
-            //            {
-            //                var errorList = (List<object>)validationErrors[input.PropertyName];
-            //                errorList.Add(input.ErrorMessage);
-            //            }
-            //            else
-            //                validationErrors.Add(input.PropertyName, new List<object> { input.ErrorMessage });
-            //        });
-            //    ValidationError validationError = new ValidationError($"validation error ", validationErrors);
-            //    return MatchError(Result.Fail(validationError).Errors, ModelState);
-            //}
-            //else
-            //{
-            //    _applicationSettingService.Set(DiamondRule.key, diamondRule);
-            //}
             if(updateResul.IsFailed)
             {
                 return MatchError(updateResul.Errors, ModelState);

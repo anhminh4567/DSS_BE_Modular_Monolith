@@ -40,9 +40,22 @@ namespace DiamondShop.Domain.Models.DeliveryFees
             {
                 Id = DeliveryFeeId.Parse(UNKNONW_DELIVERY_ID),
                 Cost = 0,
-                Name = "Vui lòng nhập đúng địa chỉ",
+                Name = "lấy hàng tại shop, xin vui lòng tới lấy hàng sớm nhất có thể",
                 //FromLocation = null,
                 ToLocation = null,
+            };
+        }
+        public static DeliveryFee CreateSelfTakenFromShopDeliveryFee()
+        {
+            return new DeliveryFee
+            {
+                Id = DeliveryFeeId.Parse("-2"),
+                Cost = 0,
+                Name = "Vui lòng nhập đúng địa chỉ",
+                ToLocation = "tại shop",
+                DeliveryMethod = "Tự lấy hàng tại shop",
+                ToLocationId = -2,
+                IsEnabled = true,
             };
         }
         public void ChangeName( string name) => Name = name;

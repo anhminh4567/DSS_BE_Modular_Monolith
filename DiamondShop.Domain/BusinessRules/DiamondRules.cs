@@ -15,7 +15,7 @@ namespace DiamondShop.Domain.BusinessRules
     {
         public static DiamondRule Default = new DiamondRule();
         public static string Type = typeof(DiamondRule).AssemblyQualifiedName;
-        public static string key = "DiamondRuleVer1";
+        public static string key = "DiamondRuleVer2 ";
 
         public static string GetDiamondSerialCode(Diamond diamond,DiamondShape shape)
         {
@@ -43,7 +43,10 @@ namespace DiamondShop.Domain.BusinessRules
         public int MainDiamondMaxFractionalNumber { get; set; } = 2;
         public decimal AverageOffsetVeryGoodCutFromIdealCut { get; set; } = -0.11M;
         public decimal AverageOffsetGoodCutFromIdealCut { get; set; } = -0.15M;
-
+        public int MaxLockTimeForCustomer { get; set; } = 24;
+        /// <summary>
+        /// 
+        /// </summary>
         public decimal AverageOffsetVeryGoodCutFromIdealCut_FANCY_SHAPE { get; set; } = -0.11M;
         public decimal AverageOffsetGoodCutFromIdealCut_FANCY_SHAPE { get; set; } = -0.12M;
         //public decimal AverageOffsetFancyShapeFromRoundShape { get; set; } = -0.2M;
