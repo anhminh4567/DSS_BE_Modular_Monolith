@@ -20,12 +20,15 @@ namespace DiamondShop.Domain.Models.Notifications
         public OrderId? OrderId { get; set; }
         public Order? Order { get; set; }
         public string Content { get; set; }
+        public string? ContentType { get; set; }
         public DateTime CreatedDate { get; set; }
         public bool IsRead { get; set; }
         [NotMapped]
         public bool IsForShop => AccountId == null;
         [NotMapped]
         public bool IsForOrder => OrderId != null;
+        [NotMapped]
+        public bool IsAType => ContentType != null;
         [NotMapped]
         public bool IsPublicMessages => AccountId == null && OrderId == null;
         public Notification() { }

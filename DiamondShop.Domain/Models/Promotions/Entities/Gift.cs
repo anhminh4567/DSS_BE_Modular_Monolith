@@ -24,8 +24,6 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public string? ItemId { get; set; }
         public UnitType UnitType { get; set; }
         public decimal UnitValue { get; set; }
-        //tobe added later
-        [NotMapped]
         public decimal? MaxAmout { get; set; } = null;
         public int Amount { get; set; }
         //diamond config
