@@ -2,6 +2,7 @@
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson;
 using DiamondShop.Commons;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Repositories;
@@ -12,6 +13,7 @@ using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,8 +35,9 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.Validate
         private readonly IPromotionRepository _promotionRepository;
         private readonly ISizeMetalRepository _sizeMetalRepository;
         private readonly IMetalRepository _metalRepository;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _cartModelRules;
 
-        public ValidateCartCommandHandler(ICartModelService cartModelService, ICartService cartService, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository, IJewelryModelRepository jewelryModelRepository, IDiamondPriceRepository diamondPriceRepository, IDiscountRepository discountRepository, IPromotionRepository promotionRepository, ISizeMetalRepository sizeMetalRepository, IMetalRepository metalRepository)
+        public ValidateCartCommandHandler(ICartModelService cartModelService, ICartService cartService, IJewelryRepository jewelryRepository, IDiamondRepository diamondRepository, IJewelryModelRepository jewelryModelRepository, IDiamondPriceRepository diamondPriceRepository, IDiscountRepository discountRepository, IPromotionRepository promotionRepository, ISizeMetalRepository sizeMetalRepository, IMetalRepository metalRepository, IOptionsMonitor<ApplicationSettingGlobal> cartModelRules)
         {
             _cartModelService = cartModelService;
             _cartService = cartService;
@@ -46,6 +49,7 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.Validate
             _promotionRepository = promotionRepository;
             _sizeMetalRepository = sizeMetalRepository;
             _metalRepository = metalRepository;
+            _cartModelRules = cartModelRules;
         }
 
         public async Task<Result<CartModel>> Handle(ValidateCartCommand request, CancellationToken cancellationToken)
@@ -55,7 +59,7 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.Validate
             List<CartProduct> getProducts = await _cartModelService.GetCartProduct(getUserCart);
             var getActiveDiscount = await _discountRepository.GetActiveDiscount();
             var getActivePromotion = await _promotionRepository.GetActivePromotion();
-            Result<CartModel> result = await _cartModelService.ExecuteNormalOrder(getProducts,getActiveDiscount,getActivePromotion , new ShippingPrice(),null);
+            Result<CartModel> result = await _cartModelService.ExecuteNormalOrder(getProducts,getActiveDiscount,getActivePromotion , new ShippingPrice(),null,_cartModelRules.CurrentValue.CartModelRules);
             if (result.IsSuccess)
                 return result.Value;
             return Result.Fail(result.Errors);

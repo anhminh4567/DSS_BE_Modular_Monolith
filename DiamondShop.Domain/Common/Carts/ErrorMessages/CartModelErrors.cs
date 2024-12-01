@@ -11,6 +11,9 @@ namespace DiamondShop.Domain.Common.Carts.ErrorMessages
 {
     public class CartModelErrors
     {
+        public static ConflictError TooManyItems(int maxItem) => new ConflictError($"Số lượng sản phẩm vượt quá giới hạn là {maxItem} theo quy định của chúng tôi");
+        public static ConflictError TooExpensive(decimal maxMoneyAmount) => new ConflictError($"Số tiền sản phẩm vượt quá giối hạn là {maxMoneyAmount} theo quy định của chúng tôi");
+
         public class CartProductError
         {
             public static Error UnknownPrice(int productIndex, CartProduct product) 
@@ -52,10 +55,12 @@ namespace DiamondShop.Domain.Common.Carts.ErrorMessages
             }
             public static ConflictError UnknownProductType => new ConflictError("Loại sản phẩm không xác định");
             public static ConflictError Duplicate => new ConflictError("Sản phẩm đã có trong giỏ");
+
             public class JewelryType
             {
                 public static ConflictError DiamondNotCorrect => new ConflictError("Loại kim cương gắn vào không đúng");
             }
+            
         }
     }
 }

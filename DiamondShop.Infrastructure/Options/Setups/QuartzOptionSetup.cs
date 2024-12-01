@@ -73,6 +73,13 @@ namespace DiamondShop.Infrastructure.Options.Setups
                     .WithSimpleSchedule(schedule => schedule
                         .WithIntervalInMinutes(5)
                             .RepeatForever()));
+
+            string notificationExpiredJobName = nameof(NotificationWorkers);
+            options.AddJob<NotificationWorkers>(config => config.WithIdentity(notificationExpiredJobName))
+                .AddTrigger(config => config.ForJob(notificationExpiredJobName)
+                    .WithSimpleSchedule(schedule => schedule
+                        .WithIntervalInMinutes(5)
+                            .RepeatForever()));
         }
     }
 }

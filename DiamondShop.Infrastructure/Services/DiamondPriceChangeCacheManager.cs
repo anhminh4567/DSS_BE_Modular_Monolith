@@ -3,6 +3,7 @@ using DiamondShop.Application.Services.Interfaces.DiamondPrices;
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromRange;
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.DeleteRange;
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.UpdateRange;
+using DiamondShop.Commons;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Repositories;
@@ -24,7 +25,8 @@ namespace DiamondShop.Infrastructure.Services
         private readonly IUnitOfWork _unitOfWork;   
         private readonly IMapper _mapper;
         private readonly ISender _sender;
-
+        private const string CriteriaCacheKey = "Criteria";
+        private const string PriceCacheKey = "Price";
         public DiamondPriceChangeCacheManager(IDbCachingService dbCachingService, IDiamondPriceRepository diamondPriceRepository, IDiamondCriteriaRepository diamondCriteriaRepository, IUnitOfWork unitOfWork, IMapper mapper, ISender sender)
         {
             _dbCachingService = dbCachingService;
@@ -37,11 +39,17 @@ namespace DiamondShop.Infrastructure.Services
 
         public List<DiamondCriteria> AddCriteria(List<CreateCriteriaFromRangeCommand> updateCaches)
         {
+            
             throw new NotImplementedException();
         }
 
-        public List<DiamondCriteria> DeleteCriteria(List<UpdateDiamondCriteriaRangeCommand> updateCaches)
+        public List<DiamondCriteria> DeleteCriteria(List<DeleteCriteriaByRangeCommand> updateCaches)
         {
+            //var key = $"{CriteriaCacheKey}_Delete_{GenerateRandomness()}";
+            //Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>> grouped = new();
+            
+            //if(updateCaches.)
+            //var getCriteria = _diamondCriteriaRepository.GroupAllAvailableCaratRange();
             throw new NotImplementedException();
         }
 
@@ -60,9 +68,13 @@ namespace DiamondShop.Infrastructure.Services
             throw new NotImplementedException();
         }
 
-        public List<DiamondCriteria> UpdateCriteria(List<DeleteCriteriaByRangeCommand> updateCaches)
+        public List<DiamondCriteria> UpdateCriteria(List<UpdateDiamondCriteriaRangeCommand> updateCaches)
         {
             throw new NotImplementedException();
+        }
+        private string GenerateRandomness()
+        {
+            return Utilities.GenerateRandomString(6);
         }
     }
 }

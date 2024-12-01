@@ -82,7 +82,7 @@ namespace DiamondShop.Domain.Services.Implementations
         }
 
 
-        public async Task<Result<CartModel>> ExecuteNormalOrder(List<CartProduct> products, List<Discount> givenDiscount, List<Promotion> givenPromotion, ShippingPrice shipPrice, Account? account)
+        public async Task<Result<CartModel>> ExecuteNormalOrder(List<CartProduct> products, List<Discount> givenDiscount, List<Promotion> givenPromotion, ShippingPrice shipPrice, Account? account, CartModelRules cartModelRules)
         {
             ArgumentNullException.ThrowIfNull(products);
             var cartModel = new CartModel { Products = products , Account = account };
@@ -114,6 +114,7 @@ namespace DiamondShop.Domain.Services.Implementations
             CurrentCart.SetOrderShippingPrice(shipPrice);
             CurrentCart.SetWarrantyTotalPrice();
             CurrentCart.SetErrorMessages();
+            CurrentCart.ValidateCartRules(cartModelRules);
             //CurrentCart.SetOrderPrice();
             
             return Result.Ok(CurrentCart);

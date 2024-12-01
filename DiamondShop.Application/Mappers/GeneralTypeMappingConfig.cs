@@ -14,6 +14,7 @@ using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+using DiamondShop.Domain.Models.Notifications.ValueObjects;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Models.Transactions.Entities;
@@ -105,6 +106,8 @@ namespace DiamondShop.Application.Mappers
             config.NewConfig<DateTime?, string?>()
                 .MapWith(src => src == null ? null : src.Value.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat));
             config.NewConfig<ProductLock, ProductLockDto>();
+            config.NewConfig<NotificationId, string>()
+                .MapWith(src => src.Value).Compile();
         }
     }
 }

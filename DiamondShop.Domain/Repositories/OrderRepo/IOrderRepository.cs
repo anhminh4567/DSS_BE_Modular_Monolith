@@ -13,5 +13,6 @@ namespace DiamondShop.Domain.Repositories.OrderRepo
         bool IsRequestCreated(CustomizeRequestId customizeRequestId);
         Task<Order?> GetDelivererCurrentlyHandledOrder(Account delivererAccount, CancellationToken cancellationToken = default);
         IQueryable<Order> GetSoldJewelry();
+        Task<List<Order>> GetUserProcessingOrders(Account customerAccounts);
     }
 }

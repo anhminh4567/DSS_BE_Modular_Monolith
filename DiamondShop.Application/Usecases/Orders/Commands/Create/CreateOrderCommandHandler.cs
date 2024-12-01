@@ -10,6 +10,7 @@ using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
+using DiamondShop.Domain.Models.Notifications;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
@@ -47,8 +48,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
         private readonly IOrderLogRepository _orderLogRepository;
         private readonly IEmailService _emailService;
+        private readonly INotificationRepository _notificationRepository;
 
-        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, ISizeMetalRepository sizeMetalRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IJewelryService jewelryService, IPaymentMethodRepository paymentMethodRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderLogRepository orderLogRepository, IEmailService emailService)
+        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, ISizeMetalRepository sizeMetalRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IJewelryService jewelryService, IPaymentMethodRepository paymentMethodRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderLogRepository orderLogRepository, IEmailService emailService, INotificationRepository notificationRepository)
         {
             _accountRepository = accountRepository;
             _orderRepository = orderRepository;
@@ -64,6 +66,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             _optionsMonitor = optionsMonitor;
             _orderLogRepository = orderLogRepository;
             _emailService = emailService;
+            _notificationRepository = notificationRepository;
         }
 
         public async Task<Result<Order>> Handle(CreateOrderCommand request, CancellationToken token)
@@ -71,6 +74,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             var transactionRule = _optionsMonitor.CurrentValue.TransactionRule;
             var logRule = _optionsMonitor.CurrentValue.LoggingRules;
             var paymentRule = _optionsMonitor.CurrentValue.OrderPaymentRules;
+            var orderRule = _optionsMonitor.CurrentValue.OrderRule;
             await _unitOfWork.BeginTransactionAsync(token);
             request.Deconstruct(out string accountId, out CreateOrderInfo createOrderInfo);
             createOrderInfo.Deconstruct(out PaymentType paymentType, out string methodId, out string paymentName, out string? requestId, out string? promotionId, out BillingDetail billingDetail, out List<OrderItemRequestDto> orderItemReqs);
@@ -133,26 +137,40 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                     errors.Add(new Error(errMess));
                 }
             }
-            if (errors.Count > 0) return Result.Fail(errors);
+
             if (paymentMethod.Id == PaymentMethod.ZALOPAY.Id)
             {
                 if (cartModelResult.Value.OrderPrices.FinalPrice > transactionRule.MaximumPerTransaction)
-                    return Result.Fail( TransactionErrors.PaygateError.MaxTransactionError(paymentName,transactionRule.MaximumPerTransaction));
+                    errors.Add(TransactionErrors.PaygateError.MaxTransactionError(paymentName, transactionRule.MaximumPerTransaction));
+                //return Result.Fail( TransactionErrors.PaygateError.MaxTransactionError(paymentName,transactionRule.MaximumPerTransaction));
             }
-            if (paymentType == PaymentType.COD)
+            //check the pay method
+            if (paymentType == PaymentType.Payall)
+            {
+                if (cartModel.OrderPrices.FinalPrice > orderRule.MaxOrderAmountForFullPayment)
+                {
+                    bool isCustomRequest = requestId != null;
+                    var depositPercent = isCustomRequest ? paymentRule.DepositPercent : paymentRule.CODPercent;
+                    errors.Add(new Error($"Tổng giá trị đơn hàng vượt quá giới hạn cho phép {orderRule.MaxOrderAmountForFullPayment}, xin vui lòng đặt cọc {depositPercent}%"));
+                }
+            }
+            else
             {
                 if (cartModel.OrderPrices.IsFreeOrder)
-                    return Result.Fail("đơn hàng miễn phí không được chọn loại COD");
-                //if (cartModelResult.Value.OrderPrices.FinalPrice < OrderPaymentRules.MinAmountForCOD)
-                //    return Result.Fail(OrderErrors.NotValidForCODType);
+                    errors.Add(new Error("Đơn hàng miễn phí không được chọn loại COD"));
+                if (cartModel.OrderPrices.FinalPrice > orderRule.MaxOrderAmountForDelivery)
+                {
+                    //errors.Add(new Error($"Tổng giá trị đơn hàng vượt quá giới hạn cho phép {orderRule.MaxCOD}"));
+                }
             }
-
+            if (errors.Count > 0)
+                return Result.Fail(errors);
             var customizeRequestId = requestId == null ? null : CustomizeRequestId.Parse(requestId);
             var orderPromo = cartModel.Promotion.Promotion;
             var address = billingDetail.GetAddressString();
             decimal depositFee = paymentType == PaymentType.Payall ? 0m : (0.01m * paymentRule.CODPercent) * cartModel.OrderPrices.FinalPrice;
             depositFee = MoneyVndRoundUpRules.RoundAmountFromDecimal(depositFee);
-            DateTime? expiredDate = paymentMethod.Id == PaymentMethod.BANK_TRANSFER.Id ? DateTime.UtcNow.AddHours(paymentRule.CODHourTimeLimit) : null;
+            DateTime? expiredDate = DateTime.UtcNow.AddHours(orderRule.ExpiredOrderHour);//paymentMethod.Id == PaymentMethod.BANK_TRANSFER.Id ? DateTime.UtcNow.AddHours(paymentRule.CODHourTimeLimit) : null;
             var order = Order.Create(account.Id, paymentType, paymentMethod.Id, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice, depositFee,
                 address, customizeRequestId, orderPromo, cartModel.OrderPrices.OrderAmountSaved, cartModel.OrderPrices.UserRankDiscountAmount,expiredDate);
             //create log
@@ -206,9 +224,11 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             order.Account = account;
             //no wait to send email
             _emailService.SendInvoiceEmail(order, account);
-
+            var notificationToCustomer = Notification.CreateAccountMessage(order, account,"đơn hàng đã dược đặt, vui lòng thanh toán trong thời hạn",null);
+            _notificationRepository.Create(notificationToCustomer).Wait();
+            await _unitOfWork.SaveChangesAsync(token);
             // if order price = 0 then auto proceed;
-            if(order.TotalPrice == 0)
+            if (order.TotalPrice == 0)
             {
                 var proceedOrderCommand = new ProceedOrderCommand(order.Id.Value, order.AccountId.Value);
                 var result = await _sender.Send(proceedOrderCommand);

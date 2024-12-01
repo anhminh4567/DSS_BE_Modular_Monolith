@@ -23,7 +23,7 @@ namespace DiamondShop.Application.Services.Interfaces.DiamondPrices
         List<DiamondPrice> SetPriceToCreate(List<DiamondPriceCreateCacheDto> updateCaches);
         List<DiamondPrice> SetPriceToRemove(List<DiamondPriceDeleteCacheDto> updateCaches);
         List<DiamondCriteria> AddCriteria(List<CreateCriteriaFromRangeCommand> updateCaches);
-        List<DiamondCriteria> UpdateCriteria(List<DeleteCriteriaByRangeCommand> updateCaches);
-        List<DiamondCriteria> DeleteCriteria(List<UpdateDiamondCriteriaRangeCommand> updateCaches);
+        List<DiamondCriteria> UpdateCriteria(List<UpdateDiamondCriteriaRangeCommand> updateCaches); 
+        List<DiamondCriteria> DeleteCriteria(List<DeleteCriteriaByRangeCommand> updateCaches); 
     }
 }

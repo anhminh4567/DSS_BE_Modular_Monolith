@@ -39,5 +39,21 @@ namespace DiamondShop.Api.Controllers.AdminConfigurations
             }
             return Ok(updateResul.Value);
         }
+        [HttpGet("Payment")]
+        public async Task<ActionResult> GetPaymentConfiguration()
+        {
+            var get = await _sender.Send(new GetOrderPaymentRuleConfigurationQuery());
+            return Ok(get.Value);
+        }
+        [HttpPost("Payment")]
+        public async Task<ActionResult> UpdatePaymentConfiguration([FromBody] OrderPaymentRules command)
+        {
+            var updateResul = await _sender.Send(new UpdateOrderPaymentRuleConfigurationCommand(command));
+            if (updateResul.IsFailed)
+            {
+                return MatchError(updateResul.Errors, ModelState);
+            }
+            return Ok(updateResul.Value);
+        }
     }
 }

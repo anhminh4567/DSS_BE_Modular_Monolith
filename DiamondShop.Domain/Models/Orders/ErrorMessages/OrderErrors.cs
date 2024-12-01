@@ -42,5 +42,6 @@ namespace DiamondShop.Domain.Models.Orders.ErrorMessages
                 return new Error("Đơn hàng chưa hoàn thành, " + detail);
             return new Error("Đơn hàng chưa hoàn thành");
         }
+        public static Error LackEvidenceToCompleteDeliver = new Error("Thiếu chứng cứ để hoàn thành giao hàng");
     }
 }

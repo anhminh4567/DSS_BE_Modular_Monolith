@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Common.Carts;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.Promotions;
@@ -25,7 +26,7 @@ namespace DiamondShop.Domain.Services.interfaces
         bool IsProduct(CartProduct item);
         //void SetOrderPrice(CartModel cartModel);
         //void SetShippingPrice(CartModel cartModel, ShippingPrice shippingPrice);
-        Task<Result<CartModel>> ExecuteNormalOrder(List<CartProduct> products,List<Discount> givenDiscount, List<Promotion> givenPromotion, ShippingPrice shipPrice, Account? account);
+        Task<Result<CartModel>> ExecuteNormalOrder(List<CartProduct> products,List<Discount> givenDiscount, List<Promotion> givenPromotion, ShippingPrice shipPrice, Account? account, CartModelRules cartModelRules);
         Task<Result<CartModel>> ExecuteCustomOrder(List<CartProduct> products, List<Discount> givenDiscount, List<Promotion> givenPromotion, ShippingPrice shipPrice, Account? account);
 
         //Task<CartProduct?> FromCartItem(CartItem cartItem, IJewelryRepository _jewelryRepository, IJewelryModelRepository _jewelryModelRepository, IDiamondRepository _diamondRepository);

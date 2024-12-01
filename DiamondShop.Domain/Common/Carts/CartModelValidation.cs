@@ -1,4 +1,6 @@
-﻿namespace DiamondShop.Domain.Common.Carts
+﻿using FluentResults;
+
+namespace DiamondShop.Domain.Common.Carts
 {
     public class CartModelValidation
     {
@@ -23,6 +25,15 @@
                 IsShippingValid = false;
             }
         }
+        public void SetErrorMessage(string message)
+        {
+            MainErrorMessage = MainErrorMessage.Append(message).ToArray();
+        }
+        public void SetErrorMessage(IError predefinedError)
+        {
+            SetErrorMessage(predefinedError.Message);
+        }
+
     }
 
 }

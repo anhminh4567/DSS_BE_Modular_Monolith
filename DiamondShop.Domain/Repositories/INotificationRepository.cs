@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Repositories
 {
-    public interface INofificationRepository : IBaseRepository<Notification> 
+    public interface INotificationRepository : IBaseRepository<Notification> 
     {
         Task<List<Notification>> GetForOrder(Order order);
         Task<List<Notification>> GetForUser(Account account);

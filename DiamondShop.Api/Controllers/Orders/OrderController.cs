@@ -189,12 +189,12 @@ namespace DiamondShop.Api.Controllers.Orders
         #endregion
         [HttpPut("Proceed")]
         [Authorize(Roles = AccountRole.StaffId + "," + AccountRole.DelivererId)]
-        public async Task<ActionResult> ProceedOrder([FromQuery] string orderId)
+        public async Task<ActionResult> ProceedOrder([FromQuery] string orderId, [FromForm] DelivererCompleteOrderRequestDto? delivererCompleteOrder = null)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
             {
-                var result = await _sender.Send(new ProceedOrderCommand(orderId, userId.Value));
+                var result = await _sender.Send(new ProceedOrderCommand(orderId, userId.Value, delivererCompleteOrder));
                 if (result.IsSuccess)
                 {
                     var mappedResult = _mapper.Map<OrderDto>(result.Value);

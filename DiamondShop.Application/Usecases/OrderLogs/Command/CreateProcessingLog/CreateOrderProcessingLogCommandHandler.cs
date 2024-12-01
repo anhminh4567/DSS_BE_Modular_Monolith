@@ -4,10 +4,12 @@ using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Orders;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Models.Notifications;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
+using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using FluentResults;
 using MediatR;
@@ -31,8 +33,10 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Command.CreateProcessingLog
         private readonly IBlobFileServices _blobFileServices;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
         private readonly IOrderFileServices _orderFileServices;
+        private readonly IAccountRepository _accountRepository;
+        private readonly INotificationRepository _notificationRepository;
 
-        public CreateOrderProcessingLogCommandHandler(IUnitOfWork unitOfWork, IOrderRepository orderRepository, IOrderLogRepository orderLogRepository, IBlobFileServices blobFileServices, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderFileServices orderFileServices)
+        public CreateOrderProcessingLogCommandHandler(IUnitOfWork unitOfWork, IOrderRepository orderRepository, IOrderLogRepository orderLogRepository, IBlobFileServices blobFileServices, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderFileServices orderFileServices, IAccountRepository accountRepository, INotificationRepository notificationRepository)
         {
             _unitOfWork = unitOfWork;
             _orderRepository = orderRepository;
@@ -40,6 +44,8 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Command.CreateProcessingLog
             _blobFileServices = blobFileServices;
             _optionsMonitor = optionsMonitor;
             _orderFileServices = orderFileServices;
+            _accountRepository = accountRepository;
+            _notificationRepository = notificationRepository;
         }
 
         public async Task<Result<OrderLog>> Handle(CreateOrderProcessingLogCommand request, CancellationToken cancellationToken)
@@ -58,6 +64,10 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Command.CreateProcessingLog
 
             var processingLog = OrderLog.CreateProcessingLog(getOrder, getProcessingParentLog, request.message);
             await _orderLogRepository.Create(processingLog);
+            await _unitOfWork.SaveChangesAsync();
+            var getUserAccount = await _accountRepository.GetById(getOrder);
+            var notification = Notification.CreateAccountMessage(getOrder, getUserAccount, "đã cập nhật trạng thái đơn của bạn", null);
+            await _notificationRepository.Create(notification);
             await _unitOfWork.SaveChangesAsync();
             if (request.images != null)
             {

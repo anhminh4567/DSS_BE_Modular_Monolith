@@ -141,6 +141,7 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<ILocationRepository,LocationRepository>();
 
             services.AddScoped<IBlogRepository, BlogRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
 
             services.AddSingleton<ICartService, CartService>();
 
@@ -284,6 +285,7 @@ namespace DiamondShop.Infrastructure
             services.Configure<MailOptions>(configuration.GetSection(MailOptions.Section));
             services.Configure<FrontendOptions>(configuration.GetSection(FrontendOptions.Section));
             services.Configure<PublicBlobOptions>(configuration.GetSection(PublicBlobOptions.Section));
+            services.Configure<InAppNotificationOptions>(configuration.GetSection(InAppNotificationOptions.Section));
             // this also exist throughout the app life, but it is configured at the end of dependency injection,
             // allow it to inject other or override settings , also more cleaner moduler code
             services.ConfigureOptions<JwtBearerOptionSetup>();

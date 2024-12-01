@@ -312,5 +312,64 @@ namespace DiamondShop.Test.Domain
             Assert.Equal(userCartModel.OrderPrices.OrderAmountSaved, 0);
             Assert.Equal(userCartModel.OrderPrices.FinalPrice, expectedOrderFinalPrice);
         }
+        [Fact()]
+        public void ApplyPromotionOnCartModel_GiftHaveLimit_ShouldApply_LimitPrice()
+        {
+            // Arrange
+            var shapesIds = _diamondShapes.Select(s => s.Id).ToList();
+
+            var diamontRequirementAmount = 2;
+
+            var diamond1Price = 11000000;
+            var diamond2Price = 15000000;
+            var maxAmount = 500_000m;
+            //var expectedOrderPriceRequirement = diamond1Price + diamond2Price - 5000000;
+            var percent = 90;
+            var expectedPrice = diamond1Price + diamond2Price - maxAmount;
+            var diamond2PriceExpected = diamond2Price - maxAmount;
+            //var expectedDiamondFinalPrice = diamond1Price + diamond2Price - giftODiamondAmountReduced;
+
+            var promotionRequirement1 = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, diamontRequirementAmount, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes);
+            //var promotionRequirement2 = PromoReq.CreateOrderRequirement("test", Operator.Equal_Or_Larger, expectedOrderPriceRequirement);
+
+            var promotionGift = Gift.CreateDiamond("test", null, UnitType.Percent, percent, 1, shapesIds, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D);
+            promotionGift.SetMaxAmount(maxAmount);
+            var promotion = Promotion.Create("test", "test", "test", DateTime.UtcNow, DateTime.UtcNow.AddDays(50), 1, false, RedemptionMode.Single);
+            promotionRequirement1.PromotionId = promotion.Id;
+            //promotionRequirement2.PromotionId = promotion.Id;
+
+            promotionGift.PromotionId = promotion.Id;
+
+            promotion.AddRequirement(promotionRequirement1);
+            //promotion.AddRequirement(promotionRequirement2);
+
+            promotion.AddGift(promotionGift);
+            promotion.SetActive();
+
+            Diamond diamond1 = Diamond.Create(_diamondShapes[0], new Diamond_4C(Cut.Very_Good, Color.I, Clarity.VVS1, 0.5f, true), new Diamond_Details(Polish.Good, Symmetry.Good, Girdle.Medium, Fluorescence.Medium, Culet.Medium), new Diamond_Measurement(2f, 22f, 2f, "whatever"), 1, "asdf");
+            Diamond diamond2 = Diamond.Create(_diamondShapes[1], new Diamond_4C(Cut.Very_Good, Color.I, Clarity.VVS1, 0.3f, true), new Diamond_Details(Polish.Good, Symmetry.Good, Girdle.Medium, Fluorescence.Medium, Culet.Medium), new Diamond_Measurement(2f, 22f, 2f, "whatever 2"), 1, "asdfasdf");
+
+            CartModel userCartModel = new CartModel();
+            CartProduct product1 = new CartProduct() { Diamond = diamond1, ReviewPrice = new CheckoutPrice() { DefaultPrice = diamond1Price } };
+            CartProduct product2 = new CartProduct() { Diamond = diamond2, ReviewPrice = new CheckoutPrice() { DefaultPrice = diamond2Price } };
+            userCartModel.Products.Add(product1);
+            userCartModel.Products.Add(product2);
+            userCartModel.OrderPrices.DefaultPrice = diamond1Price + diamond2Price;
+
+            var promotionService = new PromotionService();
+
+            // Act
+            var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion);
+            var productOrder = userCartModel.Products.OrderByDescending(x => x.ReviewPrice.DiscountPrice).ToList();
+            var hightestProductPrice = productOrder[0];
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Equal(userCartModel.OrderPrices.DefaultPrice, diamond2Price + diamond1Price);
+            //Assert.Equal(userCartModel.OrderPrices.PromotionAmountSaved, giftOrderAmountReduced);
+            Assert.Equal(hightestProductPrice.ReviewPrice.FinalPrice, hightestProductPrice.ReviewPrice.DefaultPrice - maxAmount);
+            Assert.Equal(hightestProductPrice.ReviewPrice.PromotionAmountSaved, maxAmount);
+            Assert.Equal(userCartModel.OrderPrices.OrderAmountSaved, 0);
+            Assert.Equal(userCartModel.OrderPrices.FinalPrice, expectedPrice);
+        }
     }
 }

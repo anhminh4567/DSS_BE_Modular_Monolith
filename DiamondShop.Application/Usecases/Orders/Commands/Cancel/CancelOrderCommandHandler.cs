@@ -1,5 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.Notifications;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
@@ -23,14 +25,16 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
         private readonly IOrderService _orderService;
         private readonly IOrderTransactionService _orderTransactionService;
         private readonly IOrderLogRepository _orderLogRepository;
+        private readonly INotificationRepository _notificationRepository;
 
-        public CancelOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository)
+        public CancelOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository, INotificationRepository notificationRepository)
         {
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
             _orderService = orderService;
             _orderTransactionService = orderTransactionService;
             _orderLogRepository = orderLogRepository;
+            _notificationRepository = notificationRepository;
         }
 
         public async Task<Result<Order>> Handle(CancelOrderCommand request, CancellationToken token)
@@ -58,6 +62,10 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
             await _orderLogRepository.Create(log);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
+
+            var notificationForShop = Notification.CreateShopMessage(order, $"khách hủy đơn hàng #{order.OrderCode} tại thời điểm {order.CancelledDate.Value.ToString(DateTimeFormatingRules.DateTimeFormat)}");
+            await _notificationRepository.Create(notificationForShop);
+            await _unitOfWork.SaveChangesAsync();
             return Result.Ok(order);
         }
     }

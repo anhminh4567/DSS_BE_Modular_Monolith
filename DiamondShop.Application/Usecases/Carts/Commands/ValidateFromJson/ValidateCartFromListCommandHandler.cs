@@ -25,6 +25,8 @@ using DiamondShop.Application.Dtos.Requests.Accounts;
 using System.Numerics;
 using DiamondShop.Application.Services.Interfaces.Deliveries;
 using DiamondShop.Domain.Models.AccountAggregate;
+using Microsoft.Extensions.Options;
+using DiamondShop.Domain.Common;
 
 namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
 {
@@ -40,8 +42,9 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
         private readonly IDeliveryFeeServices _deliveryFeeServices;
         private readonly IAccountRepository _accountRepository;
         private readonly IMapper _mapper;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public ValidateCartFromListCommandHandler(ICartModelService cartModelService, ILocationService locationService, IDeliveryService deliveryService, IDeliveryFeeRepository deliveryFeeRepository, IDiscountRepository discountRepository, IPromotionRepository promotionRepository, IDeliveryFeeServices deliveryFeeServices, IAccountRepository accountRepository, IMapper mapper)
+        public ValidateCartFromListCommandHandler(ICartModelService cartModelService, ILocationService locationService, IDeliveryService deliveryService, IDeliveryFeeRepository deliveryFeeRepository, IDiscountRepository discountRepository, IPromotionRepository promotionRepository, IDeliveryFeeServices deliveryFeeServices, IAccountRepository accountRepository, IMapper mapper, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _cartModelService = cartModelService;
             _locationService = locationService;
@@ -52,6 +55,7 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
             _deliveryFeeServices = deliveryFeeServices;
             _accountRepository = accountRepository;
             _mapper = mapper;
+            _optionsMonitor = optionsMonitor;
         }
 
         public async Task<Result<CartModel>> Handle(ValidateCartFromListCommand request, CancellationToken cancellationToken)
@@ -71,7 +75,7 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
             {
                  getShippingPrice = _deliveryFeeServices.GetShippingPrice(request.items.UserAddress).Result;
             }
-            Result<CartModel> result = await _cartModelService.ExecuteNormalOrder(getProducts, getDiscounts, getPromotion,getShippingPrice,userAccount);
+            Result<CartModel> result = await _cartModelService.ExecuteNormalOrder(getProducts, getDiscounts, getPromotion,getShippingPrice,userAccount,_optionsMonitor.CurrentValue.CartModelRules);
             if (result.IsSuccess)
                 return result.Value;
             return Result.Fail(result.Errors);

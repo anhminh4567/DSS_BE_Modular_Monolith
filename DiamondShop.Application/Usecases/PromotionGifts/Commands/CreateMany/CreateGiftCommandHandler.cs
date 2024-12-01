@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany
 {
     public record DiamondGiftSpec(DiamondOrigin Origin, string[] ShapesIDs, float caratFrom, float caratTo, Clarity clarityFrom, Clarity clarityTo, Cut cutFrom, Cut cutTo, Color colorFrom, Color colorTo);
-    public record GiftSpec(string Name, TargetType TargetType, string? itemId , UnitType UnitType , decimal UnitValue, DiamondGiftSpec? DiamondRequirementSpec, int Amount = 0);
+    public record GiftSpec(string Name, TargetType TargetType, string? itemId , UnitType UnitType , decimal UnitValue, DiamondGiftSpec? DiamondRequirementSpec, int Amount = 0, decimal? maxAmount = null);
     public record CreateGiftCommand(List<GiftSpec> giftSpecs) : IRequest<Result<List<Gift>>>;
     internal class CreateGiftCommandHandler : IRequestHandler<CreateGiftCommand, Result<List<Gift>>>
     {
@@ -49,6 +49,10 @@ namespace DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany
                 {
                     case TargetType.Jewelry_Model:
                         var jewerlyModelGift = Gift.CreateJewelry(gift.Name,gift.itemId,gift.UnitType,gift.UnitValue,gift.Amount);
+                        if(jewerlyModelGift.UnitType == UnitType.Percent && gift.maxAmount != null)
+                        {
+                            jewerlyModelGift.SetMaxAmount(gift.maxAmount.Value);
+                        }
                         gifts.Add(jewerlyModelGift);
                         break;
                     case TargetType.Diamond:
@@ -56,10 +60,18 @@ namespace DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany
                            out Clarity clarityFrom, out var clarityTo, out Cut cutFrom, out var cutTo, out Color colorFrom, out var colorTo);
                         var selectedShape = shapes.Where(x => shapesIDs.Contains(x.Id.Value)).Select(x => x.Id).ToList();
                         var diamondGift = Gift.CreateDiamond(gift.Name, gift.itemId, gift.UnitType, gift.UnitValue, gift.Amount, selectedShape,origin,caratFrom,caratTo,clarityFrom,clarityTo,cutFrom,cutTo,colorFrom,colorTo);
+                        if (diamondGift.UnitType == UnitType.Percent && gift.maxAmount != null)
+                        {
+                            diamondGift.SetMaxAmount(gift.maxAmount.Value);
+                        }
                         gifts.Add(diamondGift);
                         break;
                     case TargetType.Order:
                         var orderGift = Gift.CreateOrder(gift.Name,gift.UnitType,gift.UnitValue);
+                        if (orderGift.UnitType == UnitType.Percent && gift.maxAmount != null)
+                        {
+                            orderGift.SetMaxAmount(gift.maxAmount.Value);
+                        }
                         gifts.Add(orderGift);
                         break;
                     default:

@@ -1,4 +1,6 @@
-﻿using DiamondShop.Application.Services.Interfaces;
+﻿using DiamondShop.Application.Commons.Models;
+using DiamondShop.Application.Commons.Utilities;
+using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Orders;
 using DiamondShop.Domain.Models.AccountAggregate.ErrorMessages;
 using DiamondShop.Domain.Models.Orders;
@@ -17,10 +19,12 @@ using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
 {
-    public record ProceedOrderCommand(string orderId, string? accountId) : IRequest<Result<Order>>;
+    public record DelivererCompleteOrderRequestDto(IFormFile[] confirmImages, IFormFile? confirmVideo); 
+    public record ProceedOrderCommand(string orderId, string? accountId, DelivererCompleteOrderRequestDto? CompleteOrderRequestDto = null) : IRequest<Result<Order>>;
     internal class ProceedOrderCommandHandler : IRequestHandler<ProceedOrderCommand, Result<Order>>
     {
         private readonly IAccountRepository _accountRepository;
@@ -58,7 +62,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
 
         public async Task<Result<Order>> Handle(ProceedOrderCommand request, CancellationToken token)
         {
-            request.Deconstruct(out string orderId, out string? accountId);
+            request.Deconstruct(out string orderId, out string? accountId, out var completeOrderRequestDto);
             await _unitOfWork.BeginTransactionAsync(token);
             var order = await _orderRepository.GetById(OrderId.Parse(orderId));
             var account = await _accountRepository.GetById(order.AccountId);
@@ -145,6 +149,32 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                     return Result.Fail(OrderErrors.OnlyDelivererAllowedError);
                 if (order.PaymentStatus != PaymentStatus.Paid)
                     return Result.Fail(OrderErrors.UnpaidError);
+                if(request.CompleteOrderRequestDto == null)
+                {
+                    return Result.Fail(OrderErrors.LackEvidenceToCompleteDeliver);
+                }
+                List<FileData> images = new();
+                FileData video = null;
+                foreach (var image in request.CompleteOrderRequestDto.confirmImages)
+                {
+                    var fileName = image.FileName.Split('.')[0];
+                    var fileExt = Path.GetExtension(image.FileName).Replace(".","");
+                    if(FileUltilities.IsImageFileContentType(image.ContentType) == false)
+                        return Result.Fail(FileUltilities.Errors.NotCorrectImageFileType);
+                    images.Add(new FileData(fileName,fileExt,image.ContentType,image.OpenReadStream()));
+                }
+                if(images.Count> 0)
+                    await _orderFileServices.SaveOrderConfirmDeliveryImage(order,images);
+                if (request.CompleteOrderRequestDto.confirmVideo != null)
+                {
+                    var videoFile = request.CompleteOrderRequestDto.confirmVideo;
+                    var fileName = videoFile.FileName.Split('.')[0];
+                    var fileExt = Path.GetExtension(videoFile.FileName).Replace(".", "");
+                    if (FileUltilities.IsVideoFileContentType(videoFile.ContentType) == false)
+                        return Result.Fail(FileUltilities.Errors.NotCorrectFileType("bằng chứng video thì là file mp4"));
+                    video = new FileData(fileName, fileExt, videoFile.ContentType, videoFile.OpenReadStream());
+                    await _orderFileServices.SaveOrderConfirmVideo(order, video);
+                }
                 var items = order.Items;
                 foreach (var item in items)
                 {

@@ -129,7 +129,10 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 //TODO: Calculate in case of second order 
                 transactions = order.Transactions
-                     .Where(p => p.TransactionType == TransactionType.Pay).ToList();
+                     .Where(p => p.TransactionType == TransactionType.Pay 
+                     || p.TransactionType == TransactionType.Pay_Remain
+                     || p.TransactionType == TransactionType.Deposit)
+                     .Where(p => p.Status == TransactionStatus.Valid).ToList();
                 var transaction = transactions.FirstOrDefault();
                 if (transaction == null)
                     throw new Exception("No transaction found");
@@ -137,7 +140,8 @@ namespace DiamondShop.Domain.Services.Implementations
                 bool isDeposit = order.PaymentStatus == PaymentStatus.Deposited;
                 if (isDeposit)
                 {
-                    refundAmount = transactions.Sum(p => p.TotalAmount);
+                    var totalPaid = transactions.Sum(p => p.TotalAmount);
+                    refundAmount = totalPaid;//transactions.Sum(p => p.TotalAmount);
                     finedAmount = 0;
                 }
                 else
@@ -145,7 +149,8 @@ namespace DiamondShop.Domain.Services.Implementations
                     var totalPaid = transactions.Sum(p => p.TotalAmount);
                     refundAmount = totalPaid;
                     refundAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(refundAmount);
-                    finedAmount = refundAmount - totalPaid;
+                    order.TotalFine = 0;//+= totalPaid - refundAmount;
+                    finedAmount = 0;//refundAmount - totalPaid;
                 }
                 var transac = Transaction.CreateManualRefund(order.Id, VerifierId, TransactionCode, $"Manual refund for order#{order.OrderCode}", refundAmount);
                 order.AddRefund(transac);
@@ -178,7 +183,9 @@ namespace DiamondShop.Domain.Services.Implementations
                 if (isDeposit)
                 {
                     // day la so am do Total = amount - fine ==> de total > 0 thi fine < 0
-                    finedAmount = -transactions.Sum(p => p.TotalAmount);
+                    var totalPaid = transactions.Sum(p => p.TotalAmount);
+                    finedAmount = 0;// -transactions.Sum(p => p.TotalAmount);
+                    order.TotalFine += totalPaid;
                     refundAmount = 0; // lay luon coc neu bi phat
                 }
                 else
@@ -186,10 +193,18 @@ namespace DiamondShop.Domain.Services.Implementations
                     var totalPaid = transactions.Sum(p => p.TotalAmount);
                     refundAmount = totalPaid * (1m - 0.01m * OrderPaymentRules.Default.PayAllFine);
                     refundAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(refundAmount);
-                    finedAmount = -(refundAmount - totalPaid);
+                    order.TotalFine += totalPaid - refundAmount;
+                    finedAmount = 0;
+                    //finedAmount = -(refundAmount - totalPaid);
                 }
                 var transac = Transaction.CreateManualRefund(order.Id,VerifierId, TransactionCode, $"hoàn tiền cho đơn hàng mã #{order.OrderCode}", refundAmount);
                 order.AddRefund(transac);
+                if(transac.TransactionAmount == 0)
+                {
+                    transac.Status = TransactionStatus.Valid;
+                    transac.Description = "Không hoàn tiền do dat coc";
+                    order.PaymentStatus = PaymentStatus.Refunded;
+                }
             }else
             {
                 order.PaymentStatus = PaymentStatus.Refunded;

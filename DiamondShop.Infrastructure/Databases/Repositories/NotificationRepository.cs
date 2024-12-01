@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Databases.Repositories
 {
-    internal class NotificationRepository : BaseRepository<Notification>, INofificationRepository
+    internal class NotificationRepository : BaseRepository<Notification>, INotificationRepository
     {
         public NotificationRepository(DiamondShopDbContext dbContext) : base(dbContext)
         {

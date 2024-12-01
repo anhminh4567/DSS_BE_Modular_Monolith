@@ -91,5 +91,14 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
             query = query.Where(p => p.Items.Any(k => k.JewelryId != null));
             return query.AsSplitQuery();
         }
+
+        public Task<List<Order>> GetUserProcessingOrders(Account customerAccounts)
+        {
+            return _set.Where(x => x.AccountId == customerAccounts.Id 
+            && x.Status != OrderStatus.Success
+            && x.Status != OrderStatus.Rejected 
+            && x.Status != OrderStatus.Cancelled)
+                .ToListAsync();
+        }
     }
 }

@@ -14,6 +14,7 @@ using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.RoleAggregate;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
+using DiamondShop.Domain.Common.Carts.ErrorMessages;
 
 namespace DiamondShop.Domain.Common.Carts
 {
@@ -32,6 +33,12 @@ namespace DiamondShop.Domain.Common.Carts
         {
             OrderValidation.SetErrorMessageInTheEnd(ShippingPrice);
         }
+        public void ValidateCartRules(CartModelRules cartModelRules)
+        {
+            if(cartModelRules.MaxItemPerCart < Products.Count)
+                OrderValidation.SetErrorMessage(CartModelErrors.TooManyItems(cartModelRules.MaxItemPerCart));
+        }
+        
         public void SetOrderShippingPrice(ShippingPrice shipping)
         {
             ShippingPrice = shipping;

@@ -18,6 +18,8 @@ using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using Microsoft.AspNetCore.Http;
 using DiamondShop.Domain.Models.Orders.ErrorMessages;
+using DiamondShop.Domain.Repositories;
+using DiamondShop.Domain.Models.Notifications;
 
 namespace DiamondShop.Application.Usecases.OrderLogs.Command.CreateDeliveryLog
 {
@@ -30,8 +32,10 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Command.CreateDeliveryLog
         private readonly IBlobFileServices _blobFileServices;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
         private readonly IOrderFileServices _orderFileServices;
+        private readonly INotificationRepository _notificationRepository;
+        private readonly IAccountRepository _accountRepository;
 
-        public CreateOrderDeliveryLogCommandHandler(IUnitOfWork unitOfWork, IOrderRepository orderRepository, IOrderLogRepository orderLogRepository, IBlobFileServices blobFileServices, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderFileServices orderFileServices)
+        public CreateOrderDeliveryLogCommandHandler(IUnitOfWork unitOfWork, IOrderRepository orderRepository, IOrderLogRepository orderLogRepository, IBlobFileServices blobFileServices, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderFileServices orderFileServices, INotificationRepository notificationRepository, IAccountRepository accountRepository)
         {
             _unitOfWork = unitOfWork;
             _orderRepository = orderRepository;
@@ -39,6 +43,8 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Command.CreateDeliveryLog
             _blobFileServices = blobFileServices;
             _optionsMonitor = optionsMonitor;
             _orderFileServices = orderFileServices;
+            _notificationRepository = notificationRepository;
+            _accountRepository = accountRepository;
         }
 
         public async Task<Result<OrderLog>> Handle(CreateOrderDeliveryLogCommand request, CancellationToken cancellationToken)
@@ -57,6 +63,10 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Command.CreateDeliveryLog
 
             var deliveringLog = OrderLog.CreateDeliveringLog(getOrder, getDeliveringParentLog, request.message);
             await _orderLogRepository.Create(deliveringLog);
+            await _unitOfWork.SaveChangesAsync();
+            var getUserAccount = await _accountRepository.GetById(getOrder);
+            var notification = Notification.CreateAccountMessage(getOrder, getUserAccount, "người giao đã cập nhật trạng thái đơn của bạn",null);
+            await _notificationRepository.Create(notification);
             await _unitOfWork.SaveChangesAsync();
             if (request.images != null)
             {

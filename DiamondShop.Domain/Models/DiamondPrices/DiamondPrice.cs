@@ -99,6 +99,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices
             if(price <= 1000)
                 throw new Exception();
             Price = price;
+            UpdatedAt = DateTime.UtcNow;
         }
         private DiamondPrice() { }
     }

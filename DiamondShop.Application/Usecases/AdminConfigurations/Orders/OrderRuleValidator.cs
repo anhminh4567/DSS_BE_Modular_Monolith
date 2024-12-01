@@ -15,6 +15,16 @@ namespace DiamondShop.Application.Usecases.AdminConfigurations.Orders
                 .ValidNumberFraction();
             RuleFor(x => x.MaxOrderAmountForFullPayment).GreaterThan(1000).WithGreaterThanMessage()
                 .ValidNumberFraction();
+            RuleFor(x => x.DaysWaitForCustomerToPay).NotNull().WithNotEmptyMessage()
+                .GreaterThan(0)
+                    .WithGreaterThanMessage()
+                .LessThan(60)
+                    .WithLessThanMessage();
+            RuleFor(x => x.MaxOrderAmountForCustomerToPlace).NotNull().WithNotEmptyMessage()
+                .GreaterThan(0)
+                    .WithGreaterThanMessage()
+                .LessThan(50)
+                    .WithLessThanMessage();
         }
     }
 }

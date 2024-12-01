@@ -32,6 +32,48 @@ namespace DiamondShop.Domain.Models.Notifications
         [NotMapped]
         public bool IsPublicMessages => AccountId == null && OrderId == null;
         public Notification() { }
-
+        public static Notification CreateShopMessage(Order? forOrder, string message, string? contentType = null)
+        {
+            return new Notification
+            {
+                Id = NotificationId.Create(),
+                AccountId = null,
+                OrderId = forOrder?.Id,
+                Content = message,
+                ContentType = contentType,
+                CreatedDate = DateTime.UtcNow,
+                IsRead = false,
+            };
+        }
+        public static Notification CreateAccountMessage(Order? forOrder, Account anyAccount, string message, string? contentType)
+        {
+            return new Notification
+            {
+                Id = NotificationId.Create(),
+                AccountId = anyAccount.Id,
+                OrderId = forOrder?.Id,
+                Content = message,
+                ContentType = contentType,
+                CreatedDate = DateTime.UtcNow,
+                IsRead = false,
+            };
+        }
+        public static Notification CreatePublicMessage(string message, string? contentType)
+        {
+            return new Notification
+            {
+                Id = NotificationId.Create(),
+                AccountId = null,
+                OrderId = null,
+                Content = message,
+                ContentType = contentType,
+                CreatedDate = DateTime.UtcNow,
+                IsRead = false,
+            };
+        }
+        public void Read()
+        {
+            IsRead = true;
+        }
     }
 }

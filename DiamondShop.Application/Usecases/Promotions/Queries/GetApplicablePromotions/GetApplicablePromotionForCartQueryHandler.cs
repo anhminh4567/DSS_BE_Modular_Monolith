@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Carts;
 using DiamondShop.Application.Dtos.Responses.Promotions;
 using DiamondShop.Application.Services.Interfaces.Deliveries;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
@@ -14,6 +15,7 @@ using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MapsterMapper;
 using MediatR;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -34,8 +36,9 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromo
         private readonly IDeliveryFeeServices _deliveryFeeServices;
         private readonly IMapper _mapper;
         private readonly IAccountRepository _accountRepository;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public GetApplicablePromotionForCartQueryHandler(IPromotionRepository promotionRepository, IDiscountRepository discountRepository, IPromotionServices promotionServices, ICartModelService cartModelService, IDeliveryFeeServices deliveryFeeServices, IMapper mapper, IAccountRepository accountRepository)
+        public GetApplicablePromotionForCartQueryHandler(IPromotionRepository promotionRepository, IDiscountRepository discountRepository, IPromotionServices promotionServices, ICartModelService cartModelService, IDeliveryFeeServices deliveryFeeServices, IMapper mapper, IAccountRepository accountRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _promotionRepository = promotionRepository;
             _discountRepository = discountRepository;
@@ -44,6 +47,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromo
             _deliveryFeeServices = deliveryFeeServices;
             _mapper = mapper;
             _accountRepository = accountRepository;
+            _optionsMonitor = optionsMonitor;
         }
 
         public async Task<Result<ApplicablePromotionDto>> Handle(GetApplicablePromotionForCartQuery request, CancellationToken cancellationToken)
@@ -67,7 +71,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromo
                 getShippingPrice = _deliveryFeeServices.GetShippingPrice(request.CartRequestDto.UserAddress).Result;
             }
             // this step is to get the promotion 
-            Result<CartModel> result = await _cartModelService.ExecuteNormalOrder(getProducts, getDiscounts, emptyPromo, getShippingPrice, userAccount);
+            Result<CartModel> result = await _cartModelService.ExecuteNormalOrder(getProducts, getDiscounts, emptyPromo, getShippingPrice, userAccount, _optionsMonitor.CurrentValue.CartModelRules);
             if (result.IsFailed)
                 return response;
             CartModel cartModel = result.Value;

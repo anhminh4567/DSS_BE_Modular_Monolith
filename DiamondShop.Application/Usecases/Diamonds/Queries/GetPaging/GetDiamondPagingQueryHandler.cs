@@ -150,7 +150,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             List<Diamond> trueResult = new();
             var result = query.ToList();
 
-          
+            
 
             foreach (var diamond in result)
             {
