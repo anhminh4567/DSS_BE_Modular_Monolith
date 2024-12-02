@@ -59,7 +59,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDiamondPricesComp
             //result.Diamond = _mapper.Map<DiamondDto>(fakeDiamond);
             result.CorrectPrice = fakeDiamond.TruePrice;
             result.CurrentGivenOffset = request.priceOffset;
-            if (getPrice.ForUnknownPrice != null)//price is known{
+            if (getPrice.ForUnknownPrice == null)//price is known{
             {
                 result.IsPriceKnown = true;
                 result.Message = "Đã biết rõ giá, có thể so sánh với giá hiện tại";
