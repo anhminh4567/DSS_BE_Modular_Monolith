@@ -27,5 +27,11 @@ namespace DiamondShop.Domain.Models.Transactions.ErrorMessages
             public static Error RefundRefused = new Error("Yêu cầu hoàn tiền bị từ chối");
             public static Error RefundNotValidData = new Error("Dữ liệu yêu cầu hoàn tiền không hợp lệ");
         }
+        public class TransferError
+        {
+            public static NotFoundError EvidenceNotFoundError = new NotFoundError("Không tìm thấy bằng chứng giao dịch cũ");
+            public static ValidationError VerifiedError = new ValidationError("Giao dịch đã được xử lý");
+            public static ValidationError EvidenceUnchangableError = new ValidationError("Không thể thay đổi bằng chứng giao dịch");
+        }
     }
 }
