@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.DataProtection.KeyManagement.Internal;
 
 namespace DiamondShop.Domain.Repositories
 {
-    public record DeleteManyParameter(DiamondShapeId DiamondShapeId, DiamondCriteriaId CriteriaId);
+    public record DeleteManyParameter(DiamondShapeId DiamondShapeId, DiamondCriteriaId CriteriaId, Cut? Cut, Color Color, Clarity Clarity);
     public interface IDiamondPriceRepository : IBaseRepository<DiamondPrice>
     {
         Task<List<DiamondPrice>> GetPriceByCriteria(DiamondCriteriaId diamondCriteriaId, bool? isLabDiamond = null, CancellationToken token = default);
@@ -22,7 +22,7 @@ namespace DiamondShop.Domain.Repositories
         Task<List<DiamondPrice>> GetSideDiamondPrice(bool isLabDiamond,CancellationToken token = default);
         //bool isFancyShape,
         Task<List<DiamondPrice>> GetSideDiamondPriceByAverageCarat( bool isLabDiamond, float avgCarat, CancellationToken token = default);
-        Task<Result> DeleteMany(List<DeleteManyParameter> parameters , bool Islab, bool IsSide, CancellationToken cancellationToken = default);
+        Task<Result> DeleteMany(List<DiamondPriceId> priceIds,DiamondShape shape, bool Islab, bool IsSide, CancellationToken cancellationToken = default);
         void RemoveAllCache();
 
     }

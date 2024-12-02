@@ -164,7 +164,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                     .Where(d => d.ShapeId == getShape.Id && d.IsSideDiamond == false)
                     .Include(d => d.DiamondPrices)
                     .SelectMany(d => d.DiamondPrices)
-                    .Where(dp => dp.IsLabDiamond == isLabDiamond && dp.Criteria.Cut == tobeComparedCut)
+                    .Where(dp => dp.IsLabDiamond == isLabDiamond && dp.Cut == tobeComparedCut)
                     .Include(dp => dp.Criteria)
                     .AsSplitQuery()
                     .ToListAsync();
@@ -208,17 +208,17 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             //}
         }
         //dangerous function, make sure no field is null !!!
-        public async Task<Result> DeleteMany(List<DeleteManyParameter> parameters, bool Islab, bool IsSide, CancellationToken cancellationToken = default)
+        public async Task<Result> DeleteMany(List<DiamondPriceId> priceIds,DiamondShape shape, bool Islab, bool IsSide, CancellationToken cancellationToken = default)
         {
-            var getCriteria = parameters.Select(x => x.CriteriaId).ToList();
-            var getShape = parameters.Select(x => x.DiamondShapeId).ToList();
+            //var getCriteria = parameters.Select(x => x.CriteriaId).ToList();
+            //var getShape = parameters.Select(x => x.DiamondShapeId).ToList();
             List<DiamondPrice> getResult = new List<DiamondPrice>();
             if (IsSide == false)
             {
                 //getResult = await _set.IgnoreQueryFilters()
                 //.Where(x => getCriteria.Contains(x.CriteriaId) && x.IsLabDiamond == Islab && x.IsSideDiamond == false && getShape.Contains(x.ShapeId))
                 //.ToListAsync();
-                getResult = await _dbContext.DiamondCriteria.Where(d => getCriteria.Contains(d.Id) && getShape.Contains(d.ShapeId) && d.IsSideDiamond == false)
+                getResult = await _dbContext.DiamondCriteria.Where(d => d.ShapeId == shape.Id && d.IsSideDiamond == false)
                     .Include(d => d.DiamondPrices)
                     .SelectMany(d => d.DiamondPrices)
                     .Where(dp => dp.IsLabDiamond == Islab)
@@ -231,7 +231,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                 //getResult = await _set.IgnoreQueryFilters()
                 //.Where(x => getCriteria.Contains(x.CriteriaId) && x.IsLabDiamond == Islab && x.IsSideDiamond == true && getShape.Contains(x.ShapeId))
                 //.ToListAsync();
-                getResult = await _dbContext.DiamondCriteria.Where(d => getCriteria.Contains(d.Id) && getShape.Contains(d.ShapeId) && d.IsSideDiamond == true)
+                getResult = await _dbContext.DiamondCriteria.Where(d => d.ShapeId == shape.Id && d.IsSideDiamond == true)
                     .Include(d => d.DiamondPrices)
                     .SelectMany(d => d.DiamondPrices)
                     .Where(dp => dp.IsLabDiamond == Islab)
@@ -242,9 +242,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
 
             if (getResult == null || getResult.Count == 0)
                 return Result.Fail("no diamond price found for this criteria");
-            var getCorrectPrice = getResult; //getResult.Where(x => getShape.Any(s => s == x.ShapeId)).ToList();
+            var getCorrectPrice = getResult.Where(x => priceIds.Contains(x.Id)); //getResult.Where(x => getShape.Any(s => s == x.ShapeId)).ToList();
             _set.RemoveRange(getCorrectPrice);
-            getShape.ForEach(x => RemoveAllKey(x));
+            //getShape.ForEach(x => RemoveAllKey(x));
+            RemoveAllKey(shape.Id);
             return Result.Ok();
         }
 

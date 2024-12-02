@@ -17,18 +17,18 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
                 //RuleFor(c => c.Cut).IsInEnum();
                 //RuleFor(c => c.Color).IsInEnum();
                 //RuleFor(c => c.Clarity).IsInEnum();
-                When(x => x.Color != null,() =>
-                {
-                    RuleFor(c => c.Color).IsInEnum().WithIsInEnumMessage();
-                });
-                When(x => x.Clarity != null, () =>
-                {
-                    RuleFor(c => c.Clarity).IsInEnum().WithIsInEnumMessage();
-                });
-                When(x => x.Cut != null, () =>
-                {
-                    RuleFor(c => c.Cut).IsInEnum().WithIsInEnumMessage();
-                });
+                //When(x => x.Color != null,() =>
+                //{
+                //    RuleFor(c => c.Color).IsInEnum().WithIsInEnumMessage();
+                //});
+                //When(x => x.Clarity != null, () =>
+                //{
+                //    RuleFor(c => c.Clarity).IsInEnum().WithIsInEnumMessage();
+                //});
+                //When(x => x.Cut != null, () =>
+                //{
+                //    RuleFor(c => c.Cut).IsInEnum().WithIsInEnumMessage();
+                //});
                 RuleFor(c => c.CaratFrom).NotEmpty().
                         WithNotEmptyMessage()
                     .GreaterThan(0)

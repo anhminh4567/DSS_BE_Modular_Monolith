@@ -45,7 +45,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
             var parsedShapeId = DiamondShapeId.Parse(request.shapeId);
             var getShapes = await _diamondShapeRepository.GetAllIncludeSpecialShape();
             correctShape = getShapes.FirstOrDefault(s => s.Id == parsedShapeId);
-            if(request.IsSideDiamond)
+            if (request.IsSideDiamond)
                 correctShape = getShapes.FirstOrDefault(s => s.Id == DiamondShape.ANY_SHAPES.Id);
             if (correctShape is null)
                 return Result.Fail(DiamondShapeErrors.NotFoundError);
@@ -53,11 +53,11 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
 
             await _unitOfWork.BeginTransactionAsync();
 
-           
+
             if (correctShape is null)
                 return Result.Fail(new NotFoundError());
 
-            var mappedListPrice = request.listPrices.Select(x => new { CriteriaId = DiamondCriteriaId.Parse(x.DiamondCriteriaId), Price = MoneyVndRoundUpRules.RoundAmountFromDecimal(x.price) });
+            var mappedListPrice = request.listPrices.Select(x => new { CriteriaId = DiamondCriteriaId.Parse(x.DiamondCriteriaId), Price = MoneyVndRoundUpRules.RoundAmountFromDecimal(x.price), cut = x.cut, color = x.Color, clarity = x.Clarity });
             var mappedCriteria = mappedListPrice.Select(x => x.CriteriaId).ToList();
             getCriteria = await _diamondCriteriaRepository.GetCriteriasByManyId(mappedCriteria);
             foreach (var price in mappedListPrice)
@@ -67,15 +67,23 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
                     var tryGetCriteria = getCriteria.FirstOrDefault(c => c.Id == price.CriteriaId && c.IsSideDiamond == false);
                     if (tryGetCriteria is null)
                         return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.NotFoundError);
-                    var newPrice = DiamondPrice.Create(correctShape.Id, tryGetCriteria.Id, price.Price, request.IsLabDiamond);
+                    DiamondPrice newPrice = null;
+                    if (correctShape.IsFancy())
+                        newPrice = DiamondPrice.Create(correctShape.Id, tryGetCriteria.Id, price.Price, request.IsLabDiamond, null, price.color, price.clarity);
+                    else
+                    {
+                        if (price.cut == null)
+                            throw new Exception("round cần có cut , shape còn lại thì ko");
+                        newPrice = DiamondPrice.Create(correctShape.Id, tryGetCriteria.Id, price.Price, request.IsLabDiamond, price.cut, price.color, price.clarity);
+                    }
                     await _diamondPriceRepository.Create(newPrice);
                 }
                 else
-                { 
+                {
                     var tryGetCriteria = getCriteria.FirstOrDefault(c => c.Id == price.CriteriaId && c.IsSideDiamond == true);
                     if (tryGetCriteria is null)
                         return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.NotFoundError);
-                    var newPrice = DiamondPrice.CreateSideDiamondPrice(tryGetCriteria.Id, price.Price, request.IsLabDiamond,correctShape);
+                    var newPrice = DiamondPrice.CreateSideDiamondPrice(tryGetCriteria.Id, price.Price, request.IsLabDiamond, correctShape, null, price.color, price.clarity);
                     await _diamondPriceRepository.Create(newPrice);
                 }
             }

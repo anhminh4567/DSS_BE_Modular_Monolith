@@ -49,8 +49,8 @@ namespace DiamondShop.Test.Integration
                 {
                     CaratFrom = 0.00001f,
                     CaratTo = 3f,
-                    Clarity = Clarity.IF,
-                    Color = Color.K
+                    //Clarity = Clarity.IF,
+                    //Color = Color.K
                 }
             };
             var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(criteriaRequestDtos,"99",true));
@@ -62,7 +62,7 @@ namespace DiamondShop.Test.Integration
             Assert.NotNull(criteria);
             List<DiamondPriceRequestDto> priceRequestDtos = new()
             {
-                new(criteria.Id.Value,100000m),
+                new(criteria.Id.Value,100000m,null, Color.K,Clarity.IF),
             };
             var priceResult = await _sender.Send(new CreateManyDiamondPricesCommand(priceRequestDtos,diamond.ShapeId.Value,false,true));
             if (priceResult.IsFailed)
@@ -147,9 +147,9 @@ namespace DiamondShop.Test.Integration
             Assert.NotNull(pendingRequest.DiamondRequests);
             var diamondReq = pendingRequest.DiamondRequests[0];
             Assert.NotNull(diamondReq);
-            var criteria = await TestData.SeedDefaultDiamondCriteria(_context, diamond.Cut,diamond.Clarity,diamond.Color,diamond.IsLabDiamond);
+            var criteria = await TestData.SeedDefaultDiamondCriteria(_context, diamond.IsLabDiamond);//diamond.Cut,diamond.Clarity,diamond.Color,
             Assert.NotNull(criteria);
-            var price = await TestData.SeedDefaultDiamondPrice(_context, diamond.DiamondShapeId,criteria.Id,diamond.IsLabDiamond);
+            var price = await TestData.SeedDefaultDiamondPrice(_context, diamond.DiamondShapeId, criteria.Id, diamond.IsLabDiamond, diamond.Cut, diamond.Clarity, diamond.Color);
             Assert.NotNull(price);
             DiamondRequestAssignRecord record = new(diamondReq.DiamondRequestId.Value, diamond.Id.Value, null);
             var pricedResult = await _sender.Send(new StaffProceedCustomizeRequestCommand(pendingRequest.Id.Value, null, new() { record }));

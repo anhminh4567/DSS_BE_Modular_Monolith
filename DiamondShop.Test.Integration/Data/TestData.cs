@@ -238,16 +238,16 @@ namespace DiamondShop.Test.Integration.Data
         #endregion
 
         #region DiamondCriteria
-        public static DiamondCriteria DefaultDiamondCriteria(Cut? cut, Clarity clarity, Color color, bool isLab)
-        => DiamondCriteria.Create(cut.Value, clarity, color, 0f, 3f, DiamondShape.ROUND);
+        public static DiamondCriteria DefaultDiamondCriteria( bool isLab)
+        => DiamondCriteria.Create( 0f, 3f, DiamondShape.ROUND);//Cut? cut, Clarity clarity, Color color,
         static async Task SeedingCriteria(DiamondShopDbContext _context, DiamondCriteria criteria)
         {
             _context.Set<DiamondCriteria>().AddRange(criteria);
             await _context.SaveChangesAsync();
         }
-        public static async Task<DiamondCriteria> SeedDefaultDiamondCriteria(DiamondShopDbContext _context, Cut? cut, Clarity clarity, Color color, bool isLab)
+        public static async Task<DiamondCriteria> SeedDefaultDiamondCriteria(DiamondShopDbContext _context, bool isLab)//, Cut? cut, Clarity clarity, Color color
         {
-            var criteria = DefaultDiamondCriteria(cut, clarity, color, isLab);
+            var criteria = DefaultDiamondCriteria( isLab);//cut, clarity, color
             await SeedingCriteria(_context, criteria);
             return criteria;
         }
@@ -259,24 +259,24 @@ namespace DiamondShop.Test.Integration.Data
         //}
         #endregion
         #region DiamondPrice
-        public static DiamondPrice DefaultDiamondPrice(DiamondShapeId shapeId, DiamondCriteriaId criteriaId, bool isLab) =>
-            DiamondPrice.Create(shapeId, criteriaId, 100_000_000M, isLab);
-        public static DiamondPrice DefaultSideDiamondPrice(DiamondCriteriaId criteriaId) =>
-            DiamondPrice.Create(DiamondShape.ANY_SHAPES.Id, criteriaId, 100_000_000M, false);
+        public static DiamondPrice DefaultDiamondPrice(DiamondShapeId shapeId, DiamondCriteriaId criteriaId, bool isLab,Cut? cut, Clarity clarity, Color color) =>
+            DiamondPrice.Create(shapeId, criteriaId, 100_000_000M, isLab,cut,color,clarity);
+        public static DiamondPrice DefaultSideDiamondPrice(DiamondCriteriaId criteriaId, Cut? cut, Clarity clarity, Color color) =>
+            DiamondPrice.CreateSideDiamondPrice(criteriaId, 100_000_000M, false, DiamondShape.ANY_SHAPES, null , color,clarity );
         static async Task SeedingPrice(DiamondShopDbContext _context, DiamondPrice price)
         {
             _context.Set<DiamondPrice>().AddRange(price);
             await _context.SaveChangesAsync();
         }
-        public static async Task<DiamondPrice> SeedDefaultDiamondPrice(DiamondShopDbContext _context, DiamondShapeId shapeId, DiamondCriteriaId criteriaId, bool isLab)
+        public static async Task<DiamondPrice> SeedDefaultDiamondPrice(DiamondShopDbContext _context, DiamondShapeId shapeId, DiamondCriteriaId criteriaId, bool isLab, Cut? cut, Clarity clarity, Color color)
         {
-            var price = DefaultDiamondPrice(shapeId, criteriaId, isLab);
+            var price = DefaultDiamondPrice(shapeId, criteriaId, isLab,cut,clarity,color);
             await SeedingPrice(_context, price);
             return price;
         }
-        public static async Task<DiamondPrice> SeedSideDiamondPrice(DiamondShopDbContext _context, DiamondCriteriaId criteriaId)
+        public static async Task<DiamondPrice> SeedSideDiamondPrice(DiamondShopDbContext _context, DiamondCriteriaId criteriaId, Cut? cut, Clarity clarity, Color color)
         {
-            var price = DefaultSideDiamondPrice(criteriaId);
+            var price = DefaultSideDiamondPrice(criteriaId,cut,clarity,color);
             await SeedingPrice(_context, price);
             return price;
         }

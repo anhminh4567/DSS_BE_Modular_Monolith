@@ -25,9 +25,9 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
 
         }
 
-        public async Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableCaratRange(DiamondShape diamondShape, Cut? cut, CancellationToken cancellationToken = default)
+        public async Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableCaratRange(DiamondShape diamondShape, CancellationToken cancellationToken = default)
         {
-            Cut? tobeComparedCut = cut;
+            Cut? tobeComparedCut = null;
             bool isfancyShape = diamondShape.IsFancy();
             if (isfancyShape)
                 tobeComparedCut = null;
@@ -50,7 +50,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             //    return result.Select(result => (result.CaratFrom, result.CaratTo)).ToList();
             //}
 
-            var result = await _set.Where(x => x.IsSideDiamond == false && x.Cut == tobeComparedCut && x.ShapeId == diamondShape.Id)
+            var result = await _set.Where(x => x.IsSideDiamond == false && x.ShapeId == diamondShape.Id)
                 .GroupBy(x => new { x.CaratFrom, x.CaratTo })
                 .Select(x => x.Key)
                 .ToListAsync();
@@ -67,19 +67,19 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             return result.Select(result => (result.CaratFrom, result.CaratTo)).ToList();
         }
 
-        public async Task<Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>>> GroupAllAvailableCriteria(DiamondShape diamondShape, Cut? cut, CancellationToken cancellationToken)
+        public async Task<Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>>> GroupAllAvailableCriteria(DiamondShape diamondShape, CancellationToken cancellationToken)
         {
-            Cut? tobeComparedCut = cut;
+            Cut? tobeComparedCut = null;
             bool isFancyShape = diamondShape.IsFancy();
             if (isFancyShape)
                 tobeComparedCut = null;
-            
+
             else
-                if (tobeComparedCut == null)
-                    throw new Exception("cut is required for round shape, only fancy shape need not provide cut");
+                if (tobeComparedCut == null) { }
+                    //throw new Exception("cut is required for round shape, only fancy shape need not provide cut");
             
             var result = await _set
-               .Where(x => x.IsSideDiamond == false && x.Cut == tobeComparedCut && x.ShapeId == diamondShape.Id) // Filtering if necessary
+               .Where(x => x.IsSideDiamond == false && x.ShapeId == diamondShape.Id) // Filtering if necessary
                .GroupBy(x => new { x.CaratFrom, x.CaratTo }) // Group by CaratFrom
                .ToDictionaryAsync(
                    group => (group.Key.CaratFrom, group.Key.CaratTo), // Key is the CaratFrom value

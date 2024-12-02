@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromRange
 {
-    public record CreateCriteriaFromRangeCommand(float caratFrom, float caratTo,string diamondShapeId, bool IsSideDiamond = false) : IRequest<Result<List<DiamondCriteria>>>;
+    public record CreateCriteriaFromRangeCommand(float caratFrom, float caratTo, string diamondShapeId, bool IsSideDiamond = false) : IRequest<Result<List<DiamondCriteria>>>;
     internal class CreateCriteriaFromRangeCommandHandler : IRequestHandler<CreateCriteriaFromRangeCommand, Result<List<DiamondCriteria>>>
     {
         private readonly IDiamondCriteriaRepository _diamondCriteriaRepository;
@@ -53,29 +53,29 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
                 if (getShape is null)
                     return Result.Fail("Shape not found");
                 bool isFancyShape = DiamondShape.IsFancyShape(getShape.Id);
-                if(isFancyShape)
-                    allAvailableCaratRangeForThisShape = await _diamondCriteriaRepository.GroupAllAvailableCaratRange(getShape, null, cancellationToken);
-                else
-                {
-                    foreach(Cut cut in CutHelper.GetCutList())
-                    {
-                        var result = await _diamondCriteriaRepository.GroupAllAvailableCaratRange(getShape, cut, cancellationToken);
-                        allAvailableCaratRangeForThisShape.AddRange(result);
-                    }
-                }
+                //if(isFancyShape)
+                allAvailableCaratRangeForThisShape = await _diamondCriteriaRepository.GroupAllAvailableCaratRange(getShape, cancellationToken);
+                //else
+                //{
+                //    foreach(Cut cut in CutHelper.GetCutList())
+                //    {
+                //var result = await _diamondCriteriaRepository.GroupAllAvailableCaratRange(getShape, cancellationToken);
+                //allAvailableCaratRangeForThisShape.AddRange(result);
+                //}
+                //}
 
             }
             else
             {
                 allAvailableCaratRangeForThisShape = await _diamondCriteriaRepository.GroupAllAvailableSideDiamondCaratRange(cancellationToken);
                 getShape = getAllShape.FirstOrDefault(s => s.Id == DiamondShape.ANY_SHAPES.Id);
-                if(getShape is null)
+                if (getShape is null)
                     return Result.Fail("Shape not found");
             }
             var orderedRange = allAvailableCaratRangeForThisShape.OrderBy(x => x.CaratFrom).ToList();
             foreach (var range in orderedRange)
             {
-                if(request.IsSideDiamond == false)
+                if (request.IsSideDiamond == false)
                 {
                     if (request.caratFrom <= range.CaratTo && request.caratTo >= range.CaratFrom)
                     {
@@ -93,8 +93,8 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
             // check if valid according to the rule
             if (request.IsSideDiamond)
             {
-                if(request.caratTo > diamondRule.BiggestSideDiamondCarat)
-                    return Result.Fail("range tối đa của side diammond trong cấu hình là "+diamondRule.BiggestSideDiamondCarat + "carat ");
+                if (request.caratTo > diamondRule.BiggestSideDiamondCarat)
+                    return Result.Fail("range tối đa của side diammond trong cấu hình là " + diamondRule.BiggestSideDiamondCarat + "carat ");
             }
             else
             {
@@ -109,40 +109,56 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
                 bool isFancyShape = DiamondShape.IsFancyShape(getShape.Id);
                 if (isFancyShape)
                 {
-                    foreach (var color in Enum.GetValues(typeof(Color)))
+                    //foreach (var color in Enum.GetValues(typeof(Color)))
+                    //{
+                    //    foreach (var clarity in Enum.GetValues(typeof(Clarity)))
+                    //    {
+                    //        requests.Add(new DiamondCriteriaRequestDto()
+                    //        {
+                    //            CaratFrom = request.caratFrom,
+                    //            CaratTo = request.caratTo,
+                    //            //Clarity = (Clarity)clarity,
+                    //            //Color = (Color)color,
+                    //            //Cut = null
+                    //        });
+                    //    }
+                    //}
+                    requests.Add(new DiamondCriteriaRequestDto()
                     {
-                        foreach (var clarity in Enum.GetValues(typeof(Clarity)))
-                        {
-                            requests.Add(new DiamondCriteriaRequestDto()
-                            {
-                                CaratFrom = request.caratFrom,
-                                CaratTo = request.caratTo,
-                                Clarity = (Clarity)clarity,
-                                Color = (Color)color,
-                                Cut = null
-                            });
-                        }
-                    }
+                        CaratFrom = request.caratFrom,
+                        CaratTo = request.caratTo,
+                        //Clarity = (Clarity)clarity,
+                        //Color = (Color)color,
+                        //Cut = null
+                    });
                 }
                 else
                 {
-                    foreach (var cut in Enum.GetValues(typeof(Cut)))
+                    requests.Add(new DiamondCriteriaRequestDto()
                     {
-                        foreach (var color in Enum.GetValues(typeof(Color)))
-                        {
-                            foreach (var clarity in Enum.GetValues(typeof(Clarity)))
-                            {
-                                requests.Add(new DiamondCriteriaRequestDto()
-                                {
-                                    CaratFrom = request.caratFrom,
-                                    CaratTo = request.caratTo,
-                                    Clarity = (Clarity)clarity,
-                                    Color = (Color)color,
-                                    Cut = (Cut)cut
-                                });
-                            }
-                        }
-                    }
+                        CaratFrom = request.caratFrom,
+                        CaratTo = request.caratTo,
+                        //Clarity = (Clarity)clarity,
+                        //Color = (Color)color,
+                        //Cut = null//(Cut)cut
+                    });
+                    ////foreach (var cut in Enum.GetValues(typeof(Cut)))
+                    ////{
+                    //foreach (var color in Enum.GetValues(typeof(Color)))
+                    //{
+                    //    foreach (var clarity in Enum.GetValues(typeof(Clarity)))
+                    //    {
+                    //        requests.Add(new DiamondCriteriaRequestDto()
+                    //        {
+                    //            CaratFrom = request.caratFrom,
+                    //            CaratTo = request.caratTo,
+                    //            //Clarity = (Clarity)clarity,
+                    //            //Color = (Color)color,
+                    //            //Cut = null//(Cut)cut
+                    //        });
+                    //    }
+                    //}
+                    ////}
                 }
                 var command = new CreateManyDiamondCriteriasCommand(requests, getShape.Id.Value, request.IsSideDiamond);
                 var result = await _sender.Send(command, cancellationToken);
@@ -150,24 +166,29 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromR
             }
             else if (request.IsSideDiamond)
             {
-                foreach (var color in Enum.GetValues(typeof(Color)))
+                requests.Add(new DiamondCriteriaRequestDto()
                 {
-                    foreach (var clarity in Enum.GetValues(typeof(Clarity)))
-                    {
-                        if (request.IsSideDiamond)
-                        {
-                            requests.Add(new DiamondCriteriaRequestDto()
-                            {
-                                CaratFrom = request.caratFrom,
-                                CaratTo = request.caratTo,
-                                Clarity = (Clarity)clarity,
-                                Color = (Color)color,
-                                Cut = null//request.Cut.Value,
-                            });
-                        }
-                    }
-                }
-                var command = new CreateManyDiamondCriteriasCommand(requests, getShape.Id.Value, request.IsSideDiamond );
+                    CaratFrom = request.caratFrom,
+                    CaratTo = request.caratTo,
+                });
+                //foreach (var color in Enum.GetValues(typeof(Color)))
+                //{
+                //    foreach (var clarity in Enum.GetValues(typeof(Clarity)))
+                //    {
+                //        if (request.IsSideDiamond)
+                //        {
+                //            requests.Add(new DiamondCriteriaRequestDto()
+                //            {
+                //                CaratFrom = request.caratFrom,
+                //                CaratTo = request.caratTo,
+                //                //Clarity = (Clarity)clarity,
+                //                //Color = (Color)color,
+                //                //Cut = null//request.Cut.Value,
+                //            });
+                //        }
+                //    }
+                //}
+                var command = new CreateManyDiamondCriteriasCommand(requests, getShape.Id.Value, request.IsSideDiamond);
                 var result = await _sender.Send(command, cancellationToken);
                 return result;
             }

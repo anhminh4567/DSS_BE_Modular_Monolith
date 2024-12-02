@@ -249,10 +249,10 @@ namespace DiamondShop.Domain.Services.Implementations
             var criteria = price.Criteria;
             if (isFancyShapeDiamond)
             {
-                if (diamond.Color == criteria.Color
-                && diamond.Clarity == criteria.Clarity
+                if (diamond.Color == price.Color
+                && diamond.Clarity == price.Clarity
                 && diamond.Carat <= criteria.CaratTo
-                && diamond.Carat > criteria.CaratFrom
+                && diamond.Carat >= criteria.CaratFrom
                 && diamond.IsLabDiamond == price.IsLabDiamond)
                 {
                     return true;
@@ -260,10 +260,10 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             else
             {
-                if (diamond.Cut == criteria.Cut
-                && diamond.Color == criteria.Color
-                && diamond.Clarity == criteria.Clarity
-                && diamond.Carat < criteria.CaratTo
+                if (diamond.Cut == price.Cut
+                && diamond.Color == price.Color
+                && diamond.Clarity == price.Clarity
+                && diamond.Carat <= criteria.CaratTo
                 && diamond.Carat >= criteria.CaratFrom
                 && diamond.IsLabDiamond == price.IsLabDiamond)
                 {
@@ -274,8 +274,8 @@ namespace DiamondShop.Domain.Services.Implementations
         }
         private static bool IsMatchSideDiamondPrice(JewelrySideDiamond sideDiamond, DiamondPrice price)
         {
-            bool isColorInRange = price.Criteria.Color >= sideDiamond.ColorMin && price.Criteria.Color <= sideDiamond.ColorMax;
-            bool isClarityInRange = price.Criteria.Clarity >= sideDiamond.ClarityMin && price.Criteria.Clarity <= sideDiamond.ClarityMax;
+            bool isColorInRange = price.Color >= sideDiamond.ColorMin && price.Color <= sideDiamond.ColorMax;
+            bool isClarityInRange = price.Clarity >= sideDiamond.ClarityMin && price.Clarity <= sideDiamond.ClarityMax;
             bool isCaratInRange = sideDiamond.IsInRange(price.Criteria.CaratFrom,price.Criteria.CaratTo);  // price.Criteria.CaratTo > sideDiamond.AverageCarat && price.Criteria.CaratFrom <= sideDiamond.AverageCarat;
             //bool isPriceForFancyShape = price.IsFancyShape && sideDiamond.IsFancyShape;
             // all side diamond should be lab diamond
@@ -347,7 +347,7 @@ namespace DiamondShop.Domain.Services.Implementations
             var getShape = await _diamondShapeRepository.GetById(diamond.DiamondShapeId);
             if (getShape is null)
                 throw new Exception("this shape not exist");
-            var groupedCritera = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getShape, diamond.Cut);
+            var groupedCritera = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getShape);
             var diamondCarat = diamond.Carat;
             var caratGroup = groupedCritera.Keys.ToList();
             bool foundedCriteria = false;

@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
 {
-    public record UpdatedDiamondPrice(string diamondCriteriaId, decimal price);//bool isFancyShapePrice
+    public record UpdatedDiamondPrice(string diamondPriceId, decimal price);//bool isFancyShapePrice
     public record UpdateManyDiamondPricesCommand(List<UpdatedDiamondPrice> updatedDiamondPrices, string? shapeId , bool isLabDiamond, bool IsSideDiamond) : IRequest<Result<List<DiamondPrice>>>;
     internal class UpdateManyDiamondPricesCommandHandler : IRequestHandler<UpdateManyDiamondPricesCommand, Result<List<DiamondPrice>>>
     {
@@ -50,11 +50,11 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
 
 
 
-            List<(DiamondCriteriaId criteriaId, decimal normalizedPrice)> parsedList =
+            List<(DiamondPriceId criteriaId, decimal normalizedPrice)> parsedList =
                 request.updatedDiamondPrices
-                .Select(x => (DiamondCriteriaId.Parse(x.diamondCriteriaId), MoneyVndRoundUpRules.RoundAmountFromDecimal(x.price))
+                .Select(x => (DiamondPriceId.Parse(x.diamondPriceId), MoneyVndRoundUpRules.RoundAmountFromDecimal(x.price))
                 ).ToList();
-            List<DiamondCriteriaId> diamondCriteriaIds = parsedList.Select(x => x.criteriaId).ToList();
+            List<DiamondPriceId> priceIds = parsedList.Select(x => x.criteriaId).ToList();
             List<DiamondPrice> getPrices = new();
             bool isFancyShape = DiamondShape.IsFancyShape(selectedShape.Id);
 
@@ -66,10 +66,10 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
                 getPrices = await _diamondPriceRepository.GetSideDiamondPrice( request.isLabDiamond, cancellationToken);
             }
             
-            var getPriceByCriteria = getPrices.Where(x => diamondCriteriaIds.Contains(x.CriteriaId)).ToList();
-            foreach (var price in getPriceByCriteria)
+            var getPriceByIds = getPrices.Where(x => priceIds.Contains(x.Id)).ToList();
+            foreach (var price in getPriceByIds)
             {
-                var updatedPrice = parsedList.FirstOrDefault(x => x.criteriaId == price.CriteriaId);
+                var updatedPrice = parsedList.FirstOrDefault(x => x.criteriaId == price.Id);
                 price.ChangePrice(updatedPrice.normalizedPrice);
                 await _diamondPriceRepository.Update(price);
             }

@@ -33,20 +33,21 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.Create
 
         public async Task<Result<DiamondPrice>> Handle(CreateDiamondPricesCommand request, CancellationToken cancellationToken)
         {
-            var tryGet = await _diamondPriceRepository.GetById(request.DiamondShapeId, request.DiamondCriteriaId);
-            if (tryGet != null)
-                return Result.Fail(new ConflictError("another item with such price (id) exist in db"));
-            var getShape = await _diamondShapeRepository.GetById(request.DiamondShapeId);
-            if (getShape is null)
-                return Result.Fail(new NotFoundError());
-            var getCriteria = await _diamondCriteriaRepository.GetById(request.DiamondCriteriaId);
-            if (getCriteria is null)
-                return Result.Fail(new NotFoundError());
+            //var tryGet = await _diamondPriceRepository.GetById(request.DiamondShapeId, request.DiamondCriteriaId);
+            //if (tryGet != null)
+            //    return Result.Fail(new ConflictError("another item with such price (id) exist in db"));
+            //var getShape = await _diamondShapeRepository.GetById(request.DiamondShapeId);
+            //if (getShape is null)
+            //    return Result.Fail(new NotFoundError());
+            //var getCriteria = await _diamondCriteriaRepository.GetById(request.DiamondCriteriaId);
+            //if (getCriteria is null)
+            //    return Result.Fail(new NotFoundError());
 
-            var newPrice = DiamondPrice.Create(getShape.Id, getCriteria.Id,request.price,request.IsLabDiamond);
-            await _diamondPriceRepository.Create(newPrice);
-            await _unitOfWork.SaveChangesAsync();
-            return newPrice;
+            //var newPrice = DiamondPrice.Create(getShape.Id, getCriteria.Id,request.price,request.IsLabDiamond);
+            //await _diamondPriceRepository.Create(newPrice);
+            //await _unitOfWork.SaveChangesAsync();
+            //return newPrice;
+            throw new NotImplementedException();
         }
     }
 }

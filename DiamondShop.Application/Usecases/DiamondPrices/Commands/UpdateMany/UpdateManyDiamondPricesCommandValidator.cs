@@ -16,7 +16,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
         {
             public UpdatedDiamondPriceValidator()
             {
-                RuleFor(x => x.diamondCriteriaId).NotEmpty()
+                RuleFor(x => x.diamondPriceId).NotEmpty()
                     .WithNotEmptyMessage();
                 RuleFor(x => x.price).NotNull()
                         .WithNotEmptyMessage()
