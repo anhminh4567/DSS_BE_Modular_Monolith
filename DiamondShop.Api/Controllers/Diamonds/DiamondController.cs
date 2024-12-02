@@ -94,7 +94,7 @@ namespace DiamondShop.Api.Controllers.Diamonds
         {
             var result = await _sender.Send(getDiamondPricesComparisonsQuery);
             if (result.IsSuccess)
-                return Ok(result);
+                return Ok(result.Value);
             return MatchError(result.Errors, ModelState);
         }
         [HttpGet("Page")]

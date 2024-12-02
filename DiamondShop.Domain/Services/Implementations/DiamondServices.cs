@@ -242,7 +242,7 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             bool isFancyShapeDiamond = DiamondShape.IsFancyShape(diamond.DiamondShapeId);
             bool isFancyShapePrice = DiamondShape.IsFancyShape(price.Criteria.ShapeId);
-            if (diamond.DiamondShape.Id != price.Criteria.ShapeId)
+            if (diamond.DiamondShapeId != price.Criteria.ShapeId)
             {
                 return false;
             }
