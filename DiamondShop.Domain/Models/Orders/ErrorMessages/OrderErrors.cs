@@ -17,6 +17,7 @@ namespace DiamondShop.Domain.Models.Orders.ErrorMessages
         public static ValidationError UncancellableError = new ValidationError("Đơn hàng không thể được hủy");
         public static ValidationError RefundedError = new ValidationError("Đơn hàng đã được hoàn tiền trước đó");
         public static ValidationError MaxRedeliveryError = new ValidationError("Đơn hàng đã hết lượt giao lại");
+        public static ValidationError NoPermissionError = new ValidationError("Tài khoản không có quyền truy cập");
         public static ValidationError NoPermissionToViewError = new ValidationError("Tài khoản không có quyền xem đơn hàng");
         public static ValidationError NoPermissionToCancelError = new ValidationError("Tài khoản không có quyền hủy đơn hàng");
         public static ValidationError NoDelivererAssignedError = new ValidationError("Đơn hàng chưa được giao cho nhân viên giao hàng");

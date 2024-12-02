@@ -102,7 +102,7 @@ namespace DiamondShop.Api.Controllers.Orders
         }
         [HttpPost("AddTransfer")]
         [Authorize(Roles = AccountRole.CustomerId)]
-        public async Task<ActionResult> AddTransfer([FromForm] TransferVerifyRequestDto transferSubmitRequestDto)
+        public async Task<ActionResult> CustomerAddTransfer([FromForm] TransferVerifyRequestDto transferSubmitRequestDto)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
@@ -117,6 +117,26 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return Unauthorized();
         }
+
+        [HttpPut("ChangeEvidence")]
+        [Authorize(Roles = AccountRole.CustomerId)]
+        public async Task<ActionResult> CustomerChangeEvidence([FromQuery] ChangeEvidenceRequestDto changeEvidenceRequestDto)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(new CustomerChangeEvidenceCommand(userId.Value, changeEvidenceRequestDto));
+                if (result.IsSuccess)
+                {
+                    return Ok("Đã cập nhật bằng chứng");
+                }
+                else
+                    return MatchError(result.Errors, ModelState);
+            }
+            else
+                return Unauthorized();
+        }
+
 
         [HttpPut("Cancel")]
         [Authorize(Roles = AccountRole.CustomerId)]
@@ -221,9 +241,9 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return Unauthorized();
         }
-        [HttpPut("Deliverer/ConfirmTransfer/COD")]
+        [HttpPut("Deliverer/AddTransfer")]
         [Authorize(Roles = AccountRole.DelivererId)]
-        public async Task<ActionResult> DeliverConfirmCODTransfer([FromQuery] TransferVerifyRequestDto transferConfirmRequestDto)
+        public async Task<ActionResult> DeliverAddTransfer([FromQuery] TransferVerifyRequestDto transferConfirmRequestDto)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
@@ -233,6 +253,24 @@ namespace DiamondShop.Api.Controllers.Orders
                 {
                     var mappedResult = _mapper.Map<OrderDto>(result.Value);
                     return Ok(mappedResult);
+                }
+                else
+                    return MatchError(result.Errors, ModelState);
+            }
+            else
+                return Unauthorized();
+        }
+        [HttpPut("Deliverer/ChangeEvidence")]
+        [Authorize(Roles = AccountRole.DelivererId)]
+        public async Task<ActionResult> DeliverChangeEvidence([FromQuery] ChangeEvidenceRequestDto changeEvidenceRequestDto)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(new DelivererChangeEvidenceCommand(userId.Value, changeEvidenceRequestDto));
+                if (result.IsSuccess)
+                {
+                    return Ok("Đã cập nhật bằng chứng");
                 }
                 else
                     return MatchError(result.Errors, ModelState);

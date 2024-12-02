@@ -23,6 +23,12 @@ namespace DiamondShop.Infrastructure.Services.Blobs
         {
             _logger = logger;
         }
+
+        public Task<Result> DeleteTransferImage(Transaction transaction, CancellationToken token = default)
+        {
+            return base.DeleteFileAsync(transaction.Evidence.MediaPath, token);
+        }
+
         public Task<List<Media>> GetTransferImage(Transaction transaction, CancellationToken token = default)
         {
             string basePath = GetAzureFilePath(transaction);
