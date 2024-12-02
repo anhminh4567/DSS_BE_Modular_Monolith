@@ -11,8 +11,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.EnableDeliveryLocation
 {
-    public record SetStatusDeliveryLocation(string id, bool setActive = true) : IRequest<Result>;
-    public record EnableDeliveryLocationCommand(List<SetStatusDeliveryLocation> locationStatus) : IRequest<Result>;
+    public record SetStatusDeliveryLocation(string id) : IRequest<Result>;//, bool setActive = true
+    public record EnableDeliveryLocationCommand(string[] deliveryFeeIds) : IRequest<Result>;
 
     internal class EnableDeliveryLocationCommandHandler : IRequestHandler<EnableDeliveryLocationCommand, Result>
     {
@@ -29,14 +29,15 @@ namespace DiamondShop.Application.Usecases.DeliveryFees.Commands.EnableDeliveryL
         {
             var getAllLocation =  await _deliveryFeeRepository.GetAll();
             await _unitOfWork.BeginTransactionAsync();
-            var parsedList = request.locationStatus.Select(x => new { Id = DeliveryFeeId.Parse(x.id), SetActive = x.setActive }).ToList();
+            var parsedList = request.deliveryFeeIds.Select(x => new { Id = DeliveryFeeId.Parse(x)}).ToList();
             var ids = parsedList.Select(x => x.Id).ToList();
             foreach (var location in getAllLocation)
             {
                 var foundedLocation = parsedList.FirstOrDefault(x => x.Id == location.Id);
                 if(foundedLocation != null)
                 {
-                    location.SetEnable(foundedLocation.SetActive);
+                    //location.SetEnable(foundedLocation.SetActive);
+                    location.SetStatus();
                     _deliveryFeeRepository.Update(location).Wait();
                 }
             }

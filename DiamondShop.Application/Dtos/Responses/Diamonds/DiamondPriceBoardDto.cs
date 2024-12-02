@@ -41,10 +41,21 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
                 var current = sortedRanges[i];
                 var next = sortedRanges[i + 1];
                 // Check for a gap based on a precision of 0.01
-                if ((float)Math.Round(current.CaratTo + 0.01f, 2) < next.CaratFrom)
+                if(IsSideDiamondBoardPrices == false)
                 {
-                    missingGaps.Add( (current.CaratTo,next.CaratFrom));
+                    if ((float)Math.Round(current.CaratTo + 0.01f, 2) < next.CaratFrom)
+                    {
+                        missingGaps.Add((current.CaratTo, next.CaratFrom));
+                    }
                 }
+                else
+                {
+                    if ((current.CaratTo != next.CaratFrom))
+                    {
+                        missingGaps.Add((current.CaratTo, next.CaratFrom));
+                    }
+                }
+                
             }
             MissingRange =  missingGaps;
         }
@@ -61,6 +72,7 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         //[Newtonsoft.Json.JsonIgnore]
         //public List<DiamondCriteria> GroupedCriteria { get; set; }
         public string CriteriaId { get; set; }
+        public string? LastUpdate { get; set; }
         public DiamondPriceCellDataDto[,] CellMatrix { get; set; }
         public bool IsAnyPriceUncover => CellMatrix.Cast<DiamondPriceCellDataDto>().Any(x => x.IsPriceKnown == false);
         public void FillAllCellsWithUnknonwPrice()
@@ -190,6 +202,8 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public decimal OffsetFromExellentCut { get; set; } = +0m;
         public string? DiscountCode { get; set; }
         public int? DiscountPercentage { get; set; }
+        public string? LastUpdate { get; set; }
+        
         public void CalculateOffsetFromExellentPrice(decimal exellentPrice)
         {
             if (IsPriceKnown is false)

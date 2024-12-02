@@ -1,16 +1,20 @@
-﻿using DiamondShop.Application.Services.Interfaces;
+﻿using DiamondShop.Application.Commons.Utilities;
+using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ErrorMessages;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
+using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,14 +32,18 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
         private readonly IDiamondCriteriaRepository _diamondCriteriaRepository;
         private readonly IDiamondShapeRepository _diamondShapeRepository;
         private readonly IDiamondServices _diamondServices;
+        private readonly IAccountRepository _accountRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UpdateManyDiamondPricesCommandHandler(IDiamondPriceRepository diamondPriceRepository, IUnitOfWork unitOfWork, IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondShapeRepository diamondShapeRepository, IDiamondServices diamondServices)
+        public UpdateManyDiamondPricesCommandHandler(IDiamondPriceRepository diamondPriceRepository, IUnitOfWork unitOfWork, IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondShapeRepository diamondShapeRepository, IDiamondServices diamondServices, IAccountRepository accountRepository, IHttpContextAccessor httpContextAccessor)
         {
             _diamondPriceRepository = diamondPriceRepository;
             _unitOfWork = unitOfWork;
             _diamondCriteriaRepository = diamondCriteriaRepository;
             _diamondShapeRepository = diamondShapeRepository;
             _diamondServices = diamondServices;
+            _accountRepository = accountRepository;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Result<List<DiamondPrice>>> Handle(UpdateManyDiamondPricesCommand request, CancellationToken cancellationToken)
@@ -65,12 +73,32 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
                 //var isFancyShape = DiamondShape.IsFancyShape(selectedShape.Id);
                 getPrices = await _diamondPriceRepository.GetSideDiamondPrice( request.isLabDiamond, cancellationToken);
             }
-            
+
+            AccountId? whoUpdateThisBoard = null;
             var getPriceByIds = getPrices.Where(x => priceIds.Contains(x.Id)).ToList();
+            // get user that update this
+            if(_httpContextAccessor.HttpContext != null)
+            {
+                var tryGetAccount =  _httpContextAccessor.HttpContext.User.GetUserId();
+                if(tryGetAccount != null)
+                {
+                    whoUpdateThisBoard = AccountId.Parse(tryGetAccount);
+                    var account = await _accountRepository.GetById(whoUpdateThisBoard);
+                    if(account != null && account.Roles.Where(x => x.Id == AccountRole.Staff.Id 
+                    || x.Id == AccountRole.Manager.Id).Count() > 0)
+                    {
+                        whoUpdateThisBoard = account.Id;
+                    }
+                    else
+                    {
+                        whoUpdateThisBoard = null;
+                    }
+                }
+            }
             foreach (var price in getPriceByIds)
             {
                 var updatedPrice = parsedList.FirstOrDefault(x => x.criteriaId == price.Id);
-                price.ChangePrice(updatedPrice.normalizedPrice);
+                price.ChangePrice(updatedPrice.normalizedPrice,whoUpdateThisBoard);
                 await _diamondPriceRepository.Update(price);
             }
             await _unitOfWork.SaveChangesAsync(cancellationToken);

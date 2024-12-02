@@ -71,6 +71,7 @@ namespace DiamondShop.Domain.Models.DeliveryFees
             //FromKm = null; ToKm = null;
         }
         public void SetEnable(bool enable) => IsEnabled = enable;
+        public void SetStatus() => IsEnabled = !IsEnabled;
         private DeliveryFee()
         {
         }

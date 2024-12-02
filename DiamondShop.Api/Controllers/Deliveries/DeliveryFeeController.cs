@@ -82,7 +82,7 @@ namespace DiamondShop.Api.Controllers.Deliveries
             return MatchError(result.Errors, ModelState);
         }
         [HttpPut("SetActive")]
-        public async Task<ActionResult> UpdateStatus([FromBody] SetStatusDeliveryLocation setCommand)
+        public async Task<ActionResult> UpdateStatus([FromBody] EnableDeliveryLocationCommand setCommand)
         {
             var result = await _mediator.Send(setCommand);
             if (result.IsSuccess)

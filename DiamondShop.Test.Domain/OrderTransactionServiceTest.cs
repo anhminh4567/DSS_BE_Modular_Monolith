@@ -102,7 +102,7 @@ namespace DiamondShop.Test.Domain
         {
             // Arrange
             var amount = 30_000_000m;
-            var expected = amount * ( decimal.Divide(OrderPaymentRules.Default.CODPercentCustom,100));
+            var expected = amount * ( decimal.Divide(OrderPaymentRules.Default.DepositPercent,100));
             var order = Order.Create(AccountId.Create(), PaymentType.COD, PaymentMethod.BANK_TRANSFER.Id, amount, 300_000m, expected, "adsf");
             order.CustomizeRequestId = CustomizeRequestId.Create();
             // Act

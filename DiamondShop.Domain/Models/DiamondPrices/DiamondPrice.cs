@@ -124,12 +124,16 @@ namespace DiamondShop.Domain.Models.DiamondPrices
                 Cut = cut,
             };
         }
-        public void ChangePrice(decimal price)
+        public void ChangePrice(decimal price,AccountId? whoChangeThePriceId)
         {
             if(price <= 1000)
                 throw new Exception();
+            OldPrice = Price;
+            OldUpdatedAt = UpdatedAt;
+            OldAccountIdUpdate = AccountId ;
             Price = price;
             UpdatedAt = DateTime.UtcNow;
+            AccountId = whoChangeThePriceId == null ? null : whoChangeThePriceId ;
         }
         private DiamondPrice() { }
     }
