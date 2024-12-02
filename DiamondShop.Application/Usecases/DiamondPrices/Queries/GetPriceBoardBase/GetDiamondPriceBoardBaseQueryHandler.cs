@@ -57,15 +57,6 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoardBa
             if (getShape is null)
                 return Result.Fail(new NotFoundError("Shape not found"));
 
-            //DiamondShape priceBoardMainShape;
-            //if (request.isFancyShapePrice)
-            //{
-            //    priceBoardMainShape = await _diamondShapeRepository.GetById(DiamondShape.FANCY_SHAPES.Id); //DiamondShape.FANCY_SHAPES;
-            //}
-            //else
-            //{
-            //    priceBoardMainShape = await _diamondShapeRepository.GetById(DiamondShape.ROUND.Id);//DiamondShape.ROUND;
-            //}
             List<DiamondPrice> prices = new();
             Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>> criteriasByGrouping = new();
             DiamondPriceBoardDto priceBoard = DiamondPriceBoardDto.Create();
@@ -78,20 +69,12 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoardBa
 
                 prices = await _diamondPriceRepository.GetPrice(request.cut, getShape, request.isLabDiamond, cancellationToken);
                 priceBoard.IsSideDiamondBoardPrices = false;
-                string serlized = JsonConvert.SerializeObject(prices, new JsonSerializerSettings()
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                });
-                byte[] bytes = Encoding.UTF8.GetBytes(serlized);
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("size: " + bytes.Length);
-                Console.ResetColor();
                 //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableCaratRange( cancellationToken);
                 priceBoard.MainCut = request.cut;
                 if (isFancyShape)
-                    criteriasByGrouping = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getShape, null, cancellationToken);
+                    criteriasByGrouping = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getShape, cancellationToken);
                 else
-                    criteriasByGrouping = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getShape, priceBoard.MainCut, cancellationToken);
+                    criteriasByGrouping = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getShape, cancellationToken);
             }
             else
             {
@@ -120,31 +103,36 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoardBa
                         x.Criteria.CaratTo == dcr.Key.CaratTo).ToList()
                 })
             .ToList();
-            Dictionary<Color, int> colorRange = criteriasByGrouping.SelectMany(x => x.Value)
-                .Select(x => x.Color)
-                .Distinct()
-                .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => (int)x.Value);
-            Dictionary<Clarity, int> clarityRange = criteriasByGrouping.SelectMany(x => x.Value)
-                .Select(x => x.Clarity)
-                .Distinct()
-                .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => (int)x.Value);
-
+            //Dictionary<Color, int> colorRange = criteriasByGrouping.SelectMany(x => x.Value)
+            //    .Select(x => x.Color)
+            //    .Distinct()
+            //    .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => (int)x.Value);
+            //Dictionary<Clarity, int> clarityRange = criteriasByGrouping.SelectMany(x => x.Value)
+            //    .Select(x => x.Clarity)
+            //    .Distinct()
+            //    .OrderBy(x => x.Value).ToDictionary(x => x.Value, x => (int)x.Value);
             var createTable = criteriasByGrouping
                 .AsParallel()
                 .AsOrdered()
                 .Select(dp => new DiamondPriceTableDto()
                 {
+                    CriteriaId = dp.Value.FirstOrDefault().Id.Value,
                     CaratFrom = dp.Key.CaratFrom,
                     CaratTo = dp.Key.CaratTo,
-                    ColorRange = colorRange,
-                    ClarityRange = clarityRange,
-                    GroupedCriteria = dp.Value
+                    ColorRange = ColorHelper.GetColorList().ToDictionary(x => x,x => (int)x),//groupByCaratRangeFromPrices
+                    //.Where(x => x.TableRange.CaratFrom == dp.Key.CaratFrom && x.TableRange.CaratTo == dp.Key.CaratTo)
+                    //.First().TableItem.Select(x => x.Color)
+                     //.Distinct().OrderBy(x => x.Value).ToDictionary(x => x.Value, x => (int)x.Value)
+                    ClarityRange = ClarityHelper.GetClarityList().ToDictionary(x => x, x => (int)x),
+                    //groupByCaratRangeFromPrices
+                    //.Where(x => x.TableRange.CaratFrom == dp.Key.CaratFrom && x.TableRange.CaratTo == dp.Key.CaratTo)
+                    //.First().TableItem.Select(x => x.Clarity)
+                    //.Distinct().OrderBy(x => x.Value).ToDictionary(x => x.Value, x => (int)x.Value),
                 }).ToList();
             createTable.ForEach(x =>
             {
-                x.CellMatrix = new DiamondPriceCellDataDto[colorRange.Count, clarityRange.Count];
+                x.CellMatrix = new DiamondPriceCellDataDto[ColorHelper.GetColorList().Count, ClarityHelper.GetClarityList().Count];
                 x.FillAllCellsWithUnknonwPrice();
-
             });
 
             createTable.ForEach(x =>
@@ -161,6 +149,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoardBa
             });
 
             priceBoard.PriceTables = createTable;
+            priceBoard.FindMissingGaps();
             //assign discount on table
             //priceBoard.PriceTables
             //    .AsParallel()

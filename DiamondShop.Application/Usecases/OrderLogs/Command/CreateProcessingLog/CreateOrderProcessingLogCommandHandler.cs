@@ -65,7 +65,7 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Command.CreateProcessingLog
             var processingLog = OrderLog.CreateProcessingLog(getOrder, getProcessingParentLog, request.message);
             await _orderLogRepository.Create(processingLog);
             await _unitOfWork.SaveChangesAsync();
-            var getUserAccount = await _accountRepository.GetById(getOrder);
+            var getUserAccount = await _accountRepository.GetById(getOrder.AccountId);
             var notification = Notification.CreateAccountMessage(getOrder, getUserAccount, "đã cập nhật trạng thái đơn của bạn", null);
             await _notificationRepository.Create(notification);
             await _unitOfWork.SaveChangesAsync();

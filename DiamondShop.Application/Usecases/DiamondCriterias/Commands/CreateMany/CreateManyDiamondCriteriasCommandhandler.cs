@@ -42,7 +42,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
                 correctShape = getAllShape.FirstOrDefault(x => x.Id == DiamondShape.ANY_SHAPES.Id);
                 if (correctShape is null)
                     return Result.Fail(DiamondShapeErrors.NotFoundError);
-                mappedItems = request.listCriteria.Select(c => DiamondCriteria.CreateSideDiamondCriteria(c.CaratFrom, c.CaratTo, c.Clarity, c.Color, correctShape)).ToList();
+                mappedItems = request.listCriteria.Select(c => DiamondCriteria.CreateSideDiamondCriteria(c.CaratFrom, c.CaratTo, correctShape)).ToList();
             }
             else
             {
@@ -50,9 +50,9 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
                     return Result.Fail(DiamondShapeErrors.NotFoundError);
                 bool isFancyShape = correctShape.IsFancy();
                 if(isFancyShape)
-                    mappedItems = request.listCriteria.Select(c => DiamondCriteria.Create(null, c.Clarity, c.Color, c.CaratFrom, c.CaratTo, correctShape)).ToList();
+                    mappedItems = request.listCriteria.Select(c => DiamondCriteria.Create( c.CaratFrom, c.CaratTo, correctShape)).ToList();
                 else
-                    mappedItems = request.listCriteria.Select(c => DiamondCriteria.Create(c.Cut, c.Clarity, c.Color, c.CaratFrom, c.CaratTo, correctShape)).ToList();
+                    mappedItems = request.listCriteria.Select(c => DiamondCriteria.Create(c.CaratFrom, c.CaratTo, correctShape)).ToList();
             }
 
             await _unitOfWork.BeginTransactionAsync();

@@ -23,7 +23,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
 {
-    public record DelivererCompleteOrderRequestDto(IFormFile[] confirmImages, IFormFile? confirmVideo); 
+    public record DelivererCompleteOrderRequestDto(IFormFile[]? confirmImages, IFormFile? confirmVideo); 
     public record ProceedOrderCommand(string orderId, string? accountId, DelivererCompleteOrderRequestDto? CompleteOrderRequestDto = null) : IRequest<Result<Order>>;
     internal class ProceedOrderCommandHandler : IRequestHandler<ProceedOrderCommand, Result<Order>>
     {
@@ -155,6 +155,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                 }
                 List<FileData> images = new();
                 FileData video = null;
+                if(request.CompleteOrderRequestDto.confirmImages == null || request.CompleteOrderRequestDto.confirmImages.Count() <= 0)
+                    return Result.Fail(OrderErrors.LackEvidenceToCompleteDeliver);
                 foreach (var image in request.CompleteOrderRequestDto.confirmImages)
                 {
                     var fileName = image.FileName.Split('.')[0];

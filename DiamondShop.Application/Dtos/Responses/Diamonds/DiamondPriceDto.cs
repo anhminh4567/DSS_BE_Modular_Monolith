@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Promotions;
+using DiamondShop.Domain.Models.Diamonds.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -18,6 +19,9 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public decimal? DiscountPrice { get; set; }
         public DiscountDto? Discount { get; set; }
         public string ForUnknownPrice { get; set; }
+        public Cut? Cut { get; set; }
+        public Clarity? Clarity { get; set; }
+        public Color? Color { get; set; }
         public bool IsLabDiamond { get; set; }
         public bool IsSideDiamond { get; set; }
     }

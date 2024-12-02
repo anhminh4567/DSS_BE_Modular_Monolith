@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
+using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ErrorMessages;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
@@ -17,8 +18,8 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.DeleteMany
 {
 
-    public record DeleteDiamondPriceParameter(string criteriaId);//, bool isFancy
-    public record DeleteManyDiamondPriceCommand(List<DeleteDiamondPriceParameter> deleteList, string? shapeId, bool isSideDiamond, bool isLab) : IRequest<Result>;
+    public record DeleteDiamondPriceParameter(string criteriaId, Cut? cut, Color color, Clarity clarity);//, bool isFancy
+    public record DeleteManyDiamondPriceCommand(List<string> priceIds, string? shapeId, bool isSideDiamond, bool isLab) : IRequest<Result>;
     internal class DeleteManyDiamondPriceCommandHandler : IRequestHandler<DeleteManyDiamondPriceCommand, Result>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -45,13 +46,13 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.DeleteMany
                 return Result.Fail(DiamondShapeErrors.NotFoundError);
 
 
-
-            var parsedList = request.deleteList.Select(x => new DeleteManyParameter
-            (
-                selectedShape.Id,
-                DiamondCriteriaId.Parse(x.criteriaId)
-            )).ToList();
-            var deleteResult = await _diamondPriceRepository.DeleteMany(parsedList, request.isLab, request.isSideDiamond, cancellationToken);
+            var parsedListIDs = request.priceIds.Select(x => DiamondPriceId.Parse(x)).ToList();
+            //var parsedList = request.deleteList.Select(x => new DeleteManyParameter
+            //(
+            //    selectedShape.Id,
+            //    DiamondCriteriaId.Parse(x.criteriaId)
+            //)).ToList();
+            var deleteResult = await _diamondPriceRepository.DeleteMany(parsedListIDs, selectedShape, request.isLab, request.isSideDiamond, cancellationToken);
             await _unitOfWork.SaveChangesAsync();
             return deleteResult;
 

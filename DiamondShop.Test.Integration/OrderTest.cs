@@ -89,8 +89,8 @@ namespace DiamondShop.Test.Integration
         {
             var jewelry = await TestData.SeedDefaultJewelry(_context);
             var diamond = await TestData.SeedDefaultDiamond(_context, jewelry.Id);
-            var criteria = await TestData.SeedDefaultDiamondCriteria(_context, diamond.Cut, diamond.Clarity, diamond.Color, diamond.IsLabDiamond);
-            await TestData.SeedDefaultDiamondPrice(_context, diamond.DiamondShapeId, criteria.Id, diamond.IsLabDiamond);
+            var criteria = await TestData.SeedDefaultDiamondCriteria(_context,  diamond.IsLabDiamond);//diamond.Cut, diamond.Clarity, diamond.Color,
+            await TestData.SeedDefaultDiamondPrice(_context, diamond.DiamondShapeId, criteria.Id, diamond.IsLabDiamond,diamond.Cut,diamond.Clarity,diamond.Color);
             return jewelry;
         }
         async Task<Order> SeedingPendingOrder(PaymentType paymentType = PaymentType.Payall)

@@ -47,90 +47,90 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.UpdateRange
                 if (getshape is null)
                     return Result.Fail(DiamondShapeErrors.NotFoundError);
                 bool isfancyshape = DiamondShape.IsFancyShape(getshape.Id);
-                if (isfancyshape)
-                {
-                    Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>> allCriteria = new();
-                    (float CaratFrom, float CaratTo)? tobeUpdatedRange = null;
+                //if (isfancyshape)
+                //{
+                Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>> allCriteria = new();
+                (float CaratFrom, float CaratTo)? tobeUpdatedRange = null;
 
-                    allCriteria = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getshape, null, cancellationToken);
-                    var orderedCutRange = allCriteria.Keys.OrderBy(x => x.CaratFrom).ToList();
-                    foreach (var range in orderedCutRange)
-                    {
-                        if (request.oldCaratRange.caratFrom == range.CaratFrom
-                            && request.oldCaratRange.caratTo == range.CaratTo)
-                        {
-                            tobeUpdatedRange = range;
-                        }
-                    }
-                    if (tobeUpdatedRange == null)
-                        return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.CaratRangeNotExist);
-                    foreach (var range in orderedCutRange)
-                    {
-                        if (tobeUpdatedRange?.CaratFrom == range.CaratFrom && tobeUpdatedRange?.CaratTo == range.CaratTo)
-                        {
-                            continue;
-                        }
-                        if (request.newCaratRange.caratFrom <= range.CaratTo && request.newCaratRange.caratTo >= range.CaratFrom)
-                        {
-                            return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.CaratRangeOverlaps(range.CaratFrom,range.CaratTo));
-                        }
-                    }
-                    var getCriteriasFromCutGroup = allCriteria[tobeUpdatedRange.Value];
-                    if (getCriteriasFromCutGroup == null)
-                        throw new Exception("at this point this should not be null at all");
-                    getCriteriasFromCutGroup.ForEach(x => x.ChangeCaratRange(request.newCaratRange.caratFrom, request.newCaratRange.caratTo));
-                    await _unitOfWork.SaveChangesAsync();
-                    _diamondPriceRepository.RemoveAllCache();
-                    return allCriteria.Values
-                        .SelectMany(x => x)
-                        .ToList();
-                }
-                else
+                allCriteria = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getshape, cancellationToken);
+                var orderedCutRange = allCriteria.Keys.OrderBy(x => x.CaratFrom).ToList();
+                foreach (var range in orderedCutRange)
                 {
-                    Dictionary<Cut, Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>>> groupedByCut = new();
-                    foreach (var cut in CutHelper.GetCutList())
+                    if (request.oldCaratRange.caratFrom == range.CaratFrom
+                        && request.oldCaratRange.caratTo == range.CaratTo)
                     {
-                        Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>> allCriteria = new();
-                        (float CaratFrom, float CaratTo)? tobeUpdatedRange = null;
-
-                        allCriteria = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getshape,cut, cancellationToken);
-                        groupedByCut.Add(cut, allCriteria);
-                        var orderedCutRange = allCriteria.Keys.OrderBy(x => x.CaratFrom).ToList();
-                        foreach (var range in orderedCutRange)
-                        {
-                            if (request.oldCaratRange.caratFrom == range.CaratFrom
-                                && request.oldCaratRange.caratTo == range.CaratTo)
-                            {
-                                tobeUpdatedRange = range;
-                            }
-                        }
-                        if (tobeUpdatedRange == null)
-                            return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.CaratRangeNotExist);
-                        foreach (var range in orderedCutRange)
-                        {
-                            if (tobeUpdatedRange?.CaratFrom == range.CaratFrom && tobeUpdatedRange?.CaratTo == range.CaratTo)
-                            {
-                                continue; //ignore the old range, since this is what we aim to update
-                            }
-                            if (request.newCaratRange.caratFrom <= range.CaratTo && request.newCaratRange.caratTo >= range.CaratFrom)
-                            {
-                                return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.CaratRangeOverlaps(range.CaratFrom,range.CaratTo));
-                            }
-                        }
-                        var getCriteriasFromCutGroup = allCriteria[tobeUpdatedRange.Value];
-                        if (getCriteriasFromCutGroup == null)
-                            throw new Exception("at this point this should not be null at all");
-                        getCriteriasFromCutGroup.ForEach(x => x.ChangeCaratRange(request.newCaratRange.caratFrom, request.newCaratRange.caratTo));
+                        tobeUpdatedRange = range;
                     }
-                    await _unitOfWork.SaveChangesAsync();
-                    _diamondPriceRepository.RemoveAllCache();
-                    return groupedByCut.Values
-                        .SelectMany(x => x.Values)
-                        .SelectMany(x => x)
-                        .ToList();
                 }
+                if (tobeUpdatedRange == null)
+                    return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.CaratRangeNotExist);
+                foreach (var range in orderedCutRange)
+                {
+                    if (tobeUpdatedRange?.CaratFrom == range.CaratFrom && tobeUpdatedRange?.CaratTo == range.CaratTo)
+                    {
+                        continue;
+                    }
+                    if (request.newCaratRange.caratFrom <= range.CaratTo && request.newCaratRange.caratTo >= range.CaratFrom)
+                    {
+                        return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.CaratRangeOverlaps(range.CaratFrom, range.CaratTo));
+                    }
+                }
+                var getCriteriasFromCutGroup = allCriteria[tobeUpdatedRange.Value];
+                if (getCriteriasFromCutGroup == null)
+                    throw new Exception("at this point this should not be null at all");
+                getCriteriasFromCutGroup.ForEach(x => x.ChangeCaratRange(request.newCaratRange.caratFrom, request.newCaratRange.caratTo));
+                await _unitOfWork.SaveChangesAsync();
+                _diamondPriceRepository.RemoveAllCache();
+                return allCriteria.Values
+                    .SelectMany(x => x)
+                    .ToList();
+                //}
+                //else
+                //{
+                //Dictionary<Cut, Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>>> groupedByCut = new();
+                //foreach (var cut in CutHelper.GetCutList())
+                //{
+                //    Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>> allCriteria = new();
+                //    (float CaratFrom, float CaratTo)? tobeUpdatedRange = null;
+
+                //    allCriteria = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getshape, cancellationToken);
+                //    groupedByCut.Add(cut, allCriteria);
+                //    var orderedCutRange = allCriteria.Keys.OrderBy(x => x.CaratFrom).ToList();
+                //    foreach (var range in orderedCutRange)
+                //    {
+                //        if (request.oldCaratRange.caratFrom == range.CaratFrom
+                //            && request.oldCaratRange.caratTo == range.CaratTo)
+                //        {
+                //            tobeUpdatedRange = range;
+                //        }
+                //    }
+                //    if (tobeUpdatedRange == null)
+                //        return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.CaratRangeNotExist);
+                //    foreach (var range in orderedCutRange)
+                //    {
+                //        if (tobeUpdatedRange?.CaratFrom == range.CaratFrom && tobeUpdatedRange?.CaratTo == range.CaratTo)
+                //        {
+                //            continue; //ignore the old range, since this is what we aim to update
+                //        }
+                //        if (request.newCaratRange.caratFrom <= range.CaratTo && request.newCaratRange.caratTo >= range.CaratFrom)
+                //        {
+                //            return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.CaratRangeOverlaps(range.CaratFrom,range.CaratTo));
+                //        }
+                //    }
+                //    var getCriteriasFromCutGroup = allCriteria[tobeUpdatedRange.Value];
+                //    if (getCriteriasFromCutGroup == null)
+                //        throw new Exception("at this point this should not be null at all");
+                //    getCriteriasFromCutGroup.ForEach(x => x.ChangeCaratRange(request.newCaratRange.caratFrom, request.newCaratRange.caratTo));
+                //}
+                //await _unitOfWork.SaveChangesAsync();
+                //_diamondPriceRepository.RemoveAllCache();
+                //return groupedByCut.Values
+                //    .SelectMany(x => x.Values)
+                //    .SelectMany(x => x)
+                //    .ToList();
+                //}
             }
-            else 
+            else
             {
                 Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>> allCriteria = new();
                 (float CaratFrom, float CaratTo)? tobeUpdatedRange = null;
@@ -157,7 +157,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.UpdateRange
                     }
                     if (newRange.caratFrom < range.CaratTo && newRange.caratTo > range.CaratFrom)
                     {
-                        return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.CaratRangeOverlaps(range.CaratFrom,range.CaratTo));
+                        return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.CaratRangeOverlaps(range.CaratFrom, range.CaratTo));
                     }
                 }
                 var getCriteriasFromGroup = allCriteria[tobeUpdatedRange.Value];

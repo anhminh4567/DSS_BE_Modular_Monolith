@@ -20,12 +20,34 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
     {
         public DiamondShapeDto Shape { get; set; }
         public List<(float CaratFrom, float CaratTo)> UncoveredTableCaratRange { get; set; } = new();
+        public List<(float CaratFrom, float CaratTo)> MissingRange { get; set; } = new();
         public Cut MainCut { get; set; }
         public bool IsLabDiamondBoardPrices { get; set; }
         public bool IsSideDiamondBoardPrices { get; set; }
         public List<DiamondPriceTableDto> PriceTables { get; set; } = new();
         public static DiamondPriceBoardDto Create() => new DiamondPriceBoardDto() { IsSideDiamondBoardPrices = false };
+        public void FindMissingGaps()
+        {
+            var ranges = PriceTables.Select(x => (x.CaratFrom, x.CaratTo)).ToList();
+            // Handle edge cases
+            if (ranges == null || ranges.Count < 2)
+                return;// new List<(float CaratFrom, float CaratTo)>();
+            // Sort ranges by the "From" value
+            var sortedRanges = ranges.OrderBy(r => r.CaratFrom).ToList();
+            var missingGaps = new List<(float CaratFrom, float CaratTo)>();
 
+            for (int i = 0; i < sortedRanges.Count - 1; i++)
+            {
+                var current = sortedRanges[i];
+                var next = sortedRanges[i + 1];
+                // Check for a gap based on a precision of 0.01
+                if ((float)Math.Round(current.CaratTo + 0.01f, 2) < next.CaratFrom)
+                {
+                    missingGaps.Add( (current.CaratTo,next.CaratFrom));
+                }
+            }
+            MissingRange =  missingGaps;
+        }
     }
     public class DiamondPriceTableDto
     {
@@ -35,9 +57,10 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public Dictionary<Clarity, int> ClarityRange { get; set; } = new();
         //public List<DiamondPriceCellDataDto> PriceCells { get; set; } = new();
         public List<DiscountDto> DiscountFounded { get; set; } = new();
-        [System.Text.Json.Serialization.JsonIgnore]
-        [Newtonsoft.Json.JsonIgnore]
-        public List<DiamondCriteria> GroupedCriteria { get; set; }
+        //[System.Text.Json.Serialization.JsonIgnore]
+        //[Newtonsoft.Json.JsonIgnore]
+        //public List<DiamondCriteria> GroupedCriteria { get; set; }
+        public string CriteriaId { get; set; }
         public DiamondPriceCellDataDto[,] CellMatrix { get; set; }
         public bool IsAnyPriceUncover => CellMatrix.Cast<DiamondPriceCellDataDto>().Any(x => x.IsPriceKnown == false);
         public void FillAllCellsWithUnknonwPrice()
@@ -48,10 +71,10 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
                 {
                     var colorIndex = (int)color - 1;
                     var clarityIndex = (int)clarity - 1;
-                    var getCriteria = GroupedCriteria.First(x => x.Color == color && x.Clarity == clarity);
+                    //var getCriteria = GroupedCriteria..First(x => x.Color == color && x.Clarity == clarity);
                     CellMatrix[colorIndex, clarityIndex] = new DiamondPriceCellDataDto
                     {
-                        CriteriaId = getCriteria.Id.Value,
+                        DiamondPriceId = null,
                         Color = color,
                         Clarity = clarity,
                         Price = -1,
@@ -63,10 +86,11 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         {
             foreach (var price in prices)
             {
-                var criteria = price.Criteria;
-                var colorIndex = (int)criteria.Color - 1;
-                var clarityIndex = (int)criteria.Clarity - 1;
+                //var criteria = price.Criteria;
+                var colorIndex = (int)price.Color - 1;
+                var clarityIndex = (int)price.Clarity - 1;
                 CellMatrix[colorIndex, clarityIndex].Price = price.Price;
+                CellMatrix[colorIndex, clarityIndex].DiamondPriceId = price.Id.Value;
             }
         }
         public void MapDiscounts(List<Discount> activeDiscount, Cut mainCut, DiamondShape shape, bool isLabDiamond)
@@ -157,7 +181,7 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
     }
     public class DiamondPriceCellDataDto
     {
-        public string? CriteriaId { get; set; }
+        public string? DiamondPriceId { get; set; }
         public Cut? Cut { get; set; }
         public Color Color { get; set; }
         public Clarity Clarity { get; set; }

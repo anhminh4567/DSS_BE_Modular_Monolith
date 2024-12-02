@@ -46,9 +46,6 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
                     row.DiamondCriteria = new DiamondCriteriaDto
                     {
                         Id = criteria.Id.Value,
-                        Cut = criteria.Cut,
-                        Clarity = criteria.Clarity,
-                        Color = criteria.Color,
                         CaratFrom = criteria.CaratFrom,
                         CaratTo = criteria.CaratTo,
                     };

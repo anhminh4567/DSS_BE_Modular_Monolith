@@ -13,9 +13,9 @@ namespace DiamondShop.Domain.Repositories
     public interface IDiamondCriteriaRepository : IBaseRepository<DiamondCriteria>
     {
         Task CreateMany(List<DiamondCriteria> diamondCriterias);
-        Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableCaratRange(DiamondShape diamondShape, Cut? cut, CancellationToken cancellationToken = default);
+        Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableCaratRange(DiamondShape diamondShape, CancellationToken cancellationToken = default);//, Cut? cut
         Task<List<(float CaratFrom, float CaratTo)>> GroupAllAvailableSideDiamondCaratRange(CancellationToken cancellationToken = default);
-        Task<Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>>> GroupAllAvailableCriteria(DiamondShape diamondShape, Cut? cut, CancellationToken cancellationToken = default);
+        Task<Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>>> GroupAllAvailableCriteria(DiamondShape diamondShape, CancellationToken cancellationToken = default);//, Cut? cut
         Task<Dictionary<(float CaratFrom, float CaratTo), List<DiamondCriteria>>> GroupAllAvailableSideDiamondCriteria(CancellationToken cancellationToken = default);
         Task<List<DiamondCriteria>> GetCriteriasByManyId(List<DiamondCriteriaId> diamondCriteriaIds, CancellationToken cancellationToken = default);
     }

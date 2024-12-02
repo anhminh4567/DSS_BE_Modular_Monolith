@@ -10,8 +10,8 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.DeleteMany
             DeleteDiamondPriceParameterValidator validator = new DeleteDiamondPriceParameterValidator();
             RuleFor(x => x.isSideDiamond).NotNull().WithNotEmptyMessage();
             //RuleFor(x => x.isLab).NotNull();
-            RuleFor(x => x.deleteList).Cascade(CascadeMode.Stop).NotNull().WithNotEmptyMessage();
-            RuleForEach(x => x.deleteList).SetValidator(validator);
+            RuleFor(x => x.priceIds).Cascade(CascadeMode.Stop).NotNull().WithNotEmptyMessage();
+            //RuleForEach(x => x.deleteList).SetValidator(validator);
         }
         public class DeleteDiamondPriceParameterValidator : AbstractValidator<DeleteDiamondPriceParameter>
         {
