@@ -18,6 +18,7 @@ namespace DiamondShop.Infrastructure.Services.Pdfs.Models
         public string? IconPath { get; set; }
         public string? DiamondRingIconPath{ get; set; }
         public string? DiamondIconPath { get; set; }
+        public string? ShopAddress { get; set; }
 
     }
 }

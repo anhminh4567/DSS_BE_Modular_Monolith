@@ -12,7 +12,8 @@ using Newtonsoft.Json;
 
 namespace DiamondShop.Application.Usecases.AdminConfigurations.Orders.Commands
 {
-    public record UpdateOrderPaymentRuleConfigurationCommand(OrderPaymentRules requestDto) : IRequest<Result<OrderPaymentRules>>;
+    public record OrderPaymentRuleRequestDto(int? DepositPercent,int? CODPercent, int? PayAllFine, decimal? MaxMoneyFine, decimal? MinAmountForCOD, int? CODHourTimeLimit, List<string> LockedPaymentMethodOnCustomer);
+    public record UpdateOrderPaymentRuleConfigurationCommand(OrderPaymentRuleRequestDto requestDto) : IRequest<Result<OrderPaymentRules>>;
 
     internal class UpdateOrderPaymentRuleConfigurationCommandHandler : IRequestHandler<UpdateOrderPaymentRuleConfigurationCommand, Result<OrderPaymentRules>>
     {

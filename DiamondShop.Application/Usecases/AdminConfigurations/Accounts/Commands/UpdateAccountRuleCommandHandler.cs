@@ -17,7 +17,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.AdminConfigurations.Accounts.Commands
 {
-    public record UpdateAccountRuleCommand(AccountRules requestDto): IRequest<Result<AccountRules>>;
+    public record AccountRuleRequestDto(int? MaxAddress, decimal? VndPerPoint, decimal? TotalPointToBronze, decimal? TotalPointToSilver, decimal? TotalPointToGold);
+    public record UpdateAccountRuleCommand(AccountRuleRequestDto requestDto): IRequest<Result<AccountRules>>;
     internal class UpdateAccountRuleCommandHandler : IRequestHandler<UpdateAccountRuleCommand, Result<AccountRules>>
     {
         private readonly IMapper _mapper;

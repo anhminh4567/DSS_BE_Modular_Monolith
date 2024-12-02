@@ -30,7 +30,7 @@ namespace DiamondShop.Api.Controllers.AdminConfigurations
             return Ok(get.Value);
         }
         [HttpPost]
-        public async Task<ActionResult> UpdateConfiguration([FromBody] OrderRule command)
+        public async Task<ActionResult> UpdateConfiguration([FromBody] OrderRuleRequestDto command)
         {
             var updateResul = await _sender.Send(new UpdateOrderRuleConfigurationCommand(command));
             if (updateResul.IsFailed)
@@ -46,7 +46,7 @@ namespace DiamondShop.Api.Controllers.AdminConfigurations
             return Ok(get.Value);
         }
         [HttpPost("Payment")]
-        public async Task<ActionResult> UpdatePaymentConfiguration([FromBody] OrderPaymentRules command)
+        public async Task<ActionResult> UpdatePaymentConfiguration([FromBody] OrderPaymentRuleRequestDto command)
         {
             var updateResul = await _sender.Send(new UpdateOrderPaymentRuleConfigurationCommand(command));
             if (updateResul.IsFailed)

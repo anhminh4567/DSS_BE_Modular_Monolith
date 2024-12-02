@@ -107,7 +107,8 @@ namespace DiamondShop.Infrastructure.Services.Pdfs
                 Order = order,
                 DiamondIconPath = diamondIconPath,
                 DiamondRingIconPath = diamondRingIconPath,
-                IconPath = iconPath
+                IconPath = iconPath,
+                ShopAddress = _locationOptions.Value.ShopOrignalLocation.OriginalLocationName
             }).Result;
             return htmlString;
         }

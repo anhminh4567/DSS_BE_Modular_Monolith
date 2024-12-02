@@ -7,6 +7,8 @@
 @{
 	var order = Model.Order;
 	var account = Model.Account;
+	var shopLocation = Model.ShopAddress ?? "unknown";
+	var userLocation = order.ShippingAddress ?? "unknown";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -18,7 +20,7 @@
 		body {
 			font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 			box-sizing: border-box;
-			font-size: 14px;
+			font-size: 18px;
 			width: 100%;
 			background-color: transparent;
 			margin: 0;
@@ -56,7 +58,7 @@
 		}
 
 		.invoice {
-			width: 80%;
+			width: 90%;
 			margin: auto
 		}
 
@@ -99,29 +101,29 @@
 						<table class="main" width="100%" cellpadding="0" cellspacing="0">
 							<tbody>
 								@* <tr>
-									<td class="content-wrap aligncenter">
-										<div style="display:flex ; flex-direction: row; justify-content: space-between">
-											<div>
-												<a href="#">
-													<!--cid:logo-->
-													@if (Model.IconPath != null)
-													{
-														<img src="@Model.IconPath" style="height: 100px; margin-left: auto; margin-right: auto; display: block;" />
-													}
-													else
-													{
-														<img src="@Model.IconBase64" style="height: 100px; margin-left: auto; margin-right: auto; display: block;" />
-													}
-												</a>
-											</div>
-											<div>
-												<h2 class="aligncenter" style="font-family: 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif; font-size: 24px; color: #e5c738; line-height: 1.2em; font-weight: 600; text-align: center;">
-													<p style="color: black; font-weight: 700; margin: 0px">INVOICE</p>.
-												</h2>
-											</div>
-										</div>
+								<td class="content-wrap aligncenter">
+								<div style="display:flex ; flex-direction: row; justify-content: space-between">
+								<div>
+								<a href="#">
+								<!--cid:logo-->
+								@if (Model.IconPath != null)
+								{
+								<img src="@Model.IconPath" style="height: 100px; margin-left: auto; margin-right: auto; display: block;" />
+								}
+								else
+								{
+								<img src="@Model.IconBase64" style="height: 100px; margin-left: auto; margin-right: auto; display: block;" />
+								}
+								</a>
+								</div>
+								<div>
+								<h2 class="aligncenter" style="font-family: 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif; font-size: 24px; color: #e5c738; line-height: 1.2em; font-weight: 600; text-align: center;">
+								<p style="color: black; font-weight: 700; margin: 0px">INVOICE</p>.
+								</h2>
+								</div>
+								</div>
 
-									</td>
+								</td>
 								</tr> *@
 								<tr>
 									<td class="content-wrap aligncenter" align="center" valign="top">
@@ -131,7 +133,7 @@
 												<table class="invoice">
 													<tbody>
 														<tr>
-															<td class="content-wrap aligncenter">
+															<td class="content-wrap aligncenter" style="background-color:#e5c738">
 																<div style="display:flex ; flex-direction: row; justify-content: space-between">
 																	<div>
 																		<a href="#">
@@ -147,8 +149,8 @@
 																		</a>
 																	</div>
 																	<div>
-																		<h2 class="aligncenter" style="font-family: 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif; font-size: 24px; color: #e5c738; line-height: 1.2em; font-weight: 600; text-align: center;">
-																			<p style="color: black; font-weight: 700; margin: 0px">INVOICE</p>.
+																		<h2 class="aligncenter" style="font-family: 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif; font-size: 28px; color: #e5c738; line-height: 1.2em; font-weight: 600; text-align: center;">
+																			<p style="color: white; font-weight: 700; margin: 0px">INVOICE</p>.
 																		</h2>
 																	</div>
 																</div>
@@ -156,16 +158,23 @@
 															</td>
 														</tr>
 														<tr>
-															<td valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; padding: 5px 0">
-																<div class="" style="align-content:start">
-																	<p style="margin: 0px; text-align:start ">Tên khách hàng: @account.FullName.Value</p>
-																	<p style="margin: 0px; text-align:start ">Mã đơn của bạn: @order.OrderCode</p>
-																	<p style="margin: 0px; text-align:start ">
-																		Ngày tạo đơn: @order.CreatedDate.ToString(DateTimeFormatingRules.DateTimeFormat)
-																	</p>
-
+															<td valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; padding: 5px 0">
+																<div class="" style="display: flex; flex-direction: row; justify-content: space-between;">
+																	<div class="" style="align-content:start">
+																		<p style="margin: 0px; text-align:start ">Tên khách hàng: @account.FullName.Value</p>
+																		<p style="margin: 0px; text-align:start ">Mã đơn của bạn: @order.OrderCode</p>
+																		<p style="margin: 0px; text-align:start ">
+																			Ngày tạo đơn: @order.CreatedDate.ToString(DateTimeFormatingRules.DateTimeFormat)
+																		</p>
+																		<p style="margin: 0px; text-align:start ">
+																			Ngày tạo invoice: @DateTime.UtcNow.ToString(DateTimeFormatingRules.DateTimeFormat)
+																		</p>
+																	</div>
+																	<div class="" style="align-content:end">
+																		<p style="margin: 0px; text-align:start ">địa chỉ shop: @shopLocation</p>
+																		<p style="margin: 0px; text-align:start ">địa chỉ nhận hàng: @userLocation</p>
+																	</div>
 																</div>
-
 															</td>
 														</tr>
 														<tr>
@@ -175,60 +184,60 @@
 																		<tr style="border: solid; border-width: 1px; border-color: black">
 																			<td style="background-color:#e5c738; ">loại sản phẩm</td>
 																			<td style="background-color:#e5c738; ">mã code</td>
-																			<td style="background-color:#e5c738; ">giá chi tiết</td>
+																			<td align="right" style="background-color:#e5c738; ">giá chi tiết</td>
 																		</tr>
 																			@foreach (var item in order.Items)
 																			{
 																			<tr>
-																				@* <td style="width:120px; height:120px;border-top: 1px solid #eee; padding: 10px ">
+																					@* <td style="width:120px; height:120px;border-top: 1px solid #eee; padding: 10px ">
+																			@if (item.JewelryId != null)
+																			{
+																			@if (Model.DiamondRingIconPath != null)
+																			{
+																			<img style="display:block;" width="100%" height="100%" src="@Model.DiamondIconPath" />
+																			}
+																			else
+																			{
+																			<img style="display:block;" width="100%" height="100%" src="@Model.DiamondRingIconBase64" />
+																			}
+																			}
+																			else
+																			{
+																			@if (Model.DiamondIconPath != null)
+																			{
+																			<img style="display:block;" width="100%" height="100%" src="@Model.DiamondIconPath" />
+																			}
+																			else
+																			{
+																			<img style="display:block;" width="100%" height="100%" src="@Model.DiamondIconBase64" />
+																			}
+																			}
+																			</td> *@
+																				<td valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; vertical-align: top; border-top: 1px solid #eee; padding: 10px 0;">
 																						@if (item.JewelryId != null)
-																				{
-																				@if (Model.DiamondRingIconPath != null)
-																				{
-																				<img style="display:block;" width="100%" height="100%" src="@Model.DiamondIconPath" />
-																				}
-																				else
-																				{
-																				<img style="display:block;" width="100%" height="100%" src="@Model.DiamondRingIconBase64" />
-																				}
-																				}
-																				else
-																				{
-																				@if (Model.DiamondIconPath != null)
-																				{
-																				<img style="display:block;" width="100%" height="100%" src="@Model.DiamondIconPath" />
-																				}
-																				else
-																				{
-																				<img style="display:block;" width="100%" height="100%" src="@Model.DiamondIconBase64" />
-																				}
-																				}
-																				</td> *@
-																				<td valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; vertical-align: top; border-top: 1px solid #eee; padding: 10px 0;">
-																							@if (item.JewelryId != null)
-																							{
+																						{
 																						<p class="" style="margin: 0px; text-align:start">Trang sức </p>
-																							}
-																							else
-																							{
+																						}
+																						else
+																						{
 																						<p class="" style="margin: 0px; text-align:start">Kim cương viên chủ</p>
-																							}
+																						}
 																				</td>
-																				<td valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; vertical-align: top; border-top: 1px solid #eee; padding: 10px 0;">
-																							@if (item.JewelryId != null)
-																							{
+																				<td valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; vertical-align: top; border-top: 1px solid #eee; padding: 10px 0;">
+																						@if (item.JewelryId != null)
+																						{
 																						<p class="" style="margin: 0px; text-align:start">@item.Jewelry.SerialCode </p>
-																							}
-																							else
-																							{
+																						}
+																						else
+																						{
 																						<p class="" style="margin: 0px; text-align:start">@item.Diamond.SerialCode</p>
-																							}
+																						}
 																				</td>
 																				<td class="alignright" align="right" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; vertical-align: top; border-top: 1px solid #eee; padding: 10px 0;">
-																					<p class="" style="margin: 0px; text-align:end; white-space: nowrap; text-decoration: line-through; font-size: 10px;">
+																					<p class="" style="margin: 0px; text-align:end; white-space: nowrap; text-decoration: line-through; font-size: 14px;">
 																						Giá Gốc: @Convert.ToInt64(item.OriginalPrice) .Vnd
 																					</p>
-																					<p class="" style="margin: 0px; text-align:end; white-space: nowrap;">
+																					<p class="" style="margin: 0px; text-align:end; white-space: nowrap;  font-size: 18px;">
 																						Giá Giảm: @Convert.ToInt64(item.PurchasedPrice) .Vnd
 																					</p>
 																				</td>
@@ -237,27 +246,27 @@
 																		<tr>
 																			<td class="" align="left" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; vertical-align: top; border-top: 2px solid #e5c738; font-weight: 700; padding: 10px 0;"></td>
 																			<td class="alignright" align="right" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; vertical-align: top; border-top: 2px solid #e5c738;  font-weight: 700; padding: 10px 0;"> </td>
-																			<td class="alignright" align="right" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; vertical-align: top; border-top: 2px solid #e5c738; font-weight: 700; padding: 10px 0;">Tổng Đơn Ban đầu :@Convert.ToInt64(order.GetOrderItemPriceOnly()) .Vnd</td>
+																			<td class="alignright" align="right" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; vertical-align: top; border-top: 2px solid #e5c738; font-weight: 700; padding: 10px 0;">Tổng Đơn Ban đầu :@Convert.ToInt64(order.GetOrderItemPriceOnly()) .Vnd</td>
 																		</tr>
 																		<tr>
 																			<td class="" align="left" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10px; vertical-align: top;  padding: 10px 0;"></td>
 																			<td class="alignright" align="right" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; vertical-align: top;   padding: 1px 0;"> </td>
-																			<td class="alignright" align="right" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; vertical-align: top;  padding: 1px 0;">Giá Giảm của đơn hàng: -@Convert.ToInt64(order.OrderAmountSaved) .Vnd</td>
+																			<td class="alignright" align="right" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; vertical-align: top;  padding: 1px 0;">Giá Giảm của đơn hàng: -@Convert.ToInt64(order.OrderAmountSaved) .Vnd</td>
 																		</tr>
 																		<tr>
 																			<td class="" align="left" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10px; vertical-align: top;  padding: 10px 0;"></td>
 																			<td class="alignright" align="right" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; vertical-align: top;   padding: 1px 0;"> </td>
-																			<td class="alignright" align="right" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; vertical-align: top;   padding: 1px 0;">Giá Giảm của rank người dùng: -@Convert.ToInt64(order.UserRankAmountSaved) .Vnd</td>
+																			<td class="alignright" align="right" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; vertical-align: top;   padding: 1px 0;">Giá Giảm của rank người dùng: -@Convert.ToInt64(order.UserRankAmountSaved) .Vnd</td>
 																		</tr>
 																		<tr>
 																			<td class="" align="left" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10px; vertical-align: top;  padding: 1px 0;"></td>
 																			<td class="alignright" align="right" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; vertical-align: top;  padding: 1px 0;"> </td>
-																			<td class="alignright" align="right" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; vertical-align: top;   padding: 1px 0;">Giá Ship: +@Convert.ToInt64(order.ShippingFee) .Vnd</td>
+																			<td class="alignright" align="right" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; vertical-align: top;   padding: 1px 0;">Giá Ship: +@Convert.ToInt64(order.ShippingFee) .Vnd</td>
 																		</tr>
 																		<tr style="border-top: 1px solid #eee;">
 																			<td class="" align="left" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; vertical-align: top; border-bottom: 2px solid #e5c738; font-weight: 700; padding: 10px 0;"></td>
 																			<td class="alignright" align="right" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; vertical-align: top; border-bottom: 2px solid #e5c738;  font-weight: 700; padding: 10px 0;"> </td>
-																			<td class="alignright" align="right" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; vertical-align: top; border-bottom: 2px solid #e5c738; font-weight: 700; padding: 10px 0;">Giá Cuối cùng: @Convert.ToInt64(order.TotalPrice) .Vnd</td>
+																			<td class="alignright" align="right" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; vertical-align: top; border-bottom: 2px solid #e5c738; font-weight: 700; padding: 10px 0;">Giá Cuối cùng: @Convert.ToInt64(order.TotalPrice) .Vnd</td>
 																		</tr>
 														</tr>
 													</tbody>

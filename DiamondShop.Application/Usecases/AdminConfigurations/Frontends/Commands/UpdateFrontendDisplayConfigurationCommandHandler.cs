@@ -17,7 +17,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.AdminConfigurations.Frontends.Commands
 {
-    public record UpdateFrontendDisplayConfigurationCommand(FrontendDisplayConfiguration requestDto) : IRequest<Result<FrontendDisplayConfiguration>>;
+    public record FrontendDisplayConfigurationRequestDto(int? MaxCarouselImages, int? MinCarouselImages, int? DisplayTimeInSeconds);
+    public record UpdateFrontendDisplayConfigurationCommand(FrontendDisplayConfigurationRequestDto requestDto) : IRequest<Result<FrontendDisplayConfiguration>>;
     internal class UpdateFrontendDisplayConfigurationCommandHandler : IRequestHandler<UpdateFrontendDisplayConfigurationCommand, Result<FrontendDisplayConfiguration>>
     {
         private readonly IMapper _mapper;

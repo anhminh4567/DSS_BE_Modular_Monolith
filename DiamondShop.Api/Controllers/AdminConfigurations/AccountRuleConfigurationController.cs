@@ -28,7 +28,7 @@ namespace DiamondShop.Api.Controllers.AdminConfigurations
             return Ok(accountRule.Value);
         }
         [HttpPost()]
-        public async Task<ActionResult> UpdateDiamondRule([FromForm] AccountRules request)
+        public async Task<ActionResult> UpdateDiamondRule([FromForm] AccountRuleRequestDto request)
         {
             var updateResul = await _sender.Send(new UpdateAccountRuleCommand(request));
             if (updateResul.IsFailed)

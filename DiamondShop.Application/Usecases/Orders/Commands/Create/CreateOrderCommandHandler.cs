@@ -30,7 +30,7 @@ using Microsoft.Extensions.Options;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 {
-    public record CreateOrderInfo(PaymentType PaymentType, string methodId, string PaymentName, string? RequestId, string? PromotionId, BillingDetail BillingDetail, List<OrderItemRequestDto> OrderItemRequestDtos);
+    public record CreateOrderInfo(PaymentType PaymentType, string methodId, string PaymentName, string? RequestId, string? PromotionId, BillingDetail BillingDetail, List<OrderItemRequestDto> OrderItemRequestDtos,bool IsAtShopOrder = false);
     public record CreateOrderCommand(string AccountId, CreateOrderInfo CreateOrderInfo) : IRequest<Result<Order>>;
     internal class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Result<Order>>
     {
@@ -77,7 +77,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             var orderRule = _optionsMonitor.CurrentValue.OrderRule;
             await _unitOfWork.BeginTransactionAsync(token);
             request.Deconstruct(out string accountId, out CreateOrderInfo createOrderInfo);
-            createOrderInfo.Deconstruct(out PaymentType paymentType, out string methodId, out string paymentName, out string? requestId, out string? promotionId, out BillingDetail billingDetail, out List<OrderItemRequestDto> orderItemReqs);
+            createOrderInfo.Deconstruct(out PaymentType paymentType, out string methodId, out string paymentName, out string? requestId, out string? promotionId, out BillingDetail billingDetail, out List<OrderItemRequestDto> orderItemReqs, out bool isAtShop);
             var account = await _accountRepository.GetById(AccountId.Parse(accountId));
             if (account == null)
                 return Result.Fail(AccountErrors.AccountNotFoundError);

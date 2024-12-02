@@ -19,5 +19,9 @@ namespace DiamondShop.Application.Commons.Utilities
         {
             return user.FindFirst(IJwtTokenProvider.IDENTITY_CLAIM_NAME)?.Value;
         }
+        public static string[]? GetUserRoles(this ClaimsPrincipal user)
+        {
+            return user.FindAll(IJwtTokenProvider.ROLE_CLAIM_NAME).Select(x => x.Value).ToArray();
+        }
     }
 }

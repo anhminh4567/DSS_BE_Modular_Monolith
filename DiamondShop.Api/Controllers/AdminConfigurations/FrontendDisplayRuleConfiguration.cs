@@ -30,7 +30,7 @@ namespace DiamondShop.Api.Controllers.AdminConfigurations
             return Ok(get.Value);
         }
         [HttpPost]
-        public async Task<ActionResult> UpdateConfiguration([FromBody]FrontendDisplayConfiguration command)
+        public async Task<ActionResult> UpdateConfiguration([FromBody]FrontendDisplayConfigurationRequestDto command)
         {
             var updateResul = await _sender.Send(new UpdateFrontendDisplayConfigurationCommand(command));
             if(updateResul.IsFailed)
