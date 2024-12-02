@@ -13,6 +13,7 @@ using DiamondShop.Application.Usecases.Orders.Commands.Reject;
 using DiamondShop.Application.Usecases.Orders.Commands.Transfer.Customer;
 using DiamondShop.Application.Usecases.Orders.Commands.Transfer.Deliverer;
 using DiamondShop.Application.Usecases.Orders.Commands.Transfer.Manager;
+using DiamondShop.Application.Usecases.Orders.Commands.Transfer.Staff;
 using DiamondShop.Application.Usecases.Orders.Queries.GetAll;
 using DiamondShop.Application.Usecases.Orders.Queries.GetOrderFilter;
 using DiamondShop.Application.Usecases.Orders.Queries.GetPaymentLink;
@@ -226,7 +227,7 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return Unauthorized();
         }
-        [HttpPut("ConfirmCOD")]
+        [HttpPut("Deliverer/ConfirmTransfer/COD")]
         [Authorize(Roles = AccountRole.DelivererId)]
         public async Task<ActionResult> DeliverConfirmCODTransfer([FromQuery] TransferVerifyRequestDto transferConfirmRequestDto)
         {
@@ -246,9 +247,9 @@ namespace DiamondShop.Api.Controllers.Orders
                 return Unauthorized();
         }
 
-        [HttpPost("CompleteTransfer")]
-        [Authorize(Roles = AccountRole.ManagerId)]
-        public async Task<ActionResult> CompleteTransfer([FromBody] TransferConfirmRequestDto transferCompleteRequestDto)
+        [HttpPut("Staff/ConfirmTransfer/Pending")]
+        [Authorize(Roles = AccountRole.StaffId)]
+        public async Task<ActionResult> ConfirmPendingTransfer([FromBody] TransferConfirmRequestDto transferCompleteRequestDto)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
@@ -263,8 +264,25 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return Unauthorized();
         }
+        [HttpPut("Staff/ConfirmTransfer/Delivering")]
+        [Authorize(Roles = AccountRole.StaffId)]
+        public async Task<ActionResult> ConfirmDeliveringTransfer([FromBody] TransferConfirmRequestDto transferCompleteRequestDto)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(new StaffConfirmDeliveringTransferCommand(userId.Value, transferCompleteRequestDto));
+                if (result.IsSuccess)
+                {
+                    return Ok(result.Value);
+                }
+                return MatchError(result.Errors, ModelState);
+            }
+            else
+                return Unauthorized();
+        }
 
-        [HttpPut("CompleteRefund")]
+        [HttpPut("Manager/ConfirmTransfer/Refund")]
         [Authorize(Roles = AccountRole.ManagerId)]
         public async Task<ActionResult> CompleteOrderRefund([FromQuery] RefundConfirmRequestDto refundConfirmRequestDto)
         {
