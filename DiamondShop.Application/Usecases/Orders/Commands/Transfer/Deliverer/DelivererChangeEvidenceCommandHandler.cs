@@ -39,15 +39,15 @@ namespace DiamondShop.Api.Controllers.Orders
                 return Result.Fail(TransactionErrors.TransactionNotFoundError);
             else if (transaction.Status != TransactionStatus.Verifying)
                 return Result.Fail(TransactionErrors.TransferError.VerifiedError);
-            else if (transaction.Status != TransactionStatus.Verifying)
+            else if (transaction.Evidence == null || String.IsNullOrEmpty(transaction.Evidence.MediaPath))
                 return Result.Fail(TransactionErrors.TransferError.EvidenceNotFoundError);
             else if (transaction.Order == null)
                 return Result.Fail(OrderErrors.OrderNotFoundError);
             var order = transaction.Order;
-            if(order.DelivererId != AccountId.Parse(accountId))
+            if (order.DelivererId != AccountId.Parse(accountId))
                 return Result.Fail(OrderErrors.NoPermissionError);
-            var deleteResult = await _transferFileService.DeleteTransferImage(transaction,token);
-            if(deleteResult.IsFailed)
+            var deleteResult = await _transferFileService.DeleteTransferImage(transaction, token);
+            if (deleteResult.IsFailed)
                 return Result.Fail(deleteResult.Errors);
             var uploadResult = await _transferFileService.UploadTransferImage(transaction, new FileData(evidence.FileName, null, evidence.ContentType, evidence.OpenReadStream()));
             if (uploadResult.IsFailed)

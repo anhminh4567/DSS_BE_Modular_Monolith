@@ -38,7 +38,7 @@ namespace DiamondShop.Api.Controllers.Orders
                 return Result.Fail(TransactionErrors.TransactionNotFoundError);
             else if (transaction.Status != TransactionStatus.Verifying)
                 return Result.Fail(TransactionErrors.TransferError.VerifiedError);
-            else if (transaction.Status != TransactionStatus.Verifying)
+            else if (transaction.Evidence == null || String.IsNullOrEmpty(transaction.Evidence.MediaPath))
                 return Result.Fail(TransactionErrors.TransferError.EvidenceNotFoundError);
             else if (transaction.Order == null)
                 return Result.Fail(OrderErrors.OrderNotFoundError);
