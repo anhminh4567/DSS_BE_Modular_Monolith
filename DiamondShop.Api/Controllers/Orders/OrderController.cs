@@ -102,7 +102,7 @@ namespace DiamondShop.Api.Controllers.Orders
         }
         [HttpPost("AddTransfer")]
         [Authorize(Roles = AccountRole.CustomerId)]
-        public async Task<ActionResult> AddTransfer([FromBody] TransferVerifyRequestDto transferSubmitRequestDto)
+        public async Task<ActionResult> AddTransfer([FromForm] TransferVerifyRequestDto transferSubmitRequestDto)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
@@ -143,20 +143,14 @@ namespace DiamondShop.Api.Controllers.Orders
         [Authorize(Roles = AccountRole.StaffId)]
         public async Task<ActionResult> ShopRejectOrder([FromQuery] string orderId, string reason)
         {
-            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
-            if (userId != null)
+            var result = await _sender.Send(new RejectOrderCommand(orderId, reason));
+            if (result.IsSuccess)
             {
-                var result = await _sender.Send(new RejectOrderCommand(orderId, userId.Value, reason));
-                if (result.IsSuccess)
-                {
-                    var mappedResult = _mapper.Map<OrderDto>(result.Value);
-                    return Ok(mappedResult);
-                }
-                else
-                    return MatchError(result.Errors, ModelState);
+                var mappedResult = _mapper.Map<OrderDto>(result.Value);
+                return Ok(mappedResult);
             }
             else
-                return Unauthorized();
+                return MatchError(result.Errors, ModelState);
         }
 
         [HttpPut("AssignDeliverer")]
@@ -281,10 +275,27 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return Unauthorized();
         }
+        [HttpPut("Staff/RejectTransfer")]
+        [Authorize(Roles = AccountRole.StaffId)]
+        public async Task<ActionResult> RejectTransfer([FromBody] TransferRejectRequestDto transferRejectRequestDto)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(new StaffRejectTransferCommand(userId.Value, transferRejectRequestDto));
+                if (result.IsSuccess)
+                {
+                    return Ok(result.Value);
+                }
+                return MatchError(result.Errors, ModelState);
+            }
+            else
+                return Unauthorized();
+        }
 
-        [HttpPut("Manager/ConfirmTransfer/Refund")]
+        [HttpPost("Manager/ConfirmTransfer/Refund")]
         [Authorize(Roles = AccountRole.ManagerId)]
-        public async Task<ActionResult> CompleteOrderRefund([FromQuery] RefundConfirmRequestDto refundConfirmRequestDto)
+        public async Task<ActionResult> CompleteOrderRefund([FromForm] RefundConfirmRequestDto refundConfirmRequestDto)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
