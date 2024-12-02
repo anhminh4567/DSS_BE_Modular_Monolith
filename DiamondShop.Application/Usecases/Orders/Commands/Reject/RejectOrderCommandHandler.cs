@@ -14,7 +14,7 @@ using MediatR;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
 {
-    public record RejectOrderCommand(string OrderId, string UserId, string Reason) : IRequest<Result<Order>>;
+    public record RejectOrderCommand(string OrderId, string Reason) : IRequest<Result<Order>>;
     internal class RejectOrderCommandHandler : IRequestHandler<RejectOrderCommand, Result<Order>>
     {
         private readonly IOrderRepository _orderRepository;
@@ -34,7 +34,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
 
         public async Task<Result<Order>> Handle(RejectOrderCommand request, CancellationToken token)
         {
-            request.Deconstruct(out string orderId, out string accountId, out string reason);
+            request.Deconstruct(out string orderId, out string reason);
             await _unitOfWork.BeginTransactionAsync(token);
             var order = await _orderRepository.GetById(OrderId.Parse(orderId));
             if (order == null)

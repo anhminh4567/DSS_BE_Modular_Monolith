@@ -31,7 +31,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Transfer.Customer
         private readonly IOrderService _orderService;
         private readonly ITransferFileService _transferFileService;
 
-        public CustomerTransferCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderLogRepository orderLogRepository, IOrderTransactionService orderTransactionService, ITransactionRepository transactionRepository)
+        public CustomerTransferCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderLogRepository orderLogRepository, IOrderTransactionService orderTransactionService, ITransactionRepository transactionRepository, ITransferFileService transferFileService)
         {
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
@@ -39,6 +39,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Transfer.Customer
             _orderLogRepository = orderLogRepository;
             _orderTransactionService = orderTransactionService;
             _transactionRepository = transactionRepository;
+            _transferFileService = transferFileService;
         }
 
         public async Task<Result<Order>> Handle(CustomerTransferCommand request, CancellationToken token)
@@ -61,6 +62,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Transfer.Customer
 
             var manualPayment = Transaction.CreateManualPayment(order.Id, $"{(order.PaymentType == PaymentType.Payall ? "Trả hết" : "Cọc trước")} từ khách hàng {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", payAmount, TransactionType.Pay);
             await _transactionRepository.Create(manualPayment, token);
+            await _unitOfWork.SaveChangesAsync(token);
             //add evidence to blob
             var uploadResult = await _transferFileService.UploadTransferImage(manualPayment, new FileData(evidence.FileName, null, evidence.ContentType, evidence.OpenReadStream()));
             if (uploadResult.IsFailed)

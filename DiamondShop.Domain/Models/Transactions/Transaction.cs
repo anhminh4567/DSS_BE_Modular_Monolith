@@ -83,7 +83,6 @@ namespace DiamondShop.Domain.Models.Transactions
         }
         public static Transaction CreateManualPayment(OrderId orderId, string description, decimal amount, TransactionType type)
         {
-            var dateTimeNow = DateTime.UtcNow;
             return new Transaction
             {
                 Id = TransactionId.Create(),
@@ -93,10 +92,9 @@ namespace DiamondShop.Domain.Models.Transactions
                 TransactionAmount = amount,
                 OrderId = orderId,
                 FineAmount = 0,
-                VerifiedDate = dateTimeNow,
-                TimeStamp = dateTimeNow.ToString(TransactionRule.TransactionTimeStamp),
                 IsManual = true,
-                Status = TransactionStatus.Verifying
+                Status = TransactionStatus.Verifying,
+                TimeStamp = DateTime.UtcNow.ToString(TransactionRule.TransactionTimeStamp),
             };
         }
         public static Transaction CreateManualRefund(OrderId orderId, AccountId verifierId, string transactionCode, string description, decimal amount)
@@ -121,13 +119,18 @@ namespace DiamondShop.Domain.Models.Transactions
         }
 
         private Transaction() { }
-        public void Verify(AccountId verifierId, string transactionCode)
+        public void VerifySuccess(AccountId verifierId, string transactionCode)
         {
             VerifierId = verifierId;
             AppTransactionCode = transactionCode;
             Status = TransactionStatus.Valid;
             VerifiedDate = DateTime.UtcNow;
-            
+        }
+        public void VerifyFail(AccountId verifierId)
+        {
+            VerifierId = verifierId;
+            Status = TransactionStatus.Invalid;
+            VerifiedDate = DateTime.UtcNow;
         }
 
         //public void VerifyZalopay(string transactionCode, string paygateTransactionCode, string timeStamp)

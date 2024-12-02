@@ -56,7 +56,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Transfer.Staff
                 return Result.Fail(OrderErrors.UnproceedableError);
             else if (DateTime.UtcNow > order.ExpiredDate)
                 return Result.Fail(OrderErrors.ExpiredTimeDueError);
-            manualPayment.Verify(AccountId.Parse(accountId), transactionCode);
+            manualPayment.VerifySuccess(AccountId.Parse(accountId), transactionCode);
             await _transactionRepository.Update(manualPayment, token);
             order.PaymentStatus = PaymentStatus.Paid;
             await _orderRepository.Update(order);

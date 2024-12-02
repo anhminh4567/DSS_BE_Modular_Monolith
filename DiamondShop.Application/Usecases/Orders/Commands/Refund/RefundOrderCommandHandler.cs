@@ -76,6 +76,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Refund
                     return Result.Fail(TransactionErrors.TransactionNotValid);
                 var refundPayment = Transaction.CreateManualRefund(order.Id, AccountId.Parse(accountId), transactionCode, $"Hoàn tiền đến khách hàng {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng ${order.OrderCode}", refundAmount);
                 await _transactionRepository.Create(refundPayment);
+                await _unitOfWork.SaveChangesAsync(token);
                 var uploadResult = await _transferFileService.UploadTransferImage(refundPayment, new FileData(evidence.FileName, null, evidence.ContentType, evidence.OpenReadStream()));
                 if (uploadResult.IsFailed)
                     return Result.Fail(uploadResult.Errors);
