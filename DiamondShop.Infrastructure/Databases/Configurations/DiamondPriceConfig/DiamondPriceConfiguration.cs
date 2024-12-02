@@ -29,6 +29,10 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondPriceConfig
             .HasConversion(
                 Id => Id.Value,
                 dbValue => DiamondPriceId.Parse(dbValue));
+            builder.Property(o => o.OldAccountIdUpdate)
+            .HasConversion(
+                Id => Id.Value,
+                dbValue => AccountId.Parse(dbValue));
             builder.Property(o => o.AccountId)
            .HasConversion(
                Id => Id.Value,

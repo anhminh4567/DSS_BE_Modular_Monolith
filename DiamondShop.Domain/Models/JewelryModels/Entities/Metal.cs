@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using System.ComponentModel.DataAnnotations.Schema;
 

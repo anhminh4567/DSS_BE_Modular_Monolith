@@ -29,8 +29,8 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.NotificationConfig
             .HasConversion(
                 Id => Id.Value,
                 dbValue => OrderId.Parse(dbValue));
-            builder.HasOne(o => o.Account).WithOne().HasForeignKey<Notification>(o => o.AccountId).IsRequired(false);
-            builder.HasOne(o => o.Order).WithOne().HasForeignKey<Notification>(o => o.OrderId).IsRequired(false);
+            builder.HasOne(o => o.Account).WithMany().HasForeignKey(o => o.AccountId).IsRequired(false).OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(o => o.Order).WithMany().HasForeignKey(o => o.OrderId).IsRequired(false).OnDelete(DeleteBehavior.Cascade);
             builder.HasKey(o => o.Id);
 
         }

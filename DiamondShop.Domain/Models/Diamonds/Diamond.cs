@@ -59,6 +59,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         public decimal? DefaultPrice { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public decimal? FixPriceOffset { get; set; }
         [NotMapped]
         public bool IsSetForJewelry { get => JewelryId != null; }
         [NotMapped]

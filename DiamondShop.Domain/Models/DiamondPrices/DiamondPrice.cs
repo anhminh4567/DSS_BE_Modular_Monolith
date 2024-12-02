@@ -30,6 +30,9 @@ namespace DiamondShop.Domain.Models.DiamondPrices
         public AccountId? AccountId { get; set; }
         public decimal Price { get; set; }
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public decimal? OldPrice { get; set; }
+        public DateTime? OldUpdatedAt { get; set; }
+        public AccountId? OldAccountIdUpdate { get; set; }
         [NotMapped]
         public string? ForUnknownPrice { get; set; }
 
