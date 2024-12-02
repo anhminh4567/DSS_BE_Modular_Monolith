@@ -169,7 +169,9 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             ArgumentNullException.ThrowIfNull(paymentLinkRequest.Order);
             if (paymentLinkRequest.Order.ExpiredDate != null)
             {
-                return Result.Fail("order expired already");
+                var expriredDate= paymentLinkRequest.Order.ExpiredDate.Value;
+                if(expriredDate <= DateTime.UtcNow)
+                    return Result.Fail("order expired already");
             }
             var transactionOption = _optionsMonitor.CurrentValue.TransactionRule;
             if(paymentLinkRequest.Amount > transactionOption.MaximumPerTransaction)
@@ -379,13 +381,13 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
         {
             if(order.Status != OrderStatus.Pending && order.Status != OrderStatus.Delivering)
                 return null;
-            if(order.ExpiredDate != null)
-                return null;
+            //if(order.ExpiredDate != null)
+            //    return null;
             if(order.PaymentStatus == PaymentStatus.Paid)
                 return null;
             if (order.Status == OrderStatus.Pending)
             {
-                var orderEndDateExpected = order.CreatedDate.AddHours(OrderRules.ExpiredOrderHour).ToUniversalTime();
+                var orderEndDateExpected = order.ExpiredDate.Value;//order.CreatedDate.AddHours(OrderRules.ExpiredOrderHour).ToUniversalTime();
                 double trueTimeRemainForPaymentLink = (orderEndDateExpected - DateTime.UtcNow).TotalSeconds;
                 trueTimeRemainForPaymentLink = Math.Floor(trueTimeRemainForPaymentLink);
                 return trueTimeRemainForPaymentLink;
