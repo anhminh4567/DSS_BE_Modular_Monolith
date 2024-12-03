@@ -27,8 +27,9 @@ namespace DiamondShop.Infrastructure.Services.Locations.Locally
         public LocalLocationService(ILogger<LocalLocationService> logger, ILocationRepository locationRepository, ILogger<OApiLocationService> logger1, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _logger = logger;
-             _oApiLocationService = new OApiLocationService(logger1,optionsMonitor) ;
+            _oApiLocationService = new OApiLocationService(logger1, optionsMonitor);
             _locationRepository = locationRepository;
+            _applicationSettingGlobal = optionsMonitor;
         }
 
         public Task<Result<LocationDistantData>> GetDistant(string originPlaceId, string destinationPlaceId, CancellationToken cancellationToken = default)
@@ -43,7 +44,7 @@ namespace DiamondShop.Infrastructure.Services.Locations.Locally
 
         public Task<Result<LocationDistantData>> GetDistantFromBaseShopLocation(LocationDetail Destination, CancellationToken cancellationToken = default)
         {
-            return _oApiLocationService.GetDistantFromBaseShopLocation(Destination,cancellationToken);
+            return _oApiLocationService.GetDistantFromBaseShopLocation(Destination, cancellationToken);
         }
 
         public List<District> GetDistricts(string provinceId)
@@ -54,7 +55,7 @@ namespace DiamondShop.Infrastructure.Services.Locations.Locally
         public List<Province> GetProvinces()
         {
             _logger.LogInformation("get all province is called");
-            return  _locationRepository.GetAllProvince().Result;// _allowedProvince.OrderBy(o => o.Id).ToList(); //JsonConvert.DeserializeObject<List<Province>>(_jsonAllowedProvince)!;
+            return _locationRepository.GetAllProvince().Result;// _allowedProvince.OrderBy(o => o.Id).ToList(); //JsonConvert.DeserializeObject<List<Province>>(_jsonAllowedProvince)!;
         }
 
         public List<Ward> GetWards(string districtId)
@@ -82,7 +83,7 @@ namespace DiamondShop.Infrastructure.Services.Locations.Locally
             };
         }
 
-        public static List<Province> ALLOWED_PROVINCE { get => _allowedProvince;  }
+        public static List<Province> ALLOWED_PROVINCE { get => _allowedProvince; }
         //public static List<Province> JSON_ALLLOWED_PROVINCE = JsonConvert.DeserializeObject<List<Province>>(_jsonAllowedProvince!)!;
         private static string _jsonAllowedProvince = "[{\"Id\":\"1\",\"Name\":\"HàNội\",\"IsActive\":true,\"NameExtension\":[\"HàNội\"]}," +
             "{\"Id\":\"10\",\"Name\":\"LàoCai\",\"IsActive\":true,\"NameExtension\":[\"LàoCai\"]},{\"Id\":\"11\",\"Name\":\"ĐiệnBiên\"," +
