@@ -23,6 +23,7 @@ namespace DiamondShop.Domain.Common
         public OrderPaymentRules OrderPaymentRules { get; set; } = OrderPaymentRules.Default;
         public CartModelRules CartModelRules { get; set; } = CartModelRules.Default;
         public OrderRule OrderRule { get; set; } = OrderRule.Default;
+        public LocationRules LocationRules { get; set; } = LocationRules.Default;
         public static Dictionary<string, object> DEFAULTS = new Dictionary<string, object>
         {
             { DiamondRule.key, DiamondRule.Default },
@@ -37,7 +38,8 @@ namespace DiamondShop.Domain.Common
             { FrontendDisplayConfiguration.Key, FrontendDisplayConfiguration.Default },
             { CartModelRules.key, CartModelRules.Default},
             { OrderPaymentRules.key, OrderPaymentRules.Default},
-            { OrderRule.key, OrderRule.Default }
+            { OrderRule.key, OrderRule.Default },
+            { LocationRules.Key, LocationRules.Default }
         };
         public static List<string> RULE_KEYS = new List<string>
         {
@@ -51,7 +53,8 @@ namespace DiamondShop.Domain.Common
             BlogRules.key,
             LoggingRules.key,
             OrderPaymentRules.key,
-            OrderRule.key
+            OrderRule.key,
+            LocationRules.Key
         };
         private Dictionary<string, object > _extraSetting= new();
         public Dictionary<string, object> ExtraSettings { get => _extraSetting; }

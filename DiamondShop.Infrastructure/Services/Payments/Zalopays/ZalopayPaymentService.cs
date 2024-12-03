@@ -118,13 +118,14 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                     // neu chua ton tai ==> auto save transaction
                     Transaction? tryGetTransaction = await _transactionRepository.GetByAppAndPaygateId(appGivenId,paymentGateId);
                     List<PaymentMethod> paymentMethods = await _paymentMethodRepository.GetAll();
-                    var zalopayMethod = paymentMethods.First(x => x.MethodName.ToUpper() == "ZALOPAY");
+                    var zalopayMethod = paymentMethods.First(x => x.MethodName.ToUpper() == PaymentMethod.ZALOPAY.MethodName.ToUpper());
                     _logger.LogInformation("update order's status = success where app_trans_id = {0}", dataObject.app_trans_id);
                     if (tryGetTransaction == null) // check neu thanh cong, check DB xem transaction ton tai hay chuaw thi tra ve return_code = 1
                     {
                         await _unitOfWork.BeginTransactionAsync();
                         var orderIdParsed = OrderId.Parse(metaData.ForOrderId);
                         var newTran = Transaction.CreatePayment(zalopayMethod.Id, orderIdParsed, metaData.Description,dataObject.app_trans_id,dataObject.zp_trans_id.ToString(),metaData.TimeStampe,dataObject.amount,DateTime.UtcNow);
+                        newTran.VerifyZalopay(dataObject.app_trans_id, dataObject.zp_trans_id.ToString(), metaData.TimeStampe);
                         await _transactionRepository.Create(newTran);
                         result["return_code"] = 1;
                         result["return_message"] = "success";

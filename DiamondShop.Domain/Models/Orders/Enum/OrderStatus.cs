@@ -26,7 +26,7 @@ namespace DiamondShop.Domain.Models.Orders.Enum
                 case OrderStatus.Cancelled:
                     return "Người dùng từ chối";
                 case OrderStatus.Prepared:
-                    return "Đẫ chuẩn bị đơn hàng";
+                    return "Đã chuẩn bị đơn hàng";
                 case OrderStatus.Delivering:
                     return "Đang giao hàng";
                 case OrderStatus.Delivery_Failed:

@@ -22,6 +22,7 @@ using System.Data;
 using Syncfusion.Drawing;
 using System.Reflection;
 using DiamondShop.Infrastructure.Databases.Configurations.PromoConfig;
+using DiamondShop.Domain.Common;
 
 namespace DiamondShop.Infrastructure.Services.Pdfs
 {
@@ -30,18 +31,18 @@ namespace DiamondShop.Infrastructure.Services.Pdfs
         private const string OrderInvoiceTemplateFileName = "OrderInvoiceTemplate.cshtml";
         private readonly IOptions<PublicBlobOptions> _publicBlobOptions;
         private readonly IOptions<ExternalUrlsOptions> _externalUrlsOptions;
-        private readonly IOptions<LocationOptions> _locationOptions;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _applicationSettingGlobal;
         static GeneratePdfService()
         {
             SelectPdf.GlobalProperties.EnableFallbackToRestrictedRenderingEngine = true;
 
         }
 
-        public GeneratePdfService(IOptions<PublicBlobOptions> publicBlobOptions, IOptions<ExternalUrlsOptions> externalUrlsOptions, IOptions<LocationOptions> locationOptions)
+        public GeneratePdfService(IOptions<PublicBlobOptions> publicBlobOptions, IOptions<ExternalUrlsOptions> externalUrlsOptions, IOptionsMonitor<ApplicationSettingGlobal> applicationSettingGlobal)
         {
             _publicBlobOptions = publicBlobOptions;
             _externalUrlsOptions = externalUrlsOptions;
-            _locationOptions = locationOptions;
+            _applicationSettingGlobal = applicationSettingGlobal;
         }
 
         public static Stream GeneratePdfDoc(string htmlString)
@@ -108,7 +109,7 @@ namespace DiamondShop.Infrastructure.Services.Pdfs
                 DiamondIconPath = diamondIconPath,
                 DiamondRingIconPath = diamondRingIconPath,
                 IconPath = iconPath,
-                ShopAddress = _locationOptions.Value.ShopOrignalLocation.OriginalLocationName
+                ShopAddress = _applicationSettingGlobal.CurrentValue.LocationRules.OriginalLocationName
             }).Result;
             return htmlString;
         }

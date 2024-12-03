@@ -1,6 +1,7 @@
 ﻿using Azure.Storage.Blobs.Models;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Models;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.Addresses;
 using DiamondShop.Domain.Repositories.LocationRepo;
 using DiamondShop.Infrastructure.Options;
@@ -20,15 +21,13 @@ namespace DiamondShop.Infrastructure.Services.Locations.Locally
     internal class LocalLocationService : ILocationService
     {
         private readonly ILogger<LocalLocationService> _logger;
-        private readonly IOptions<LocationOptions> _locationOptions;
         private readonly OApiLocationService _oApiLocationService;
         private readonly ILocationRepository _locationRepository;
-        
-        public LocalLocationService(ILogger<LocalLocationService> logger, IOptions<LocationOptions> locationOptions, ILocationRepository locationRepository, ILogger<OApiLocationService> logger1)
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _applicationSettingGlobal;
+        public LocalLocationService(ILogger<LocalLocationService> logger, ILocationRepository locationRepository, ILogger<OApiLocationService> logger1, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _logger = logger;
-            _locationOptions = locationOptions;
-             _oApiLocationService = new OApiLocationService(_locationOptions,logger1) ;
+             _oApiLocationService = new OApiLocationService(logger1,optionsMonitor) ;
             _locationRepository = locationRepository;
         }
 
@@ -76,10 +75,10 @@ namespace DiamondShop.Infrastructure.Services.Locations.Locally
             }
             return new LocationDetail
             {
-                District = _locationOptions.Value.ShopOrignalLocation.OrignalDistrict,
-                Province = _locationOptions.Value.ShopOrignalLocation.OriginalProvince,
-                Road = _locationOptions.Value.ShopOrignalLocation.OrignalRoad,
-                Ward = _locationOptions.Value.ShopOrignalLocation.OrignalWard,
+                District = _applicationSettingGlobal.CurrentValue.LocationRules.OrignalDistrict, //_locationOptions.Value.ShopOrignalLocation.OrignalDistrict,
+                Province = _applicationSettingGlobal.CurrentValue.LocationRules.OriginalProvince,
+                Road = _applicationSettingGlobal.CurrentValue.LocationRules.OrignalRoad,
+                Ward = _applicationSettingGlobal.CurrentValue.LocationRules.OrignalWard,
             };
         }
 

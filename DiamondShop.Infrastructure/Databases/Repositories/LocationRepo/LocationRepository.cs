@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Common.Addresses;
+﻿using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Common.Addresses;
 using DiamondShop.Domain.Models.Locations;
 using DiamondShop.Domain.Repositories.LocationRepo;
 using DiamondShop.Infrastructure.Options;
@@ -19,10 +20,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.LocationRepo
         private readonly DiamondShopDbContext _dbContext;
         private readonly OApiLocationService _oApiLocationService;
 
-        public LocationRepository(DiamondShopDbContext dbContext , IOptions<LocationOptions> locationOptions, ILogger<OApiLocationService> logger1)
+        public LocationRepository(DiamondShopDbContext dbContext , ILogger<OApiLocationService> logger1,IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _dbContext = dbContext;
-            _oApiLocationService = new OApiLocationService(locationOptions,logger1);
+            _oApiLocationService = new OApiLocationService(logger1, optionsMonitor);
         }
 
         public Task<List<Province>> GetAllProvince(CancellationToken cancellationToken = default)

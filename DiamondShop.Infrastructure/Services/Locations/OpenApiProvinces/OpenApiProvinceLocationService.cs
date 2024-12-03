@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Models;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.Addresses;
 using DiamondShop.Infrastructure.Options;
 using DiamondShop.Infrastructure.Services.Locations.Models;
@@ -26,14 +27,14 @@ namespace DiamondShop.Infrastructure.Services.Locations
         private const string SERPER_MAP_URL = "https://google.serper.dev/maps";
         //this is a key, no worry, free tier, no billing attach;
         private const string GOOGLE = "AIzaSyCbT6hCrpFqLQKVFbBTSPSkFPpuYTqcWWU";
-        private const string GOOGLE_MAP_URL = "https://maps.googleapis.com/maps/api/distancematrix/json";
-        private readonly IOptions<LocationOptions> _locationOptions;
-        private readonly ILogger<OpenApiProvinceLocationService> _logger;
+        private const string GOOGLE_MAP_URL = "https://maps.googleapis.com/maps/api/distancematrix/json"; 
+       private readonly ILogger<OpenApiProvinceLocationService> _logger;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public OpenApiProvinceLocationService(IOptions<LocationOptions> locationOptions, ILogger<OpenApiProvinceLocationService> logger)
+        public OpenApiProvinceLocationService(ILogger<OpenApiProvinceLocationService> logger, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
-            _locationOptions = locationOptions;
             _logger = logger;
+            _optionsMonitor = optionsMonitor;
         }
 
         public async Task<Result<LocationDistantData>> GetDistant(LocationDetail origin, LocationDetail destination, CancellationToken cancellationToken = default)
@@ -195,7 +196,7 @@ namespace DiamondShop.Infrastructure.Services.Locations
 
         public async Task<Result<LocationDistantData>> GetDistantFromBaseShopLocation(LocationDetail Destination, CancellationToken cancellationToken = default)
         {
-            var shopBaseAddress = _locationOptions.Value.ShopOrignalLocation;
+            var shopBaseAddress = _optionsMonitor.CurrentValue.LocationRules; //_locationOptions.Value.ShopOrignalLocation;
             var shopPlaceId = shopBaseAddress.OrinalPlaceId;
             var destinationId = await GetPlaceId(Destination);
             if(shopPlaceId == null || destinationId == null)

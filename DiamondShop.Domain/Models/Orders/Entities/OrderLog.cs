@@ -29,7 +29,7 @@ namespace DiamondShop.Domain.Models.Orders.Entities
             {
                 Id = OrderLogId.Create(),
                 OrderId = order.Id,
-                Message = $"Trạng thái sang {OrderStatusExtension.ToFriendlyString(statusToChange)} ",
+                Message = $"{OrderStatusExtension.ToFriendlyString(statusToChange)} ",
                 CreatedDate = DateTime.UtcNow,
                 Status = statusToChange,
             };

@@ -133,14 +133,14 @@ namespace DiamondShop.Domain.Models.Transactions
             VerifiedDate = DateTime.UtcNow;
         }
 
-        //public void VerifyZalopay(string transactionCode, string paygateTransactionCode, string timeStamp)
-        //{
-        //    AppTransactionCode = transactionCode;
-        //    PaygateTransactionCode = paygateTransactionCode;
-        //    Status = TransactionStatus.Valid;
-        //    VerifiedDate = DateTime.UtcNow;
-        //    TimeStamp = timeStamp;
-        //}
+        public void VerifyZalopay(string transactionCode, string paygateTransactionCode, string timeStamp)
+        {
+            AppTransactionCode = transactionCode;
+            PaygateTransactionCode = paygateTransactionCode;
+            Status = TransactionStatus.Valid;
+            VerifiedDate = DateTime.UtcNow;
+            TimeStamp = timeStamp;
+        }
         public void Cancel()
         {
             Status = TransactionStatus.Invalid;
