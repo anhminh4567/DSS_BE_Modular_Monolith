@@ -223,6 +223,7 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IOrderFileServices, OrderFileService>();
             services.AddScoped<IPdfService, GeneratePdfService>();
             services.AddScoped<ITransferFileService, TransferFileService>();
+            services.AddScoped<IExternalBankServices,ExternalBankService>();
             //admin confi
             var serviceProviderInstrance = services.BuildServiceProvider();
             var mailOptions = serviceProviderInstrance.GetRequiredService<IOptions<MailOptions>>().Value;

@@ -39,14 +39,42 @@ namespace DiamondShop.Domain.Common.Carts
                 OrderValidation.SetErrorMessage(CartModelErrors.TooManyItems(cartModelRules.MaxItemPerCart));
         }
         
-        public void SetOrderShippingPrice(ShippingPrice shipping)
+        public void SetOrderShippingPrice(ShippingPrice shipping, AccountRules accountRule)
         {
             ShippingPrice = shipping;
-
+            if (shipping.IsValid && shipping.IsLocationActive)
+                OrderPrices.TotalShippingPrice = shipping.FinalPrice;
             //OrderPrices.DefaultPrice += shipping.FinalPrice; 
-            if(shipping.IsValid && shipping.IsLocationActive)
-                OrderPrices.TotalShippingPrice += shipping.FinalPrice;
-            
+            if (Account != null && Account.Roles != null)
+            {
+                var goldUserId = AccountRole.CustomerGold.Id;
+                var silverUserId = AccountRole.CustomerSilver.Id;
+                var bronzeUserId = AccountRole.CustomerBronze.Id;
+                if (Account.Roles.Any(x => x.Id == goldUserId))
+                {
+                    var goldBenefit = accountRule.GoldRankBenefit;
+                    SetShippingRankDiscountPercent(goldBenefit);
+                }
+                else if (Account.Roles.Any(x => x.Id == silverUserId))
+                {
+                    var silverBenefit = accountRule.SilverRankBenefit;
+                    SetShippingRankDiscountPercent(silverBenefit);
+                }
+                else if (Account.Roles.Any(x => x.Id == bronzeUserId))
+                {
+                    var bronzeBenefit = accountRule.BronzeRankBenefit;
+                    SetShippingRankDiscountPercent(bronzeBenefit);
+                }
+            }
+            void SetShippingRankDiscountPercent(RankingBenefit rankingBenefit) 
+            {
+                if (OrderPrices.TotalShippingPrice <= 0)
+                    return;
+                var reducePercent = rankingBenefit.RankDiscountPercentOnShipping;
+                var savedAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(ShippingPrice.DefaultPrice * ((decimal)reducePercent / 100m));
+                ShippingPrice.UserRankReducedPrice = savedAmount;
+                OrderPrices.TotalShippingPrice = ShippingPrice.FinalPrice;
+            };
         }
         public void SetWarrantyTotalPrice()
         {
@@ -58,7 +86,7 @@ namespace DiamondShop.Domain.Common.Carts
                 }
             }
         }
-        public void SetUserRankDiscount(PromotionRule rankDiscountRules, Account? userAccount)
+        public void SetUserRankDiscount(AccountRules accountRule, Account? userAccount)
         {
             if(userAccount!= null && userAccount.Roles != null)
             {
@@ -66,18 +94,29 @@ namespace DiamondShop.Domain.Common.Carts
                 var silverUserId = AccountRole.CustomerSilver.Id;
                 var bronzeUserId = AccountRole.CustomerBronze.Id;
                 if (userAccount.Roles.Any(x => x.Id == goldUserId))
-                    SetUserRankDiscountPercent(rankDiscountRules.GoldUserDiscountPercent);
+                {
+                    var goldBenefit = accountRule.GoldRankBenefit;
+                    SetUserRankDiscountPercent(goldBenefit.RankDiscountPercentOnOrder,goldBenefit.MaxAmountDiscountOnOrder);
+
+                }
                 else if (userAccount.Roles.Any(x => x.Id == silverUserId))
-                    SetUserRankDiscountPercent(rankDiscountRules.SilverUserDiscountPercent);
+                {
+                    var silverBenefit = accountRule.SilverRankBenefit;
+                    SetUserRankDiscountPercent(silverBenefit.RankDiscountPercentOnOrder, silverBenefit.MaxAmountDiscountOnOrder);
+                }
                 else if (userAccount.Roles.Any(x => x.Id == bronzeUserId))
-                    SetUserRankDiscountPercent(rankDiscountRules.BronzeUserDiscountPercent);
+                {
+                    var bronzeBenefit = accountRule.BronzeRankBenefit;
+                    SetUserRankDiscountPercent(bronzeBenefit.RankDiscountPercentOnOrder, bronzeBenefit.MaxAmountDiscountOnOrder);
+                }
             }
         }
-        private void SetUserRankDiscountPercent(decimal discountPercent)
+        private void SetUserRankDiscountPercent(int reducePercent, decimal maxReduceAmount)
         {
-            OrderPrices.UserRankDiscountPercent = discountPercent;
-            OrderPrices.UserRankDiscountAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(OrderPrices.OrderPriceExcludeShipAndWarranty * ((decimal)discountPercent / 100m)) ;
-            //OrderPrices.OrderAmountSaved += OrderPrices.UserRankDiscountAmount;
+            OrderPrices.UserRankDiscountPercent = reducePercent;
+            var savedAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(OrderPrices.OrderPriceExcludeShipAndWarranty * ((decimal)reducePercent / 100m));
+            var trueSavedAmount = Math.Clamp(savedAmount,0, maxReduceAmount);
+            OrderPrices.UserRankDiscountAmount = trueSavedAmount;
         }
         public static CartModel? CloneCart(CartModel cartModelTobeCloned)
         {

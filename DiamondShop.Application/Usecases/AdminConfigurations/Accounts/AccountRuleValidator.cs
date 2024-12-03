@@ -25,6 +25,34 @@ namespace DiamondShop.Application.Usecases.AdminConfigurations.Accounts
                 .LessThan((x) => x.TotalPointToGold).WithLessThanMessage();
             RuleFor(x => x.TotalPointToGold)
                 .GreaterThan(0).WithGreaterThanMessage();
+            RuleFor(x => x.MaxAddress)
+                .GreaterThan(0).WithGreaterThanMessage();
+            RuleFor(x => x.GoldRankBenefit)
+                .SetValidator(new RankingBenefitValidator());
+            RuleFor(x => x.SilverRankBenefit)
+                .SetValidator(new RankingBenefitValidator());
+            RuleFor(x => x.BronzeRankBenefit)
+                .SetValidator(new RankingBenefitValidator());
+        }
+        public class RankingBenefitValidator : AbstractValidator<RankingBenefit>
+        {
+            public RankingBenefitValidator()
+            {
+                RuleFor(x => x.RankDiscountPercentOnOrder)
+                    .GreaterThanOrEqualTo(0)
+                        .WithGreaterThanOrEqualMessage()
+                    .LessThanOrEqualTo(100)
+                        .WithLessThanOrEqualMessage();
+                RuleFor(x => x.MaxAmountDiscountOnOrder)
+                    .GreaterThan(10_000)
+                        .WithGreaterThanMessage();
+                RuleFor(x => x.RankDiscountPercentOnShipping)
+                    .GreaterThanOrEqualTo(0)
+                        .WithGreaterThanOrEqualMessage()
+                    .LessThanOrEqualTo(100)
+                        .WithLessThanOrEqualMessage();
+            }
         }
     }
+    
 }

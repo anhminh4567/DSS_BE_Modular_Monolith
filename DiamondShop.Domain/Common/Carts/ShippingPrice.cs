@@ -7,7 +7,8 @@ namespace DiamondShop.Domain.Common.Carts
     {
         public decimal DefaultPrice { get; set; } = 0;
         public decimal PromotionPrice { get; set; } = 0;
-        public decimal FinalPrice { get => DefaultPrice - PromotionPrice; }
+        public decimal UserRankReducedPrice { get; set; } = 0;
+        public decimal FinalPrice { get => Math.Clamp(DefaultPrice - PromotionPrice - UserRankReducedPrice,0,decimal.MaxValue); }
         public Address? To { get; set; }
         public Address? From { get; set; }
         public DeliveryFee? DeliveryFeeFounded { get; set; }

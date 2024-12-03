@@ -9,6 +9,7 @@ namespace DiamondShop.Application.Dtos.Responses.Carts
     {
         public decimal DefaultPrice { get; set; }
         public decimal PromotionPrice { get; set; }
+        public decimal UserRankReducedPrice { get; set; } 
         public decimal FinalPrice { get; set; }
         public AddressDto? To { get; set; }
         public AddressDto? From { get; set; }

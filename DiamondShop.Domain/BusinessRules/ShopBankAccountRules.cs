@@ -10,9 +10,10 @@ namespace DiamondShop.Domain.BusinessRules
     {
         public const string Key = "ShopBankAccountRulesVer1";
         public static ShopBankAccountRules Default = new ShopBankAccountRules();
-        public string AccountNumber { get; set; } = string.Empty;
-        public string AccountName { get; set; } = string.Empty;
-        public string BankBin { get; set; } = string.Empty;
+        public string AccountNumber { get; set; } = "777777";
+        public string AccountName { get; set; } = "TRAN DINH ANH MINH";
+        public string BankBin { get; set; } = "970416";
+        public string BankName { get; set; } = "ACB";
         
     }
 }

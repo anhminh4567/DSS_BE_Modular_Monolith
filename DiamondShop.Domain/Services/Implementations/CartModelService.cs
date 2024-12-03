@@ -121,8 +121,8 @@ namespace DiamondShop.Domain.Services.Implementations
                     break;// only one promotion is applied at a time
                 }
             }
-            CurrentCart.SetUserRankDiscount(_optionsMonitor.CurrentValue.PromotionRule,account);
-            CurrentCart.SetOrderShippingPrice(shipPrice);
+            CurrentCart.SetUserRankDiscount(_optionsMonitor.CurrentValue.AccountRules,account);
+            CurrentCart.SetOrderShippingPrice(shipPrice,_optionsMonitor.CurrentValue.AccountRules);
             CurrentCart.SetWarrantyTotalPrice();
             CurrentCart.SetErrorMessages();
             CurrentCart.ValidateCartRules(cartModelRules);

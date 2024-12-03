@@ -15,19 +15,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondShop.Application.Usecases.AdminConfigurations.Accounts.Commands
+namespace DiamondShop.Application.Usecases.AdminConfigurations.BankAccounts.Commands
 {
-    public record RankingBenefitRequestDto(decimal? RankDiscountPercentOnOrder, decimal? MaxAmountDiscountOnOrder, decimal? RankDiscountPercentOnShipping);
-    public record AccountRuleRequestDto(int? MaxAddress, decimal? VndPerPoint, decimal? TotalPointToBronze, decimal? TotalPointToSilver, decimal? TotalPointToGold, RankingBenefitRequestDto? GoldRankBenefit, RankingBenefitRequestDto? SilverRankBenefit, RankingBenefitRequestDto? BronzeRankBenefit);
-    public record UpdateAccountRuleCommand(AccountRuleRequestDto requestDto): IRequest<Result<AccountRules>>;
-    internal class UpdateAccountRuleCommandHandler : IRequestHandler<UpdateAccountRuleCommand, Result<AccountRules>>
+    public record ShopBankAccountRulesRequestDto(string AccountNumber, string AccountName, string BankBin);
+
+    public record UpdateShopBankAccountRuleCommand(ShopBankAccountRulesRequestDto RequestDto): IRequest<Result<ShopBankAccountRules>>;
+    internal class UpdateShopBankAccountRuleCommandHandler : IRequestHandler<UpdateShopBankAccountRuleCommand, Result<ShopBankAccountRules>>
     {
         private readonly IMapper _mapper;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
         private readonly IApplicationSettingService _applicationSettingService;
-        private readonly IValidator<AccountRules> _validator;
+        private readonly IValidator<ShopBankAccountRules> _validator;
 
-        public UpdateAccountRuleCommandHandler(IMapper mapper, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IApplicationSettingService applicationSettingService, IValidator<AccountRules> validator)
+        public UpdateShopBankAccountRuleCommandHandler(IMapper mapper, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IApplicationSettingService applicationSettingService, IValidator<ShopBankAccountRules> validator)
         {
             _mapper = mapper;
             _optionsMonitor = optionsMonitor;
@@ -35,17 +35,16 @@ namespace DiamondShop.Application.Usecases.AdminConfigurations.Accounts.Commands
             _validator = validator;
         }
 
-        public async Task<Result<AccountRules>> Handle(UpdateAccountRuleCommand request, CancellationToken cancellationToken)
+        public async Task<Result<ShopBankAccountRules>> Handle(UpdateShopBankAccountRuleCommand request, CancellationToken cancellationToken)
         {
-
-            var accountRuleRequest = request.requestDto;
-            var accountRule = _optionsMonitor.CurrentValue.AccountRules;
-            var clonedAccountRule = JsonConvert.DeserializeObject<AccountRules>(JsonConvert.SerializeObject(accountRule));
-            if (clonedAccountRule is null)
+            var shopBankAccountRuleRequest = request.RequestDto;
+            var shopBankAccountlRule = _optionsMonitor.CurrentValue.ShopBankAccountRules;
+            var clonedShopBankAccountRule = JsonConvert.DeserializeObject<ShopBankAccountRules>(JsonConvert.SerializeObject(shopBankAccountlRule));
+            if (clonedShopBankAccountRule is null)
                 return Result.Fail("Không thể clone diamond rule cũ được");
-            accountRuleRequest.Adapt(clonedAccountRule);
+            shopBankAccountRuleRequest.Adapt(clonedShopBankAccountRule);
             //var updateResult = await _service.SetConfiguration(clonedDiamondRule);
-            var validationResult = _validator.Validate(clonedAccountRule);
+            var validationResult = _validator.Validate(clonedShopBankAccountRule);
             if (validationResult.IsValid is false)
             {
                 Dictionary<string, object> validationErrors = new();
@@ -65,10 +64,9 @@ namespace DiamondShop.Application.Usecases.AdminConfigurations.Accounts.Commands
             }
             else
             {
-                _applicationSettingService.Set(AccountRules.key, clonedAccountRule);
+                _applicationSettingService.Set(ShopBankAccountRules.Key, clonedShopBankAccountRule);
             }
-            return Result.Ok(_optionsMonitor.CurrentValue.AccountRules);
+            return Result.Ok(_optionsMonitor.CurrentValue.ShopBankAccountRules);
         }
     }
-    
 }
