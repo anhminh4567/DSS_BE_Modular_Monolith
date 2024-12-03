@@ -53,7 +53,7 @@ namespace DiamondShop.Test.Integration
                     //Color = Color.K
                 }
             };
-            var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(criteriaRequestDtos,"99",true));
+            var result = await _sender.Send(new CreateManyDiamondCriteriasCommand(criteriaRequestDtos, "99", true));
             if (result.IsFailed)
                 WriteError(result.Errors);
             Assert.True(result.IsSuccess);
@@ -64,7 +64,7 @@ namespace DiamondShop.Test.Integration
             {
                 new(criteria.Id.Value,100000m,null, Color.K,Clarity.IF),
             };
-            var priceResult = await _sender.Send(new CreateManyDiamondPricesCommand(priceRequestDtos,diamond.ShapeId.Value,false,true));
+            var priceResult = await _sender.Send(new CreateManyDiamondPricesCommand(priceRequestDtos, diamond.ShapeId.Value, false, true));
             if (priceResult.IsFailed)
                 WriteError(priceResult.Errors);
             Assert.True(priceResult.IsSuccess);
@@ -230,7 +230,7 @@ namespace DiamondShop.Test.Integration
             Assert.Equal(CustomizeRequestStatus.Accepted, request.Status);
             var product = await _context.Set<Jewelry>().FirstOrDefaultAsync(p => p.Id == request.JewelryId);
             Assert.NotNull(product);
-            Assert.Equal(ProductStatus.PreOrder,product.Status);
+            Assert.Equal(ProductStatus.PreOrder, product.Status);
         }
         [Trait("ReturnTrue", "CustomerRejectPriced")]
         [Fact]
@@ -308,13 +308,14 @@ namespace DiamondShop.Test.Integration
             var account = await TestData.SeedDefaultCustomer(_context, _authentication);
             var acceptedRequest = await SeedingAcceptedRequest(account.Id);
             Assert.Equal(CustomizeRequestStatus.Accepted, acceptedRequest.Status);
-            var billingDetail = new BillingDetail("abc", "abc", "123123132","abc@gmail.com", "Hồ Chí Minh", "Thu Duc", "Ward", "Tan Binh", "no");
+            var billingDetail = new BillingDetail("abc", "abc", "123123132", "abc@gmail.com", "Hồ Chí Minh", "Thu Duc", "Ward", "Tan Binh", "no");
             var orderReq = new OrderRequestDto(PaymentType.COD, PaymentMethod.BANK_TRANSFER.Id.Value, "zalopay", null, true);
-            CheckoutCustomizeRequestDto requestDto = new CheckoutCustomizeRequestDto(acceptedRequest.Id.Value,billingDetail,orderReq, "Default_Jewelry_Warranty", WarrantyType.Jewelry);
-            var result = await _sender.Send(new CheckoutRequestCommand(account.Id.Value,requestDto));
+            CheckoutCustomizeRequestDto requestDto = new CheckoutCustomizeRequestDto(acceptedRequest.Id.Value, billingDetail, orderReq, "Default_Jewelry_Warranty", WarrantyType.Jewelry);
+            var result = await _sender.Send(new CheckoutRequestCommand(account.Id.Value, requestDto));
             if (result.IsFailed)
                 WriteError(result.Errors);
             Assert.True(result.IsSuccess);
+            _output.WriteLine(account.PhoneNumber.ToString());
             var order = _context.Set<Order>().FirstOrDefault();
             Assert.NotNull(order.CustomizeRequestId);
         }

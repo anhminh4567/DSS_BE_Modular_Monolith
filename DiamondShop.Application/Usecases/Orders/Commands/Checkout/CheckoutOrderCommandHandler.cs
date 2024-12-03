@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Models;
+using DiamondShop.Application.Usecases.Accounts.Commands.Update;
 using DiamondShop.Application.Usecases.Orders.Commands.Create;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
@@ -43,7 +44,6 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Checkout
             billingDetail.Deconstruct(out string FirstName, out string LastName, out string Phone, out string Email, out string Providence, out string District, out string Ward, out string Address, out string ? Note);
             orderInfo.Deconstruct(out OrderRequestDto orderRequestDto, out List<OrderItemRequestDto>  orderItemsRequestDto);
             orderRequestDto.Deconstruct(out PaymentType paymentType, out string paymentId, out string paymentName, out string promotionId, out bool isTransfer, out bool? IsAtShop);
-            string address = String.Join(" ", [billingDetail.Providence, billingDetail.District, billingDetail.Ward, billingDetail.Address]);
             var parsedAccountId = AccountId.Parse(accountId);
             var getAccount = await _accountRepository.GetById(parsedAccountId);
             var getCurrentlyProcessOrder = await _orderRepository.GetUserProcessingOrders(getAccount);
@@ -51,7 +51,14 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Checkout
             {
                 return Result.Fail(new Error($"Số lượng tối đa đơn hàng bạn được đặt hàng là {orderRule.MaxOrderAmountForCustomerToPlace} đơn xử lý"));
             }
-
+            if (String.IsNullOrEmpty(getAccount.PhoneNumber))
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                getAccount.PhoneNumber = Phone;
+                await _accountRepository.Update(getAccount);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+            }
             var orderResult = await _sender.Send(new CreateOrderCommand(accountId, new CreateOrderInfo(paymentType, paymentId, paymentName, null, promotionId, billingDetail, orderItemsRequestDto , IsAtShop)));
             if (orderResult.IsFailed)
                 return Result.Fail(orderResult.Errors);
