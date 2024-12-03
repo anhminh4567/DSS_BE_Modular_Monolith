@@ -12,6 +12,7 @@ using FluentEmail.Core.Models;
 using FluentResults;
 using HtmlAgilityPack.CssSelectors.NetCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using System;
@@ -24,6 +25,7 @@ namespace DiamondShop.Infrastructure.Services
 {
     internal class EmailService : IEmailService
     {
+        private readonly ILogger<EmailService   > _logger;
         private readonly IFluentEmail _fluentEmailServices;
         private readonly IOptions<MailOptions> _mailOptions;
         private readonly IOptions<UrlOptions> _urlOptions;
@@ -37,8 +39,9 @@ namespace DiamondShop.Infrastructure.Services
         private readonly IPdfService _pdfService;
         private readonly IOptions<FrontendOptions> _frontendOptions;
 
-        public EmailService(IFluentEmail fluentEmailServices, IOptions<MailOptions> mailOptions, IOptions<UrlOptions> urlOptions, IOptions<PublicBlobOptions> publicBlobOptions, IOptions<ExternalUrlsOptions> externalUrlsOptions, CustomUserManager userManager, IPdfService pdfService, IOptions<FrontendOptions> frontendOptions)
+        public EmailService(ILogger<EmailService> logger, IFluentEmail fluentEmailServices, IOptions<MailOptions> mailOptions, IOptions<UrlOptions> urlOptions, IOptions<PublicBlobOptions> publicBlobOptions, IOptions<ExternalUrlsOptions> externalUrlsOptions, CustomUserManager userManager, IPdfService pdfService, IOptions<FrontendOptions> frontendOptions)
         {
+            _logger = logger;
             _fluentEmailServices = fluentEmailServices;
             _mailOptions = mailOptions;
             _urlOptions = urlOptions;
@@ -92,29 +95,37 @@ namespace DiamondShop.Infrastructure.Services
 
         public async Task<Result> SendInvoiceEmail(Order order, Account account, CancellationToken cancellationToken = default)
         {
-            var invoiceEmail = Path.Combine(Directory.GetCurrentDirectory(), "RazorTemplate", "EmailTemplate", ConfirmEmailFileName);
-            var mailString = _pdfService.GetTemplateHtmlStringFromOrder(order,account);
-            var metadata = new EmailMetaData()
+            try
             {
-                ToEmail = account.Email,
-                Subject = "invoice for order email",
-            };
-            var emailSendingConfig = _fluentEmailServices
-              .To(metadata.ToEmail)
-              .Subject(metadata.Subject)
-              .Body(mailString, isHtml: true);
-            //emailSendingConfig.Attach(new Attachment()
-            //{
-            //    ContentId = "invoice",
-            //    ContentType = "application/pdf",
-            //    Data = GeneratePdfService.GeneratePdfDoc(mailString),
-            //    IsInline = false,
-            //    Filename = $"invoice_{order.OrderCode}.pdf",
-            //});
-            var sendResult = await emailSendingConfig.SendAsync();
-            if (sendResult.Successful is false)
-                return Result.Fail("cant send email");
-            return Result.Ok();
+                var invoiceEmail = Path.Combine(Directory.GetCurrentDirectory(), "RazorTemplate", "EmailTemplate", ConfirmEmailFileName);
+                var mailString = _pdfService.GetTemplateHtmlStringFromOrder(order, account);
+                var metadata = new EmailMetaData()
+                {
+                    ToEmail = account.Email,
+                    Subject = "invoice for order email",
+                };
+                var emailSendingConfig = _fluentEmailServices
+                  .To(metadata.ToEmail)
+                  .Subject(metadata.Subject)
+                  .Body(mailString, isHtml: true);
+                //emailSendingConfig.Attach(new Attachment()
+                //{
+                //    ContentId = "invoice",
+                //    ContentType = "application/pdf",
+                //    Data = GeneratePdfService.GeneratePdfDoc(mailString),
+                //    IsInline = false,
+                //    Filename = $"invoice_{order.OrderCode}.pdf",
+                //});
+                var sendResult = await emailSendingConfig.SendAsync();
+                if (sendResult.Successful is false)
+                    return Result.Fail("cant send email");
+                return Result.Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return Result.Fail(ex.Message);
+            }
         }
 
         public async Task<Result> SendOrderPreparedEmail(Order order, Account account, DateTime completeeDate, CancellationToken cancellationToken = default)

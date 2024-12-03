@@ -33,5 +33,9 @@ namespace DiamondShop.Domain.Models.Transactions.ErrorMessages
             public static ValidationError VerifiedError = new ValidationError("Giao dịch đã được xử lý");
             public static ValidationError EvidenceUnchangableError = new ValidationError("Không thể thay đổi bằng chứng giao dịch");
         }
+        public class PaymentMethodErrors
+        {
+            public static NotFoundError NotFoundError = new NotFoundError("Không tìm thấy phương thức thanh toán");
+        }
     }
 }

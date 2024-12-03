@@ -18,7 +18,7 @@ namespace DiamondShop.Domain.Models.Transactions
         public PaymentMethod? PayMethod { get; set; }
         public TransactionType TransactionType { get; set; }
         public string Description { get; set; }
-        public DateTime? InitDate { get; set; }
+        public DateTime? InitDate { get; set; } = DateTime.UtcNow;
         public DateTime? VerifiedDate { get; set; }
         //Transfer transactionCode
         public string? AppTransactionCode { get; set; }

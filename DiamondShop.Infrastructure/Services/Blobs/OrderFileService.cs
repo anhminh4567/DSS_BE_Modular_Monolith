@@ -122,7 +122,13 @@ namespace DiamondShop.Infrastructure.Services.Blobs
 
                 else if (tobeComparedPath.StartsWith(ORDERLOG_FOLDER))
                 {
-                    gallery.AddOrderTransactionImages(tobeComparedPath, path);
+                    gallery.AddOrderLogImages(tobeComparedPath, path);
+                }else if (tobeComparedPath.StartsWith(CONFIRM_DELIVERY_FOLDER))
+                {
+                    if(tobeComparedPath.StartsWith(CONFIRM_DELIVERY_FOLDER_IMAGE))
+                        gallery.AddConfirmOrderImages(new List<Media> { path });
+                    if(tobeComparedPath.StartsWith(CONFIRM_DELIVERY_FOLDER_VIDEO))
+                        gallery.AddConfirmOrderVideo(path);
                 }
                 //AddToCategory(tobeComparedPath, path);
                 else { }

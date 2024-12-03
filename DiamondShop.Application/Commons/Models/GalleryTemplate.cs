@@ -60,6 +60,14 @@ namespace DiamondShop.Application.Commons.Models
             else
                 OrderLogImages[key].Add(images);
         }
+        public void AddConfirmOrderImages(List<Media> images)
+        {
+            OrderDeliveryConfirmationImages.AddRange(images);
+        }
+        public void AddConfirmOrderVideo(Media images)
+        {
+            OrderDeliveryConfirmationVideo = images;
+        }
     }
 
 }

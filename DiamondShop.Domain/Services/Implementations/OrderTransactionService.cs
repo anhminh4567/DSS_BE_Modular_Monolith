@@ -244,7 +244,8 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             var transactions = order.Transactions;
             var paidAmount = transactions.Sum(x => x.TransactionAmount);
-            return order.TotalPrice - paidAmount;
+            var depositAmount = order.DepositFee;
+            return order.TotalPrice - depositAmount;
         }
 
         public Result<(decimal allowAmount, decimal remainingAmount)> GetTransactionValueForOrder(Order order, decimal wantedAmount, TransactionRule transactionRule)

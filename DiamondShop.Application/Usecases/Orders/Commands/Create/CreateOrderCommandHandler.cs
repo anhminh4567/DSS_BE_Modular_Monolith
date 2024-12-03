@@ -49,8 +49,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         private readonly IOrderLogRepository _orderLogRepository;
         private readonly IEmailService _emailService;
         private readonly INotificationRepository _notificationRepository;
+        private readonly IOptions<LocationRules> _locationOptions;
 
-        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, ISizeMetalRepository sizeMetalRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IJewelryService jewelryService, IPaymentMethodRepository paymentMethodRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderLogRepository orderLogRepository, IEmailService emailService, INotificationRepository notificationRepository)
+        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, ISizeMetalRepository sizeMetalRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IJewelryService jewelryService, IPaymentMethodRepository paymentMethodRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderLogRepository orderLogRepository, IEmailService emailService, INotificationRepository notificationRepository, IOptions<LocationRules> locationOptions)
         {
             _accountRepository = accountRepository;
             _orderRepository = orderRepository;
@@ -67,6 +68,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             _orderLogRepository = orderLogRepository;
             _emailService = emailService;
             _notificationRepository = notificationRepository;
+            _locationOptions = locationOptions;
         }
 
         public async Task<Result<Order>> Handle(CreateOrderCommand request, CancellationToken token)
@@ -167,13 +169,21 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 return Result.Fail(errors);
             var customizeRequestId = requestId == null ? null : CustomizeRequestId.Parse(requestId);
             var orderPromo = cartModel.Promotion.Promotion;
-            var address = billingDetail.GetAddressString();
+            string address = null;
+            if(isAtShop != null && isAtShop.Value == true)
+                address = "Tại cửa hàng, địa chỉ: "+ _locationOptions.Value.OriginalLocationName;
+            else
+                address = billingDetail.GetAddressString();
             decimal depositFee = paymentType == PaymentType.Payall ? 0m : (0.01m * paymentRule.CODPercent) * cartModel.OrderPrices.FinalPrice;
             depositFee = MoneyVndRoundUpRules.RoundAmountFromDecimal(depositFee);
             DateTime? expiredDate = DateTime.UtcNow.AddHours(orderRule.ExpiredOrderHour);//paymentMethod.Id == PaymentMethod.BANK_TRANSFER.Id ? DateTime.UtcNow.AddHours(paymentRule.CODHourTimeLimit) : null;
             var order = Order.Create(account.Id, paymentType, paymentMethod.Id, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice, depositFee,
                 address, customizeRequestId, orderPromo, cartModel.OrderPrices.OrderAmountSaved, cartModel.OrderPrices.UserRankDiscountAmount,expiredDate);
             //create log
+            if(isAtShop != null && isAtShop.Value == true)
+            {
+                order.ChangeToCollectAtShop();
+            }
             var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Pending);
             List<OrderItem> orderItems = new();
             List<Jewelry> jewelries = new();

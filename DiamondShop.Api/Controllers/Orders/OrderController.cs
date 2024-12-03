@@ -350,5 +350,24 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return Unauthorized();
         }
+        [HttpPost("Transaction/Staff/Add")]
+        [Authorize(Roles = $"{AccountRole.StaffId},{AccountRole.ManagerId}")]
+        public async Task<ActionResult> AddTransactionForAtShopOrder([FromBody] StaffCreateTransactionForOrderCommand command)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(command);
+                if (result.IsSuccess)
+                {
+                    var mappedResult = _mapper.Map<OrderDto>(result.Value);
+                    return Ok(mappedResult);
+                }
+                else
+                    return MatchError(result.Errors, ModelState);
+            }
+            else
+                return Unauthorized();
+        }
     }
 }

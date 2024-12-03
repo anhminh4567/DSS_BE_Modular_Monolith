@@ -41,8 +41,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
         private readonly IOrderLogRepository _orderLogRepository;
         private readonly IOrderFileServices _orderFileServices;
         private readonly IDiamondRepository _diamondRepository;
+        private readonly IEmailService _emailService;
 
-        public ProceedOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, ISender sender, IPublisher publisher, IPaymentMethodRepository paymentMethodRepository, IOrderLogRepository orderLogRepository, IOrderFileServices orderFileServices, IDiamondRepository diamondRepository)
+        public ProceedOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, ISender sender, IPublisher publisher, IPaymentMethodRepository paymentMethodRepository, IOrderLogRepository orderLogRepository, IOrderFileServices orderFileServices, IDiamondRepository diamondRepository, IEmailService emailService)
         {
             _accountRepository = accountRepository;
             _orderRepository = orderRepository;
@@ -58,6 +59,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             _orderLogRepository = orderLogRepository;
             _orderFileServices = orderFileServices;
             _diamondRepository = diamondRepository;
+            _emailService = emailService;
         }
 
         public async Task<Result<Order>> Handle(ProceedOrderCommand request, CancellationToken token)
@@ -130,11 +132,28 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                 }
                 _orderItemRepository.UpdateRange(items);
                 order.Status = OrderStatus.Prepared;
+                order.FinishPreparedDate = DateTime.UtcNow;
                 var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Prepared);
+                _ = _emailService.SendOrderPreparedEmail(order, account, order.FinishPreparedDate.Value);
                 await _orderLogRepository.Create(log);
             }
             else if (order.Status == OrderStatus.Prepared)
             {
+                // nếu đơn hàng nhận tại quầy thì không cần phải giao hàng mà qua luôn success nếu đã thanh toán
+                if (order.IsCollectAtShop)
+                {
+                    if (order.PaymentStatus != PaymentStatus.Paid)
+                        return Result.Fail(OrderErrors.UnpaidError);
+                    var items = order.Items;
+                    foreach (var item in items)
+                    {
+                        item.Status = OrderItemStatus.Done;
+                    }
+                    order.Status = OrderStatus.Success;
+                    var orderAtShopCompletelog = OrderLog.CreateByChangeStatus(order, OrderStatus.Success);
+                    await _orderLogRepository.Create(orderAtShopCompletelog);
+                    await _publisher.Publish(new OrderCompleteEvent(account.Id, order.Id, DateTime.UtcNow));
+                }
                 //if(this is an order at shop then no delivere should be assigned, it should stayed here and proceed to success or cancelled, rejected)
                 if (order.DelivererId == null)
                     return Result.Fail(OrderErrors.NoDelivererAssignedError);
