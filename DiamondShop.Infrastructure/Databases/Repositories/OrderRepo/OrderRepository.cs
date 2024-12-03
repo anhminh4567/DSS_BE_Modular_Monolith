@@ -106,5 +106,20 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
             return _set.Where(x => x.AccountId == customerAccount.Id)
                 .ToListAsync();
         }
+
+        public Task<Order?> GetOrderByCode(string code)
+        {
+            return _set.Where(_set => _set.OrderCode == code)
+                .Include(x => x.PaymentMethod)
+                .Include(x => x.Items)
+                    .ThenInclude(x => x.Jewelry)
+                .Include(x => x.Items)
+                    .ThenInclude(x => x.Diamond)
+                .Include(x => x.Account)
+                .Include(x => x.Transactions)
+                    .ThenInclude(x => x.PayMethod)
+                .Include(x => x.Logs)
+                .FirstOrDefaultAsync();
+        }
     }
 }

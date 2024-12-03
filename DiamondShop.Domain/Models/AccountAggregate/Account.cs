@@ -20,9 +20,19 @@ namespace DiamondShop.Domain.Models.AccountAggregate
 {
     public class Account : Entity<AccountId> , IAggregateRoot
     {
+        public static Account AnonymousCustomer => new Account() 
+        {
+            Id = AccountId.Parse("-1"),
+            FullName = new FullName("Anonymous", "Customer"),
+            Email = "anonymousecustomer@notreal",
+            IdentityId = "NONE",
+            TotalPoint = -1,
+            UserIdentity = null,
+            Roles = new List<AccountRole> { AccountRole.Customer }
+        };
         public string IdentityId { get; private set; }
         public List<AccountRole> Roles { get; private set; } = new();
-        public List<Address> Addresses { get; private set; }
+        public List<Address> Addresses { get; private set; } = new();
         public FullName FullName { get; private set; }
         public string Email { get; private set; }
         public long? PhoneNumber { get; set; }
@@ -30,7 +40,7 @@ namespace DiamondShop.Domain.Models.AccountAggregate
         [NotMapped]
         public IUserIdentity? UserIdentity { get; set; }
         [NotMapped]
-        public List<Order>? CustomerOrders { get; set; } 
+        public List<Order>? CustomerOrders { get; set; } = new();
         //public List<Blog> Blogs { get; private set; }
         //public List<JewelryReview> JewelryReviews { get; private set; }
         //public List<Order> Orders { get; private set; }

@@ -11,6 +11,7 @@ namespace DiamondShop.Domain.Models.Diamonds.ErrorMessages
     public class DiamondErrors
     {
         public static NotFoundError DiamondNotFoundError = new NotFoundError("Không tìm thấy kim cương");
+        public static Error NotHavingCertificate = new Error("Kim cương không có chứng chỉ");
         public static ConflictError DiamondExistError(string? detail = null) 
         {
             if(detail != null)

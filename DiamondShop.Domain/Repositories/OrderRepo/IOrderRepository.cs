@@ -15,5 +15,6 @@ namespace DiamondShop.Domain.Repositories.OrderRepo
         IQueryable<Order> GetSoldJewelry();
         Task<List<Order>> GetUserProcessingOrders(Account customerAccounts);
         Task<List<Order>> GetUserOrders(Account customerAccount);
+        Task<Order?> GetOrderByCode(string code);
     }
 }

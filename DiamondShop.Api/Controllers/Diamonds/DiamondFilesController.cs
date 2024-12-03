@@ -35,6 +35,15 @@ namespace DiamondShop.Api.Controllers.Diamonds
             var mappedResult = _mapper.Map<GalleryTemplateDto>(result);
             return Ok(mappedResult);
         }
+        [HttpGet("Files/Certificates/Download")]
+        [Produces(typeof(GalleryTemplateDto))]
+        public async Task<ActionResult> DownloadCertificate([FromQuery] GetDiamondCertificatesQuery query)
+        {
+            var result = await _sender.Send(query);
+            if(result.IsFailed)
+                return MatchError(result.Errors, ModelState);
+            return File(result.Value.GetFileStream(),result.Value.GetContentType(),result.Value.GetFormatedName(),true);
+        }
         [HttpPost("{diamondId}/Files/Thumbnail")]
         [Produces(typeof(string))]
         public async Task<ActionResult> UploadThumbnail([FromRoute] string diamondId, IFormFile formFile, CancellationToken cancellationToken = default)

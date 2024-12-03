@@ -27,6 +27,8 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         public override async Task<Account?> GetById(params object[] ids)
         {
             AccountId accountId = (AccountId)ids[0];
+            if(accountId == Account.AnonymousCustomer.Id)
+                return Account.AnonymousCustomer;
             var find = await _set.Where(c => c.Id == accountId).Include(c => c.Roles).Include(c => c.Addresses).FirstOrDefaultAsync();
             return find;
         }
