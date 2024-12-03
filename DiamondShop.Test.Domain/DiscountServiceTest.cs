@@ -16,6 +16,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit.Sdk;
+using DiamondShop.Domain.BusinessRules;
 
 namespace DiamondShop.Test.Domain
 {
@@ -69,8 +70,8 @@ namespace DiamondShop.Test.Domain
             userCartModel.Products.Add(product1);
             userCartModel.Products.Add(product2);
 
-            var product1ExpectedSavedAmount = (int)Math.Ceiling((diamond1Price * 20d) / 100);
-            var product2ExpectedSavedAmount = (int)Math.Ceiling((diamond2Price * 20d) / 100);
+            var product1ExpectedSavedAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal( (int)Math.Ceiling((diamond1Price * 20d) / 100));
+            var product2ExpectedSavedAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal( (int)Math.Ceiling((diamond2Price * 20d) / 100));
 
             // Act
             var result = _discountService.ApplyDiscountOnCartModel(userCartModel, discount);

@@ -29,6 +29,8 @@ namespace DiamondShop.Domain.Models.AccountAggregate
         public decimal TotalPoint { get; set; } = 0;
         [NotMapped]
         public IUserIdentity? UserIdentity { get; set; }
+        [NotMapped]
+        public List<Order>? CustomerOrders { get; set; } 
         //public List<Blog> Blogs { get; private set; }
         //public List<JewelryReview> JewelryReviews { get; private set; }
         //public List<Order> Orders { get; private set; }

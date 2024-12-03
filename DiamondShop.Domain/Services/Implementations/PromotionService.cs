@@ -1,5 +1,7 @@
 ﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.Carts;
+using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
@@ -7,14 +9,17 @@ using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ErrorMessages;
+using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,9 +33,11 @@ namespace DiamondShop.Domain.Services.Implementations
 {
     public partial class PromotionService : IPromotionServices
     {
-        public Result ApplyPromotionOnCartModel(CartModel cartModel, Promotion promotion)
+        
+
+        public Result ApplyPromotionOnCartModel(CartModel cartModel, Promotion promotion, PromotionRule promotionRule)
         {
-            return ApplyPromotionOnCartModelGlobal(cartModel, promotion);
+            return ApplyPromotionOnCartModelGlobal(cartModel, promotion,promotionRule);
         }
         /// <summary>
         /// the thing is in error state, need to handle amuont or requirement promotion state, 
@@ -39,7 +46,7 @@ namespace DiamondShop.Domain.Services.Implementations
         /// <param name="promotion"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static Result ApplyPromotionOnCartModelGlobal(CartModel cartModel, Promotion promotion)
+        public static Result ApplyPromotionOnCartModelGlobal(CartModel cartModel, Promotion promotion,PromotionRule promotionRule)
         {
             //Init Data
             // the Data is that , the product req and gift is sorted, so that the ORDER TYPE is the last one
@@ -61,6 +68,17 @@ namespace DiamondShop.Domain.Services.Implementations
             if (promotionRequirement.Count <= 0 || promotionGift.Count <= 0)
             {
                 throw new Exception("this promotion dont even have a requirement or gift, major error, it should not exist");
+            }
+            //account orders should not null here
+            if (cartModel.Account != null)
+            {
+                if(cartModel.Account.CustomerOrders != null && cartModel.Account.CustomerOrders.Count > 0)
+                {
+                    var userUsedPromotion = promotion.OrderThatTruelyUsedThisPromotion(cartModel.Account.CustomerOrders);
+                    var checkResult = CheckIfUserHasAlreadyUsedThisPromotionToLimit(userUsedPromotion, promotion,promotionRule); 
+                    if(checkResult.IsFailed)
+                        return checkResult;
+                }
             }
             //Validate Requirements
             for (int i = 0; i < promotionRequirement.Count; i++)
@@ -577,12 +595,33 @@ namespace DiamondShop.Domain.Services.Implementations
     }
     public partial class PromotionService : IPromotionServices
     {
-        public static Result IsCartMeetPromotionRequirent(CartModel clonedCartModel,Promotion promotion)
+        public static Result IsCartMeetPromotionRequirent(CartModel clonedCartModel,Promotion promotion,PromotionRule promotionRule)
         {
-            var result = ApplyPromotionOnCartModelGlobal(clonedCartModel,promotion);
+            var result = ApplyPromotionOnCartModelGlobal(clonedCartModel,promotion,promotionRule);
             if (result.IsSuccess)
                 return result;
             return Result.Fail("this promotion is not applicable for this cart");
+        }
+        public static Result CheckIfUserHasAlreadyUsedThisPromotionToLimit(List<Order> userOrders , Promotion promotionToCheck, PromotionRule promotionRule)
+        {
+            var orderThatUsedThisPromotion = promotionToCheck.OrderThatTruelyUsedThisPromotion(userOrders);
+            //TODO:  LOGIC HERE
+            //if (orderThatUsedThisPromotion.Count >= promotionToCheck)
+            //    return Result.Fail("this promotion is already used by the user and reach its limit");
+            switch (promotionToCheck.RedemptionMode)
+            {
+                case RedemptionMode.Single:
+                    if (orderThatUsedThisPromotion.Count >= 1)
+                        return Result.Fail(PromotionError.RedemptionLimitReached(1));
+                    break;
+                case RedemptionMode.Multiple:
+                    if (orderThatUsedThisPromotion.Count >= int.MaxValue)
+                        return Result.Fail(PromotionError.RedemptionLimitReached(int.MaxValue));
+                    break;
+                default:
+                    throw new Exception("Major error, redemption mode is not set");
+            }
+            return Result.Ok();
         }
     }
 }

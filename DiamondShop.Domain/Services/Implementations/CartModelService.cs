@@ -19,6 +19,7 @@ using DiamondShop.Domain.Models.Warranties.Enum;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
+using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
@@ -47,10 +48,12 @@ namespace DiamondShop.Domain.Services.Implementations
         private readonly IMainDiamondRepository _mainDiamondRepository;
         private readonly IDiamondPriceRepository _diamondPriceRepository;
         private readonly IWarrantyRepository _warrantyRepository;
+        private readonly IOrderRepository _orderRepository;
+        private readonly IPromotionRepository _promotionRepository; 
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
         private CartModel CurrentCart;
 
-        public CartModelService(IDiamondServices diamondServices, IJewelryService jewelryService, IPromotionServices promotionServices, IDiscountService discountService, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, ISizeMetalRepository sizeMetalRepository, IMainDiamondService mainDiamondService, IMainDiamondRepository mainDiamondRepository, IDiamondPriceRepository diamondPriceRepository, IWarrantyRepository warrantyRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
+        public CartModelService(IDiamondServices diamondServices, IJewelryService jewelryService, IPromotionServices promotionServices, IDiscountService discountService, IDiamondRepository diamondRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, ISizeMetalRepository sizeMetalRepository, IMainDiamondService mainDiamondService, IMainDiamondRepository mainDiamondRepository, IDiamondPriceRepository diamondPriceRepository, IWarrantyRepository warrantyRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderRepository orderRepository, IPromotionRepository promotionRepository)
         {
             _diamondServices = diamondServices;
             _jewelryService = jewelryService;
@@ -65,6 +68,8 @@ namespace DiamondShop.Domain.Services.Implementations
             _diamondPriceRepository = diamondPriceRepository;
             _warrantyRepository = warrantyRepository;
             _optionsMonitor = optionsMonitor;
+            _orderRepository = orderRepository;
+            _promotionRepository = promotionRepository;
         }
 
         public void AssignProductAndItemCounter(CartModel cartModel)
@@ -85,6 +90,7 @@ namespace DiamondShop.Domain.Services.Implementations
         public async Task<Result<CartModel>> ExecuteNormalOrder(List<CartProduct> products, List<Discount> givenDiscount, List<Promotion> givenPromotion, ShippingPrice shipPrice, Account? account, CartModelRules cartModelRules)
         {
             ArgumentNullException.ThrowIfNull(products);
+            var promotionRule = _optionsMonitor.CurrentValue.PromotionRule;
             var cartModel = new CartModel { Products = products , Account = account };
             CurrentCart = cartModel;
             if (CurrentCart.Products.Count == 0)
@@ -94,6 +100,11 @@ namespace DiamondShop.Domain.Services.Implementations
             ValidateCartItems(CurrentCart).Wait();
             SetCartModelValidation(CurrentCart);
             InitOrderPrice(CurrentCart);
+            if(CurrentCart.Account != null)
+            {
+                if (CurrentCart.Account.CustomerOrders == null)
+                    CurrentCart.Account.CustomerOrders = await _orderRepository.GetUserOrders(CurrentCart.Account);
+            }
             foreach (var discount in givenDiscount)
             {
                 var result = _discountService.ApplyDiscountOnCartModel(CurrentCart, discount);
@@ -104,7 +115,7 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             foreach (var promotion in givenPromotion)
             {
-                var result = _promotionServices.ApplyPromotionOnCartModel(CurrentCart, promotion);
+                var result = _promotionServices.ApplyPromotionOnCartModel(CurrentCart, promotion, promotionRule);
                 if (result.IsSuccess)
                 {
                     break;// only one promotion is applied at a time

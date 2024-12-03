@@ -7,6 +7,7 @@ using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,5 +20,8 @@ namespace DiamondShop.Domain.Repositories.PromotionsRepo
         Task<Promotion?> GetByCode(string promotionCode, CancellationToken cancellationToken = default);
         IQueryable<Promotion> QueryByStatuses(IQueryable<Promotion> query, List<Status> statuses);
         Task<List<Promotion>> GetContainingCode(string code, int start, int take, CancellationToken cancellationToken = default);
+        Task<int> GetPromotionCountFromOrders(Expression<Func<Order,bool>> expression);
+        Task<List<PromotionId>> GetPromotionIdsFromOrders(Expression<Func<Order, bool>> expression);
+
     }
 }

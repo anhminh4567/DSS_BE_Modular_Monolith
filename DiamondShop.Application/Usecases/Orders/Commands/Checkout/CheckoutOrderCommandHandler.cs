@@ -42,7 +42,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Checkout
             request.Deconstruct(out string accountId, out BillingDetail billingDetail, out CheckoutOrderInfo orderInfo);
             billingDetail.Deconstruct(out string FirstName, out string LastName, out string Phone, out string Email, out string Providence, out string District, out string Ward, out string Address, out string ? Note);
             orderInfo.Deconstruct(out OrderRequestDto orderRequestDto, out List<OrderItemRequestDto>  orderItemsRequestDto);
-            orderRequestDto.Deconstruct(out PaymentType paymentType, out string paymentId, out string paymentName, out string promotionId, out bool isTransfer);
+            orderRequestDto.Deconstruct(out PaymentType paymentType, out string paymentId, out string paymentName, out string promotionId, out bool isTransfer, out bool? IsAtShop);
             string address = String.Join(" ", [billingDetail.Providence, billingDetail.District, billingDetail.Ward, billingDetail.Address]);
             var parsedAccountId = AccountId.Parse(accountId);
             var getAccount = await _accountRepository.GetById(parsedAccountId);
@@ -52,7 +52,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Checkout
                 return Result.Fail(new Error($"Số lượng tối đa đơn hàng bạn được đặt hàng là {orderRule.MaxOrderAmountForCustomerToPlace} đơn xử lý"));
             }
 
-            var orderResult = await _sender.Send(new CreateOrderCommand(accountId, new CreateOrderInfo(paymentType, paymentId, paymentName, null, promotionId, billingDetail, orderItemsRequestDto)));
+            var orderResult = await _sender.Send(new CreateOrderCommand(accountId, new CreateOrderInfo(paymentType, paymentId, paymentName, null, promotionId, billingDetail, orderItemsRequestDto , IsAtShop)));
             if (orderResult.IsFailed)
                 return Result.Fail(orderResult.Errors);
             var order = orderResult.Value;

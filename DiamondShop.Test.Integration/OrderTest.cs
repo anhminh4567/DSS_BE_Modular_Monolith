@@ -412,7 +412,7 @@ namespace DiamondShop.Test.Integration
             if (order != null)
             {
                 _output.WriteLine($"{order.Status}");
-                var rejectCommand = new RejectOrderCommand(order.Id.Value, order.AccountId.Value, "just rejecting");
+                var rejectCommand = new RejectOrderCommand(order.Id.Value, "just rejecting");
                 var rejectResult = await _sender.Send(rejectCommand);
                 if (rejectResult.IsFailed)
                 {
@@ -514,7 +514,7 @@ namespace DiamondShop.Test.Integration
             if (order != null)
             {
                 _output.WriteLine($"{order.Status}");
-                var rejectCommand = new RejectOrderCommand(order.Id.Value, order.AccountId.Value, "just rejecting");
+                var rejectCommand = new RejectOrderCommand(order.Id.Value, "just rejecting");
                 var rejectResult = await _sender.Send(rejectCommand);
                 if (rejectResult.IsFailed)
                 {
@@ -555,7 +555,7 @@ namespace DiamondShop.Test.Integration
             if (order != null)
             {
                 _output.WriteLine($"{order.Status}");
-                var rejectCommand = new RejectOrderCommand(order.Id.Value, order.AccountId.Value, "just rejecting");
+                var rejectCommand = new RejectOrderCommand(order.Id.Value, "just rejecting");
                 var rejectResult = await _sender.Send(rejectCommand);
                 if (rejectResult.IsFailed)
                 {

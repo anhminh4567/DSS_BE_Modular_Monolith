@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -51,6 +52,16 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo
         public Task<List<Discount>> GetContainingCode(string code, int start, int take, CancellationToken cancellationToken = default)
         {
             return _set.Where(x => x.DiscountCode.ToUpper().Contains(code.ToUpper())).Skip(start).Take(take).ToListAsync(cancellationToken);
+        }
+
+        public Task<int> GetDiscountCount(Expression<Func<Discount, bool>> expression)
+        {
+            return _set.Where(expression).CountAsync();
+        }
+
+        public Task<List<DiscountId>> GetDiscountIds(Expression<Func<Discount, bool>> expression)
+        {
+            throw new NotImplementedException();
         }
 
         public IQueryable<Discount> QueryByStatuses(IQueryable<Discount> query, List<Status> statuses)

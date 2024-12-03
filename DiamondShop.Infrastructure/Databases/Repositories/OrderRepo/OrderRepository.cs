@@ -100,5 +100,11 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
             && x.Status != OrderStatus.Cancelled)
                 .ToListAsync();
         }
+
+        public Task<List<Order>> GetUserOrders(Account customerAccount)
+        {
+            return _set.Where(x => x.AccountId == customerAccount.Id)
+                .ToListAsync();
+        }
     }
 }

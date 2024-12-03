@@ -57,6 +57,8 @@ namespace DiamondShop.Domain.Models.Orders
         public DateTime? ExpiredDate { get; set; }
         public DateTime? ShipFailedDate{ get; set; }
         public int ShipFailedCount { get; set; } = 0;
+        
+        //public bool IsCollectAtShop { get; set; } = false;
         [NotMapped]
         public bool IsCustomOrder { get => CustomizeRequestId != null; }
         public void AddTransaction(Transaction transactionTypePay) 
@@ -148,5 +150,6 @@ namespace DiamondShop.Domain.Models.Orders
         {
             return TotalPrice - ShippingFee;
         }
+
     }
 }

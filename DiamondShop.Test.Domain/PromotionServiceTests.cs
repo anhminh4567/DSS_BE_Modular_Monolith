@@ -1,3 +1,4 @@
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.Diamonds;
@@ -11,6 +12,8 @@ using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Services.Implementations;
 using DiamondShop.Domain.Services.interfaces;
+using Microsoft.Extensions.Options;
+using Moq;
 using OpenQA.Selenium.DevTools.V127.Audits;
 
 namespace DiamondShop.Test.Domain
@@ -18,6 +21,7 @@ namespace DiamondShop.Test.Domain
     public class PromotionServiceTests
     {
         private List<DiamondShape> _diamondShapes;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
         public PromotionServiceTests()
         {
             _diamondShapes = new List<DiamondShape> {
@@ -32,6 +36,12 @@ namespace DiamondShop.Test.Domain
                 DiamondShape.Create("Heart",DiamondShapeId.Parse(9.ToString())),
                 DiamondShape.Create("Pear",DiamondShapeId.Parse(10.ToString()))
             };
+            _optionsMonitor = Mock.Of<IOptionsMonitor<ApplicationSettingGlobal>>(o =>
+                o.CurrentValue == new ApplicationSettingGlobal()
+                {
+                    // Set the desired properties of the ApplicationSettingGlobal object
+                });
+
         }
 
         [Fact(DisplayName ="exclude qualifier")]
@@ -66,7 +76,7 @@ namespace DiamondShop.Test.Domain
 
             var promotionService = new PromotionService();
             // Act
-            var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion);
+            var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion, _optionsMonitor.CurrentValue.PromotionRule);
 
             // Assert
             Assert.True(result.IsSuccess);
@@ -99,7 +109,7 @@ namespace DiamondShop.Test.Domain
             userCartModel.Products.Add(product2);
             var promotionService = new PromotionService();
             // Act
-            var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion);
+            var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion, _optionsMonitor.CurrentValue.PromotionRule);
 
             // Assert
             Assert.True(result.IsSuccess);
@@ -142,7 +152,7 @@ namespace DiamondShop.Test.Domain
             var promotionService = new PromotionService();
 
             // Act
-            var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion);
+            var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion, _optionsMonitor.CurrentValue.PromotionRule);
 
             // Assert
             Assert.True(result.IsSuccess);
@@ -194,7 +204,7 @@ namespace DiamondShop.Test.Domain
             var promotionService = new PromotionService();
 
             // Act
-            var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion);
+            var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion, _optionsMonitor.CurrentValue.PromotionRule);
 
             // Assert
             Assert.True(result.IsSuccess);
@@ -246,7 +256,7 @@ namespace DiamondShop.Test.Domain
             var promotionService = new PromotionService();
 
             // Act
-            var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion);
+            var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion, _optionsMonitor.CurrentValue.PromotionRule);
             
             // Assert
             Assert.True(result.IsSuccess);
@@ -300,7 +310,7 @@ namespace DiamondShop.Test.Domain
             var promotionService = new PromotionService();
 
             // Act
-            var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion);
+            var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion, _optionsMonitor.CurrentValue.PromotionRule);
             var productOrder = userCartModel.Products.OrderByDescending(x => x.ReviewPrice.DiscountPrice).ToList();
             var hightestProductPrice = productOrder[0];
             // Assert
@@ -359,7 +369,7 @@ namespace DiamondShop.Test.Domain
             var promotionService = new PromotionService();
 
             // Act
-            var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion);
+            var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion, _optionsMonitor.CurrentValue.PromotionRule);
             var productOrder = userCartModel.Products.OrderByDescending(x => x.ReviewPrice.DiscountPrice).ToList();
             var hightestProductPrice = productOrder[0];
             // Assert

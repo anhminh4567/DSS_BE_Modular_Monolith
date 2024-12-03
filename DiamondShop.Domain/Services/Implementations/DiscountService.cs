@@ -89,18 +89,18 @@ namespace DiamondShop.Domain.Services.Implementations
                     if (product.Diamond is not null)
                     {
                         if (requirement.DiamondOrigin == DiamondOrigin.Both)
-                            return _diamondServices.ValidateDiamond4C(product.Diamond, requirement.CaratFrom.Value, requirement.CaratTo.Value, requirement.ColorFrom.Value, requirement.ColorTo.Value, requirement.ClarityFrom.Value, requirement.ClarityTo.Value, requirement.CutFrom.Value, requirement.CutTo.Value);
+                            return DiamondServices.ValidateDiamond4CGlobal(product.Diamond, requirement.CaratFrom.Value, requirement.CaratTo.Value, requirement.ColorFrom.Value, requirement.ColorTo.Value, requirement.ClarityFrom.Value, requirement.ClarityTo.Value, requirement.CutFrom.Value, requirement.CutTo.Value);
                         else if (requirement.DiamondOrigin == DiamondOrigin.Lab)
                         {
                             if (product.Diamond.IsLabDiamond is false)
                                 return false;
-                            return _diamondServices.ValidateDiamond4C(product.Diamond, requirement.CaratFrom.Value, requirement.CaratTo.Value, requirement.ColorFrom.Value, requirement.ColorTo.Value, requirement.ClarityFrom.Value, requirement.ClarityTo.Value, requirement.CutFrom.Value, requirement.CutTo.Value);
+                            return DiamondServices.ValidateDiamond4CGlobal(product.Diamond, requirement.CaratFrom.Value, requirement.CaratTo.Value, requirement.ColorFrom.Value, requirement.ColorTo.Value, requirement.ClarityFrom.Value, requirement.ClarityTo.Value, requirement.CutFrom.Value, requirement.CutTo.Value);
                         }
                         else if (requirement.DiamondOrigin == DiamondOrigin.Natural)
                         {
                             if (product.Diamond.IsLabDiamond)
                                 return false;
-                            return _diamondServices.ValidateDiamond4C(product.Diamond, requirement.CaratFrom.Value, requirement.CaratTo.Value, requirement.ColorFrom.Value, requirement.ColorTo.Value, requirement.ClarityFrom.Value, requirement.ClarityTo.Value, requirement.CutFrom.Value, requirement.CutTo.Value);
+                            return DiamondServices.ValidateDiamond4CGlobal(product.Diamond, requirement.CaratFrom.Value, requirement.CaratTo.Value, requirement.ColorFrom.Value, requirement.ColorTo.Value, requirement.ClarityFrom.Value, requirement.ClarityTo.Value, requirement.CutFrom.Value, requirement.CutTo.Value);
                         }
                     }
                     return false;

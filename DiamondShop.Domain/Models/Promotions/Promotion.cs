@@ -1,5 +1,7 @@
 ﻿using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
@@ -17,6 +19,8 @@ namespace DiamondShop.Domain.Models.Promotions
 {
     public class Promotion : Entity<PromotionId>, IAggregateRoot
     {
+        //trạng thái của order mà được xem là chưa qua sử dụng
+        public static OrderStatus[] StatusNOTQualifiedAsUsed = { OrderStatus.Rejected  };
         public string Name { get; set; }
         public string PromoCode { get; set; }
         public string Description { get; set; } 
@@ -123,7 +127,10 @@ namespace DiamondShop.Domain.Models.Promotions
             EndDate = enddate.ToUniversalTime();
             //Status = Status.Scheduled;
         }
-
+        public List<Order> OrderThatTruelyUsedThisPromotion(List<Order> orders)
+        {
+            return orders.Where(o => o.PromotionId == Id && StatusNOTQualifiedAsUsed.Contains(o.Status) == false).ToList();
+        }
         public Promotion() { }
     }
 }

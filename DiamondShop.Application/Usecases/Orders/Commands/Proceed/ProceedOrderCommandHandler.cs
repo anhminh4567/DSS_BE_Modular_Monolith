@@ -135,6 +135,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             }
             else if (order.Status == OrderStatus.Prepared)
             {
+                //if(this is an order at shop then no delivere should be assigned, it should stayed here and proceed to success or cancelled, rejected)
                 if (order.DelivererId == null)
                     return Result.Fail(OrderErrors.NoDelivererAssignedError);
                 order.Status = OrderStatus.Delivering;

@@ -52,6 +52,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromo
 
         public async Task<Result<ApplicablePromotionDto>> Handle(GetApplicablePromotionForCartQuery request, CancellationToken cancellationToken)
         {
+            var promotionRule = _optionsMonitor.CurrentValue.PromotionRule;
             var getAllActivePromo = await _promotionRepository.GetActivePromotion();
             var emptyPromo = new List<Promotion>();
             Account? userAccount = null;
@@ -83,7 +84,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromo
                 var clonedCart = CartModel.CloneCart(cartModel);
                 if (clonedCart == null)
                     return;
-                var result = PromotionService.IsCartMeetPromotionRequirent(clonedCart, promo);
+                var result = PromotionService.IsCartMeetPromotionRequirent(clonedCart, promo, promotionRule);
                 if(result.IsSuccess)
                 {
                     successfulPromotions.Add(new PromoResponse(clonedCart.OrderPrices.OrderPriceExcludeShipAndWarranty,promo.Id.Value, _mapper.Map<PromotionDto>(promo), true));
@@ -97,7 +98,6 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromo
                     item.IsApplicable = true;
                     item.AmountSaved = founded.AmountSaved;
                 }
-                    
             }
             response.Promotions.OrderByDescending(x => x.AmountSaved).ToList();
             return response;

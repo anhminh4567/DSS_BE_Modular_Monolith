@@ -35,6 +35,7 @@ namespace DiamondShop.Domain.Models.Promotions.ErrorMessages
         {
             return new Error($"Không thể thêm yêu cầu mới, đã đạt giới hạn {type} là {limit}");
         }
+        public static Error RedemptionLimitReached(int max) => new Error($"Không thể dùng khuyến mã này vì đã đạt giới hạn là {max} lần sử dụng mỗi người");
         public class GiftError
         {
             public static NotFoundError NotFound = new NotFoundError("Không tìm thấy quà tặng");

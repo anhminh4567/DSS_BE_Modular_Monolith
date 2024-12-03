@@ -41,7 +41,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Checkout
         {
             request.Deconstruct(out string accountId, out CheckoutCustomizeRequestDto checkoutRequestDto);
             checkoutRequestDto.Deconstruct(out string customizeRequestId, out BillingDetail billingDetail, out OrderRequestDto orderRequestDto, out string warrantyCode, out WarrantyType warrantyType);
-            orderRequestDto.Deconstruct(out PaymentType paymentType, out string paymentId, out string paymentName, out string? promotionId, out bool isTransfer);
+            orderRequestDto.Deconstruct(out PaymentType paymentType, out string paymentId, out string paymentName, out string? promotionId, out bool isTransfer,out bool? isAtShop);
             var customizeRequest = await _customizeRequestRepository.GetById(CustomizeRequestId.Parse(customizeRequestId));
             if (customizeRequest == null)
                 return Result.Fail(CustomizeRequestErrors.CustomizeRequestNotFoundError);

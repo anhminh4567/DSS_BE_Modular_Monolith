@@ -1,4 +1,6 @@
-﻿using DiamondShop.Domain.Common.Carts;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common.Carts;
+using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.JewelryModels;
@@ -17,7 +19,7 @@ namespace DiamondShop.Domain.Services.interfaces
 {
     public interface IPromotionServices
     {
-        Result ApplyPromotionOnCartModel(CartModel cartModel, Promotion promotion);
+        Result ApplyPromotionOnCartModel(CartModel cartModel, Promotion promotion, PromotionRule promotionRule);
         void ApplyPromotionOnDiamond(Diamond diamond, List<Promotion> activePromotion);
         void ApplyPromotionOnJewerly(Jewelry jewelry, List<Promotion> activePromotion);
 
