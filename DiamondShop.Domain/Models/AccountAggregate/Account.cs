@@ -35,7 +35,7 @@ namespace DiamondShop.Domain.Models.AccountAggregate
         public List<Address> Addresses { get; private set; } = new();
         public FullName FullName { get; private set; }
         public string Email { get; private set; }
-        public long? PhoneNumber { get; set; }
+        public string? PhoneNumber { get; set; }
         public decimal TotalPoint { get; set; } = 0;
         [NotMapped]
         public IUserIdentity? UserIdentity { get; set; }

@@ -72,7 +72,7 @@ namespace DiamondShop.Test.Integration
             var transaction = _context.Set<Transaction>().FirstOrDefault(p => p.OrderId == order.Id);
             return transaction;
         }
-        async Task<Transaction> fakeDelivererConfirmTransfer(Order order,AccountId delivererId)
+        async Task<Transaction> fakeDelivererConfirmTransfer(Order order, AccountId delivererId)
         {
             Assert.Equal(PaymentType.COD, order.PaymentType);
             var transactions = _context.Set<Transaction>().Where(p => p.OrderId == order.Id && p.Status == TransactionStatus.Valid).ToList();
@@ -89,8 +89,8 @@ namespace DiamondShop.Test.Integration
         {
             var jewelry = await TestData.SeedDefaultJewelry(_context);
             var diamond = await TestData.SeedDefaultDiamond(_context, jewelry.Id);
-            var criteria = await TestData.SeedDefaultDiamondCriteria(_context,  diamond.IsLabDiamond);//diamond.Cut, diamond.Clarity, diamond.Color,
-            await TestData.SeedDefaultDiamondPrice(_context, diamond.DiamondShapeId, criteria.Id, diamond.IsLabDiamond,diamond.Cut,diamond.Clarity,diamond.Color);
+            var criteria = await TestData.SeedDefaultDiamondCriteria(_context, diamond.IsLabDiamond);//diamond.Cut, diamond.Clarity, diamond.Color,
+            await TestData.SeedDefaultDiamondPrice(_context, diamond.DiamondShapeId, criteria.Id, diamond.IsLabDiamond, diamond.Cut, diamond.Clarity, diamond.Color);
             return jewelry;
         }
         async Task<Order> SeedingPendingOrder(PaymentType paymentType = PaymentType.Payall)
@@ -195,7 +195,7 @@ namespace DiamondShop.Test.Integration
             await _context.Set<DeliveryFee>().AddAsync(fee);
             var account = await TestData.SeedDefaultCustomer(_context, _authentication);
             var jewelry = await SeedingOrderJewelry();
-            var billingDetail = new BillingDetail("abc", "abc", "123123132", "abc@gmail.com", "Hồ Chí Minh", "Thu Duc", "Ward", "Tan Binh", "no");
+            var billingDetail = new BillingDetail("abc", "abc", "0123987456", "abc@gmail.com", "Hồ Chí Minh", "Thu Duc", "Ward", "Tan Binh", "no");
             var orderReq = new OrderRequestDto(PaymentType.COD, PaymentMethod.BANK_TRANSFER.Id.Value, "zalopay", null, true);
             var itemReqs = new List<OrderItemRequestDto>(){
                 new OrderItemRequestDto(jewelry.Id.Value, null, null, null, "Default_Jewelry_Warranty", WarrantyType.Jewelry),
@@ -203,12 +203,14 @@ namespace DiamondShop.Test.Integration
             var orderDetail = new CheckoutOrderInfo(orderReq, itemReqs);
             var command = new CheckoutOrderCommand(account.Id.Value, billingDetail, orderDetail);
             var result = await _sender.Send(command);
+
             if (result.IsFailed)
             {
                 WriteError(result.Errors);
             }
             else
             {
+                _output.WriteLine(account.PhoneNumber.ToString());
                 var items = _context.Set<OrderItem>().ToList();
                 foreach (var item in items)
                     _output.WriteLine($"{item.JewelryId} {item.DiamondId} {item.PurchasedPrice}");
@@ -324,7 +326,7 @@ namespace DiamondShop.Test.Integration
         public async Task Complete_COD_Order_Should_Return_SUCCESS()
         {
             var staff = await TestData.SeedDefaultStaff(_context, _authentication);
-            var manager = await TestData.SeedDefaultManager(_context,_authentication);
+            var manager = await TestData.SeedDefaultManager(_context, _authentication);
             var deliverer = await TestData.SeedDefaultDeliverer(_context, _authentication);
             var order = await SeedingDeliveringOrder(staff.Id.Value, deliverer.Id.Value, manager.Id.Value, PaymentType.COD);
             if (order != null)
@@ -332,7 +334,7 @@ namespace DiamondShop.Test.Integration
                 _output.WriteLine($"{order.Status}");
                 //Deliverer send proof of remaining transfer
                 var remainingTrans = await fakeDelivererConfirmTransfer(order, deliverer.Id);
-                var remainingTransferResult = await _sender.Send(new StaffConfirmDeliveringTransferCommand(manager.Id.Value, new(remainingTrans.Id.Value, order.Id.Value,remainingTrans.TransactionAmount,"ABCDERGF")));
+                var remainingTransferResult = await _sender.Send(new StaffConfirmDeliveringTransferCommand(manager.Id.Value, new(remainingTrans.Id.Value, order.Id.Value, remainingTrans.TransactionAmount, "ABCDERGF")));
                 if (remainingTransferResult.IsFailed)
                 {
                     WriteError(remainingTransferResult.Errors);
