@@ -8,6 +8,7 @@ using DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromRange
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany;
 using DiamondShop.Application.Usecases.DiamondShapes.Queries.GetAll;
+using DiamondShop.Application.Usecases.Jewelries.Commands.Seeding;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.DeliveryFees;
@@ -336,7 +337,7 @@ namespace DiamondShopSystem.Controllers
                 List<DiamondPriceRequestDto> prices = new();
                 var basePrice = Math.Clamp((decimal)(carat.caratFrom * 100) * (startPrice * (decimal)(carat.caratTo * 100)), startPrice, decimal.MaxValue);
                 startPrice += caratIncrementPrice;
-                var createresult = await _sender.Send(new CreateCriteriaFromRangeCommand(carat.caratFrom, carat.caratTo,getAnyShape.Id.Value, true));
+                var createresult = await _sender.Send(new CreateCriteriaFromRangeCommand(carat.caratFrom, carat.caratTo, getAnyShape.Id.Value, true));
                 var result = createresult.Value.First();
                 for (int i = 0; i < colorEnums.Length; i++)
                 {
@@ -346,7 +347,7 @@ namespace DiamondShopSystem.Controllers
                     {
                         var clarity = (Clarity)clarityEnums.GetValue(j);
                         var columnPrice = rowPrice + columnIncrementPrice * j;
-                        prices.Add(new DiamondPriceRequestDto(result.Id.Value,startPrice,null, color,clarity));
+                        prices.Add(new DiamondPriceRequestDto(result.Id.Value, startPrice, null, color, clarity));
                     }
                 }
                 //var getAnyShape = getShapes.FirstOrDefault(x => x.Id == DiamondShape.ANY_SHAPES.Id);
@@ -360,11 +361,15 @@ namespace DiamondShopSystem.Controllers
             Console.ResetColor();
             return Ok();
         }
-        //[HttpPost("seed/jewelry")]
-        //public async Task<ActionResult> SeedJewelry()
-        //{
-            
-        //}
+        [HttpPost("seed/jewelry")]
+        public async Task<ActionResult> SeedJewelry([FromQuery] SeedModelsCommand seedModelsCommand)
+        {
+            var createResult = await _sender.Send(seedModelsCommand);
+            if (createResult.IsSuccess)
+                return Ok();
+            else
+                return MatchError(createResult.Errors, ModelState);
+        }
         [HttpGet("testpdf")]
         public async Task<ActionResult> TestPdf()
         {

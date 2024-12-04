@@ -30,7 +30,7 @@ namespace DiamondShop.Domain.Models.Orders.ErrorMessages
         public static ValidationError ExpiredTimeDueError = new ValidationError("Đơn hàng đã qua thời hạn chuyển khoản nữa");
         public static ConflictError UnfinishPayment = new ConflictError("không thể tiếp tục nếu chưa hoàn thành trả hết");
 
-        public class Refund
+        public class Transfer
         {
             public static ConflictError ExistVerifyingTransferError = new ConflictError("Đơn hàng còn giao dịch chưa xác thực");
         }

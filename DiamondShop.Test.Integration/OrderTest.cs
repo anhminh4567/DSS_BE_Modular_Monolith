@@ -8,6 +8,7 @@ using DiamondShop.Application.Services.Interfaces.Orders;
 using DiamondShop.Application.Services.Interfaces.Transfers;
 using DiamondShop.Application.Usecases.Orders.Commands.Checkout;
 using DiamondShop.Application.Usecases.Orders.Commands.Create;
+using DiamondShop.Application.Usecases.Orders.Commands.DeliverFail;
 using DiamondShop.Application.Usecases.Orders.Commands.Proceed;
 using DiamondShop.Application.Usecases.Orders.Commands.Refund;
 using DiamondShop.Application.Usecases.Orders.Commands.Reject;
@@ -149,7 +150,7 @@ namespace DiamondShop.Test.Integration
             var transaction = await fakeCustomerTransfer(order);
             Assert.NotNull(transaction);
             Assert.Equal(TransactionStatus.Verifying, transaction.Status);
-            var processingResult = await _sender.Send(new StaffConfirmPendingTransferCommand(managerId, new(transaction.Id.Value, order.Id.Value, transaction.TotalAmount, "ABCDEFG")));
+            var processingResult = await _sender.Send(new StaffConfirmPendingTransferCommand(managerId, new(transaction.Id.Value, transaction.TotalAmount, "ABCDEFG")));
             if (processingResult.IsFailed)
             {
                 WriteError(processingResult.Errors);
@@ -290,7 +291,7 @@ namespace DiamondShop.Test.Integration
             var transaction = _context.Set<Transaction>().FirstOrDefault(p => p.OrderId == order.Id);
             Assert.NotNull(transaction);
             Assert.Equal(TransactionStatus.Verifying, transaction.Status);
-            var managerCompleteResult = await _sender.Send(new StaffConfirmPendingTransferCommand(manager.Id.Value, new(transaction.Id.Value, order.Id.Value, transaction.TotalAmount, "ABCDEFG")));
+            var managerCompleteResult = await _sender.Send(new StaffConfirmPendingTransferCommand(manager.Id.Value, new(transaction.Id.Value, transaction.TotalAmount, "ABCDEFG")));
             if (managerCompleteResult.IsFailed)
             {
                 WriteError(managerCompleteResult.Errors);
@@ -315,7 +316,7 @@ namespace DiamondShop.Test.Integration
             {
                 _output.WriteLine($"{order.Status}");
                 //var completeCommand = new ProceedOrderCommand(order.Id.Value, deliverer.Id.Value);
-                await fakeDelivererCompleteDelivery(order,deliverer.Id);
+                await fakeDelivererCompleteDelivery(order, deliverer.Id);
                 //check payment
                 var transacs = _context.Set<Transaction>().ToList();
                 _output.WriteLine($"Order total price = {order.TotalPrice}");
@@ -341,7 +342,7 @@ namespace DiamondShop.Test.Integration
                 _output.WriteLine($"{order.Status}");
                 //Deliverer send proof of remaining transfer
                 var remainingTrans = await fakeDelivererConfirmTransfer(order, deliverer.Id);
-                var remainingTransferResult = await _sender.Send(new StaffConfirmDeliveringTransferCommand(manager.Id.Value, new(remainingTrans.Id.Value, order.Id.Value, remainingTrans.TransactionAmount, "ABCDERGF")));
+                var remainingTransferResult = await _sender.Send(new StaffConfirmDeliveringTransferCommand(manager.Id.Value, new(remainingTrans.Id.Value, remainingTrans.TransactionAmount, "ABCDERGF")));
                 if (remainingTransferResult.IsFailed)
                 {
                     WriteError(remainingTransferResult.Errors);
@@ -501,6 +502,59 @@ namespace DiamondShop.Test.Integration
                 if (order.PaymentType == PaymentType.Payall)
                     Assert.Equal(MoneyVndRoundUpRules.RoundAmountFromDecimal(payAmount), refundAmount);
                 Assert.Equal(OrderStatus.Rejected, order.Status);
+            }
+        }
+        [Trait("ReturnTrue", "RejectTransferPendingOrder")]
+        [Fact()]
+        public async Task Shop_Reject_COD_Transfer_While_Pending_Should_NoRefund_CANCELLED()
+        {
+            var manager = await TestData.SeedDefaultManager(_context, _authentication);
+            var customer = await TestData.SeedDefaultCustomer(_context, _authentication);
+            var order = await SeedingPendingOrder(customer.Id.Value, PaymentType.COD);
+            var transaction = await fakeCustomerTransfer(order);
+            Assert.NotNull(transaction);
+            Assert.Equal(TransactionStatus.Verifying, transaction.Status);
+            var rejectTransferResult = await _sender.Send(new StaffRejectTransferCommand(manager.Id.Value, new(transaction.Id.Value)));
+            if (rejectTransferResult.IsFailed)
+            {
+                WriteError(rejectTransferResult.Errors);
+            }
+            Assert.True(rejectTransferResult.IsSuccess);
+            Assert.NotNull(rejectTransferResult.Value);
+            order = rejectTransferResult.Value;
+            Assert.Equal(OrderStatus.Cancelled, order.Status);
+            Assert.Equal(PaymentStatus.No_Refund, order.PaymentStatus);
+        }
+        [Trait("ReturnTrue", "RejectTransferDeliveringOrder")]
+        [Fact()]
+        public async Task Shop_Reject_COD_Transfer_While_Delivering_Should_NoRefund_CANCELLED()
+        {
+            var staff = await TestData.SeedDefaultStaff(_context, _authentication);
+            var manager = await TestData.SeedDefaultManager(_context, _authentication);
+            var deliverer = await TestData.SeedDefaultDeliverer(_context, _authentication);
+            var order = await SeedingDeliveringOrder(staff.Id.Value, deliverer.Id.Value, manager.Id.Value, PaymentType.COD);
+            if (order != null)
+            {
+                _output.WriteLine($"{order.Status}");
+                //Deliverer send proof of remaining transfer
+                var remainingTrans = await fakeDelivererConfirmTransfer(order, deliverer.Id);
+                var rejectTransferResult = await _sender.Send(new StaffRejectTransferCommand(manager.Id.Value, new(remainingTrans.Id.Value)));
+                if (rejectTransferResult.IsFailed)
+                {
+                    WriteError(rejectTransferResult.Errors);
+                }
+                Assert.True(rejectTransferResult.IsSuccess);
+                Assert.NotNull(rejectTransferResult.Value);
+                order = rejectTransferResult.Value;
+                Assert.Equal(OrderStatus.Delivering, order.Status);
+                Assert.Equal(PaymentStatus.No_Refund, order.PaymentStatus);
+                var deliveryFailResult = await _sender.Send(new OrderDeliverFailCommand(deliverer.Id.Value, new(order.Id.Value)));
+                if (deliveryFailResult.IsFailed)
+                {
+                    WriteError(deliveryFailResult.Errors);
+                }
+                Assert.Equal(OrderStatus.Delivery_Failed, order.Status);
+
             }
         }
     }

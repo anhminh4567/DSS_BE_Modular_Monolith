@@ -8,6 +8,6 @@ namespace DiamondShop.Domain.Models.Orders.Enum
 {
     public enum  PaymentStatus
     {
-        Pending = 1, Deposited = 2, Paid = 3, Refunding = 4, Refunded = 5 , No_Refunded = 6
+        Pending = 1, Deposited = 2, Paid = 3, Refunding = 4, Refunded = 5 , No_Refund = 6
     }
 }

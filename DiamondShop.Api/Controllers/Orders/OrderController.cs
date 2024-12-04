@@ -6,6 +6,7 @@ using DiamondShop.Application.Dtos.Responses.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Orders.Commands.Checkout;
 using DiamondShop.Application.Usecases.Orders.Commands.ConfirmOrderTaken;
+using DiamondShop.Application.Usecases.Orders.Commands.DeliverEnd;
 using DiamondShop.Application.Usecases.Orders.Commands.DeliverFail;
 using DiamondShop.Application.Usecases.Orders.Commands.Proceed;
 using DiamondShop.Application.Usecases.Orders.Commands.Redeliver;
@@ -162,9 +163,9 @@ namespace DiamondShop.Api.Controllers.Orders
         #region Staff
         [HttpPut("Reject")]
         [Authorize(Roles = AccountRole.StaffId)]
-        public async Task<ActionResult> ShopRejectOrder([FromQuery] string orderId, string reason)
+        public async Task<ActionResult> ShopRejectOrder([FromQuery] RejectOrderCommand rejectOrderCommand)
         {
-            var result = await _sender.Send(new RejectOrderCommand(orderId, reason));
+            var result = await _sender.Send(rejectOrderCommand);
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<OrderDto>(result.Value);
@@ -179,6 +180,20 @@ namespace DiamondShop.Api.Controllers.Orders
         public async Task<ActionResult> DeliveringOrder([FromQuery] AssignDelivererOrderCommand assignDelivererOrderCommand)
         {
             var result = await _sender.Send(assignDelivererOrderCommand);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<OrderDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            else
+                return MatchError(result.Errors, ModelState);
+        }
+
+        [HttpPut("DeliverEnd")]
+        [Authorize(Roles = AccountRole.StaffId)]
+        public async Task<ActionResult> DeliverEndOrder([FromQuery] DeliverEndOrderCommand deliverEndOrderCommand)
+        {
+            var result = await _sender.Send(deliverEndOrderCommand);
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<OrderDto>(result.Value);

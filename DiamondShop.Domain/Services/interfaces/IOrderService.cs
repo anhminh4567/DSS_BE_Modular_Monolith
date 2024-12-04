@@ -14,6 +14,7 @@ namespace DiamondShop.Domain.Services.interfaces
         Task<Result<Order>> AssignDeliverer(Order order, string delivererId);
         public bool IsCancellable(OrderStatus order);
         public bool IsProceedable(OrderStatus order);
+        public bool IsDeliverCancellable(OrderStatus order);
         public bool CheckForSameCity(List<Order> orders);
         public Task<Result> CancelItems(Order order);
     }

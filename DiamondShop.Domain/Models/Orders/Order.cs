@@ -59,7 +59,7 @@ namespace DiamondShop.Domain.Models.Orders
         public int ShipFailedCount { get; set; } = 0;
         public DateTime? FinishPreparedDate { get; set; }
         public bool IsCollectAtShop { get; set; } = false;
-        public bool? HasDelivererReturned { get; set; }
+        public bool? HasDelivererReturned { get; set; } = true;
         [NotMapped]
         public bool IsCustomOrder { get => CustomizeRequestId != null; }
         public void AddTransaction(Transaction transactionTypePay) 
@@ -101,6 +101,7 @@ namespace DiamondShop.Domain.Models.Orders
                 PaymentMethodId = paymentMethodId,
                 DepositFee = depositFee,
                 ExpiredDate = expiredDate,
+                HasDelivererReturned = true
             };
         }
         public void Deposit(Transaction depositedTransaction)
@@ -111,6 +112,11 @@ namespace DiamondShop.Domain.Models.Orders
             Status = OrderStatus.Processing;
             PaymentStatus = PaymentStatus.Deposited;
             Items.ForEach(p => p.Status = OrderItemStatus.Pending);
+        }
+        public void DeliverEnd()
+        {
+            DelivererId = null;
+            HasDelivererReturned = true;
         }
         public void PayAll(Transaction payAllTransaction)
         {

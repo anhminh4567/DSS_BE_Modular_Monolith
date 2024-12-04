@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Dtos.Requests.Orders
 {
-    public record TransferRejectRequestDto(string TransactionId, string OrderId);
+    public record TransferRejectRequestDto(string TransactionId);
 
 }

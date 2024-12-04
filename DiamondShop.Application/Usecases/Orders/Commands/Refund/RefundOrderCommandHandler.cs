@@ -63,7 +63,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Refund
                 return Result.Fail(OrderErrors.RefundedError);
             var transactions = await _transactionRepository.GetByOrderId(order.Id, token);
             if (transactions.Any(p => p.Status == TransactionStatus.Verifying))
-                return Result.Fail(OrderErrors.Refund.ExistVerifyingTransferError);
+                return Result.Fail(OrderErrors.Transfer.ExistVerifyingTransferError);
             if (transactions.Count > 0)
             {
                 //var getStateChangingLogs = await _orderLogRepository.GetStateChangingLog(order);
