@@ -372,7 +372,7 @@ namespace DiamondShop.Api.Controllers.Orders
         }
         [HttpPost("Staff/CompleteAtShopOrder")]
         [Authorize(Roles = $"{AccountRole.StaffId},{AccountRole.ManagerId}")]
-        public async Task<ActionResult> ConfirmOrderCompleteAtShop([FromBody] ConfirmOrderTakenFromShopCommand command)
+        public async Task<ActionResult> ConfirmOrderCompleteAtShop([FromForm] ConfirmOrderTakenFromShopCommand command)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
