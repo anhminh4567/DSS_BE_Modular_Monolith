@@ -12,7 +12,7 @@ namespace DiamondShop.Application.Services.Interfaces
     public record ExternalBankTransactionDetailDto(string shopAccountNum, string? userAccountNum, long recordedAmount, string description, string code);
     public interface IExternalBankServices
     {
-        ExternalBankQrcodeDto GenerateQrCodeFromOrder(Order order);
+        ExternalBankQrcodeDto GenerateQrCodeFromOrder(Order order, decimal amount);
         ExternalBankTransactionDetailDto GetTransactionDetail(Order order, Transaction transaction);
 
     }

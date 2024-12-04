@@ -116,7 +116,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                     ArgumentNullException.ThrowIfNull(paymentGateId);
                     // ta thu lay transaction, neu da ton tai thi check status roi tinh tiep
                     // neu chua ton tai ==> auto save transaction
-                    Transaction? tryGetTransaction = await _transactionRepository.GetByAppAndPaygateId(appGivenId,paymentGateId);
+                    Transaction? tryGetTransaction = await _transactionRepository.GetByAppAndPaygateId(appGivenId, paymentGateId);
                     List<PaymentMethod> paymentMethods = await _paymentMethodRepository.GetAll();
                     var zalopayMethod = paymentMethods.First(x => x.MethodName.ToUpper() == PaymentMethod.ZALOPAY.MethodName.ToUpper());
                     _logger.LogInformation("update order's status = success where app_trans_id = {0}", dataObject.app_trans_id);
@@ -124,7 +124,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                     {
                         await _unitOfWork.BeginTransactionAsync();
                         var orderIdParsed = OrderId.Parse(metaData.ForOrderId);
-                        var newTran = Transaction.CreatePayment(zalopayMethod.Id, orderIdParsed, metaData.Description,dataObject.app_trans_id,dataObject.zp_trans_id.ToString(),metaData.TimeStampe,dataObject.amount,DateTime.UtcNow);
+                        var newTran = Transaction.CreatePayment(zalopayMethod.Id, orderIdParsed, metaData.Description, dataObject.app_trans_id, dataObject.zp_trans_id.ToString(), metaData.TimeStampe, dataObject.amount, DateTime.UtcNow);
                         newTran.VerifyZalopay(dataObject.app_trans_id, dataObject.zp_trans_id.ToString(), metaData.TimeStampe);
                         await _transactionRepository.Create(newTran);
                         result["return_code"] = 1;
@@ -151,7 +151,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                         result["return_code"] = 2;
                         result["return_message"] = "success";
                     }
-                    
+
                     //if () { } // con lai thi loi, ko callback
                 }
             }
@@ -168,49 +168,67 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
         {
             ArgumentNullException.ThrowIfNull(paymentLinkRequest.Amount);
             ArgumentNullException.ThrowIfNull(paymentLinkRequest.Order);
-            if (paymentLinkRequest.Order.ExpiredDate != null)
+            var order = paymentLinkRequest.Order;
+            if (order.Status == OrderStatus.Cancelled || order.Status == OrderStatus.Rejected)
             {
-                var expriredDate= paymentLinkRequest.Order.ExpiredDate.Value;
-                if(expriredDate <= DateTime.UtcNow)
-                    return Result.Fail("order expired already");
+                return Result.Fail("order not valid to create payment");
+            }
+            if (order.Status == OrderStatus.Pending)
+            {
+                if (order.ExpiredDate != null)
+                {
+                    var expriredDate = order.ExpiredDate.Value;
+                    if (expriredDate <= DateTime.UtcNow)
+                        return Result.Fail("order expired already");
+                }
+            }
+            if (order.PaymentStatus != PaymentStatus.Pending && order.PaymentStatus != PaymentStatus.Deposited)
+            {
+                return Result.Fail("payment status is not in pending or deposit state, only these 2 are allowed to create payment");
+            }
+            if(order.Status == OrderStatus.Pending && order.FinishPreparedDate == null)
+            {
+                return Result.Fail("order is not finish prepared yet to create payment link, wait for complete preparation");
             }
             var transactionOption = _optionsMonitor.CurrentValue.TransactionRule;
-            if(paymentLinkRequest.Amount > transactionOption.MaximumPerTransaction)
+            if (paymentLinkRequest.Amount > transactionOption.MaximumPerTransaction)
             {
                 return Result.Fail($"amount is greater than {transactionOption.MaximumPerTransaction}");
             }
             var cacheKey = GetCacheKey(paymentLinkRequest.Order);
             string? paymentLink;
             object? tryGetFromCache = _cache.Get(cacheKey);
-            if(tryGetFromCache != null)
+            if (tryGetFromCache != null)
             {
                 paymentLink = tryGetFromCache as string;
-                return new PaymentLinkResponse() { PaymentUrl  =  paymentLink, QrCode = GenQRImagePng(paymentLink)} ;
+                return new PaymentLinkResponse() { PaymentUrl = paymentLink, QrCode = GenQRImagePng(paymentLink) };
             }
             double? secondsExpired = GetSecondPaymentTimeOut(paymentLinkRequest.Order);
-            if(secondsExpired == null)
+            if (secondsExpired == null)
             {
                 return Result.Fail("order is not in pending or delivering state");
             }
-            var callbackUrl = string.Concat(_urlOptions.Value.HttpsUrl,"/", CallbackUri);
-            var returnUrl = string.Concat(_urlOptions.Value.HttpsUrl,"/", ReturnUri);
+            var callbackUrl = string.Concat(_urlOptions.Value.HttpsUrl, "/", CallbackUri);
+            var returnUrl = string.Concat(_urlOptions.Value.HttpsUrl, "/", ReturnUri);
             //var returnUrl = string.Concat("https://3wkrskcn-7160.asse.devtunnels.ms", "/", ReturnUri);
-            var order = paymentLinkRequest.Order;
             var embed_data = new ZalopayEmbeddedData
             {
                 columninfo = "",
                 redirecturl = returnUrl,
-                preferred_payment_method =[]//["domestic_card", "account"],
+                preferred_payment_method = []//["domestic_card", "account"],
             };
             var correctAmount = paymentLinkRequest.Amount; //_orderTransactionService.GetCorrectAmountFromOrder(order);
 
             var param = new Dictionary<string, string>();
-            var app_trans_id = DateTime.UtcNow.ToString("yyyyMMddHHmmss"); //rnd.Next(100000000); // Generate a random order's ID.
+            var app_trans_id = order.PaymentStatus == PaymentStatus.Pending 
+                ? order.CreatedDate.ToString("yyyyMMddHHmmss") 
+                : order.FinishPreparedDate.Value.ToString("yyyyMMddHHmmss")  ;
             var userId = paymentLinkRequest.Account.Id.Value;
             //var amount = paymentLinkRequest.Amount;
             var amount = correctAmount;
-
-            var timeStampe = ZalopayUtils.GetTimeStamp().ToString();
+            var timeStampe = order.PaymentStatus == PaymentStatus.Pending
+                ? ZalopayUtils.GetTimeStamp(order.CreatedDate).ToString() 
+                : ZalopayUtils.GetTimeStamp(order.FinishPreparedDate.Value).ToString();
             var description = paymentLinkRequest.Description is null ? $"thanh toan cho don hang {paymentLinkRequest.Order.OrderCode}, timestampe = {timeStampe}" : paymentLinkRequest.Description;
             PaymentMetadataBodyPerTransaction descriptionBodyJson = new PaymentMetadataBodyPerTransaction
             {
@@ -222,12 +240,12 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             };
             //insert meta data
             embed_data.columninfo = JsonConvert.SerializeObject(descriptionBodyJson);
-            List<ZalopayItem> falseList = new List<ZalopayItem>() { new ZalopayItem() { name = "n", price = amount,quantity=1,sale_price = amount} };
+            List<ZalopayItem> falseList = new List<ZalopayItem>() { new ZalopayItem() { name = "order", price = amount, quantity = 1, sale_price = amount } };
             param.Add("app_id", appid);
             param.Add("app_user", userId);
             param.Add("app_time", timeStampe);
             param.Add("amount", amount.ToString());
-            param.Add("app_trans_id", DateTime.Now.ToString("yyMMdd") + "_" + app_trans_id); // mã giao dich có định dạng yyMMdd_xxxx
+            param.Add("app_trans_id", order.CreatedDate.ToLocalTime().ToString("yyMMdd") + "_" + app_trans_id); // mã giao dich có định dạng yyMMdd_xxxx //DateTime.Now.ToString("yyMMdd") + "_" + app_trans_id
             param.Add("embed_data", JsonConvert.SerializeObject(embed_data));
             param.Add("item", JsonConvert.SerializeObject(falseList));
             param.Add("description", description);
@@ -240,9 +258,9 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             var result = await HttpHelper.PostFormAsync<ZalopayCreateOrderResponse>(create_order_url, param);
             if (result.return_code != 1)
                 return Result.Fail($"fail with message from paygate: {result.sub_return_message} and code: {result.return_code} ");
-            
+
             _cache.Set(cacheKey, result.order_url, TimeSpan.FromSeconds(secondsExpired.Value));
-            return Result.Ok(new PaymentLinkResponse { PaymentUrl = result.order_url ,QrCode = GenQRImagePng(result.order_url) });
+            return Result.Ok(new PaymentLinkResponse { PaymentUrl = result.order_url, QrCode = GenQRImagePng(result.order_url) });
         }
 
         public async Task<PaymentRefundDetail> GetRefundDetail(Transaction refundTransactionType)
@@ -261,7 +279,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             {
                 ZalopayReturnCode.PROCESSING => true,
                 _ => false
-            } ;
+            };
             return new PaymentRefundDetail()
             {
                 ReturnCode = result.return_code,
@@ -275,16 +293,16 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             };
         }
 
-        public async Task<Result<PaymentRefundDetail>> Refund(Order order,Transaction forTransaction, decimal fineAmount, string description = null)
+        public async Task<Result<PaymentRefundDetail>> Refund(Order order, Transaction forTransaction, decimal fineAmount, string description = null)
         {
             var getTransactions = await _transactionRepository.GetByOrderId(order.Id);
-            if( (order.TotalRefund + order.TotalFine) >= order.TotalPrice)
+            if ((order.TotalRefund + order.TotalFine) >= order.TotalPrice)
             {
                 return Result.Fail("order is fully refunded");
             }
             var totalPaidTransaction = getTransactions.Where(t => t.TransactionType == TransactionType.Pay).Sum(t => t.TransactionAmount);
-            var totalRefundTransaction = getTransactions.Where(t => t.TransactionType == TransactionType.Refund).Sum(t => t.TotalAmount );
-            
+            var totalRefundTransaction = getTransactions.Where(t => t.TransactionType == TransactionType.Refund).Sum(t => t.TotalAmount);
+
             var timestamp = ZalopayUtils.GetTimeStamp().ToString();
             var rand = new Random();
             var uid = timestamp + "" + rand.Next(111, 999).ToString();
@@ -300,7 +318,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             param.Add("zp_trans_id", forTransaction.PaygateTransactionCode);
             param.Add("amount", ((long)forTransaction.TotalAmount).ToString());
             param.Add("timestamp", timestamp);
-            param.Add("description", description is null ? $"hoan tra don hang cho giao dich: {forTransaction.AppTransactionCode} cua don hang: {order.OrderCode} " : description );
+            param.Add("description", description is null ? $"hoan tra don hang cho giao dich: {forTransaction.AppTransactionCode} cua don hang: {order.OrderCode} " : description);
             string data = null;
             if (fineAmountRounded > 0)
             {
@@ -318,7 +336,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             param.Add("mac", HmacHelper.Compute(ZaloPayHMAC.HMACSHA256, key1, data));
 
             var result = await HttpHelper.PostFormAsync<ZalopayRefundResponse>(refund_url, param);
-            if(result.return_code.ToString() == ZalopayReturnCode.FAIL) 
+            if (result.return_code.ToString() == ZalopayReturnCode.FAIL)
             {
                 return Result.Fail($"fail with message from paygate: {result.sub_return_message} and code: {result.return_code} ");
             }
@@ -328,10 +346,10 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             {
                 _logger.Log(LogLevel.Information, "refund is processing, need to check later");
                 // try to get 3 times 
-                for(int i = 0; i < 5; i++)
+                for (int i = 0; i < 5; i++)
                 {
                     paymentRefundDetail = await GetRefundDetail(transaction);
-                    if(paymentRefundDetail.IsProcessing)
+                    if (paymentRefundDetail.IsProcessing)
                     {
                         await Task.Delay(1000);
                         continue;
@@ -341,7 +359,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                         if (paymentRefundDetail.ReturnCode.ToString() == ZalopayReturnCode.FAIL)
                             return Result.Fail($"fail with message from paygate: {paymentRefundDetail.SubReturnMessage} and code: {paymentRefundDetail.ReturnCode} ");
                         else //if you success
-                            break; 
+                            break;
                     }
                 }
             }
@@ -352,7 +370,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             await _orderRepository.Update(order);
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
-            return Result.Ok(paymentRefundDetail) ;
+            return Result.Ok(paymentRefundDetail);
         }
 
         public async Task<PaymentDetail> GetTransactionDetail(Transaction payTrasactionType)
@@ -363,11 +381,12 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             var data = appid + "|" + payTrasactionType.AppTransactionCode + "|" + key1;
             param.Add("mac", HmacHelper.Compute(ZaloPayHMAC.HMACSHA256, key1, data));
             var result = await HttpHelper.PostFormAsync<ZalopayTransactionResponse>(query_order_url, param);
-            return new PaymentDetail() { 
+            return new PaymentDetail()
+            {
                 AppReceiveAmount = result.amount,
-                IsProcessing = result.is_processing, 
+                IsProcessing = result.is_processing,
                 PaygateTransactionId = result.zp_trans_id.ToString(),
-                ReturnCode = result.return_code ,
+                ReturnCode = result.return_code,
                 ReturnMessage = result.return_message,
                 SubReturnCode = result.sub_return_code,
                 SubReturnMessage = result.sub_return_message
@@ -380,22 +399,31 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
         }
         private double? GetSecondPaymentTimeOut(Order order)
         {
-            if(order.Status != OrderStatus.Pending && order.Status != OrderStatus.Delivering)
+            if (order.Status != OrderStatus.Pending && order.Status != OrderStatus.Delivering)
                 return null;
             //if(order.ExpiredDate != null)
             //    return null;
-            if(order.PaymentStatus == PaymentStatus.Paid)
+            if (order.PaymentStatus == PaymentStatus.Paid)
                 return null;
-            if (order.Status == OrderStatus.Pending)
+            //if (order.Status == OrderStatus.Pending)
+            if (order.PaymentStatus == PaymentStatus.Pending)
             {
                 var orderEndDateExpected = order.ExpiredDate.Value;//order.CreatedDate.AddHours(OrderRules.ExpiredOrderHour).ToUniversalTime();
                 double trueTimeRemainForPaymentLink = (orderEndDateExpected - DateTime.UtcNow).TotalSeconds;
                 trueTimeRemainForPaymentLink = Math.Floor(trueTimeRemainForPaymentLink);
                 return trueTimeRemainForPaymentLink;
             }
-            else if (order.Status == OrderStatus.Delivering)
+            //else if (order.Status == OrderStatus.Delivering)
+            else if (order.PaymentStatus == PaymentStatus.Deposited)
             {
-                double trueTimeRemainForPaymentLink = Math.Floor(TimeSpan.FromHours((double)OrderRules.ExpiredOrderHour).TotalSeconds);
+                if (order.FinishPreparedDate == null)
+                    return null;
+                var orderRule = _optionsMonitor.CurrentValue.OrderRule;
+                var correctExpiredSeconds  = order.FinishPreparedDate.Value.AddDays(orderRule.DaysWaitForCustomerToPay).ToUniversalTime();
+                TimeSpan span = correctExpiredSeconds - DateTime.UtcNow;
+                if(span <= TimeSpan.Zero)
+                    return null;
+                double trueTimeRemainForPaymentLink = Math.Floor(span.TotalSeconds);
                 return trueTimeRemainForPaymentLink;
             }
             else
@@ -407,7 +435,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             QRCodeData QrCodeInfo = QrGenerator.CreateQrCode(paymentUrl, QRCodeGenerator.ECCLevel.Q);
             using var qrCode = new PngByteQRCode(QrCodeInfo);
             var qrCodeImage = qrCode.GetGraphic(20);
-            return  $"data:image/png;base64,{Convert.ToBase64String(qrCodeImage)}";
+            return $"data:image/png;base64,{Convert.ToBase64String(qrCodeImage)}";
         }
     }
 }

@@ -36,6 +36,7 @@ namespace DiamondShop.Domain.Models.Transactions.ErrorMessages
         public class PaymentMethodErrors
         {
             public static NotFoundError NotFoundError = new NotFoundError("Không tìm thấy phương thức thanh toán");
+            public static ConflictError InCorrectForOnlinePayment = new ConflictError("Phương thức thanh toán không hợp lệ cho chuyển khoản online");
         }
     }
 }

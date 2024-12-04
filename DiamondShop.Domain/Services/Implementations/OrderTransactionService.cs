@@ -130,8 +130,9 @@ namespace DiamondShop.Domain.Services.Implementations
                 //TODO: Calculate in case of second order 
                 transactions = order.Transactions
                      .Where(p => p.TransactionType == TransactionType.Pay 
-                     || p.TransactionType == TransactionType.Pay_Remain
-                     || p.TransactionType == TransactionType.Deposit)
+                     //|| p.TransactionType == TransactionType.Pay_Remain
+                     //|| p.TransactionType == TransactionType.Deposit
+                     )
                      .Where(p => p.Status == TransactionStatus.Valid).ToList();
                 var transaction = transactions.FirstOrDefault();
                 if (transaction == null)
@@ -243,9 +244,11 @@ namespace DiamondShop.Domain.Services.Implementations
         public decimal GetRemaingValueForOrder(Order order)
         {
             var transactions = order.Transactions;
-            var paidAmount = transactions.Sum(x => x.TransactionAmount);
+            var paidAmount = transactions
+                .Where(x => x.TransactionType == TransactionType.Pay && x.Status == TransactionStatus.Valid)
+                .Sum(x => x.TransactionAmount);
             var depositAmount = order.DepositFee;
-            return order.TotalPrice - depositAmount;
+            return order.TotalPrice - paidAmount;
         }
 
         public Result<(decimal allowAmount, decimal remainingAmount)> GetTransactionValueForOrder(Order order, decimal wantedAmount, TransactionRule transactionRule)

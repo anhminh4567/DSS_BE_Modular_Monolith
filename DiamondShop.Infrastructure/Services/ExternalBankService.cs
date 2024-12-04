@@ -37,14 +37,14 @@ namespace DiamondShop.Infrastructure.Services
             _optionsMonitor = optionsMonitor;
         }
 
-        public ExternalBankQrcodeDto GenerateQrCodeFromOrder(Order order)
+        public ExternalBankQrcodeDto GenerateQrCodeFromOrder(Order order, decimal amount)
         {
             string url = "https://api.vietqr.io/v2/generate";
             var shopBank = _optionsMonitor.CurrentValue.ShopBankAccountRules;
 //            var correctAmount = _orderTransactionService.GetCorrectAmountFromOrder(order);
-            var correctAmount  = 600_000_000;
+            var correctAmount  = amount;
 
-            var genRequestDto = new VietQrGenRequetDto(long.Parse(shopBank.AccountNumber),shopBank.AccountName,int.Parse(shopBank.BankBin), correctAmount,"thu nghiem","text", "print");;
+            var genRequestDto = new VietQrGenRequetDto(long.Parse(shopBank.AccountNumber),shopBank.AccountName,int.Parse(shopBank.BankBin), correctAmount,$"#{order.OrderCode}","text", "print");;
             using HttpClient client = new HttpClient();
             string jsonBody = JsonConvert.SerializeObject(genRequestDto);
             var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");

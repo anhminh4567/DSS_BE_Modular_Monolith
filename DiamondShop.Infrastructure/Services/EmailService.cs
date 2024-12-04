@@ -140,7 +140,7 @@ namespace DiamondShop.Infrastructure.Services
                 Subject = "order prepared",
             };
             var orderDetailurl = _frontendOptions.Value.OrderDetailUrl+ "?id"+ order.Id;
-            var totalTransAmount = order.Transactions.Where(x => x.TransactionType == TransactionType.Pay || x.TransactionType == TransactionType.Pay_Remain)
+            var totalTransAmount = order.Transactions.Where(x => x.TransactionType == TransactionType.Pay)//|| x.TransactionType == TransactionType.Pay_Remain
                 .Sum(x => x.TransactionAmount);
             var model = new EmailOrderPreparedModel(order, account, completeeDate, orderDetailurl, totalTransAmount);
             return await SendEmailWithTemplate(metadata, getOrderPreparedEmail, model, cancellationToken);
