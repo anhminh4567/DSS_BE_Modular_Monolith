@@ -5,6 +5,7 @@ using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Dtos.Responses.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Orders.Commands.Checkout;
+using DiamondShop.Application.Usecases.Orders.Commands.ConfirmOrderTaken;
 using DiamondShop.Application.Usecases.Orders.Commands.DeliverFail;
 using DiamondShop.Application.Usecases.Orders.Commands.Proceed;
 using DiamondShop.Application.Usecases.Orders.Commands.Redeliver;
@@ -353,6 +354,25 @@ namespace DiamondShop.Api.Controllers.Orders
         [HttpPost("Transaction/Staff/Add")]
         [Authorize(Roles = $"{AccountRole.StaffId},{AccountRole.ManagerId}")]
         public async Task<ActionResult> AddTransactionForAtShopOrder([FromBody] StaffCreateTransactionForOrderCommand command)
+        {
+            var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
+            if (userId != null)
+            {
+                var result = await _sender.Send(command);
+                if (result.IsSuccess)
+                {
+                    var mappedResult = _mapper.Map<OrderDto>(result.Value);
+                    return Ok(mappedResult);
+                }
+                else
+                    return MatchError(result.Errors, ModelState);
+            }
+            else
+                return Unauthorized();
+        }
+        [HttpPost("Staff/CompleteAtShopOrder")]
+        [Authorize(Roles = $"{AccountRole.StaffId},{AccountRole.ManagerId}")]
+        public async Task<ActionResult> ConfirmOrderCompleteAtShop([FromBody] ConfirmOrderTakenFromShopCommand command)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
