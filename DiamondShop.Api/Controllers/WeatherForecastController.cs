@@ -360,6 +360,11 @@ namespace DiamondShopSystem.Controllers
             Console.ResetColor();
             return Ok();
         }
+        //[HttpPost("seed/jewelry")]
+        //public async Task<ActionResult> SeedJewelry()
+        //{
+            
+        //}
         [HttpGet("testpdf")]
         public async Task<ActionResult> TestPdf()
         {

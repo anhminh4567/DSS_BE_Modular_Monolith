@@ -7,6 +7,7 @@ using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
+using DiamondShop.Domain.Models.Transactions.Enum;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.OrderRepo;
@@ -20,6 +21,7 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
     public record CancelOrderCommand(string OrderId, string AccountId, string Reason) : IRequest<Result<Order>>;
     public record CancelOrderCommandHandler : IRequestHandler<CancelOrderCommand, Result<Order>>
     {
+        private readonly ITransactionRepository _transactionRepository;
         private readonly IOrderRepository _orderRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderService _orderService;
@@ -28,7 +30,7 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
         private readonly INotificationRepository _notificationRepository;
         private readonly IPaymentService _paymentService;
 
-        public CancelOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository, INotificationRepository notificationRepository, IPaymentService paymentService)
+        public CancelOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository, INotificationRepository notificationRepository, IPaymentService paymentService, ITransactionRepository transactionRepository)
         {
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
@@ -37,6 +39,7 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
             _orderLogRepository = orderLogRepository;
             _notificationRepository = notificationRepository;
             _paymentService = paymentService;
+            _transactionRepository = transactionRepository;
         }
 
         public async Task<Result<Order>> Handle(CancelOrderCommand request, CancellationToken token)
@@ -50,7 +53,6 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
                 return Result.Fail(OrderErrors.UncancellableError);
             if (order.AccountId != AccountId.Parse(accountId))
                 return Result.Fail(OrderErrors.NoPermissionToCancelError);
-            //_orderTransactionService.AddRefundUserCancel(order);
             order.Status = OrderStatus.Cancelled;
             //If deposit then no refund
             if (order.PaymentType == PaymentType.COD)

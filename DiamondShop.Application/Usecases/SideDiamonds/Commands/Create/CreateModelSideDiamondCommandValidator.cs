@@ -1,5 +1,8 @@
 ﻿using DiamondShop.Application.Dtos.Requests.JewelryModels;
+using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using FluentValidation;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +13,26 @@ namespace DiamondShop.Application.Usecases.SideDiamonds.Commands.Create
 {
     public class CreateModelSideDiamondCommandValidator : AbstractValidator<CreateModelSideDiamondCommand>
     {
-        public CreateModelSideDiamondCommandValidator()
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
+        public CreateModelSideDiamondCommandValidator(IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             RuleFor(c => c.ModelId)
                 .NotEmpty();
-
+             
             RuleFor(c => c.SideDiamondSpec)
                 .NotEmpty()
+                .Must((req) =>
+                {
+                    var diamondRules = _optionsMonitor.CurrentValue.DiamondRule;
+                    var maxSideDiamond = diamondRules.BiggestSideDiamondCarat;
+                    var averageCarat = req.CaratWeight / (float)req.Quantity;
+                    if (averageCarat > (float)maxSideDiamond)
+                    {
+                        return false;
+                    }
+                    return true;
+                })
+                .WithMessage(JewelryModelErrors.SideDiamond.UnsupportedSideDiamondCaratError.Message)
                 .ChildRules(p =>
                 {
                     p.RuleFor(p => p.ColorMin)

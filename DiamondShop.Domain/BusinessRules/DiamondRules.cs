@@ -38,7 +38,7 @@ namespace DiamondShop.Domain.BusinessRules
         public decimal MinCaratRange { get; set; } = 0.15m;
         public decimal MaxCaratRange { get; set; } =30m;
 
-        public float BiggestSideDiamondCarat { get; set; } = 0.7f;
+        public float BiggestSideDiamondCarat { get; set; } = 0.3f;
         public float SmallestMainDiamondCarat { get; set; } = 0.15f;
         public int MainDiamondMaxFractionalNumber { get; set; } = 2;
         public decimal AverageOffsetVeryGoodCutFromIdealCut { get; set; } = -0.11M;

@@ -4,6 +4,7 @@ using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
+using DiamondShop.Domain.Models.Transactions.Enum;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.OrderRepo;
@@ -17,6 +18,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
     public record RejectOrderCommand(string OrderId, string Reason) : IRequest<Result<Order>>;
     internal class RejectOrderCommandHandler : IRequestHandler<RejectOrderCommand, Result<Order>>
     {
+        private readonly ITransactionRepository _transactionRepository;
         private readonly IOrderRepository _orderRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderService _orderService;
@@ -24,13 +26,14 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
         private readonly IOrderLogRepository _orderLogRepository;
         private readonly IPaymentService _paymentService;
 
-        public RejectOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository, IPaymentService paymentService)
+        public RejectOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository, ITransactionRepository transactionRepository, IPaymentService paymentService)
         {
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
             _orderService = orderService;
             _orderTransactionService = orderTransactionService;
             _orderLogRepository = orderLogRepository;
+            _transactionRepository = transactionRepository;
             _paymentService = paymentService;
         }
 
@@ -43,7 +46,6 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
                 return Result.Fail(OrderErrors.OrderNotFoundError);
             else if (!_orderService.IsCancellable(order.Status))
                 return Result.Fail(OrderErrors.UncancellableError);
-            //_orderTransactionService.AddRefundShopReject(order);
             order.Status = OrderStatus.Rejected;
             order.PaymentStatus = PaymentStatus.Refunding;
             order.CancelledDate = DateTime.UtcNow;
