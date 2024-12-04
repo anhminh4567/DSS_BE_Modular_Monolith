@@ -6,6 +6,7 @@ using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
 using FluentResults;
 using MediatR;
+using System.Data;
 
 namespace DiamondShop.Application.Usecases.SizeMetals.Commands.Delete
 {
@@ -29,6 +30,11 @@ namespace DiamondShop.Application.Usecases.SizeMetals.Commands.Delete
             var sideDiamond = await _sideDiamondRepository.GetById(SideDiamondOptId.Parse(sideDiamondOptId));
             if (sideDiamond == null)
                 return Result.Fail(JewelryModelErrors.SideDiamond.SideDiamondOptNotFoundError);
+            var sides = await _sideDiamondRepository.GetByModelId(sideDiamond.ModelId);
+            if (sides == null || sides.Count() == 0)
+                return Result.Fail(JewelryModelErrors.SideDiamond.ModelUnsupportedError);
+            if (sides.Count() == 1)
+                return Result.Fail(JewelryModelErrors.SideDiamond.SideDiamondOptMinimumError);
             var inUseFlag = await _jewelryRepository.Existing(sideDiamond.ModelId, sideDiamond);
             if (inUseFlag)
                 return Result.Fail(JewelryModelErrors.SideDiamond.SideDiamondOptInUseConflictError);

@@ -27,9 +27,12 @@ namespace DiamondShop.Domain.Models.JewelryModels.ErrorMessages
             public static NotFoundError NoCriteriaFound(int index) => new NotFoundError($"Không tìm thấy tiêu chí kim cương tấm số {index}");
             public static ValidationError UnsupportedSideDiamondCaratError = new ValidationError("Carat của kim cương tấm không được hỗ trợ");
             public static ValidationError NoSideDiamondSupportError = new ValidationError("Mẫu trang sức không hỗ trợ kim cương tấm");
+            public static ConflictError SideDiamondOptAlreadyExistError = new ConflictError("Lựa chọn kim cương tấm đã tồn tại");
             public static ConflictError SideDiamondOptInUseConflictError = new ConflictError("Lựa chọn kim cương tấm vẫn đang được sử dụng");
             public static ConflictError UnpricedSideDiamondOptError = new ConflictError("Lựa chọn kim cương tấm chưa có giá");
-
+            public static ConflictError SideDiamondOptMinimumError = new ConflictError("Mẫu trang sức phải giữ lại ít nhất một lựa chọn kim cương tấm");
+            public static ConflictError ModelUnsupportedError = new ConflictError("Mẫu trang sức không hỗ trợ kim cương tấm");
+            public static ConflictError ModelMaximumOptionError(int max) => new ConflictError($"Mỗi mẫu trang sức chỉ được chứa tối đa {max} lựa chọn kim cương tấm");
         }
         public class MainDiamond
         {
@@ -37,6 +40,8 @@ namespace DiamondShop.Domain.Models.JewelryModels.ErrorMessages
             public static ValidationError MismatchCaratError(int index) => new ValidationError($"Mẫu trang sức không hỗ trợ carat của kim cương số {index}");
             public static ValidationError MismatchShapeError(int index) => new ValidationError($"Mẫu trang sức không hỗ trợ hình dạng của kim cương số {index}");
             public static ValidationError MismatchDiamondListError(int index) => new ValidationError($"Mẫu trang sức không hỗ trợ hình dạng của kim cương số {index}");
+            public static ConflictError ModelMaximumOptionError(int max) => new ConflictError($"Mỗi mẫu trang sức chỉ được chứa tối đa {max} kim cương chính");
+            public static ConflictError ModelUnsupportedError = new ConflictError("Mẫu trang sức không hỗ trợ kim cương chính");
         }
     }
 }

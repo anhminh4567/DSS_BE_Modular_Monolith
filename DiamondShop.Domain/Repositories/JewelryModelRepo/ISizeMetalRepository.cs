@@ -10,8 +10,8 @@ namespace DiamondShop.Domain.Repositories.JewelryModelRepo
 {
     public interface ISizeMetalRepository : IBaseRepository<SizeMetal>
     {
-        public Task CreateRange(List<SizeMetal> sizeMetalList, CancellationToken token);
-        public void UpdateRange(List<SizeMetal> sizeMetalList, CancellationToken token);
+        public Task CreateRange(List<SizeMetal> sizeMetalList, CancellationToken token = default);
+        public void UpdateRange(List<SizeMetal> sizeMetalList, CancellationToken token = default);
         public Task<bool> Existing(JewelryModelId modelId, MetalId metalId, SizeId sizeId);
     }
 }

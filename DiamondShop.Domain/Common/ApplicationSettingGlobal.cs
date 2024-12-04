@@ -15,6 +15,7 @@ namespace DiamondShop.Domain.Common
         public DiamondPriceRules DiamondPriceRules { get; set; } = DiamondPriceRules.Default;
         public WarrantyRules WarrantyRules { get; set; } = WarrantyRules.Default;
         public JewelryReviewRules JewelryReviewRules { get; set; } = JewelryReviewRules.Default;
+        public JewelryModelRules JewelryModelRules { get; set; } = JewelryModelRules.Default;
         public JewelryModelCategoryRules JewelryModelCategoryRules { get; set; } = JewelryModelCategoryRules.Default;
         public BlogRules BlogRules { get; set; } = BlogRules.Default;
         public TransactionRule TransactionRule { get; set; } = TransactionRule.Default;
@@ -34,6 +35,8 @@ namespace DiamondShop.Domain.Common
             { TransactionRule.key , TransactionRule.Default },
             { WarrantyRules.key , WarrantyRules.Default },
             { JewelryReviewRules.key, JewelryReviewRules.Default },
+            { JewelryModelRules.key, JewelryModelRules.Default },
+            { JewelryModelCategoryRules.key, JewelryModelCategoryRules.Default },
             { BlogRules.key, BlogRules.Default },
             { LoggingRules.key, LoggingRules.Default },
             { FrontendDisplayConfiguration.Key, FrontendDisplayConfiguration.Default },
@@ -52,6 +55,8 @@ namespace DiamondShop.Domain.Common
             TransactionRule.key,
             WarrantyRules.key,
             JewelryReviewRules.key,
+            JewelryModelRules.key,
+            JewelryModelCategoryRules.key,
             BlogRules.key,
             LoggingRules.key,
             OrderPaymentRules.key,

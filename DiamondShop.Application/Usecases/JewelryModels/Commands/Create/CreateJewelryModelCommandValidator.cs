@@ -11,6 +11,24 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
         public CreateJewelryModelCommandValidator(IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _optionsMonitor = optionsMonitor;
+            RuleFor(c => c.SideDiamondSpecs)
+                .Must(c => c.Count <= optionsMonitor.CurrentValue.JewelryModelRules.MaximumSideDiamondOption)
+                .WithMessage(JewelryModelErrors.SideDiamond.ModelMaximumOptionError(optionsMonitor.CurrentValue.JewelryModelRules.MaximumSideDiamondOption).Message)
+                .When(c => c.SideDiamondSpecs != null);
+
+            RuleFor(c => c.MainDiamondSpecs)
+                .Must(c =>
+                {
+                    int quantity = 0;
+                    foreach (var main in c)
+                    {
+                        quantity += main.Quantity;
+                    }
+                    return quantity <= optionsMonitor.CurrentValue.JewelryModelRules.MaximumMainDiamond;
+                })
+                .WithMessage(JewelryModelErrors.MainDiamond.ModelMaximumOptionError(optionsMonitor.CurrentValue.JewelryModelRules.MaximumSideDiamondOption).Message)
+                .When(c => c.MainDiamondSpecs != null);
+
             RuleForEach(c => c.SideDiamondSpecs)
                 .NotEmpty()
                 .Must((req) =>

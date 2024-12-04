@@ -52,7 +52,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Transfer.Staff
             var order = manualPayment.Order;
             if (order == null)
                 return Result.Fail(OrderErrors.OrderNotFoundError);
-            else if (order.Status != OrderStatus.Pending && order.PaymentMethodId != PaymentMethod.BANK_TRANSFER.Id)
+            else if (order.Status != OrderStatus.Delivering && order.PaymentMethodId != PaymentMethod.BANK_TRANSFER.Id)
                 return Result.Fail(OrderErrors.UnproceedableError);
             else if (DateTime.UtcNow > order.ExpiredDate)
                 return Result.Fail(OrderErrors.ExpiredTimeDueError);

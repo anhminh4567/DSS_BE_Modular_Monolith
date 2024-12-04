@@ -4,6 +4,7 @@ using DiamondShop.Commons;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.Enum;
 using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories;
@@ -76,6 +77,10 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
 
                 foreach (var sideDiamond in sideDiamonds)
                 {
+                    var existFlag = await _sideDiamondRepository.CheckExist(sideDiamond.ModelId, sideDiamond.ShapeId, sideDiamond.CaratWeight, sideDiamond.Quantity, sideDiamond.ClarityMin, sideDiamond.ClarityMax, sideDiamond.ColorMin, sideDiamond.ColorMax, sideDiamond.SettingType, sideDiamond.IsLabGrown);
+                    if (existFlag)
+                        return Result.Fail(JewelryModelErrors.SideDiamond.SideDiamondOptAlreadyExistError);
+
                     var isInAnyCriteria = await _diamondServices.IsSideDiamondFoundInCriteria(sideDiamond);
                     if (isInAnyCriteria == false)
                     {

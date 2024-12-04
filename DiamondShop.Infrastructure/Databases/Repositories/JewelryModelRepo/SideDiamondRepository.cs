@@ -1,4 +1,7 @@
-﻿using DiamondShop.Domain.Models.JewelryModels.Entities;
+﻿using DiamondShop.Domain.Models.Diamonds.Enums;
+using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
+using DiamondShop.Domain.Models.JewelryModels.Entities;
+using DiamondShop.Domain.Models.JewelryModels.Enum;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +33,14 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
         public async Task<List<SideDiamondOpt>?> GetSideDiamondOption(List<SideDiamondOptId> sideDiamondOptId)
         {
             return _set.Where(p => sideDiamondOptId.Contains(p.Id)).ToList();
+        }
+
+        public Task<bool> CheckExist(JewelryModelId modelId, DiamondShapeId diamondShapeId, float caratWeight, int quantity, Clarity clarityMin, Clarity clarityMax, Color colorMin, Color colorMax, SettingType settingType, bool isLabGrown)
+        {
+            return _set.AnyAsync(p => p.ModelId == modelId &&
+            p.ShapeId == diamondShapeId && p.CaratWeight == caratWeight && p.Quantity == quantity &&
+            p.ClarityMin == clarityMin && p.ClarityMax == clarityMax && p.ColorMin == colorMin && p.ColorMax == colorMax &&
+            p.SettingType == settingType && p.IsLabGrown == isLabGrown);
         }
     }
 }

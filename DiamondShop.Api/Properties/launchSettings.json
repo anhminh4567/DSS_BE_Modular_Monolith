@@ -20,16 +20,6 @@
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:7160;http://localhost:80"
     },
-    "QuangThaiMachineV2": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "swagger",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "QuangThai2"
-      },
-      "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:7160;http://localhost:80"
-    },
     "httpsDevelopment": {
       "commandName": "Project",
       "launchBrowser": true,
