@@ -142,7 +142,7 @@ namespace DiamondShop.Infrastructure
 
             services.AddScoped<IBlogRepository, BlogRepository>();
             services.AddScoped<INotificationRepository, NotificationRepository>();
-
+            services.AddScoped<IDbCachingService, DbCachingService>();
             services.AddSingleton<ICartService, CartService>();
 
             // file service persist

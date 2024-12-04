@@ -26,8 +26,9 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
         private readonly IOrderTransactionService _orderTransactionService;
         private readonly IOrderLogRepository _orderLogRepository;
         private readonly INotificationRepository _notificationRepository;
+        private readonly IPaymentService _paymentService;
 
-        public CancelOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository, INotificationRepository notificationRepository)
+        public CancelOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository, INotificationRepository notificationRepository, IPaymentService paymentService)
         {
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
@@ -35,6 +36,7 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
             _orderTransactionService = orderTransactionService;
             _orderLogRepository = orderLogRepository;
             _notificationRepository = notificationRepository;
+            _paymentService = paymentService;
         }
 
         public async Task<Result<Order>> Handle(CancelOrderCommand request, CancellationToken token)
@@ -70,6 +72,7 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
             var notificationForShop = Notification.CreateShopMessage(order, $"khách hủy đơn hàng #{order.OrderCode} tại thời điểm {order.CancelledDate.Value.ToString(DateTimeFormatingRules.DateTimeFormat)}");
             await _notificationRepository.Create(notificationForShop);
             await _unitOfWork.SaveChangesAsync();
+            await _paymentService.RemoveAllPaymentCache(order);
             return Result.Ok(order);
         }
     }

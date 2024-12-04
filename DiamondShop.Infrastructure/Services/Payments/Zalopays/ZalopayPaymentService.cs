@@ -48,7 +48,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
         private readonly IOptions<UrlOptions> _urlOptions;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
         private readonly ILogger<ZalopayPaymentService> _logger;
-
+        private readonly IDbCachingService _dbCachingService;
         private readonly ISender _sender;
         private readonly IPublisher _publisher;
         private static string appid = "2554";
@@ -64,7 +64,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
         private static string refund_url = "https://sb-openapi.zalopay.vn/v2/refund";
         private static string query_refund_url = "https://sb-openapi.zalopay.vn/v2/query_refund";
 
-        public ZalopayPaymentService(IUnitOfWork unitOfWork, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IPaymentMethodRepository paymentMethodRepository, IHttpContextAccessor httpContextAccessor, IOrderTransactionService orderTransactionService, IMemoryCache cache, IOptions<UrlOptions> urlOptions, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, ILogger<ZalopayPaymentService> logger, ISender sender, IPublisher publisher)
+        public ZalopayPaymentService(IUnitOfWork unitOfWork, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, ITransactionRepository transactionRepository, IPaymentMethodRepository paymentMethodRepository, IHttpContextAccessor httpContextAccessor, IOrderTransactionService orderTransactionService, IMemoryCache cache, IOptions<UrlOptions> urlOptions, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, ILogger<ZalopayPaymentService> logger, IDbCachingService dbCachingService, ISender sender, IPublisher publisher)
         {
             _unitOfWork = unitOfWork;
             _orderRepository = orderRepository;
@@ -77,6 +77,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             _urlOptions = urlOptions;
             _optionsMonitor = optionsMonitor;
             _logger = logger;
+            _dbCachingService = dbCachingService;
             _sender = sender;
             _publisher = publisher;
         }
@@ -118,18 +119,18 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                     // neu chua ton tai ==> auto save transaction
                     Transaction? tryGetTransaction = await _transactionRepository.GetByAppAndPaygateId(appGivenId, paymentGateId);
                     List<PaymentMethod> paymentMethods = await _paymentMethodRepository.GetAll();
+                    var orderIdParsed = OrderId.Parse(metaData.ForOrderId);
+                    var getOrderDetail = await _orderRepository.GetById(orderIdParsed);
                     var zalopayMethod = paymentMethods.First(x => x.MethodName.ToUpper() == PaymentMethod.ZALOPAY.MethodName.ToUpper());
                     _logger.LogInformation("update order's status = success where app_trans_id = {0}", dataObject.app_trans_id);
-                    if (tryGetTransaction == null) // check neu thanh cong, check DB xem transaction ton tai hay chuaw thi tra ve return_code = 1
+                    if (tryGetTransaction == null || getOrderDetail.Status == OrderStatus.Cancelled || getOrderDetail.Status == OrderStatus.Rejected  ) // check neu thanh cong, check DB xem transaction ton tai hay chuaw thi tra ve return_code = 1
                     {
                         await _unitOfWork.BeginTransactionAsync();
-                        var orderIdParsed = OrderId.Parse(metaData.ForOrderId);
                         var newTran = Transaction.CreatePayment(zalopayMethod.Id, orderIdParsed, metaData.Description, dataObject.app_trans_id, dataObject.zp_trans_id.ToString(), metaData.TimeStampe, dataObject.amount, DateTime.UtcNow);
                         newTran.VerifyZalopay(dataObject.app_trans_id, dataObject.zp_trans_id.ToString(), metaData.TimeStampe);
                         await _transactionRepository.Create(newTran);
                         result["return_code"] = 1;
                         result["return_message"] = "success";
-                        var getOrderDetail = await _orderRepository.GetById(orderIdParsed);
                         //getOrderDetail.Status = OrderStatus.Processing;
                         //getOrderDetail.PaymentStatus = getOrderDetail.PaymentType == PaymentType.Payall ? PaymentStatus.PaidAll : PaymentStatus.Deposited;
                         await _publisher.Publish(new TransactionCreatedEvent(newTran, DateTime.UtcNow));
@@ -186,7 +187,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             {
                 return Result.Fail("payment status is not in pending or deposit state, only these 2 are allowed to create payment");
             }
-            if(order.Status == OrderStatus.Pending && order.FinishPreparedDate == null)
+            if(order.Status == OrderStatus.Prepared && order.FinishPreparedDate == null)
             {
                 return Result.Fail("order is not finish prepared yet to create payment link, wait for complete preparation");
             }
@@ -197,10 +198,11 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             }
             var cacheKey = GetCacheKey(paymentLinkRequest.Order);
             string? paymentLink;
-            object? tryGetFromCache = _cache.Get(cacheKey);
+            var tryGetFromCache = await _dbCachingService.Get(cacheKey);// _cache.Get(cacheKey);
             if (tryGetFromCache != null)
             {
-                paymentLink = tryGetFromCache as string;
+                var parseResult = tryGetFromCache.GetObjectFromJsonString<ZalopayCreateOrderResponse>() ;
+                paymentLink = parseResult.order_url;
                 return new PaymentLinkResponse() { PaymentUrl = paymentLink, QrCode = GenQRImagePng(paymentLink) };
             }
             double? secondsExpired = GetSecondPaymentTimeOut(paymentLinkRequest.Order);
@@ -227,8 +229,8 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             //var amount = paymentLinkRequest.Amount;
             var amount = correctAmount;
             var timeStampe = order.PaymentStatus == PaymentStatus.Pending
-                ? ZalopayUtils.GetTimeStamp(order.CreatedDate).ToString() 
-                : ZalopayUtils.GetTimeStamp(order.FinishPreparedDate.Value).ToString();
+                ? ZalopayUtils.GetTimeStamp(DateTime.Now).ToString() 
+                : ZalopayUtils.GetTimeStamp(DateTime.Now).ToString();
             var description = paymentLinkRequest.Description is null ? $"thanh toan cho don hang {paymentLinkRequest.Order.OrderCode}, timestampe = {timeStampe}" : paymentLinkRequest.Description;
             PaymentMetadataBodyPerTransaction descriptionBodyJson = new PaymentMetadataBodyPerTransaction
             {
@@ -259,7 +261,15 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             if (result.return_code != 1)
                 return Result.Fail($"fail with message from paygate: {result.sub_return_message} and code: {result.return_code} ");
 
-            _cache.Set(cacheKey, result.order_url, TimeSpan.FromSeconds(secondsExpired.Value));
+            await _dbCachingService.SetValue(new DbCacheModel()
+            {
+                CreationTime= DateTime.UtcNow,
+                KeyId = cacheKey,
+                Name = cacheKey,
+                Value = JsonConvert.SerializeObject(result),
+                Type = typeof(ZalopayCreateOrderResponse).GetType().AssemblyQualifiedName
+            });
+            //_cache.Set(cacheKey, result.order_url, TimeSpan.FromSeconds(secondsExpired.Value));
             return Result.Ok(new PaymentLinkResponse { PaymentUrl = result.order_url, QrCode = GenQRImagePng(result.order_url) });
         }
 
@@ -436,6 +446,12 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             using var qrCode = new PngByteQRCode(QrCodeInfo);
             var qrCodeImage = qrCode.GetGraphic(20);
             return $"data:image/png;base64,{Convert.ToBase64String(qrCodeImage)}";
+        }
+
+        public async Task RemoveAllPaymentCache(Order order)
+        {
+            var getCacheKeyBase = $"ZP_{order.Id.Value}";
+            _dbCachingService.RemoveValues(getCacheKeyBase).Wait();
         }
     }
 }

@@ -164,6 +164,10 @@ namespace DiamondShop.Domain.Models.Jewelries
             SoldPrice = null;
             EngravedFont = null;
             EngravedText = null;
+            foreach (var diamond in Diamonds)
+            {
+                diamond.SetForJewelry(this);
+            }
         }
         public void SetLock()
         {

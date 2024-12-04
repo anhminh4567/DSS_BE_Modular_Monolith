@@ -21,7 +21,7 @@ namespace DiamondShop.Infrastructure.Services
             _dbContext = dbContext;
         }
 
-        public Task<DbCacheModel> Get(string key)
+        public Task<DbCacheModel?> Get(string key)
         {
             return _dbContext.DbCacheModels.FirstOrDefaultAsync(x => x.KeyId == key);
         }
@@ -37,6 +37,14 @@ namespace DiamondShop.Infrastructure.Services
             if(getKey != null)
                 _dbContext.DbCacheModels.Remove(getKey);
             return _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task RemoveValues(string keysContain)
+        {
+            var getKey = await _dbContext.DbCacheModels.Where(x => x.KeyId.Contains(keysContain)).ToListAsync();
+            if (getKey != null)
+                _dbContext.DbCacheModels.RemoveRange(getKey);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public Task SetValue(DbCacheModel modelToSet)

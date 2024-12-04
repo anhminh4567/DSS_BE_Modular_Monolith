@@ -11,8 +11,8 @@ namespace DiamondShop.Application.Services.Interfaces
     {
         Task SetValue(DbCacheModel modelToSet);
         Task RemoveValue(string key);
-        Task<DbCacheModel> Get(string key);
+        Task<DbCacheModel?> Get(string key);
         Task<List<DbCacheModel>> GetAll();
-    
+        Task RemoveValues(string keysContain);
     }
 }

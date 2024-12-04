@@ -22,14 +22,16 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
         private readonly IOrderService _orderService;
         private readonly IOrderTransactionService _orderTransactionService;
         private readonly IOrderLogRepository _orderLogRepository;
+        private readonly IPaymentService _paymentService;
 
-        public RejectOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository)
+        public RejectOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository, IPaymentService paymentService)
         {
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
             _orderService = orderService;
             _orderTransactionService = orderTransactionService;
             _orderLogRepository = orderLogRepository;
+            _paymentService = paymentService;
         }
 
         public async Task<Result<Order>> Handle(RejectOrderCommand request, CancellationToken token)
@@ -52,6 +54,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
             await _orderLogRepository.Create(log);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
+            await _paymentService.RemoveAllPaymentCache(order);
             return order;
         }
     }

@@ -24,7 +24,8 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.TransactionRepo
         }
         public Task<Transaction?> GetByAppAndPaygateId(string appid, string paygateId, CancellationToken cancellationToken = default)
         {
-            return _set.FirstOrDefaultAsync(x => x.AppTransactionCode == appid && x.PaygateTransactionCode == paygateId, cancellationToken);
+            //&& x.PaygateTransactionCode == paygateId
+            return _set.FirstOrDefaultAsync(x => x.AppTransactionCode == appid , cancellationToken);
         }
 
         public Task<List<Transaction>> GetByOrderId(OrderId orderId, CancellationToken cancellationToken = default)

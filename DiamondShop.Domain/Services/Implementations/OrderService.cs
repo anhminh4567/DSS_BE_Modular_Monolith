@@ -18,7 +18,6 @@ namespace DiamondShop.Domain.Services.Implementations
     public class OrderService : IOrderService
     {
         List<OrderStatus> cancellableState = new() {
-            OrderStatus.Pending,
             OrderStatus.Processing,
             OrderStatus.Prepared,
             OrderStatus.Delivery_Failed,

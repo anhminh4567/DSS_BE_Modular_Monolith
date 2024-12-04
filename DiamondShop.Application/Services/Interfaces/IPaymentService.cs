@@ -17,5 +17,6 @@ namespace DiamondShop.Application.Services.Interfaces
         Task<Result<PaymentRefundDetail>> Refund(Order order, Transaction forTransaction, decimal fineAmount,string description = null);
         Task<PaymentDetail> GetTransactionDetail(Transaction payTrasactionType);
         Task<PaymentRefundDetail> GetRefundDetail(Transaction refundTransactionType);
+        Task RemoveAllPaymentCache(Order order);
     }
 }
