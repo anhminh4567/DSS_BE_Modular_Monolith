@@ -24,7 +24,7 @@ namespace DiamondShop.Api.Controllers.Accounts
         [Produces(typeof(AccountDto))]
         public async Task<ActionResult> UpdateProfile([FromRoute] string accountid,[FromBody] UpdateUserAccountRequest updateUserAccountCommand)
         {
-            var command= new UpdateUserAccountCommand(accountid, updateUserAccountCommand.ChangedFullName, updateUserAccountCommand.ChangedAddress,updateUserAccountCommand.newDefaultAddressId);
+            var command= new UpdateUserAccountCommand(accountid, updateUserAccountCommand.ChangedFullName, updateUserAccountCommand.ChangedAddress,updateUserAccountCommand.newDefaultAddressId, updateUserAccountCommand.newPhoneNumber);
             var result = await _sender.Send(command);
             if(result.IsSuccess)
             {
@@ -37,7 +37,7 @@ namespace DiamondShop.Api.Controllers.Accounts
         [Produces(typeof(AccountDto))]
         public async Task<ActionResult> SetDefaultProfile([FromRoute] string accountId,[FromBody] string addressId )
         {
-            var command = new UpdateUserAccountCommand(accountId,null,null,addressId);
+            var command = new UpdateUserAccountCommand(accountId,null,null,addressId,null);
             var result = await _sender.Send(command);
             if (result.IsSuccess)
             {

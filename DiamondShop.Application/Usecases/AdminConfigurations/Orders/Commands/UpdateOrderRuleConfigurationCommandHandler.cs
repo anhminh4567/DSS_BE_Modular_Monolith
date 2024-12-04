@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.AdminConfigurations.Orders.Commands
 {
-    public record OrderRuleRequestDto(int? ExpectedDeliveryDate, int? ExpiredOrderHour, decimal? MaxOrderAmountForDelivery, decimal? MaxOrderAmountForFullPayment, int? DaysWaitForCustomerToPay, int? MaxOrderAmountForCustomerToPlace);
+    public record OrderRuleRequestDto(int? ExpectedDeliveryDate, int? ExpiredOrderHour, decimal? MaxOrderAmountForDelivery, decimal? MaxOrderAmountForFullPayment, int? DaysWaitForCustomerToPay, int? MaxOrderAmountForCustomerToPlace,int? MaxRedelivery);
     public record UpdateOrderRuleConfigurationCommand(OrderRuleRequestDto requestDto) : IRequest<Result<OrderRule>>;
     internal class UpdateOrderRuleConfigurationCommandHandler : IRequestHandler<UpdateOrderRuleConfigurationCommand, Result<OrderRule>>
     {

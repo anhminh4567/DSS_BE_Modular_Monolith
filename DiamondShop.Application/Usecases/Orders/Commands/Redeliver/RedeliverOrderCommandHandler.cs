@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.Deliveries.Commands.Create;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
@@ -10,6 +11,7 @@ using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
+using Microsoft.Extensions.Options;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Redeliver
 {
@@ -20,24 +22,27 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Redeliver
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderService _orderService;
         private readonly IOrderLogRepository _orderLogRepository;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public RedeliverOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderLogRepository orderLogRepository)
+        public RedeliverOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderLogRepository orderLogRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
             _orderService = orderService;
             _orderLogRepository = orderLogRepository;
+            _optionsMonitor = optionsMonitor;
         }
 
         public async Task<Result<Order>> Handle(RedeliverOrderCommand request, CancellationToken token)
         {
             request.Deconstruct(out string orderId, out string delivererId);
+            var orderRule = _optionsMonitor.CurrentValue.OrderRule;
             await _unitOfWork.BeginTransactionAsync(token);
             var orderQuery = _orderRepository.GetQuery();
             var order = _orderRepository.QueryFilter(orderQuery, p => p.Id == OrderId.Parse(orderId)).FirstOrDefault();
             if (order == null)
                 return Result.Fail(OrderErrors.OrderNotFoundError);
-            if (order.ShipFailedCount > DeliveryRules.MaxRedelivery)
+            if (order.ShipFailedCount > orderRule.MaxRedelivery)
                 return Result.Fail(OrderErrors.MaxRedeliveryError);
             await _orderService.AssignDeliverer(order, delivererId);
             order.ShipFailedDate = null;

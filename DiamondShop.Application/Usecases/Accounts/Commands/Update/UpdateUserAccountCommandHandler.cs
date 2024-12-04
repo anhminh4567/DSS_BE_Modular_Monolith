@@ -54,6 +54,10 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.Update
                 UpdateAddress(getAccount, request.ChangedAddress);
                 AddAddress(getAccount, request.ChangedAddress);
             }
+            if(request.newPhoneNumber is not null)
+            {
+                getAccount.PhoneNumber = request.newPhoneNumber;
+            }
             await ChangeDefaultAddress(getAccount, request.newDefaultAddressId);
             await _accountRepository.Update(getAccount);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

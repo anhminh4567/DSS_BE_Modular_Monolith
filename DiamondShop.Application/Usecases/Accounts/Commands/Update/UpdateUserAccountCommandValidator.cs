@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Dtos.Requests.Accounts;
+﻿using DiamondShop.Application.Commons.Validators.ErrorMessages;
+using DiamondShop.Application.Dtos.Requests.Accounts;
 using FluentValidation;
 
 namespace DiamondShop.Application.Usecases.Accounts.Commands.Update
@@ -27,6 +28,15 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.Update
                     RuleForEach(x => x.ChangedAddress!.addedAddress).SetValidator(new AddressRequestDtoValidator());
                 });
             });
+            RuleFor(x => x.newPhoneNumber)
+                .Cascade(CascadeMode.Stop)
+                .MinimumLength(9)
+                    .WithMinLenghtMessage()
+                .MaximumLength(12)
+                    .WithMaxLenghtMessage()
+                .Matches(@"^\d+$")
+                    .WithMessage("số điện thoại chỉ đươc có số ko kí tự dặc biệt")
+                .When(x => x != null);
         }
     }
 

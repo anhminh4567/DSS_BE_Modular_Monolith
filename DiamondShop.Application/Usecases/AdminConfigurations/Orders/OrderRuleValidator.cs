@@ -25,6 +25,12 @@ namespace DiamondShop.Application.Usecases.AdminConfigurations.Orders
                     .WithGreaterThanMessage()
                 .LessThan(50)
                     .WithLessThanMessage();
+            RuleFor(x => x.MaxRedelivery).NotNull()
+                .WithNotEmptyMessage()
+                .GreaterThan(0)
+                    .WithGreaterThanMessage()
+                .LessThan(100)
+                    .WithLessThanMessage();
         }
     }
 }
