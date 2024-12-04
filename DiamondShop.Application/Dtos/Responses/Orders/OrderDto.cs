@@ -44,6 +44,6 @@ namespace DiamondShop.Application.Dtos.Responses.Orders
         public string? CompleteDate { get; set; }
         public string? FinishPreparedDate { get; set; }
         public bool IsCollectAtShop { get; set; }
-
+        public bool? HasDelivererReturned { get; set; }
     }
 }

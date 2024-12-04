@@ -20,10 +20,9 @@ namespace DiamondShop.Application.Dtos.Responses.Orders
         public decimal FinalPrice { get; set; }
         public decimal PurchasedPrice { get; set; }
         public string? DiscountCode { get; set; }
-        public int DiscountPercent { get; set; }
-        public UnitType? PromoType { get; set; }
-        public decimal? PromoValue { get; set; }
         public string? WarrantyId { get; set; }
+        public decimal? DiscountSavedAmount { get; set; }
+        public decimal? PromotionSavedAmount { get; set; }
         public List<OrderItemWarrantyDto>? Warranties { get; set; } = new();
 
     }

@@ -33,16 +33,18 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public DiscountId? DiscountId { get; set; }
         public Discount? Discount { get; set; }
         public string? DiscountCode { get; set; }
-        public int? DiscountPercent { get; set; }
-        public UnitType? PromoType { get; set; }
-        public decimal? PromoValue { get; set; }
+        public decimal? DiscountSavedAmount { get; set; }
+        //public int? DiscountPercent { get; set; }
+        //public UnitType? PromoType { get; set; }
+        //public decimal? PromoValue { get; set; }
+        public decimal? PromotionSavedAmount { get; set; }
         public decimal WarrantyPrice { get; set; }
 
         //public List<OrderItemWarranty>? Warranties { get; set; } = new();
         public OrderItemWarrantyId? WarrantyId { get; set; }
         public OrderItemWarranty? Warranty { get; set; }
         public OrderItem() { }
-        public static OrderItem Create(OrderId orderId, JewelryId? jewelryId, DiamondId? diamondId,decimal? originalPrice, decimal? purchasedPrice = 0, Discount? discount = null,  int? discountPercent = 0, UnitType? promoType = UnitType.Percent, decimal? promoValue = 0, decimal warrantyPrice = 0, OrderItemId? givenId = null)
+        public static OrderItem Create(OrderId orderId, JewelryId? jewelryId, DiamondId? diamondId,decimal? originalPrice, decimal? purchasedPrice = 0, Discount? discount = null, decimal? promotionAmountSaved = null, decimal? discountAmountSaved = null, decimal warrantyPrice = 0, OrderItemId? givenId = null)
         {
             return new OrderItem()
             {
@@ -55,10 +57,9 @@ namespace DiamondShop.Domain.Models.Orders.Entities
                 OriginalPrice = originalPrice ?? 0,
                 PurchasedPrice = purchasedPrice ?? 0,
                 DiscountId = discount == null ? null : discount.Id ,
-                DiscountPercent = discountPercent ?? 0,
                 DiscountCode = discount == null ? null : discount.DiscountCode,
-                PromoType = promoType,
-                PromoValue = promoValue ?? 0,
+                PromotionSavedAmount = promotionAmountSaved,
+                DiscountSavedAmount = discountAmountSaved,
                 WarrantyPrice = warrantyPrice
             };
         }

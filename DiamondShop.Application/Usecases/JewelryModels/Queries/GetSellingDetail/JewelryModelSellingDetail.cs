@@ -15,7 +15,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
         public float? Width { get; set; }
         public float? Length { get; set; }
         public bool IsEngravable { get; set; }
-        public bool IsRhodiumFinish { get; set; }
+        //public bool IsRhodiumFinish { get; set; }
         public BackType? BackType { get; set; }
         public ClaspType? ClaspType { get; set; }
         public ChainType? ChainType { get; set; }
@@ -36,7 +36,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
                 Width = model.Width,
                 Length = model.Length,
                 IsEngravable = model.IsEngravable,
-                IsRhodiumFinish = model.IsRhodiumFinish,
+                //IsRhodiumFinish = model.IsRhodiumFinish,
                 BackType = model.BackType,
                 ClaspType = model.ClaspType,
                 ChainType = model.ChainType,

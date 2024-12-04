@@ -34,7 +34,9 @@ namespace DiamondShop.Domain.Models.Promotions
         public List<Gift> Gifts { get; set; } = new ();
         public Media? Thumbnail { get; set; }
         public Status Status { get; set; }
+        public PromotionApplyLevel? ApplyLevel { get; set; }
         public int? Amount { get; set; }
+        public decimal? MoneyLimit { get; set; }
         [NotMapped]
         public bool CanBePermanentlyDeleted => Status == Status.Cancelled || Status == Status.Expired;
         public static Promotion Create(string name, string promoCode, string description, DateTime startDate, DateTime endDate, int priority , bool isExclude , RedemptionMode mode )
@@ -49,7 +51,6 @@ namespace DiamondShop.Domain.Models.Promotions
                 EndDate = endDate.ToUniversalTime(),
                 Priority = priority,
                 IsExcludeQualifierProduct = isExclude,
-                //IsActive = false,
                 Status = Status.Scheduled,
                 RedemptionMode = mode,
             };

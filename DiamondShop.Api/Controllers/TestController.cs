@@ -32,8 +32,8 @@ namespace DiamondShop.Api.Controllers
         {
             var account = Account.Create(FullName.Create("a", "b"), "testingwebandstuff@gmail.com");
             var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, 0, "abc", null, null, 40_000, 20_000, DateTime.UtcNow, OrderId.Parse("1"));
-            order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null, null, 0));
-            order.Items.Add(OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, 20_000_000, null, null, null, null, 0));
+            order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null, 0));
+            order.Items.Add(OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, 20_000_000, null, null, null, 0));
             return Ok( _externalBankServices.GenerateQrCodeFromOrder(order,50_000_000));
         }
     }

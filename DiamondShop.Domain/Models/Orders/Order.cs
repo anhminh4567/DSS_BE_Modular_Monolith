@@ -48,7 +48,7 @@ namespace DiamondShop.Domain.Models.Orders
         public decimal TotalRefund { get; set; } = 0;
         public decimal TotalFine { get; set; } = 0;
         //tobe removed
-        public decimal OrderSavedAmount { get; set; } = 0;
+        //public decimal OrderSavedAmount { get; set; } = 0;
         public string ShippingAddress { get; set; }
         public List<OrderItem> Items { get; set; } = new();
         public List<OrderLog> Logs { get; set; } = new();
@@ -59,6 +59,7 @@ namespace DiamondShop.Domain.Models.Orders
         public int ShipFailedCount { get; set; } = 0;
         public DateTime? FinishPreparedDate { get; set; }
         public bool IsCollectAtShop { get; set; } = false;
+        public bool? HasDelivererReturned { get; set; }
         [NotMapped]
         public bool IsCustomOrder { get => CustomizeRequestId != null; }
         public void AddTransaction(Transaction transactionTypePay) 
@@ -154,5 +155,6 @@ namespace DiamondShop.Domain.Models.Orders
         {
             IsCollectAtShop = true;
         }
+        
     }
 }

@@ -50,10 +50,10 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                 }
                 query = _jewelryModelRepository.QueryFilter(query, p => p.CategoryId == category.Id);
             }
-            if (isRhodiumFinished != null)
-            {
-                query = _jewelryModelRepository.QueryFilter(query, p => p.IsRhodiumFinish == isRhodiumFinished);
-            }
+            //if (isRhodiumFinished != null)
+            //{
+            //    query = _jewelryModelRepository.QueryFilter(query, p => p.IsRhodiumFinish == isRhodiumFinished);
+            //}
             if (isEngravable != null)
             {
                 query = _jewelryModelRepository.QueryFilter(query, p => p.IsEngravable == isEngravable);

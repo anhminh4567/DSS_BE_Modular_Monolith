@@ -198,8 +198,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 var getDiscountIfExist = cartModel.DiscountsApplied.FirstOrDefault(k => k.Id == product.DiscountId);
                 orderItems.Add(OrderItem.Create(order.Id, product.Jewelry?.Id, product.Diamond?.Id, product.ReviewPrice.DefaultPrice,
                      product.ReviewPrice.FinalPrice,
-                getDiscountIfExist, product.DiscountPercent,
-                gift?.UnitType, gift?.UnitValue, product.CurrentWarrantyPrice));
+                getDiscountIfExist, product.ReviewPrice.PromotionAmountSaved,
+                product.ReviewPrice.DiscountAmountSaved, product.CurrentWarrantyPrice));
                 if (requestId != null)
                 {
                     if (product.Jewelry != null)
