@@ -56,7 +56,7 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
             order.Status = OrderStatus.Cancelled;
             //If deposit then no refund
             if (order.PaymentType == PaymentType.COD)
-                order.PaymentStatus = PaymentStatus.Refunded;
+                order.PaymentStatus = PaymentStatus.No_Refunded;
             else
                 order.PaymentStatus = PaymentStatus.Refunding;
             order.CancelledDate = DateTime.UtcNow;
