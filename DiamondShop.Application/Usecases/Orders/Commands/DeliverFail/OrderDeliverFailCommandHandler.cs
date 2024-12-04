@@ -17,7 +17,8 @@ using Newtonsoft.Json;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverFail
 {
-    public record OrderDeliverFailCommand(string OrderId, string DelivererId) : IRequest<Result<Order>>;
+    public record OrderDeliverFailRequestDto(string OrderId, bool IsShopFault = false);
+    public record OrderDeliverFailCommand(string DelivererId, OrderDeliverFailRequestDto OrderDeliverFailRequestDto) : IRequest<Result<Order>>;
     internal class OrderDeliverFailCommandHandler : IRequestHandler<OrderDeliverFailCommand, Result<Order>>
     {
         private readonly IOrderRepository _orderRepository;
@@ -39,27 +40,19 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverFail
 
         public async Task<Result<Order>> Handle(OrderDeliverFailCommand request, CancellationToken token)
         {
-            request.Deconstruct(out string orderId, out string delivererId);
+            request.Deconstruct(out string delivererId, out OrderDeliverFailRequestDto orderDeliverFailRequestDto);
+            orderDeliverFailRequestDto.Deconstruct(out string orderId, out bool isShopFault);
             await _unitOfWork.BeginTransactionAsync(token);
             var order = await _orderRepository.GetById(OrderId.Parse(orderId));
             if (order == null)
                 return Result.Fail(OrderErrors.OrderNotFoundError);
             if (order.DelivererId != AccountId.Parse(delivererId))
                 return Result.Fail(OrderErrors.OrderNotFoundError);
-            if (order.ShipFailedCount >= DeliveryRules.MaxRedelivery)
-            {
-                var cancelResult = await _sender.Send(new CancelOrderCommand(order.Id.Value,order.AccountId.Value, OrderErrors.MaxRedeliveryError.Message));
-                if (cancelResult.IsFailed)
-                    return Result.Fail(cancelResult.Errors);
-                return order;
-            }
-            else
-            {
+            if (!isShopFault)
                 order.ShipFailedCount++;
-                order.Status = OrderStatus.Delivery_Failed;
-                var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Delivery_Failed);
-                await _orderLogRepository.Create(log);
-            }
+            order.Status = OrderStatus.Delivery_Failed;
+            var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Delivery_Failed);
+            await _orderLogRepository.Create(log);
             await _orderRepository.Update(order);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);

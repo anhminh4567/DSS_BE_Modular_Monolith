@@ -224,12 +224,12 @@ namespace DiamondShop.Api.Controllers.Orders
 
         [HttpPut("DeliverFail")]
         [Authorize(Roles = AccountRole.DelivererId)]
-        public async Task<ActionResult> DeliverFail([FromQuery] string orderId)
+        public async Task<ActionResult> DeliverFail([FromQuery] OrderDeliverFailRequestDto orderDeliverFailRequestDto)
         {
             var userId = User.FindFirst(IJwtTokenProvider.USER_ID_CLAIM_NAME);
             if (userId != null)
             {
-                var result = await _sender.Send(new OrderDeliverFailCommand(orderId, userId.Value));
+                var result = await _sender.Send(new OrderDeliverFailCommand(userId.Value, orderDeliverFailRequestDto));
                 if (result.IsSuccess)
                 {
                     var mappedResult = _mapper.Map<OrderDto>(result.Value);

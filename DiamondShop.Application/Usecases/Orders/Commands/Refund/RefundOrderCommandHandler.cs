@@ -2,6 +2,7 @@
 using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Transfers;
+using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
@@ -60,18 +61,21 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Refund
                 return Result.Fail(OrderErrors.OrderNotFoundError);
             if (order.PaymentStatus != PaymentStatus.Refunding)
                 return Result.Fail(OrderErrors.RefundedError);
-            var getStateChangingLogs = await _orderLogRepository.GetStateChangingLog(order);
-            var currentStatus = order.Status;
-            var orderCancelOrRejectLogs = getStateChangingLogs.Where(l => l.Status == currentStatus).FirstOrDefault();
-            var indexOfLog = getStateChangingLogs.IndexOf(orderCancelOrRejectLogs);
-            OrderLog previousLog = getStateChangingLogs[indexOfLog - 1];
-            var previousStatus = previousLog.Status;
             var transactions = await _transactionRepository.GetByOrderId(order.Id, token);
             if (transactions.Any(p => p.Status == TransactionStatus.Verifying))
                 return Result.Fail(OrderErrors.Refund.ExistVerifyingTransferError);
             if (transactions.Count > 0)
             {
+                //var getStateChangingLogs = await _orderLogRepository.GetStateChangingLog(order);
+                //var currentStatus = order.Status;
+                //var orderCancelOrRejectLogs = getStateChangingLogs.Where(l => l.Status == currentStatus).FirstOrDefault();
+                //var indexOfLog = getStateChangingLogs.IndexOf(orderCancelOrRejectLogs);
+                //OrderLog previousLog = getStateChangingLogs[indexOfLog - 1];
+                //var previousStatus = previousLog.Status;
+
                 var refundAmount = transactions.Sum(p => p.TransactionAmount);
+                if (order.Status == OrderStatus.Cancelled && order.PaymentType == PaymentType.Payall)
+                    refundAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(refundAmount * (1m - 0.01m * OrderPaymentRules.Default.PayAllFine));
                 if (refundAmount != amount)
                     return Result.Fail(TransactionErrors.TransactionNotValid);
                 var refundPayment = Transaction.CreateManualRefund(order.Id, AccountId.Parse(accountId), transactionCode, $"Hoàn tiền đến khách hàng {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng ${order.OrderCode}", refundAmount);
