@@ -50,7 +50,11 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
                 return Result.Fail(OrderErrors.NoPermissionToCancelError);
             //_orderTransactionService.AddRefundUserCancel(order);
             order.Status = OrderStatus.Cancelled;
-            order.PaymentStatus = PaymentStatus.Refunding;
+            //If deposit then no refund
+            if (order.PaymentType == PaymentType.COD)
+                order.PaymentStatus = PaymentStatus.Refunded;
+            else
+                order.PaymentStatus = PaymentStatus.Refunding;
             order.CancelledDate = DateTime.UtcNow;
             order.CancelledReason = reason;
             await _orderRepository.Update(order);

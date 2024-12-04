@@ -8,7 +8,10 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Cancel
     {
         public OrderDeliverFailCommandValidator()
         {
-            RuleFor(p => p.OrderId).NotEmpty();
+            RuleFor(p => p.OrderDeliverFailRequestDto).ChildRules(p =>
+            {
+                p.RuleFor(k => k.OrderId).NotEmpty();
+            });
             RuleFor(p => p.DelivererId).NotEmpty();
         }
     }
