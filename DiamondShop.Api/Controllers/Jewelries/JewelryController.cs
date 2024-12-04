@@ -69,7 +69,7 @@ namespace DiamondShop.Api.Controllers.Jewelries
             var result = await _sender.Send(getAvailableJewelryQuery);
             if (result.IsSuccess)
             {
-                var mappedResult = _mapper.Map<JewelryDto>(result.Value);
+                var mappedResult = _mapper.Map<string>(result.Value);
                 return Ok(mappedResult);
             }
             else

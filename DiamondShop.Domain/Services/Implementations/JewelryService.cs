@@ -65,12 +65,16 @@ namespace DiamondShop.Domain.Services.Implementations
         public Jewelry AddPrice(Jewelry jewelry, ISizeMetalRepository sizeMetalRepository)
         {
             var query = sizeMetalRepository.GetQuery();
+            if(jewelry.Model == null)
+            query = sizeMetalRepository.QueryInclude(query, p => p.Model);
             query = sizeMetalRepository.QueryInclude(query, p => p.Metal);
             query = sizeMetalRepository.QueryFilter(query, p => p.ModelId == jewelry.ModelId && p.SizeId == jewelry.SizeId && p.MetalId == jewelry.MetalId);
             var sizeMetal = query.FirstOrDefault();
             if (sizeMetal != null)
             {
                 jewelry.ND_Price = sizeMetal.Price;
+                if (jewelry.Model != null) jewelry.ND_Price += jewelry.Model.CraftmanFee;
+                else jewelry.ND_Price += sizeMetal.Model.CraftmanFee;
             }
             jewelry.D_Price = GetJewelryDiamondPrice(jewelry).Result;
             if(jewelry.SideDiamond != null)
