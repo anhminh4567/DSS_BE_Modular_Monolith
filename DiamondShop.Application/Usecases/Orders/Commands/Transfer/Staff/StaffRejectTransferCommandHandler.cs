@@ -51,7 +51,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Transfer.Staff
         public async Task<Result<Order>> Handle(StaffRejectTransferCommand request, CancellationToken token)
         {
             request.Deconstruct(out string accountId, out TransferRejectRequestDto transferRejectRequestDto);
-            transferRejectRequestDto.Deconstruct(out string transactionId, out string orderId);
+            transferRejectRequestDto.Deconstruct(out string transactionId);
             await _unitOfWork.BeginTransactionAsync(token);
             var manualPayment = await _transactionRepository.GetById(TransactionId.Parse(transactionId));
             if (manualPayment == null)
@@ -65,10 +65,13 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Transfer.Staff
                 return Result.Fail(OrderErrors.ExpiredTimeDueError);
             manualPayment.VerifyFail(AccountId.Parse(accountId));
             await _transactionRepository.Update(manualPayment, token);
+            if (order.Status == OrderStatus.Pending)
+            {
+                var cancelFlag = await _sender.Send(new CancelOrderCommand(order.Id.Value, order.AccountId.Value, "Giao dịch không hợp lệ"));
+                if (cancelFlag.IsFailed)
+                    return Result.Fail(cancelFlag.Errors);
+            }
             await _unitOfWork.SaveChangesAsync(token);
-            var rejectResult = await _sender.Send(new RejectOrderCommand(orderId, TransactionErrors.TransactionNotValid.Message));
-            if (rejectResult.IsFailed)
-                return Result.Fail(rejectResult.Errors);
             await _unitOfWork.CommitAsync(token);
             return order;
         }

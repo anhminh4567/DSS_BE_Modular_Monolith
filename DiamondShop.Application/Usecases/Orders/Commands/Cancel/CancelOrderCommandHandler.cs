@@ -53,12 +53,25 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
                 return Result.Fail(OrderErrors.UncancellableError);
             if (order.AccountId != AccountId.Parse(accountId))
                 return Result.Fail(OrderErrors.NoPermissionToCancelError);
+
+            var transactions = await _transactionRepository.GetByOrderId(order.Id);
+            //Can't cancel because transaction hasn't been verified
+            if (transactions != null && transactions.Any(p => p.Status == TransactionStatus.Verifying))
+                return Result.Fail(OrderErrors.Transfer.ExistVerifyingTransferError);
+
             order.Status = OrderStatus.Cancelled;
             //If deposit then no refund
-            if (order.PaymentType == PaymentType.COD)
-                order.PaymentStatus = PaymentStatus.No_Refunded;
+            if(order.Status == OrderStatus.Pending)
+            {
+                order.PaymentStatus = PaymentStatus.No_Refund;
+            }
             else
-                order.PaymentStatus = PaymentStatus.Refunding;
+            {
+                if (order.PaymentType == PaymentType.COD)
+                    order.PaymentStatus = PaymentStatus.No_Refund;
+                else
+                    order.PaymentStatus = PaymentStatus.Refunding;
+            }
             order.CancelledDate = DateTime.UtcNow;
             order.CancelledReason = reason;
             await _orderRepository.Update(order);

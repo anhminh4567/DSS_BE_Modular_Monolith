@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Dtos.Requests.Orders
 {
-    public record TransferConfirmRequestDto(string TransactionId, string OrderId, decimal Amount, string TransactionCode);
+    public record TransferConfirmRequestDto(string TransactionId, decimal Amount, string TransactionCode);
 }

@@ -54,7 +54,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Transfer.Manager
         public async Task<Result<Order>> Handle(StaffConfirmPendingTransferCommand request, CancellationToken token)
         {
             request.Deconstruct(out string accountId, out TransferConfirmRequestDto transferCompleteRequestDto);
-            transferCompleteRequestDto.Deconstruct(out string transactionId, out string orderId, out decimal amount, out string transactionCode);
+            transferCompleteRequestDto.Deconstruct(out string transactionId, out decimal amount, out string transactionCode);
             await _unitOfWork.BeginTransactionAsync(token);
             var manualPayment = await _transactionRepository.GetById(TransactionId.Parse(transactionId));
             if (manualPayment == null)

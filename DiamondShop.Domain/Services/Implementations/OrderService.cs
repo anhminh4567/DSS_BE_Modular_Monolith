@@ -18,6 +18,7 @@ namespace DiamondShop.Domain.Services.Implementations
     public class OrderService : IOrderService
     {
         List<OrderStatus> cancellableState = new() {
+            OrderStatus.Pending,
             OrderStatus.Processing,
             OrderStatus.Prepared,
             OrderStatus.Delivery_Failed,
@@ -27,6 +28,9 @@ namespace DiamondShop.Domain.Services.Implementations
             OrderStatus.Processing,
             OrderStatus.Prepared,
             OrderStatus.Delivering,
+        };
+        List<OrderStatus> deliveringState = new() {
+            OrderStatus.Delivery_Failed,
         };
         private readonly IAccountRepository _accountRepository;
         private readonly IOrderRepository _orderRepository;
@@ -155,6 +159,11 @@ namespace DiamondShop.Domain.Services.Implementations
                 return Result.Fail("This deliverer is currently unavailable");
             order.DelivererId = account.Id;
             return order;
+        }
+
+        public bool IsDeliverCancellable(OrderStatus status)
+        {
+            return deliveringState.Contains(status);
         }
     }
 }

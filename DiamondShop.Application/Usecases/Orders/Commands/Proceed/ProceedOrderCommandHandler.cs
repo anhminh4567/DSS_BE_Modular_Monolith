@@ -150,6 +150,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                         item.Status = OrderItemStatus.Done;
                     }
                     order.Status = OrderStatus.Success;
+                    order.HasDelivererReturned = false;
                     var orderAtShopCompletelog = OrderLog.CreateByChangeStatus(order, OrderStatus.Success);
                     await _orderLogRepository.Create(orderAtShopCompletelog);
                     await _publisher.Publish(new OrderCompleteEvent(account.Id, order.Id, DateTime.UtcNow));
@@ -163,6 +164,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             }
             else if (order.Status == OrderStatus.Delivering)
             {
+                var transactions = await _transactionRepository.GetByOrderId(order.Id);
+                if (transactions != null && transactions.Any(p => p.Status == TransactionStatus.Verifying))
+                    return Result.Fail(OrderErrors.Transfer.ExistVerifyingTransferError);
                 if (accountId == null)
                     return Result.Fail(OrderErrors.NoDelivererToAssignError);
                 if (order.DelivererId?.Value != accountId)
