@@ -63,7 +63,7 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetPaymentLink
                 return Result.Fail(AccountErrors.AccountNotFoundError);
             }
             var correctAmount = _orderTransactionService.GetCorrectAmountFromOrder(getOrder);
-            if(paymentMethod == PaymentMethod.ZALOPAY)
+            if(paymentMethod.Id == PaymentMethod.ZALOPAY.Id)
             {
                 PaymentLinkRequest paymentLinkRequest = new()
                 {
@@ -78,7 +78,7 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetPaymentLink
                 var result = await _paymentService.CreatePaymentLink(paymentLinkRequest, cancellationToken);
                 return result;
             }
-            else if(paymentMethod == PaymentMethod.BANK_TRANSFER)
+            else if(paymentMethod.Id == PaymentMethod.BANK_TRANSFER.Id)
             {
                 var result = _externalBankServices.GenerateQrCodeFromOrder(getOrder,correctAmount);
                 return new PaymentLinkResponse()
