@@ -56,7 +56,7 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Command.CreateDeliveryLog
                 return Result.Fail(OrderErrors.OrderNotFoundError);
 
             List<OrderLog> orderLogs = await _orderLogRepository.GetOrderLogs(getOrder, cancellationToken);
-            var orderedByTimeLogs = orderLogs.OrderBy(x => x.CreatedDate).ToList();
+            var orderedByTimeLogs = orderLogs.OrderByDescending(x => x.CreatedDate).ToList();
             var getDeliveringParentLog = orderedByTimeLogs.FirstOrDefault(x => x.PreviousLogId == null && x.Status == OrderStatus.Delivering);
             if (getDeliveringParentLog == null)
                 return Result.Fail(OrderErrors.LogError.ParentLogNotFound);
