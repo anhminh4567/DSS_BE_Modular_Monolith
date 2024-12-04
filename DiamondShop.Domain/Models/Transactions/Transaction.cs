@@ -133,9 +133,9 @@ namespace DiamondShop.Domain.Models.Transactions
             VerifiedDate = DateTime.UtcNow;
         }
 
-        public void VerifyZalopay(string transactionCode, string paygateTransactionCode, string timeStamp)
+        public void VerifyZalopay( string paygateTransactionCode, string timeStamp)
         {
-            AppTransactionCode = transactionCode;
+            //AppTransactionCode = transactionCode;
             PaygateTransactionCode = paygateTransactionCode;
             Status = TransactionStatus.Valid;
             VerifiedDate = DateTime.UtcNow;
@@ -147,6 +147,12 @@ namespace DiamondShop.Domain.Models.Transactions
             VerifiedDate = null;
             AppTransactionCode = null;
             PaygateTransactionCode = null;
+        }
+        public string? GetPaymentLink()
+        {
+            if(Status == TransactionStatus.Verifying)
+                return PaygateTransactionCode;
+            return null;
         }
     }
 }
