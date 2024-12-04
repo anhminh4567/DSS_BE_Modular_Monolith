@@ -265,13 +265,6 @@ namespace DiamondShop.Domain.Services.Implementations
                 default:
                     throw new Exception("Major error, gift for order have not unit type ");
             }
-            //decimal promotionPriceSavedAmount = orderGift.UnitType switch
-            //{
-            //    UnitType.Percent => Math.Ceiling((orderPriceNow * orderGift.UnitValue) / (decimal)100),
-            //    UnitType.Fix_Price => orderGift.UnitValue,
-            //    //UnitType.Free_Gift => throw new Exception("Major error, gift for order have a type of freeGift ??? major error, check back flow "),
-            //    _ => throw new Exception("Major error, gift for order have not unit type ")
-            //};
             decimal correctSavedAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(promotionPriceSavedAmount);
             if(orderPriceNow - correctSavedAmount <= 0)
             {
@@ -354,38 +347,7 @@ namespace DiamondShop.Domain.Services.Implementations
         }
         private static void SetProductPriceFromGift(CartModel cartModel,CartProduct product, Gift giftReq)
         {
-            decimal savedAmount = 0;
-            switch (giftReq.UnitType)
-            {
-                case UnitType.Percent:
-                    savedAmount = Math.Ceiling((product.ReviewPrice.DiscountPrice * giftReq.UnitValue) / 100);
-                    if(giftReq.MaxAmout != null)
-                    {
-                        if (savedAmount > giftReq.MaxAmout.Value)
-                        {
-                            savedAmount = giftReq.MaxAmout.Value;
-                        }
-                    }
-                    break;
-                case UnitType.Fix_Price:
-                    savedAmount = giftReq.UnitValue;
-                    break;
-                default:
-                    throw new Exception("Major error, gift for product have not unit type ");
-            }
-            //decimal savedAmount = giftReq.UnitType switch
-            //{
-                
-            //    // we take the money from the discount price and calculate base on that
-            //    UnitType.Percent => Math.Ceiling((product.ReviewPrice.DiscountPrice * giftReq.UnitValue) / 100),
-            //    UnitType.Fix_Price => giftReq.UnitValue,
-            //    //UnitType.Free_Gift => product.ReviewPrice.DiscountPrice,
-            //    _ => throw new Exception("Major error, gift for product have not unit type ")
-            //};
-            var trueSavedAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(savedAmount); //Math.Clamp(product.ReviewPrice.DiscountPrice - savedAmount,0,decimal.MaxValue);
-            if ((product.ReviewPrice.DiscountPrice - savedAmount) <= 0)
-                trueSavedAmount = product.ReviewPrice.DiscountPrice;
-            product.ReviewPrice.PromotionAmountSaved = MoneyVndRoundUpRules.RoundAmountFromDecimal(trueSavedAmount);
+            product.PromotionApplyGiftOnCartProduct(giftReq);
             cartModel.OrderPrices.PromotionAmountSaved += product.ReviewPrice.PromotionAmountSaved;  
         }
         public void SetOrderPrice(CartModel cartModel)

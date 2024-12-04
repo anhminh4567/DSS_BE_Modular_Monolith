@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Carts;
 using DiamondShop.Application.Dtos.Responses.Promotions;
+using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Deliveries;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.Carts;
@@ -37,8 +38,9 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromo
         private readonly IMapper _mapper;
         private readonly IAccountRepository _accountRepository;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
+        private readonly ILocationService _locationService;
 
-        public GetApplicablePromotionForCartQueryHandler(IPromotionRepository promotionRepository, IDiscountRepository discountRepository, IPromotionServices promotionServices, ICartModelService cartModelService, IDeliveryFeeServices deliveryFeeServices, IMapper mapper, IAccountRepository accountRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
+        public GetApplicablePromotionForCartQueryHandler(IPromotionRepository promotionRepository, IDiscountRepository discountRepository, IPromotionServices promotionServices, ICartModelService cartModelService, IDeliveryFeeServices deliveryFeeServices, IMapper mapper, IAccountRepository accountRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, ILocationService locationService)
         {
             _promotionRepository = promotionRepository;
             _discountRepository = discountRepository;
@@ -48,6 +50,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromo
             _mapper = mapper;
             _accountRepository = accountRepository;
             _optionsMonitor = optionsMonitor;
+            _locationService = locationService;
         }
 
         public async Task<Result<ApplicablePromotionDto>> Handle(GetApplicablePromotionForCartQuery request, CancellationToken cancellationToken)
@@ -71,6 +74,12 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromo
             {
                 getShippingPrice = _deliveryFeeServices.GetShippingPrice(request.CartRequestDto.UserAddress).Result;
             }
+            if(request.CartRequestDto.IsAtShopOrder)
+            {
+                var shopLocation = _locationService.GetShopLocation();
+                var createShopAddress = Address.Create(0, shopLocation.Province, shopLocation.District, shopLocation.Ward, shopLocation.Road, AccountId.Parse("0"), AddressId.Parse("0"));
+                getShippingPrice = ShippingPrice.CreateDeliveryAtShop(createShopAddress);
+            }    
             // this step is to get the promotion 
             Result<CartModel> result = await _cartModelService.ExecuteNormalOrder(getProducts, getDiscounts, emptyPromo, getShippingPrice, userAccount, _optionsMonitor.CurrentValue.CartModelRules);
             if (result.IsFailed)

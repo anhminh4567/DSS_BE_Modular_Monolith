@@ -120,7 +120,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                     Province = billingDetail.Providence,
                     Street = billingDetail.Address,
                     Ward = billingDetail.Ward
-                }
+                },
+                IsAtShopOrder = isAtShop.Value
             };
             //Validate CartModel
             var cartModelResult = await _sender.Send(new ValidateCartFromListCommand(cartRequestDto));

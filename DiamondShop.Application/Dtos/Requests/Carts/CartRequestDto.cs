@@ -13,5 +13,6 @@ namespace DiamondShop.Application.Dtos.Requests.Carts
         public List<CartItemRequestDto> Items { get; set; } = new();
         public AddressRequestDto? UserAddress { get; set; }
         public string? AccountId { get; set; }
+        public bool IsAtShopOrder { get; set; }
     }
 }

@@ -23,6 +23,15 @@ namespace DiamondShop.Domain.Common.Carts
             Address? From = null;
             DeliveryFeeFounded = DeliveryFee.CreateUnknownDelivery();
         }
+        public static ShippingPrice CreateDeliveryAtShop(Address shopAddress)
+        {
+            return new ShippingPrice
+            {
+                DeliveryFeeFounded = DeliveryFee.CreateSelfTakenFromShopDeliveryFee(),
+                From = shopAddress,
+                To = shopAddress,
+            };
+        }
     }
 
 }

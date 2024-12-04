@@ -30,6 +30,8 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public Status Status { get; set; }
         [NotMapped]
         public bool CanBePermanentlyDeleted => Status == Status.Cancelled || Status == Status.Expired;
+        [NotMapped]
+        public List<Gift> DiscountGift { get; set; } = new();
         public static Discount Create(string name, DateTime startDate, DateTime endDate, int percent, string? code)
         {
             return new Discount()
@@ -98,6 +100,13 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
                 DiscountReq.Add(requirement);
             else
                 DiscountReq.Remove(requirement);
+        }
+        public void SetGift(Gift gift, bool isRemove = false)
+        {
+            if (isRemove is false)
+                DiscountGift.Add(gift);
+            else
+                DiscountGift.Remove(gift);
         }
         public void ChangeActiveDate(DateTime startDate, DateTime endDate)
         {

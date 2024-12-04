@@ -75,6 +75,12 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
             {
                  getShippingPrice = _deliveryFeeServices.GetShippingPrice(request.items.UserAddress).Result;
             }
+            if (request.items.IsAtShopOrder)
+            {
+                var shopLocation = _locationService.GetShopLocation();
+                var createShopAddress = Address.Create(0, shopLocation.Province, shopLocation.District, shopLocation.Ward, shopLocation.Road, AccountId.Parse("0"), AddressId.Parse("0"));
+                getShippingPrice = ShippingPrice.CreateDeliveryAtShop(createShopAddress);
+            }
             Result<CartModel> result = await _cartModelService.ExecuteNormalOrder(getProducts, getDiscounts, getPromotion,getShippingPrice,userAccount,_optionsMonitor.CurrentValue.CartModelRules);
             if (result.IsSuccess)
                 return result.Value;

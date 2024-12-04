@@ -64,13 +64,36 @@ namespace DiamondShop.Domain.Services.Implementations
                 return Result.Fail(DiscountErrors.ApplyingErrors.NotMeetRequirement);
             }
         }
-        private void SetProductDiscountPrice(CartProduct product, Discount discount)
+        private void SetProductDiscountPrice(CartProduct product, Discount discount, Gift appliedGift =null)
         {
             product.DiscountPercent = discount.DiscountPercent;
             product.DiscountId = discount.Id;
             var savedAmount = Math.Ceiling((product.ReviewPrice.DefaultPrice * discount.DiscountPercent) / 100);
             product.ReviewPrice.DiscountAmountSaved = MoneyVndRoundUpRules.RoundAmountFromDecimal(savedAmount);
+            //for gift 
+            var gift = appliedGift;
+            if (gift == null)
+                return;
+            product.DiscountApplyGiftOnCartProduct(gift);
 
+        }
+        private bool CheckIfProductMeetRequirementForGift(CartProduct product, Gift gift)
+        {
+            var fakeRequirement = new PromoReq()
+            {
+                TargetType = gift.TargetType,
+                ModelId = gift.TargetType == TargetType.Jewelry_Model ? JewelryModelId.Parse(gift.ItemId) : null,
+                CaratFrom = gift.CaratFrom,
+                CaratTo = gift.CaratTo,
+                ColorFrom = gift.ColorFrom,
+                ColorTo = gift.ColorTo,
+                ClarityFrom = gift.ClarityFrom,
+                ClarityTo = gift.ClarityTo,
+                CutFrom = gift.CutFrom,
+                CutTo = gift.CutTo,
+                DiamondOrigin = gift.DiamondOrigin
+            };
+            return CheckIfProductMeetRequirement(product, fakeRequirement);
         }
         private bool CheckIfProductMeetRequirement(CartProduct product, PromoReq requirement)
         {
@@ -146,6 +169,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 return Result.Fail(DiscountErrors.ApplyingErrors.NotActiveToUse);
             
             var requirements = discount.DiscountReq;
+            var gifts = discount.DiscountGift;
             bool isAnyProductHaveDiscount = false;
             for (int i = 0; i < requirements.Count; i++)
             {
@@ -161,6 +185,27 @@ namespace DiamondShop.Domain.Services.Implementations
                     }
                 }
                 if (CheckIfProductMeetRequirement(cartProduct, requirement))
+                {
+                    SetProductDiscountPrice(cartProduct, discount);
+                    isAnyProductHaveDiscount = true;
+                    break;
+                }
+            }
+            for (int i = 0; i < gifts.Count; i++)
+            {
+                var gift = gifts[i];
+                if (cartProduct.IsValid is false)
+                    continue;
+                if (cartProduct.IsHavingDiscount)
+                {
+                    // this is when the product already have a discount and it is higher than the current discount
+                    var amount = cartProduct.GetAmountSavedFromGift(gift);
+                    if (amount <= cartProduct.DiscountAmountSaved) ;
+                    {
+                        continue;
+                    }
+                }
+                if (CheckIfProductMeetRequirementForGift(cartProduct, gift))
                 {
                     SetProductDiscountPrice(cartProduct, discount);
                     isAnyProductHaveDiscount = true;

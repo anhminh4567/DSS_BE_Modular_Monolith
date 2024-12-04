@@ -3,6 +3,7 @@ using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Models.Warranties;
 using Microsoft.Extensions.FileSystemGlobbing.Internal.PathSegments;
@@ -28,6 +29,7 @@ namespace DiamondShop.Domain.Common.Carts
         public bool IsProduct { get; set; } = false; // always false, unless check the item is a product
         public DiscountId? DiscountId { get; set; }
         public int? DiscountPercent { get; set; }
+        public decimal? DiscountAmountSaved { get; set; }
         public bool IsHavingDiscount { get => DiscountId is not null; }
         
         public PromotionId? PromotionId { get; set; }
@@ -81,6 +83,44 @@ namespace DiamondShop.Domain.Common.Carts
             if (Jewelry is not null && Diamond is null)
                 return true;
             return false;
+        }
+        public void PromotionApplyGiftOnCartProduct (Gift giftReq)
+        {
+            decimal savedAmount = GetAmountSavedFromGift( giftReq);
+            if ((this.ReviewPrice.DiscountPrice - savedAmount) <= 0)
+                savedAmount = this.ReviewPrice.DiscountPrice;
+            this.ReviewPrice.PromotionAmountSaved = MoneyVndRoundUpRules.RoundAmountFromDecimal(savedAmount);
+        }
+        public void DiscountApplyGiftOnCartProduct(Gift giftReq)
+        {
+            decimal savedAmount = GetAmountSavedFromGift( giftReq);
+            if ((this.ReviewPrice.DefaultPrice - savedAmount) <= 0)
+                savedAmount = this.ReviewPrice.DefaultPrice;
+            this.ReviewPrice.DiscountAmountSaved = MoneyVndRoundUpRules.RoundAmountFromDecimal(savedAmount);
+        }
+        public decimal GetAmountSavedFromGift(Gift giftReq)
+        {
+            decimal savedAmount = 0;
+            switch (giftReq.UnitType)
+            {
+                case UnitType.Percent:
+                    savedAmount = Math.Ceiling((this.ReviewPrice.DiscountPrice * giftReq.UnitValue) / 100);
+                    if (giftReq.MaxAmout != null)
+                    {
+                        if (savedAmount > giftReq.MaxAmout.Value)
+                        {
+                            savedAmount = giftReq.MaxAmout.Value;
+                        }
+                    }
+                    break;
+                case UnitType.Fix_Price:
+                    savedAmount = giftReq.UnitValue;
+                    break;
+                default:
+                    throw new Exception("Major error, gift for product have not unit type ");
+            }
+            var trueSavedAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(savedAmount);//Math.Clamp(product.ReviewPrice.DiscountPrice - savedAmount,0,decimal.MaxValue);
+            return trueSavedAmount;
         }
     }
 
