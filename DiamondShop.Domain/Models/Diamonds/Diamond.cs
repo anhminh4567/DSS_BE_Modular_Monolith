@@ -13,6 +13,7 @@ using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -223,10 +224,33 @@ namespace DiamondShop.Domain.Models.Diamonds
             else
                 TruePrice = finalPrice;
         }
-        public void SetLockForUser(Account userAccount , int lockHour, decimal? LockedPriceForCustomer)
+        public void SetLockPriceForJewelry(int lockHour, decimal? LockedPriceForCustomer, DiamondRule rule)
         {
             if (Status == ProductStatus.Sold)
                 throw new Exception("sản phẩm đã bán");
+            if(LockedPriceForCustomer < rule.MinimalMainDiamondPrice)
+                throw new Exception("giá bán phải lớn hơn giá tối thiểu là "+ rule.MinimalMainDiamondPrice);
+            if (lockHour > rule.MaxLockTimeForCustomer || lockHour < 1)
+                throw new Exception("thoi gian lock san pham toi da la  " + rule.MaxLockTimeForCustomer + " va toi thieu la 1");
+            Status = ProductStatus.LockForUser;
+            ProductLock = ProductLock.CreateLock( TimeSpan.FromHours(lockHour));
+            if (LockedPriceForCustomer != null)
+            {
+                DefaultPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(LockedPriceForCustomer.Value);
+            }
+            else
+            {
+                DefaultPrice = null;
+            }
+        }
+        public void SetLockForUser(Account userAccount , int lockHour, decimal? LockedPriceForCustomer, DiamondRule rule)
+        {
+            if (Status == ProductStatus.Sold)
+                throw new Exception("sản phẩm đã bán");
+            if (LockedPriceForCustomer < rule.MinimalMainDiamondPrice)
+                throw new Exception("giá bán phải lớn hơn giá tối thiểu là " + rule.MinimalMainDiamondPrice);
+            if (lockHour > rule.MaxLockTimeForCustomer || lockHour < 1)
+                throw new Exception("thoi gian lock san pham toi da la  " + rule.MaxLockTimeForCustomer + " va toi thieu la 1");
             Status = ProductStatus.LockForUser;
             ProductLock = ProductLock.CreateLockForUser(userAccount.Id, TimeSpan.FromHours(lockHour));
             if(LockedPriceForCustomer != null)
@@ -255,6 +279,16 @@ namespace DiamondShop.Domain.Models.Diamonds
         {
             if (Status == ProductStatus.Sold)
                 throw new Exception("cannot unlock an already sold item");
+            if(JewelryId != null)
+            {
+                ProductLock = null;
+                SoldPrice = null;
+                DefaultPrice = null;
+                ProductLock = null;
+                Status = ProductStatus.Locked;
+                UpdatedAt = DateTime.UtcNow;
+                return;
+            }
             SetSell();
             UpdatedAt = DateTime.UtcNow;
         }

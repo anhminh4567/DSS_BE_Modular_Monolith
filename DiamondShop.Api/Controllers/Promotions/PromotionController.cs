@@ -2,6 +2,7 @@
 using DiamondShop.Application.Dtos.Requests.Carts;
 using DiamondShop.Application.Dtos.Responses.Promotions;
 using DiamondShop.Application.Usecases.Discounts.Commands.Cancel;
+using DiamondShop.Application.Usecases.Discounts.Queries.GetDiscountUsageDetail;
 using DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany;
 using DiamondShop.Application.Usecases.PromotionGifts.Commands.Delete;
 using DiamondShop.Application.Usecases.PromotionGifts.Queries.GetAll;
@@ -22,6 +23,7 @@ using DiamondShop.Application.Usecases.Promotions.Queries.GetAll;
 using DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromotions;
 using DiamondShop.Application.Usecases.Promotions.Queries.GetDetail;
 using DiamondShop.Application.Usecases.Promotions.Queries.GetPaging;
+using DiamondShop.Application.Usecases.Promotions.Queries.GetPromotionUsageDetail;
 using DiamondShop.Domain.Models.Promotions;
 using MapsterMapper;
 using MediatR;
@@ -69,6 +71,18 @@ namespace DiamondShop.Api.Controllers.Promotions
             var mappedResult = _mapper.Map<PromotionDto>(result.Value);
             return Ok(mappedResult);
         }
+        [HttpGet("UsageDetail")]
+        [Produces(type: typeof(PromotionUsageDetailResponseDto))]
+        public async Task<ActionResult> GetUsageDetail([FromQuery] GetPromotionUsageDetailQuery query)
+        {
+            var response = await _sender.Send(query);
+            if (response.IsSuccess)
+            {
+                return Ok(response.Value);
+            }
+            return MatchError(response.Errors, ModelState);
+        }
+
         [HttpPost("GetApplicable")]
         [ProducesResponseType(typeof(ApplicablePromotionDto), 200)]
         public async Task<ActionResult> GetApplicablePromotion([FromBody] CartRequestDto cartDto)

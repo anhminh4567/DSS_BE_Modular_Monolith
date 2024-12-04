@@ -1,4 +1,6 @@
-﻿using DiamondShop.Domain.Models.Promotions;
+﻿using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.ValueObjects;
+using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
@@ -17,7 +19,9 @@ namespace DiamondShop.Domain.Repositories.PromotionsRepo
         Task<Discount?> GetByCode(string discountCode, CancellationToken cancellationToken = default);
         IQueryable<Discount> QueryByStatuses(IQueryable<Discount> query,List<Status> statuses);
         Task<List<Discount>> GetContainingCode(string code, int start, int take, CancellationToken cancellationToken = default);
-        Task<int> GetDiscountCount(Expression<Func<Discount, bool>> expression);
-        Task<List<DiscountId>> GetDiscountIds(Expression<Func<Discount, bool>> expression);
+        Task<int> GetDiscountCountFromOrder(Discount discount,Expression<Func<Order, bool>> expression);
+        Task<List<OrderId>> GetOrderIdsFromOrder(Discount discount,Expression<Func<Order, bool>> expression);
+
+        Task<List<DiscountId>> GetDiscountIds( Expression<Func<Discount, bool>> expression);
     }
 }

@@ -20,8 +20,8 @@ namespace DiamondShop.Domain.Repositories.PromotionsRepo
         Task<Promotion?> GetByCode(string promotionCode, CancellationToken cancellationToken = default);
         IQueryable<Promotion> QueryByStatuses(IQueryable<Promotion> query, List<Status> statuses);
         Task<List<Promotion>> GetContainingCode(string code, int start, int take, CancellationToken cancellationToken = default);
-        Task<int> GetPromotionCountFromOrders(Expression<Func<Order,bool>> expression);
-        Task<List<PromotionId>> GetPromotionIdsFromOrders(Expression<Func<Order, bool>> expression);
-
+        Task<int> GetPromotionCountFromOrders(Promotion promotion,Expression<Func<Order,bool>> expression);
+        Task<List<PromotionId>> GetPromotionIdsFromOrders(Promotion promotion, Expression<Func<Order, bool>> expression);
+        Task<decimal> GetPromotionMoneySpentOnOrders(Promotion promotion, Expression<Func<Order, bool>> expression);
     }
 }

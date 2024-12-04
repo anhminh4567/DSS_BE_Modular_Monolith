@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Commons;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ErrorMessages;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
@@ -9,6 +10,7 @@ using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using FluentResults;
 using MediatR;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,13 +26,15 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.LockForUser
         private readonly IDiamondRepository _diamondRepository;
         private readonly IAccountRepository _accountRepository;
         private readonly IAuthenticationService _authenticationService;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public LockDiamondForUserCommandHandler(IUnitOfWork unitOfWork, IDiamondRepository diamondRepository, IAccountRepository accountRepository, IAuthenticationService authenticationService)
+        public LockDiamondForUserCommandHandler(IUnitOfWork unitOfWork, IDiamondRepository diamondRepository, IAccountRepository accountRepository, IAuthenticationService authenticationService, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _unitOfWork = unitOfWork;
             _diamondRepository = diamondRepository;
             _accountRepository = accountRepository;
             _authenticationService = authenticationService;
+            _optionsMonitor = optionsMonitor;
         }
 
         public async Task<Result<Diamond>> Handle(LockDiamondForUserCommand request, CancellationToken cancellationToken)
@@ -52,7 +56,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.LockForUser
                 getDiamond.SetSell();
             
             else
-                getDiamond.SetLockForUser(getCustomer, request.lockHour,request.LockedPriceForCustomer);
+                getDiamond.SetLockForUser(getCustomer, request.lockHour,request.LockedPriceForCustomer,_optionsMonitor.CurrentValue.DiamondRule);
             await _diamondRepository.Update(getDiamond);
             await _unitOfWork.SaveChangesAsync();
             return getDiamond;

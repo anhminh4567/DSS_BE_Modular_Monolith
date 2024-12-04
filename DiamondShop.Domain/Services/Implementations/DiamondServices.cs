@@ -107,7 +107,7 @@ namespace DiamondShop.Domain.Services.Implementations
         public static async Task<DiamondPrice> GetDiamondPriceGlobal(Diamond diamond, List<DiamondPrice> diamondPrices, DiamondRule diamondRule)
         {
             // if diamond is locked for user, and price is seted
-            if(diamond.Status == Common.Enums.ProductStatus.LockForUser || diamond.Status == Common.Enums.ProductStatus.PreOrder)
+            if(diamond.Status == Common.Enums.ProductStatus.LockForUser || diamond.Status == Common.Enums.ProductStatus.PreOrder || diamond.Status == Common.Enums.ProductStatus.Locked)
             {
                 if(diamond.DefaultPrice != null && diamond.DefaultPrice > 0)
                 {

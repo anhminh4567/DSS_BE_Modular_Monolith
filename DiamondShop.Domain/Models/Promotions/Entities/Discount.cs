@@ -2,6 +2,7 @@
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.Ultilities;
 using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using FluentResults;
@@ -16,6 +17,7 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
 {
     public class Discount : Entity<DiscountId>
     {
+        public static List<OrderStatus> NotCountAsUsed = new() { OrderStatus.Rejected, OrderStatus.Cancelled  };
         public string Name { get; set; }
 
         public DateTime StartDate { get; set; }

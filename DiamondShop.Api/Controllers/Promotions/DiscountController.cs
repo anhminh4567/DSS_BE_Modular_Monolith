@@ -11,6 +11,7 @@ using DiamondShop.Application.Usecases.Discounts.Commands.UpdateInfo;
 using DiamondShop.Application.Usecases.Discounts.Commands.UpdateRequirements;
 using DiamondShop.Application.Usecases.Discounts.Queries.GetAll;
 using DiamondShop.Application.Usecases.Discounts.Queries.GetDetail;
+using DiamondShop.Application.Usecases.Discounts.Queries.GetDiscountUsageDetail;
 using DiamondShop.Application.Usecases.Discounts.Queries.GetPaging;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using MapsterMapper;
@@ -55,6 +56,18 @@ namespace DiamondShop.Api.Controllers.Promotions
             var mappedResult = _mapper.Map<DiscountDto>(response.Value);
             return Ok(mappedResult);
         }
+        [HttpGet("UsageDetail")]
+        [Produces(type: typeof(DiscountUsageDetailResponseDto))]
+        public async Task<ActionResult> GetUsageDetail([FromQuery] GetDiscountUsageDetailQuery query)
+        {
+            var response = await _sender.Send(query);
+            if(response.IsSuccess)
+            {
+                return Ok(response.Value);
+            }
+            return MatchError(response.Errors, ModelState);
+        }
+
         [HttpPost]
         [Produces(type: typeof(DiscountDto))]
         public async Task<ActionResult> Create(CreateDiscountCommand createDiscountCommand)

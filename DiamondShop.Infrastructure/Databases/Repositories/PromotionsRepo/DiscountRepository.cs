@@ -1,4 +1,6 @@
-﻿using DiamondShop.Domain.Models.Promotions.Entities;
+﻿using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.ValueObjects;
+using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
@@ -54,14 +56,33 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo
             return _set.Where(x => x.DiscountCode.ToUpper().Contains(code.ToUpper())).Skip(start).Take(take).ToListAsync(cancellationToken);
         }
 
-        public Task<int> GetDiscountCount(Expression<Func<Discount, bool>> expression)
+        public Task<int> GetDiscountCountFromOrder(Discount discount, Expression<Func<Order, bool>> expression)
         {
-            return _set.Where(expression).CountAsync();
+            return _dbContext.Orders.Where(expression)
+                .Include(x => x.Items) 
+                .SelectMany(x => x.Items)
+                .Where(x => x.DiscountCode != null && x.DiscountCode == discount.DiscountCode)
+                .Select(x => x.DiscountCode)
+                .Distinct()
+                .CountAsync();
         }
 
         public Task<List<DiscountId>> GetDiscountIds(Expression<Func<Discount, bool>> expression)
         {
-            throw new NotImplementedException();
+            return _set.Where(expression)
+                .Select(x => x.Id)
+                .ToListAsync();
+        }
+
+        public async Task<List<OrderId>> GetOrderIdsFromOrder(Discount discount, Expression<Func<Order, bool>> expression)
+        {
+            var result = await _dbContext.Orders.Where(expression)
+               .Include(x => x.Items)
+               .SelectMany(x => x.Items)
+               .Where(x => x.DiscountCode != null && x.DiscountCode == discount.DiscountCode)
+               .Select(x => x.OrderId)
+               .Distinct().ToListAsync();
+            return result;
         }
 
         public IQueryable<Discount> QueryByStatuses(IQueryable<Discount> query, List<Status> statuses)

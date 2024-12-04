@@ -188,6 +188,10 @@ namespace DiamondShop.Domain.Models.Jewelries
                 throw new Exception("This product is not locked");
             Status = ProductStatus.Active;
             ProductLock = null;
+            foreach (var diamond in Diamonds)
+            {
+                diamond.RemoveLock();
+            }
         }
         public void SetTotalDiamondPrice(decimal totalAllDiamondPrice)
         {

@@ -23,5 +23,13 @@ namespace DiamondShop.Domain.Common.Products
                 LockEndDate = DateTime.UtcNow.Add(howlong)
             };
         }
+        public static ProductLock CreateLock( TimeSpan howlong)
+        {
+            return new ProductLock
+            {
+                AccountId = null,
+                LockEndDate = DateTime.UtcNow.Add(howlong)
+            };
+        }
     }
 }
