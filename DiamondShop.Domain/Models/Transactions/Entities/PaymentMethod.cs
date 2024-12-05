@@ -13,6 +13,8 @@ namespace DiamondShop.Domain.Models.Transactions.Entities
         public static PaymentMethod BANK_TRANSFER = PaymentMethod.Create("BANK_TRANSFER", PaymentMethodId.Parse("1"));
         public static PaymentMethod ZALOPAY = PaymentMethod.Create("ZALOPAY", PaymentMethodId.Parse("2"));
         public static PaymentMethod CASH = PaymentMethod.Create("CASH", PaymentMethodId.Parse("3"));
+        //TODO : khả năng add thêm nếu zalopay hạn mức thấp quá làm ko được
+        public static PaymentMethod VNPAY = PaymentMethod.Create("VNPAY", PaymentMethodId.Parse("4"));
         public string MethodName { get; set; }
         public string? MethodThumbnailPath { get; set; }
         public bool Status { get; set; } = true;
@@ -47,6 +49,10 @@ namespace DiamondShop.Domain.Models.Transactions.Entities
                 return "Chuyển khoản qua cho shop qua ngân hàng";
             if (method.Id == PaymentMethod.ZALOPAY.Id)
                 return "Thanh toán qua ZaloPay";
+            if(method.Id == PaymentMethod.CASH.Id)
+                return "Thanh toán bằng tiền mặt";
+            if(method.Id == PaymentMethod.VNPAY.Id)
+                return "Thanh toán qua VNPAY";
             return "Không xác định";
         }
     }
