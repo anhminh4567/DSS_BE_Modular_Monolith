@@ -191,7 +191,7 @@ namespace DiamondShop.Api.Controllers.Orders
 
         [HttpPut("DeliverEnd")]
         [Authorize(Roles = AccountRole.StaffId)]
-        public async Task<ActionResult> DeliverEndOrder([FromQuery] DeliverEndOrderCommand deliverEndOrderCommand)
+        public async Task<ActionResult> DeliverEndOrder([FromQuery] OrderDeliverEndCommand deliverEndOrderCommand)
         {
             var result = await _sender.Send(deliverEndOrderCommand);
             if (result.IsSuccess)
