@@ -15,6 +15,7 @@ namespace DiamondShop.Application.Dtos.Responses.CustomizeRequests
 {
     public class DiamondRequestDto
     {
+        public int Position { get; set; }
         public string DiamondRequestId { get; set; }
         public string CustomizeRequestId { get; set; }
         public string? DiamondShapeId { get; set; }
