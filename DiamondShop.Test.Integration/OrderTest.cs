@@ -8,6 +8,7 @@ using DiamondShop.Application.Services.Interfaces.Orders;
 using DiamondShop.Application.Services.Interfaces.Transfers;
 using DiamondShop.Application.Usecases.Orders.Commands.Checkout;
 using DiamondShop.Application.Usecases.Orders.Commands.Create;
+using DiamondShop.Application.Usecases.Orders.Commands.DeliverEnd;
 using DiamondShop.Application.Usecases.Orders.Commands.DeliverFail;
 using DiamondShop.Application.Usecases.Orders.Commands.Proceed;
 using DiamondShop.Application.Usecases.Orders.Commands.Refund;
@@ -504,7 +505,28 @@ namespace DiamondShop.Test.Integration
                 Assert.Equal(OrderStatus.Rejected, order.Status);
             }
         }
-        [Trait("ReturnTrue", "RejectTransferPendingOrder")]
+        [Trait("ReturnTrue", "RejectPayAllTransferPendingOrder")]
+        [Fact()]
+        public async Task Shop_Reject_PayAll_Transfer_While_Pending_Should_NoRefund_CANCELLED()
+        {
+            var manager = await TestData.SeedDefaultManager(_context, _authentication);
+            var customer = await TestData.SeedDefaultCustomer(_context, _authentication);
+            var order = await SeedingPendingOrder(customer.Id.Value);
+            var transaction = await fakeCustomerTransfer(order);
+            Assert.NotNull(transaction);
+            Assert.Equal(TransactionStatus.Verifying, transaction.Status);
+            var rejectTransferResult = await _sender.Send(new StaffRejectTransferCommand(manager.Id.Value, new(transaction.Id.Value)));
+            if (rejectTransferResult.IsFailed)
+            {
+                WriteError(rejectTransferResult.Errors);
+            }
+            Assert.True(rejectTransferResult.IsSuccess);
+            Assert.NotNull(rejectTransferResult.Value);
+            order = rejectTransferResult.Value;
+            Assert.Equal(OrderStatus.Cancelled, order.Status);
+            Assert.Equal(PaymentStatus.No_Refund, order.PaymentStatus);
+        }
+        [Trait("ReturnTrue", "RejectCODTransferPendingOrder")]
         [Fact()]
         public async Task Shop_Reject_COD_Transfer_While_Pending_Should_NoRefund_CANCELLED()
         {
@@ -547,14 +569,27 @@ namespace DiamondShop.Test.Integration
                 Assert.NotNull(rejectTransferResult.Value);
                 order = rejectTransferResult.Value;
                 Assert.Equal(OrderStatus.Delivering, order.Status);
-                Assert.Equal(PaymentStatus.No_Refund, order.PaymentStatus);
+                Assert.Equal(PaymentStatus.Deposited, order.PaymentStatus);
+                Assert.False(order.HasDelivererReturned);
                 var deliveryFailResult = await _sender.Send(new OrderDeliverFailCommand(deliverer.Id.Value, new(order.Id.Value)));
                 if (deliveryFailResult.IsFailed)
                 {
                     WriteError(deliveryFailResult.Errors);
                 }
                 Assert.Equal(OrderStatus.Delivery_Failed, order.Status);
-
+                var deliveryEndResult = await _sender.Send(new OrderDeliverEndCommand(order.Id.Value));
+                if (deliveryEndResult.IsFailed)
+                {
+                    WriteError(deliveryEndResult.Errors);
+                }
+                Assert.True(order.HasDelivererReturned);
+                var rejectResult = await _sender.Send(new RejectOrderCommand(order.Id.Value,"huy",true));
+                if (rejectResult.IsFailed)
+                {
+                    WriteError(rejectResult.Errors);
+                }
+                Assert.Equal(OrderStatus.Cancelled, order.Status);
+                Assert.Equal(PaymentStatus.No_Refund, order.PaymentStatus);
             }
         }
     }

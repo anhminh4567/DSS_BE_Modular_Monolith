@@ -150,17 +150,20 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                         item.Status = OrderItemStatus.Done;
                     }
                     order.Status = OrderStatus.Success;
-                    order.HasDelivererReturned = false;
                     var orderAtShopCompletelog = OrderLog.CreateByChangeStatus(order, OrderStatus.Success);
                     await _orderLogRepository.Create(orderAtShopCompletelog);
                     await _publisher.Publish(new OrderCompleteEvent(account.Id, order.Id, DateTime.UtcNow));
                 }
-                //if(this is an order at shop then no delivere should be assigned, it should stayed here and proceed to success or cancelled, rejected)
-                if (order.DelivererId == null)
-                    return Result.Fail(OrderErrors.NoDelivererAssignedError);
-                order.Status = OrderStatus.Delivering;
-                var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Delivering);
-                await _orderLogRepository.Create(log);
+                else
+                {
+                    //if(this is an order at shop then no delivere should be assigned, it should stayed here and proceed to success or cancelled, rejected)
+                    if (order.DelivererId == null)
+                        return Result.Fail(OrderErrors.NoDelivererAssignedError);
+                    order.Status = OrderStatus.Delivering;
+                    order.HasDelivererReturned = false;
+                    var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Delivering);
+                    await _orderLogRepository.Create(log);
+                }
             }
             else if (order.Status == OrderStatus.Delivering)
             {

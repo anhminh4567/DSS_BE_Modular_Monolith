@@ -58,8 +58,6 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
             //Can't cancel because transaction hasn't been verified
             if (transactions != null && transactions.Any(p => p.Status == TransactionStatus.Verifying))
                 return Result.Fail(OrderErrors.Transfer.ExistVerifyingTransferError);
-
-            order.Status = OrderStatus.Cancelled;
             //If deposit then no refund
             if(order.Status == OrderStatus.Pending)
             {
@@ -72,6 +70,7 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
                 else
                     order.PaymentStatus = PaymentStatus.Refunding;
             }
+            order.Status = OrderStatus.Cancelled;
             order.CancelledDate = DateTime.UtcNow;
             order.CancelledReason = reason;
             await _orderRepository.Update(order);
@@ -82,12 +81,12 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
             var log = OrderLog.CreateByChangeStatus(order, order.Status);
             await _orderLogRepository.Create(log);
             await _unitOfWork.SaveChangesAsync(token);
-            await _unitOfWork.CommitAsync(token);
 
             var notificationForShop = Notification.CreateShopMessage(order, $"khách hủy đơn hàng #{order.OrderCode} tại thời điểm {order.CancelledDate.Value.ToString(DateTimeFormatingRules.DateTimeFormat)}");
             await _notificationRepository.Create(notificationForShop);
             await _unitOfWork.SaveChangesAsync();
             await _paymentService.RemoveAllPaymentCache(order);
+            await _unitOfWork.CommitAsync(token);
             return Result.Ok(order);
         }
     }

@@ -22,8 +22,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverEnd
 {
-    public record DeliverEndOrderCommand(string orderId) : IRequest<Result>;
-    internal class DeliverEndOrderCommandHandler : IRequestHandler<DeliverEndOrderCommand, Result>
+    public record OrderDeliverEndCommand(string orderId) : IRequest<Result>;
+    internal class OrderDeliverEndCommandHandler : IRequestHandler<OrderDeliverEndCommand, Result>
     {
         private readonly ITransactionRepository _transactionRepository;
         private readonly IOrderRepository _orderRepository;
@@ -31,7 +31,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverEnd
         private readonly IOrderService _orderService;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public DeliverEndOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, ITransactionRepository transactionRepository)
+        public OrderDeliverEndCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, ITransactionRepository transactionRepository)
         {
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
@@ -40,7 +40,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverEnd
             _transactionRepository = transactionRepository;
         }
 
-        public async Task<Result> Handle(DeliverEndOrderCommand request, CancellationToken token)
+        public async Task<Result> Handle(OrderDeliverEndCommand request, CancellationToken token)
         {
             request.Deconstruct(out string orderId);
             await _unitOfWork.BeginTransactionAsync(token);
