@@ -22,12 +22,14 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDiamondCriteriaRepository _diamondCriteriaRepository;
         private readonly IDiamondShapeRepository _diamondShapeRepository;
+        private readonly IDiamondPriceRepository _diamondPriceRepository;
 
-        public CreateManyDiamondCriteriasCommandhandler(IUnitOfWork unitOfWork, IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondShapeRepository diamondShapeRepository)
+        public CreateManyDiamondCriteriasCommandhandler(IUnitOfWork unitOfWork, IDiamondCriteriaRepository diamondCriteriaRepository, IDiamondShapeRepository diamondShapeRepository, IDiamondPriceRepository diamondPriceRepository)
         {
             _unitOfWork = unitOfWork;
             _diamondCriteriaRepository = diamondCriteriaRepository;
             _diamondShapeRepository = diamondShapeRepository;
+            _diamondPriceRepository = diamondPriceRepository;
         }
 
         public async Task<Result<List<DiamondCriteria>>> Handle(CreateManyDiamondCriteriasCommand request, CancellationToken cancellationToken)
@@ -59,6 +61,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
             await _diamondCriteriaRepository.CreateMany(mappedItems);
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
+            _diamondPriceRepository.RemoveAllCache();
             return mappedItems;
         }
     }

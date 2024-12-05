@@ -1,29 +1,22 @@
-﻿using DiamondShop.Domain.Common;
-using DiamondShop.Domain.Models.DiamondPrices;
-using DiamondShop.Domain.Models.DiamondPrices.Entities;
+﻿using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Repositories;
-using DiamondShop.Infrastructure.Databases.Configurations.DiamondShapeConfig;
-using FluentEmail.Core;
 using FluentResults;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Intrinsics.Arm;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Infrastructure.Databases.Repositories
 {
     internal class DiamondPriceRepository : BaseRepository<DiamondPrice>, IDiamondPriceRepository
     {
         private readonly IMemoryCache _cache;
+        private static CancellationTokenSource _resetCacheToken = new CancellationTokenSource();
+        private static MemoryCacheEntryOptions options = new MemoryCacheEntryOptions()
+            .SetPriority(CacheItemPriority.High)
+            .SetAbsoluteExpiration(TimeSpan.FromHours(1));
         public DiamondPriceRepository(DiamondShopDbContext dbContext, IMemoryCache cache) : base(dbContext)
         {
             _cache = cache;
@@ -49,6 +42,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             await base.Create(entity, token);
             //RemoveAllKey(entity.ShapeId);
             RemoveAllCache();
+            //var getCacheKeyForRange = GetPriceKey(null,entity.IsLabDiamond,entity.Cut,entity.CriteriaId);
+            //var getSideKeyForRange = GetSidePriceKey(null,entity.IsLabDiamond, entity.CriteriaId);
+            //_cache.Remove(getCacheKeyForRange);
+            //_cache.Remove(getSideKeyForRange);
         }
         public override async Task Update(DiamondPrice entity, CancellationToken token = default)
         {
@@ -82,24 +79,21 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         {
             foreach (var cut in Enum.GetValues(typeof(Cut)))
             {
-                string diamondKey = GetPriceKey(diamondShapeId, true, (Cut)cut);
-                string diamondKeyNatural = GetPriceKey(diamondShapeId, false, (Cut)cut);
+                string diamondKey = GetPriceKey(diamondShapeId, true, (Cut)cut,null);
+                string diamondKeyNatural = GetPriceKey(diamondShapeId, false, (Cut)cut, null);
                 _cache.Remove(diamondKey);
                 _cache.Remove(diamondKeyNatural);
             }
-            string sidediamondKey = GetSidePriceKey(diamondShapeId.Value, true);
-            string sidediamondKeyNatural = GetSidePriceKey(diamondShapeId.Value, false);
+            string sidediamondKey = GetSidePriceKey(diamondShapeId.Value, true,null);
+            string sidediamondKeyNatural = GetSidePriceKey(diamondShapeId.Value, false, null);
             _cache.Remove(sidediamondKey);
             _cache.Remove(sidediamondKeyNatural);
+            
         }
         //bool isFancyShape, 
         public Task<List<DiamondPrice>> GetSideDiamondPrice(bool isLabDiamond, CancellationToken token = default)
         {
             DiamondShape correctShape = null;
-            //if (isFancyShape)
-            //    correctShape = DiamondShape.FANCY_SHAPES;
-            //else
-            //    correctShape = DiamondShape.ROUND;
             correctShape = DiamondShape.ANY_SHAPES;
             //return _set.Where(d => d.ShapeId == correctShape.Id && d.IsSideDiamond == true && d.IsLabDiamond == isLabDiamond).Include(p => p.Criteria).ToListAsync();
             return _dbContext.DiamondCriteria
@@ -116,15 +110,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         {
             DiamondShape correctShape = null;
             correctShape = DiamondShape.ANY_SHAPES;
-            string diamondKey = GetSidePriceKey(correctShape.Id.Value, isLabDiamond);
+            string diamondKey = GetSidePriceKey(correctShape.Id.Value, isLabDiamond,null);
             var tryGet = _cache.Get<List<DiamondPrice>>(diamondKey);
             if (tryGet == null || tryGet.Count() == 0)
             {
-                //var result = await _set.Where(d => d.ShapeId == correctShape.Id && d.IsLabDiamond == isLabDiamond && d.IsSideDiamond == true)
-                //.Include(p => p.Criteria)
-                //.Where(p => p.Criteria.CaratFrom <= avgCarat && p.Criteria.CaratTo >= avgCarat)
-                //.ToListAsync();
-                //_cache.Set(diamondKey, result);
                 var result = await _dbContext.DiamondCriteria
                 .Where(d => d.ShapeId == correctShape.Id && d.IsSideDiamond == true
                         && d.CaratFrom <= avgCarat && d.CaratTo >= avgCarat)
@@ -134,7 +123,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                         .Include(dp => dp.Criteria)
                         .AsSplitQuery()
                         .ToListAsync();
-                _cache.Set(diamondKey, result);
+                _cache.Set(diamondKey, result);//, options.AddExpirationToken(new CancellationChangeToken(_resetCacheToken.Token))
                 return result;
             }
             else
@@ -152,14 +141,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                 tobeComparedCut = null;
             //if (isLabDiamond != null)
             //{
-            string diamondKey = GetPriceKey(getShape.Id, isLabDiamond, tobeComparedCut);
+            string diamondKey = GetPriceKey(getShape.Id, isLabDiamond, tobeComparedCut,null);
             var tryGet = _cache.Get<List<DiamondPrice>>(diamondKey);
             if (tryGet == null || tryGet.Count == 0)
             {
-                //var get = await _set.Include(p => p.Criteria)
-                //    .Where(p => p.ShapeId == getShape.Id && p.IsLabDiamond == isLabDiamond && p.IsSideDiamond == false && p.Criteria.Cut == tobeComparedCut)
-                //    .OrderBy(s => s.Criteria.CaratTo).ToListAsync();
-                //_cache.Set(diamondKey, get);
                 var get = await _dbContext.DiamondCriteria
                     .Where(d => d.ShapeId == getShape.Id && d.IsSideDiamond == false)
                     .Include(d => d.DiamondPrices)
@@ -168,44 +153,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                     .Include(dp => dp.Criteria)
                     .AsSplitQuery()
                     .ToListAsync();
-                _cache.Set(diamondKey, get);
+                _cache.Set(diamondKey, get);//, options.AddExpirationToken(new CancellationChangeToken(_resetCacheToken.Token))
                 return get;
             }
             return tryGet;
-            //}
-            //else
-            //{
-            //    string diamondKey = GetPriceKey(getShape.Id, true, tobeComparedCut);
-            //    string diamondKeyNatural = GetPriceKey(getShape.Id, false, tobeComparedCut);
-            //    List<DiamondPrice> results = new();
-            //    var tryGet = _cache.Get<List<DiamondPrice>>(diamondKey);
-            //    var tryGetNatural = _cache.Get<List<DiamondPrice>>(diamondKeyNatural);
-            //    if (tryGet is null || tryGet.Count == 0)
-            //    {
-            //        //var getFromDb = await _set.Include(p => p.Criteria)
-            //        //  .Where(p => p.ShapeId == getShape.Id && p.IsLabDiamond == true && p.IsSideDiamond == false && p.Criteria.Cut == tobeComparedCut)
-            //        //  .OrderBy(s => s.Criteria.CaratTo).ToListAsync();
-            //        //_cache.Set(diamondKey, getFromDb);
-            //        var getFromDb = await _set.Include(p => p.Criteria)
-            //          .Where(p => p.ShapeId == getShape.Id && p.IsLabDiamond == true && p.IsSideDiamond == false && p.Criteria.Cut == tobeComparedCut)
-            //          .OrderBy(s => s.Criteria.CaratTo).ToListAsync();
-            //        _cache.Set(diamondKey, getFromDb);
-            //        results.AddRange(getFromDb);
-            //    }
-            //    else
-            //        results.AddRange(tryGet);
-            //    if (tryGetNatural is null || tryGetNatural.Count == 0)
-            //    {
-            //        var getFromDb = await _set.Include(p => p.Criteria)
-            //          .Where(p => p.ShapeId == getShape.Id && p.IsLabDiamond == false && p.IsSideDiamond == false && p.Criteria.Cut == tobeComparedCut)
-            //          .OrderBy(s => s.Criteria.CaratTo).ToListAsync();
-            //        _cache.Set(diamondKeyNatural, getFromDb);
-            //        results.AddRange(getFromDb);
-            //    }
-            //    else
-            //        results.AddRange(tryGetNatural);
-            //    return results;
-            //}
         }
         //dangerous function, make sure no field is null !!!
         public async Task<Result> DeleteMany(List<DiamondPriceId> priceIds,DiamondShape shape, bool Islab, bool IsSide, CancellationToken cancellationToken = default)
@@ -215,9 +166,6 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             List<DiamondPrice> getResult = new List<DiamondPrice>();
             if (IsSide == false)
             {
-                //getResult = await _set.IgnoreQueryFilters()
-                //.Where(x => getCriteria.Contains(x.CriteriaId) && x.IsLabDiamond == Islab && x.IsSideDiamond == false && getShape.Contains(x.ShapeId))
-                //.ToListAsync();
                 getResult = await _dbContext.DiamondCriteria.Where(d => d.ShapeId == shape.Id && d.IsSideDiamond == false)
                     .Include(d => d.DiamondPrices)
                     .SelectMany(d => d.DiamondPrices)
@@ -228,9 +176,6 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             }
             else
             {
-                //getResult = await _set.IgnoreQueryFilters()
-                //.Where(x => getCriteria.Contains(x.CriteriaId) && x.IsLabDiamond == Islab && x.IsSideDiamond == true && getShape.Contains(x.ShapeId))
-                //.ToListAsync();
                 getResult = await _dbContext.DiamondCriteria.Where(d => d.ShapeId == shape.Id && d.IsSideDiamond == true)
                     .Include(d => d.DiamondPrices)
                     .SelectMany(d => d.DiamondPrices)
@@ -245,7 +190,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             var getCorrectPrice = getResult.Where(x => priceIds.Contains(x.Id)); //getResult.Where(x => getShape.Any(s => s == x.ShapeId)).ToList();
             _set.RemoveRange(getCorrectPrice);
             //getShape.ForEach(x => RemoveAllKey(x));
-            RemoveAllKey(shape.Id);
+            RemoveAllCache();
             return Result.Ok();
         }
 
@@ -266,53 +211,84 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                 .AsSplitQuery()
                 .ToListAsync();
             return get;
-            //}
-            //else
-            //{
-            //    List<DiamondPrice> results = new();
-            //    var getFromDb = await _set.Include(p => p.Criteria)
-            //      .Where(p => p.ShapeId == getShape.Id && p.IsLabDiamond == true && p.IsSideDiamond == false)
-            //      .OrderBy(s => s.Criteria.CaratTo).ToListAsync();
-            //    results.AddRange(getFromDb);
-            //    return results;
-            //}
         }
 
         public void RemoveAllCache()
         {
-            //var roundShape = DiamondShape.ROUND.Id;
-            //var fancyShape = DiamondShape.FANCY_SHAPES.Id;
-            //var anyShape = DiamondShape.ANY_SHAPES.Id;
-            foreach (var shape in DiamondShape.All_Shape)
+            //if (_resetCacheToken != null 
+            //    && !_resetCacheToken.IsCancellationRequested 
+            //    && _resetCacheToken.Token.CanBeCanceled)
+            //{
+            //    _resetCacheToken.Cancel();
+            //    _resetCacheToken.Dispose();
+            //}
+            //_resetCacheToken = new CancellationTokenSource();
+            //foreach (var shape in DiamondShape.All_Shape)
+            //{
+            //    RemoveAllKey(shape.Id);
+            //}
+            if (_cache is MemoryCache concreteMemoryCache)
             {
-                RemoveAllKey(shape.Id);
+                concreteMemoryCache.Clear();
             }
-            //RemoveAllKey(roundShape);
-            //RemoveAllKey(fancyShape);
-            //RemoveAllKey(anyShape);
         }
-        private string GetPriceKey(DiamondShapeId shapeId, bool IsLabDiamond, Cut? cut)
+        private string GetPriceKey(DiamondShapeId? shapeId, bool IsLabDiamond, Cut? cut, DiamondCriteriaId? criteriaId)
         {
             bool isFancyShape = DiamondShape.IsFancyShape(shapeId);
             string key;
-            if (isFancyShape)
-                key = $"DP_{shapeId}";
+            if(criteriaId == null)
+            {
+                if (isFancyShape)
+                    key = $"DP_{shapeId.Value}";
+                else
+                    if (cut != null)
+                        key = $"DP_{shapeId.Value}_{(int)cut}";
+                    else
+                        key = $"DP_{shapeId.Value}";
+                if (IsLabDiamond)
+                    key += "_Lab";
+                else
+                    key += "_Natural";
+            }
             else
-                key = $"DP_{shapeId}_{(int)cut}";
-            if (IsLabDiamond)
-                key += "_Lab";
-            else
-                key += "_Natural";
+            {
+                if (isFancyShape)
+                    key = $"DP_{criteriaId.Value}";
+                else
+                    if(cut != null)
+                        key = $"DP_{criteriaId.Value}_{(int)cut}";
+                    else
+                        key = $"DP_{criteriaId.Value}";
+                if (IsLabDiamond)
+                    key += "_Lab";
+                else
+                    key += "_Natural";
+            }
+
             return key;
         }
-        private string GetSidePriceKey(string shapeId, bool IsLabDiamond)
+        private string GetSidePriceKey(string? shapeId, bool IsLabDiamond, DiamondCriteriaId? criteriaId)
         {
-            var key = $"DP_Side_{shapeId}";
-            if (IsLabDiamond)
-                key += "_Lab";
+            if(criteriaId == null)
+            {
+                ArgumentNullException.ThrowIfNull(shapeId);
+                var key = $"DP_Side_{shapeId}";
+                if (IsLabDiamond)
+                    key += "_Lab";
+                else
+                    key += "_Natural";
+                return key;
+            }
             else
-                key += "_Natural";
-            return key;
+            {
+                var key = $"DP_Side_{criteriaId.Value}";
+                if (IsLabDiamond)
+                    key += "_Lab";
+                else
+                    key += "_Natural";
+                return key;
+            }
+
         }
     }
 }

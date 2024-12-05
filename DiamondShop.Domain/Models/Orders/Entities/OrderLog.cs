@@ -23,9 +23,9 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public List<Media>? LogImages { get; set; }
         [NotMapped]
         public bool IsParentLog { get => PreviousLogId == null; }
-        public static OrderLog CreateByChangeStatus(Order order, OrderStatus statusToChange) 
+        public static OrderLog CreateByChangeStatus(Order order, OrderStatus statusToChange,string? extraMessage = null) 
         {
-            return new OrderLog
+            var newLog = new OrderLog
             {
                 Id = OrderLogId.Create(),
                 OrderId = order.Id,
@@ -33,6 +33,11 @@ namespace DiamondShop.Domain.Models.Orders.Entities
                 CreatedDate = DateTime.UtcNow,
                 Status = statusToChange,
             };
+            if(extraMessage != null)
+            {
+                newLog.Message += extraMessage;
+            }
+            return newLog;
         }
         public static OrderLog CreateProcessingLog(Order order, OrderLog parentLog, string message)
         {

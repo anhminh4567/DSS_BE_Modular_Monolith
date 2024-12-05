@@ -141,12 +141,13 @@ namespace DiamondShop.Domain.Models.Transactions
             VerifiedDate = DateTime.UtcNow;
             TimeStamp = timeStamp;
         }
-        public void Cancel()
+        public void Invalidate(string message)
         {
             Status = TransactionStatus.Invalid;
-            VerifiedDate = null;
+            VerifiedDate = DateTime.UtcNow;
             AppTransactionCode = null;
             PaygateTransactionCode = null;
+            Description = message;
         }
         public string? GetPaymentLink()
         {

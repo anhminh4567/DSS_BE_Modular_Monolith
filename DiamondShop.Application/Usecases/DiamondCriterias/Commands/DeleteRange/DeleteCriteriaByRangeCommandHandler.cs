@@ -107,6 +107,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.DeleteRange
                     }
                 }
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
+                _diamondPriceRepository.RemoveAllCache();
                 return Result.Ok();
             }
             async Task<Result> DeleteSideDiamond()
@@ -122,6 +123,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.DeleteRange
                     _diamondCriteriaRepository.Delete(criteria).Wait();
                 }
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
+                _diamondPriceRepository.RemoveAllCache();
                 return Result.Ok();
             }
         }

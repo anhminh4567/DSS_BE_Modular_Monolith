@@ -76,6 +76,12 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Refund
                 var refundAmount = transactions.Sum(p => p.TransactionAmount);
                 if (order.Status == OrderStatus.Cancelled && order.PaymentType == PaymentType.Payall)
                     refundAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(refundAmount * (1m - 0.01m * OrderPaymentRules.Default.PayAllFine));
+                if(order.Status == OrderStatus.Cancelled && order.PaymentType == PaymentType.COD)
+                {
+                    if (order.PaymentStatus == PaymentStatus.Paid)//when pay all for cod and somehow still go wrong
+                        refundAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(order.DepositFee);
+                    else { }
+                }
                 if (refundAmount != amount)
                     return Result.Fail(TransactionErrors.TransactionNotValid);
                 var refundPayment = Transaction.CreateManualRefund(order.Id, AccountId.Parse(accountId), transactionCode, $"Hoàn tiền đến khách hàng {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng ${order.OrderCode}", refundAmount);
