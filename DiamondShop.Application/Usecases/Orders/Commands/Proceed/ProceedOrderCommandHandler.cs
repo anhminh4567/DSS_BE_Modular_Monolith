@@ -23,7 +23,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
 {
-    public record DelivererCompleteOrderRequestDto(IFormFile[]? confirmImages, IFormFile? confirmVideo); 
+    public record DelivererCompleteOrderRequestDto(IFormFile[]? confirmImages, IFormFile? confirmVideo);
     public record ProceedOrderCommand(string orderId, string? accountId, DelivererCompleteOrderRequestDto? CompleteOrderRequestDto = null) : IRequest<Result<Order>>;
     internal class ProceedOrderCommandHandler : IRequestHandler<ProceedOrderCommand, Result<Order>>
     {
@@ -165,32 +165,37 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
             else if (order.Status == OrderStatus.Delivering)
             {
                 var transactions = await _transactionRepository.GetByOrderId(order.Id);
-                if (transactions != null && transactions.Any(p => p.Status == TransactionStatus.Verifying))
-                    return Result.Fail(OrderErrors.Transfer.ExistVerifyingTransferError);
+                if (transactions != null)
+                {
+                    if (transactions.Any(p => p.Status == TransactionStatus.Verifying))
+                        return Result.Fail(OrderErrors.Transfer.ExistVerifyingTransferError);
+                    if (transactions.Any(p => p.Status == TransactionStatus.Invalid))
+                        return Result.Fail(OrderErrors.Transfer.ExistInvalidTransferError);
+                }
                 if (accountId == null)
                     return Result.Fail(OrderErrors.NoDelivererToAssignError);
                 if (order.DelivererId?.Value != accountId)
                     return Result.Fail(OrderErrors.OnlyDelivererAllowedError);
                 if (order.PaymentStatus != PaymentStatus.Paid)
                     return Result.Fail(OrderErrors.UnpaidError);
-                if(request.CompleteOrderRequestDto == null)
+                if (request.CompleteOrderRequestDto == null)
                 {
                     return Result.Fail(OrderErrors.LackEvidenceToCompleteDeliver);
                 }
                 List<FileData> images = new();
                 FileData video = null;
-                if(request.CompleteOrderRequestDto.confirmImages == null || request.CompleteOrderRequestDto.confirmImages.Count() <= 0)
+                if (request.CompleteOrderRequestDto.confirmImages == null || request.CompleteOrderRequestDto.confirmImages.Count() <= 0)
                     return Result.Fail(OrderErrors.LackEvidenceToCompleteDeliver);
                 foreach (var image in request.CompleteOrderRequestDto.confirmImages)
                 {
                     var fileName = image.FileName.Split('.')[0];
-                    var fileExt = Path.GetExtension(image.FileName).Replace(".","");
-                    if(FileUltilities.IsImageFileContentType(image.ContentType) == false)
+                    var fileExt = Path.GetExtension(image.FileName).Replace(".", "");
+                    if (FileUltilities.IsImageFileContentType(image.ContentType) == false)
                         return Result.Fail(FileUltilities.Errors.NotCorrectImageFileType);
-                    images.Add(new FileData(fileName,fileExt,image.ContentType,image.OpenReadStream()));
+                    images.Add(new FileData(fileName, fileExt, image.ContentType, image.OpenReadStream()));
                 }
-                if(images.Count> 0)
-                    await _orderFileServices.SaveOrderConfirmDeliveryImage(order,images);
+                if (images.Count > 0)
+                    await _orderFileServices.SaveOrderConfirmDeliveryImage(order, images);
                 if (request.CompleteOrderRequestDto.confirmVideo != null)
                 {
                     var videoFile = request.CompleteOrderRequestDto.confirmVideo;
