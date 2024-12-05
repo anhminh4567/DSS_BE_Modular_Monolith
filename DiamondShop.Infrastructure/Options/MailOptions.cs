@@ -16,5 +16,6 @@ namespace DiamondShop.Infrastructure.Options
         public string AppPassword { get; set; }
         public string ConfirmCallbackEndpoint { get; set; }
         public bool IsTestServer { get; set; } = false;
+        public bool IsEmailEnabled { get; set;}
     }
 }

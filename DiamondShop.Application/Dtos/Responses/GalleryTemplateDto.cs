@@ -31,4 +31,14 @@ namespace DiamondShop.Application.Dtos.Responses
                                                                      // or different color but still display this same image
         public Dictionary<string, List<MediaDto>> Gallery { get; set; } // categorize images by category, like metal/color/size, etc
     }
+    public class OrderGalleryTemplateDto
+    {
+        public string GalleryFolder { get; set; }
+        public List<MediaDto> OrderDeliveryConfirmationImages { get; set; } = new();
+        public MediaDto? OrderDeliveryConfirmationVideo { get; set; }
+        //transaction id is key, list media is value
+        public Dictionary<string, List<MediaDto>> OrderTransactionImages { get; set; } = new();
+        //log id is key, list media is value
+        public Dictionary<string, List<MediaDto>> OrderLogImages { get; set; } = new();
+    }
 }

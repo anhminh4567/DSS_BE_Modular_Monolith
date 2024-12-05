@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Common;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
@@ -14,7 +15,13 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
         public Media? Thumbnail { get; set; }
         public Metal() { }
         public static Metal Create(string name, string localizedName, decimal price, MetalId? givenId = null) => new Metal() { Id = givenId is null ? MetalId.Create() : givenId, Name = name, LocalizedName = localizedName, Price = price };
-        public void Update(decimal price) => Price = price;
+        public void ChangePrice(decimal price)
+        {
+            if(price < 0)
+                throw new Exception("Price cannot be negative");
+            var roundedPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(price);
+            Price = roundedPrice;
+        }
         [NotMapped]
         public string CodeName
         {

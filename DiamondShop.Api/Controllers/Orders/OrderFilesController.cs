@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Commons.Models;
+using DiamondShop.Application.Dtos.Responses;
 using DiamondShop.Application.Usecases.Orders.Files.Commands;
 using DiamondShop.Application.Usecases.Orders.Files.Queries;
 using MapsterMapper;
@@ -40,7 +41,8 @@ namespace DiamondShop.Api.Controllers.Orders
             var result = await _sender.Send(command);
             if(result.IsSuccess)
             {
-                return Ok(result.Value);
+                var mappedResult = _mapper.Map<OrderGalleryTemplateDto>(result.Value);
+                return Ok(mappedResult);
             }
             return MatchError(result.Errors, ModelState);
         }

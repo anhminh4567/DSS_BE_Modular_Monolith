@@ -1,4 +1,5 @@
-﻿using DiamondShop.Commons;
+﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Commons;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
@@ -16,18 +17,23 @@ namespace DiamondShop.Application.Usecases.Metals.Commands.Update
     internal class UpdateMetalCommandHandler : IRequestHandler<UpdateMetalCommand, Result<Metal>>
     {
         private readonly IMetalRepository _metalRepository;
-        public UpdateMetalCommandHandler(IMetalRepository metalRepository)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public UpdateMetalCommandHandler(IMetalRepository metalRepository, IUnitOfWork unitOfWork)
         {
             _metalRepository = metalRepository;
+            _unitOfWork = unitOfWork;
         }
+
         public async Task<Result<Metal>> Handle(UpdateMetalCommand request, CancellationToken cancellationToken)
         {
             MetalId metalId = MetalId.Parse(request.id);
             Metal getMetal = await _metalRepository.GetById(metalId);
             if (getMetal == null)
                 return Result.Fail(new NotFoundError("no metal found"));
-            getMetal.Update(request.price);
+            getMetal.ChangePrice(request.price);
             await _metalRepository.Update(getMetal);
+            await _unitOfWork.SaveChangesAsync();
             return getMetal;
         }
     }

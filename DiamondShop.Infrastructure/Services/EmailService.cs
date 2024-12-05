@@ -75,6 +75,10 @@ namespace DiamondShop.Infrastructure.Services
         }
         private async Task<Result> SendEmailWithTemplate<T>(EmailMetaData emailMetaData, string templatePath, T templateModel, CancellationToken cancellation = default)
         {
+            if (_mailOptions.Value.IsEmailEnabled is false)
+            {
+                throw new NotSupportedException("Email sending is disabled, go to appsettings and re-enable it");
+            }
             var emailSendingConfig = _fluentEmailServices
                 .To(emailMetaData.ToEmail)
                 .Subject(emailMetaData.Subject);
