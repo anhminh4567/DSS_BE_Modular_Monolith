@@ -51,8 +51,10 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetDetail
             await _jewelryModelService.AddSettingPrice(model, sizeMetal, customizeRequest.SideDiamond);
             await _jewelryModelService.AssignJewelryModelDiscount(model, discounts);
             var diamondRequests = customizeRequest.DiamondRequests;
+            int pos = 1;
             foreach (var diamondRequest in diamondRequests)
             {
+                diamondRequest.Position = pos;
                 var diamond = diamondRequest.Diamond;
                 if (diamond == null)
                 {
@@ -60,6 +62,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetDetail
                 }
                 var prices = await _diamondPriceRepository.GetPrice(diamond.Cut, diamond.DiamondShape, false, cancellationToken);
                 var diamondPrice = await _diamondServices.GetDiamondPrice(diamond, prices);
+                pos++;
             }
             if (customizeRequest.Status == CustomizeRequestStatus.Accepted)
             {

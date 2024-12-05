@@ -8,6 +8,7 @@ using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,6 +36,9 @@ namespace DiamondShop.Domain.Models.CustomizeRequests.Entities
         public Symmetry? Symmetry { get; set; }
         public Girdle? Girdle { get; set; }
         public Culet? Culet { get; set; }
+        [NotMapped]
+        public int Position { get; set; }
+
         public static DiamondRequest Create(CustomizeRequestId customizeRequestId, DiamondShapeId? diamondShapeId, Clarity clarityFrom, Clarity clarityTo, Color colorFrom, Color colorTo, Cut cutFrom, Cut cutTo, float caratFrom, float caratTo, bool? isLabGrown, Polish? polish, Symmetry? symmetry, Girdle? girdle, Culet? culet)
         {
             return new DiamondRequest()
