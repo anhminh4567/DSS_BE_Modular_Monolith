@@ -73,7 +73,7 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Queries.GetAllOrderLogs
             }
             var mappedLogs = getParentLog.Adapt<List<OrderLogDto>>(config); //_mapper.Map<List<OrderLogDto>>(logs);
             //getMappedLog.PreviousLog = mappedLogs.FirstOrDefault(x => x.Id == getMappedLog.PreviousLogId);
-
+            
 
             return mappedLogs;// getParentLog.OrderBy(x => x.CreatedDate).ToList();
         }

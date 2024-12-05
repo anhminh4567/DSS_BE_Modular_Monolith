@@ -265,7 +265,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             };
             //insert meta data
             embed_data.columninfo = JsonConvert.SerializeObject(descriptionBodyJson);
-            var appTransactionId = order.CreatedDate.ToLocalTime().ToString("yyMMdd") + "_" + app_trans_id;
+            var appTransactionId = DateTime.UtcNow.ToLocalTime().ToString("yyMMdd") + "_" + app_trans_id;//order.CreatedDate.ToLocalTime().ToString("yyMMdd") + "_" + app_trans_id;
             List<ZalopayItem> falseList = new List<ZalopayItem>() { new ZalopayItem() { name = "order", price = amount, quantity = 1, sale_price = amount } };
             param.Add("app_id", appid);
             param.Add("app_user", userId);

@@ -16,6 +16,14 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using OpenQA.Selenium;
+using DiamondShop.Infrastructure.Services.Payments.Vietqr.Models;
+using DiamondShop.Infrastructure.Services.Payments.Vietqr;
+using DiamondShop.Domain.Models.Diamonds.Enums;
+using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.Jewelries;
+using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 
 namespace DiamondShop.Api.Controllers
 {
@@ -26,7 +34,10 @@ namespace DiamondShop.Api.Controllers
     {
         private readonly IExternalBankServices _externalBankServices;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
-
+        private const string VALID_USERNAME = "Vnpay@12345";
+        private const string VALID_PASSWORD = "Vnpay@12345"; // Base64 của username:password
+        private const string SECRET_KEY = "your256bitsecretasdfaadsfasfasfsafsdafyour256bitsecretasdfaadsfasfasfsafsdaf"; // Bí mật để ký JWT token
+        private const string BEARER_PREFIX = "Bearer ";
         public TestController(IExternalBankServices externalBankServices, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _externalBankServices = externalBankServices;
@@ -39,11 +50,8 @@ namespace DiamondShop.Api.Controllers
             var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, 0, "abc", null, null, 40_000, 20_000, DateTime.UtcNow, OrderId.Parse("1"));
             order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null, 0));
             order.Items.Add(OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, 20_000_000, null, null, null, 0));
-            return Ok( _externalBankServices.GenerateQrCodeFromOrder(order,50_000_000));
+            return Ok(_externalBankServices.GenerateQrCodeFromOrder(order, 50_000_000));
         }
-        private const string VALID_USERNAME = "Vnpay@12345";
-        private const string VALID_PASSWORD = "Vnpay@12345"; // Base64 của username:password
-        private const string SECRET_KEY = "your256bitsecretasdfaadsfasfasfsafsdafyour256bitsecretasdfaadsfasfasfsafsdaf"; // Bí mật để ký JWT token
 
         [HttpPost("/vqr/api/token_generate")]
         [Produces("application/json")]
@@ -82,6 +90,110 @@ namespace DiamondShop.Api.Controllers
             else
             {
                 return Unauthorized("Invalid credentials");
+            }
+        }
+        [HttpPost("testcreate")]
+        public async Task<ActionResult> CreatePaymentQr()
+        {
+            var account = Account.Create(FullName.Create("a", "b"), "testingwebandstuff@gmail.com");
+            var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, 0.312m, "abc", null, null, 40_000, 20_000, DateTime.UtcNow, OrderId.Parse("1"));
+            var diamond = OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null, 0);
+            var jewellry = OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, 20_000_000, null, null, null, 0);
+            diamond.Diamond = Diamond.Create(DiamondShape.ROUND, new Diamond_4C(Cut.Excellent, Color.I, Clarity.FL, 0.22f, true), new Diamond_Details(Polish.Excellent, Symmetry.Excellent, Girdle.Thick, Fluorescence.Faint, Culet.Medium), new Diamond_Measurement(0.22f, 23f, 23f, "asdf"), 0.3m, "sfd");
+            jewellry.Jewelry = Jewelry.Create(JewelryModelId.Create(), SizeId.Create(), MetalId.Create(), 2f, "sdf", DiamondShop.Domain.Common.Enums.ProductStatus.Active);
+            order.Items.Add(diamond);
+
+            order.Items.Add(jewellry);
+            var amount = 10000;
+            var result = VietqrPaymentService.CreatePaymentLink(order,amount).Result;
+            return Ok(result);
+        }
+
+        // API để xử lý transaction-sync
+
+        [HttpPost("/vqr/bank/api/transaction-sync")]
+        public IActionResult TransactionSync([FromBody] VietqrTransactionCallback transactionCallback)
+        {
+            // Lấy token từ header Authorization
+            string authHeader = Request.Headers["Authorization"];
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith(BEARER_PREFIX))
+            {
+                return StatusCode(401, new VietqrErrorResponse
+                {
+                    Error = true,
+                    ErrorReason = "INVALID_AUTH_HEADER",
+                    ToastMessage = "Authorization header is missing or invalid",
+                    Object = null
+                });
+            }
+
+            string token = authHeader.Substring(BEARER_PREFIX.Length).Trim();
+
+            // Xác thực token
+            if (!ValidateToken(token))
+            {
+                return StatusCode(401, new VietqrErrorResponse
+                {
+                    Error = true,
+                    ErrorReason = "INVALID_TOKEN",
+                    ToastMessage = "Invalid or expired token",
+                    Object = null
+                });
+            }
+
+            // Xử lý logic của transaction
+            try
+            {
+                // Ví dụ xử lý nghiệp vụ và sinh mã reftransactionid
+                string refTransactionId = "GeneratedRefTransactionId"; // Tạo ID của giao dịch
+
+                // Trả về response 200 OK với thông tin giao dịch
+                return Ok(new VietqrSuccessResponse
+                {
+                    Error = false,
+                    ErrorReason = null,
+                    ToastMessage = "Transaction processed successfully",
+                    Object = new VietqrTransactionResponseObject
+                    {
+                        reftransactionid = refTransactionId
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                // Trả về lỗi trong trường hợp có exception
+                return StatusCode(400, new VietqrErrorResponse
+                {
+                    Error = true,
+                    ErrorReason = "TRANSACTION_FAILED",
+                    ToastMessage = ex.Message,
+                    Object = null
+                });
+            }
+        }
+
+        // Phương thức để xác thực token JWT
+        private bool ValidateToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(SECRET_KEY);
+
+            try
+            {
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero, // Không cho phép độ trễ thời gian
+                }, out SecurityToken validatedToken);
+
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
 

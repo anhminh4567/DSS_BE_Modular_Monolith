@@ -19,6 +19,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DiamondShop.Commons\DiamondShop.Commons.csproj" />
+    <ProjectReference Include="..\DiamondShop.Infrastructure\DiamondShop.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 
