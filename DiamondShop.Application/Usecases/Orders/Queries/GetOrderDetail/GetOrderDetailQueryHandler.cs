@@ -68,6 +68,7 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail
             getParentLog.OrderBy(x => x.CreatedDate).ToList();
             
             order.Logs = getParentLog;
+            order.Transactions = order.Transactions.OrderByDescending(x => x.InitDate).ToList();
             return order;
         }
     }

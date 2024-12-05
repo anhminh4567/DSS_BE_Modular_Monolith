@@ -12,7 +12,7 @@ namespace DiamondShop.Application.Dtos.Responses.Transactions
     {
         public string Id { get; set; }
         public string PayMethodId { get; set; }
-        public PaymentMethod PayMethod { get; set; }
+        public PaymentMethodDto PayMethod { get; set; }
         public TransactionType TransactionType { get; set; }
         public string? InitDate { get; set; }
         public string? VerifiedDate { get; set; }

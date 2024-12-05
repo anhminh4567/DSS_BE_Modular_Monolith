@@ -62,6 +62,7 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Queries.GetLogDetails
                 var getImagesChild = await _orderFileServices.GetOrderLogImages(getOrder, childLog, cancellationToken);
                 childLog.LogImages = getImagesChild.Value;
             }
+            getLog.ChildLogs = getLog.ChildLogs.OrderByDescending(x => x.CreatedDate).ToList();
             var mappedLogs = getLog.Adapt<OrderLogDto>(config);
             //getMappedLog.LogImages = _mapper.Map<List<MediaDto>>(getImages.Value);
             //return getMappedLog;

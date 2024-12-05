@@ -21,7 +21,7 @@ namespace DiamondShop.Domain.Services.interfaces
         decimal GetRemaingValueForOrder(Order order);
         decimal GetCODValueForOrder(Order order);
         decimal GetCorrectAmountFromOrder(Order order);
-        decimal GetRefundAmountFromOrder(Order order, decimal fineAmount);
+        decimal GetRefundAmountFromOrder(Order order, decimal fineAmount, OrderPaymentRules rule);
 
         //refunding 
         decimal GetRefundUserCancelBeforeProcessing(Order order);

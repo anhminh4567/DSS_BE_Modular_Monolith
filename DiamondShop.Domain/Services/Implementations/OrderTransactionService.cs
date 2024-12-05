@@ -94,25 +94,38 @@ namespace DiamondShop.Domain.Services.Implementations
             return order.TotalPrice;
         }
 
-        public decimal GetRefundAmountFromOrder(Order order, decimal fineAmount)
+        public decimal GetRefundAmountFromOrder(Order order, decimal fineAmount, OrderPaymentRules rule)
         {
             if (order.PaymentStatus == Models.Orders.Enum.PaymentStatus.Refunded)
             {
-                throw new Exception("this order is already refunded");
+                return -1;
             }
             var sumTransactions = order.Transactions
-                .Where(t => t.TransactionType == TransactionType.Pay)
+                .Where(t => t.TransactionType == TransactionType.Pay && t.Status == TransactionStatus.Valid)
                 .Sum(x => x.TotalAmount);
-            var refundTrans = order.Transactions
-                .Where(t => t.TransactionType == TransactionType.Refund)
-                .Sum(x => x.TotalAmount);
-            var leftAmount = sumTransactions - refundTrans;
-
-            if (leftAmount <= 0)
-                throw new Exception("the order is already refunded");
-            if (leftAmount - fineAmount <= 0)
-                throw new Exception("the fine amount is more or the same as the left amount to refund");
-            return leftAmount;
+            //var refundTrans = order.Transactions
+            //    .Where(t => t.TransactionType == TransactionType.Refund && t.Status == TransactionStatus.Valid)
+            //    .Sum(x => x.TotalAmount);
+            //var leftAmount = sumTransactions - refundTrans;
+            decimal refundAmount = 0;
+            if (order.Status == OrderStatus.Cancelled)
+            {
+                if (order.PaymentType == PaymentType.Payall)
+                {
+                    var fine = MoneyVndRoundUpRules.RoundAmountFromDecimal(sumTransactions * ( 0.01m * rule.PayAllFine));
+                    refundAmount = sumTransactions - fine;
+                }
+                else
+                {
+                    var fine = order.DepositFee;
+                    refundAmount = sumTransactions - fine;
+                }
+            }
+            else
+            {
+                refundAmount = sumTransactions;
+            }
+            return refundAmount;
         }
 
         public void AddRefundShopReject(Order order, AccountId VerifierId, string TransactionCode, OrderStatus previousStatus)
@@ -125,11 +138,11 @@ namespace DiamondShop.Domain.Services.Implementations
                 order.PaymentStatus = PaymentStatus.Refunded;
                 return;
             }
-            if(previousStatus != OrderStatus.Pending)
+            if (previousStatus != OrderStatus.Pending)
             {
                 //TODO: Calculate in case of second order 
                 transactions = order.Transactions
-                     .Where(p => p.TransactionType == TransactionType.Pay 
+                     .Where(p => p.TransactionType == TransactionType.Pay
                      //|| p.TransactionType == TransactionType.Pay_Remain
                      //|| p.TransactionType == TransactionType.Deposit
                      )
@@ -155,7 +168,8 @@ namespace DiamondShop.Domain.Services.Implementations
                 }
                 var transac = Transaction.CreateManualRefund(order.Id, VerifierId, TransactionCode, $"Manual refund for order#{order.OrderCode}", refundAmount);
                 order.AddRefund(transac);
-            }else
+            }
+            else
             {
                 order.PaymentStatus = PaymentStatus.Refunded;
                 return;
@@ -198,15 +212,16 @@ namespace DiamondShop.Domain.Services.Implementations
                     finedAmount = 0;
                     //finedAmount = -(refundAmount - totalPaid);
                 }
-                var transac = Transaction.CreateManualRefund(order.Id,VerifierId, TransactionCode, $"hoàn tiền cho đơn hàng mã #{order.OrderCode}", refundAmount);
+                var transac = Transaction.CreateManualRefund(order.Id, VerifierId, TransactionCode, $"hoàn tiền cho đơn hàng mã #{order.OrderCode}", refundAmount);
                 order.AddRefund(transac);
-                if(transac.TransactionAmount == 0)
+                if (transac.TransactionAmount == 0)
                 {
                     transac.Status = TransactionStatus.Valid;
                     transac.Description = "Không hoàn tiền do dat coc";
                     order.PaymentStatus = PaymentStatus.Refunded;
                 }
-            }else
+            }
+            else
             {
                 order.PaymentStatus = PaymentStatus.Refunded;
                 return;

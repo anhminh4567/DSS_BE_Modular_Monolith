@@ -73,14 +73,14 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Refund
                 //OrderLog previousLog = getStateChangingLogs[indexOfLog - 1];
                 //var previousStatus = previousLog.Status;
 
-                var refundAmount = transactions.Sum(p => p.TransactionAmount);
+                var refundAmount = transactions.Where(x => x.TransactionType == TransactionType.Pay && x.Status == TransactionStatus.Valid)
+                    .Sum(p => p.TransactionAmount);
                 if (order.Status == OrderStatus.Cancelled && order.PaymentType == PaymentType.Payall)
                     refundAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(refundAmount * (1m - 0.01m * OrderPaymentRules.Default.PayAllFine));
-                if(order.Status == OrderStatus.Cancelled && order.PaymentType == PaymentType.COD)
+                if (order.Status == OrderStatus.Cancelled && order.PaymentType == PaymentType.COD)
                 {
-                    if (order.PaymentStatus == PaymentStatus.Paid)//when pay all for cod and somehow still go wrong
-                        refundAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(order.DepositFee);
-                    else { }
+                    var fine = order.DepositFee;
+                    refundAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(fine);
                 }
                 if (refundAmount != amount)
                     return Result.Fail(TransactionErrors.TransactionNotValid);

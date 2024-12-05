@@ -19,6 +19,7 @@ using DiamondShop.Application.Usecases.Orders.Commands.Transfer.Staff;
 using DiamondShop.Application.Usecases.Orders.Queries.GetAll;
 using DiamondShop.Application.Usecases.Orders.Queries.GetOrderFilter;
 using DiamondShop.Application.Usecases.Orders.Queries.GetPaymentLink;
+using DiamondShop.Application.Usecases.Orders.Queries.GetTransactionDetail;
 using DiamondShop.Application.Usecases.Orders.Queries.GetUserOrderDetail;
 using DiamondShop.Domain.Models.RoleAggregate;
 using MapsterMapper;
@@ -73,6 +74,17 @@ namespace DiamondShop.Api.Controllers.Orders
             else
                 return Unauthorized();
         }
+        [HttpGet("{orderId}/TransactionDetail")]
+        [AllowAnonymous]
+        public async Task<ActionResult> GetOrderTransactionDetail([FromRoute] string orderId)
+        {
+            var result = await _sender.Send(new GetOrderTransactionDetailQuery(orderId));
+            if (result.IsSuccess)
+                return Ok(result.Value);
+            return MatchError(result.Errors, ModelState);
+
+        }
+
 
 
         [HttpGet("PaymentLink/{orderId}")]
