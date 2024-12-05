@@ -123,7 +123,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                     var getOrderDetail = await _orderRepository.GetById(orderIdParsed);
                     var zalopayMethod = paymentMethods.First(x => x.MethodName.ToUpper() == PaymentMethod.ZALOPAY.MethodName.ToUpper());
                     _logger.LogInformation("update order's status = success where app_trans_id = {0}", dataObject.app_trans_id);
-                    if (tryGetTransaction == null || getOrderDetail.Status == OrderStatus.Cancelled || getOrderDetail.Status == OrderStatus.Rejected) // check neu thanh cong, check DB xem transaction ton tai hay chuaw thi tra ve return_code = 1
+                    if (tryGetTransaction == null ) // check neu thanh cong, check DB xem transaction ton tai hay chuaw thi tra ve return_code = 1
                     {
                         await _unitOfWork.BeginTransactionAsync();
                         var newTran = Transaction.CreatePayment(zalopayMethod.Id, orderIdParsed, metaData.Description, dataObject.app_trans_id, dataObject.zp_trans_id.ToString(), metaData.TimeStampe, dataObject.amount, DateTime.UtcNow);
@@ -143,6 +143,8 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                     {
                         if (tryGetTransaction != null)
                         {
+                            if (getOrderDetail.Status == OrderStatus.Cancelled || getOrderDetail.Status == OrderStatus.Rejected)
+                                throw new Exception("");
                             if (tryGetTransaction.Status == TransactionStatus.Verifying)
                             {
                                 tryGetTransaction.VerifyZalopay(dataObject.zp_trans_id.ToString(), metaData.TimeStampe);

@@ -19,4 +19,5 @@ namespace DiamondShop.Application.Services.Interfaces
         Task<PaymentRefundDetail> GetRefundDetail(Transaction refundTransactionType);
         Task RemoveAllPaymentCache(Order order);
     }
+    
 }

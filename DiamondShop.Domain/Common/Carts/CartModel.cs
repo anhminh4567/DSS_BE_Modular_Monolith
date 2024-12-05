@@ -15,6 +15,7 @@ using DiamondShop.Domain.Models.RoleAggregate;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using DiamondShop.Domain.Common.Carts.ErrorMessages;
+using DiamondShop.Domain.Models.Promotions;
 
 namespace DiamondShop.Domain.Common.Carts
 {
@@ -23,6 +24,8 @@ namespace DiamondShop.Domain.Common.Carts
     {
         public CartModelPromotion Promotion { get; set; } = new CartModelPromotion();
         public List<Discount> DiscountsApplied { get; set; } = new();
+        [JsonIgnore]
+        public List<Promotion> DiscountPromoApplied{ get; set; } = new();
         public CartModelPrice OrderPrices { get; set; } = new() { DefaultPrice = 0 };
         public ShippingPrice ShippingPrice { get; set; } = new();
         public CartModelCounter OrderCounter { get; set; } = new();

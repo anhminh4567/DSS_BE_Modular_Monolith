@@ -126,6 +126,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.ConfirmOrderTaken
             await _unitOfWork.SaveChangesAsync();
             await _publisher.Publish(new OrderCompleteEvent(account.Id, order.Id, DateTime.UtcNow));
             await _unitOfWork.CommitAsync();
+            return Result.Ok(order);
             throw new NotImplementedException();
         }
     }

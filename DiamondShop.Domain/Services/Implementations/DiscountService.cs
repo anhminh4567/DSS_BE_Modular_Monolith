@@ -2,9 +2,12 @@
 using DiamondShop.Domain.Common.Carts;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Entities.ErrorMessages;
 using DiamondShop.Domain.Models.Promotions.Enum;
+using DiamondShop.Domain.Models.Promotions.ErrorMessages;
+using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using System;
@@ -162,6 +165,14 @@ namespace DiamondShop.Domain.Services.Implementations
                 //cartModel.OrderPrices.DiscountAmountSaved += item.ReviewPrice.DiscountAmountSaved;
             }
         }
+        private void SetProductPromotionDiscountPrice(CartProduct product,Gift appliedGift)
+        {
+            product.PromoDiscountId = appliedGift.PromotionId;
+            var gift = appliedGift;
+            if (gift == null)
+                return;
+            product.DiscountApplyGiftOnCartProduct(gift);
+        }
 
         public Result ApplyDiscountOnCartProduct(CartProduct cartProduct, Discount discount)
         {
@@ -218,6 +229,80 @@ namespace DiamondShop.Domain.Services.Implementations
             else
                 return Result.Fail(DiscountErrors.ApplyingErrors.NotMeetRequirement);
             
+        }
+        public Result ApplyPromotionTypeDiscountOnCartProduct(CartProduct cartProduct, Promotion discount)
+        {
+            if (discount.Status != Status.Active)
+                return Result.Fail(DiscountErrors.ApplyingErrors.NotActiveToUse);
+
+            //var requirements = discount.PromoReqs;
+            var gifts = discount.Gifts;
+            bool isAnyProductHaveDiscount = false;
+            for (int i = 0; i < gifts.Count; i++)
+            {
+                var gift = gifts[i];
+                if (cartProduct.IsValid is false)
+                    continue;
+                if (cartProduct.IsHavingDiscount)
+                {
+                    // this is when the product already have a discount and it is higher than the current discount
+                    var amount = cartProduct.GetAmountSavedFromGift(gift);
+                    if (amount <= cartProduct.DiscountAmountSaved) ;
+                    {
+                        continue;
+                    }
+                }
+                if (CheckIfProductMeetRequirementForGift(cartProduct, gift))
+                {
+                    SetProductPromotionDiscountPrice(cartProduct, gift);
+                    isAnyProductHaveDiscount = true;
+                    break;
+                }
+            }
+            if (isAnyProductHaveDiscount)
+                return Result.Ok();
+
+            else
+                return Result.Fail(DiscountErrors.ApplyingErrors.NotMeetRequirement);
+
+        }
+        public Result ApplyPromotionTypeDiscountOnCartModel(CartModel cartModel, Promotion promotion, PromotionRule promotionRule)
+        {
+            if (promotion.Status != Status.Active)
+            {
+                return Result.Fail(PromotionError.ApplyingError.NotActiveToUse);
+            }
+            if(promotion.ApplyLevel != PromotionApplyLevel.On_Item)
+            {
+                return Result.Fail(PromotionError.ApplyingError.NotMeetRequirement);
+            }
+            //var requirements = promotion.PromoReqs;
+            var gifts = promotion.Gifts;
+            bool isAnyProductHaveDiscount = false;
+            for (int i = 0; i < gifts.Count; i++)
+            {
+                var gift = gifts[i];
+                for (int j = 0; j < cartModel.Products.Count; j++)
+                {
+                    var product = cartModel.Products[j];
+                    var checkIfProductInDiscount = ApplyPromotionTypeDiscountOnCartProduct(product, promotion);
+                    if (checkIfProductInDiscount.IsSuccess)
+                        isAnyProductHaveDiscount = true;
+                    if (product.IsValid is false)
+                        continue;
+                }
+            }
+            if (isAnyProductHaveDiscount)
+            {
+                if (cartModel.DiscountPromoApplied.Contains(promotion) is false)// add if not in list yet
+                    cartModel.DiscountPromoApplied.Add(promotion);
+                SetOrderPrice(cartModel);
+                return Result.Ok();
+            }
+            else
+            {
+                return Result.Fail(DiscountErrors.ApplyingErrors.NotMeetRequirement);
+            }
         }
     }
 }

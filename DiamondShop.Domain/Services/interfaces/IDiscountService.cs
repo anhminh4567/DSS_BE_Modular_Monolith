@@ -13,7 +13,7 @@ namespace DiamondShop.Domain.Services.interfaces
     {
         Result ApplyDiscountOnCartModel(CartModel cartModel, Discount discount);
         Result ApplyDiscountOnCartProduct(CartProduct cartProduct, Discount discount);
-
+        
         void SetOrderPrice(CartModel cartModel);
     }
 }

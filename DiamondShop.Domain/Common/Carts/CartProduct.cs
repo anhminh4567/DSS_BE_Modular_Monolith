@@ -7,6 +7,7 @@ using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Models.Warranties;
 using Microsoft.Extensions.FileSystemGlobbing.Internal.PathSegments;
+using System.Text.Json.Serialization;
 
 namespace DiamondShop.Domain.Common.Carts
 {
@@ -30,6 +31,12 @@ namespace DiamondShop.Domain.Common.Carts
         public DiscountId? DiscountId { get; set; }
         public int? DiscountPercent { get; set; }
         public decimal? DiscountAmountSaved { get; set; }
+        [JsonIgnore]
+        public PromotionId? PromoDiscountId{ get; set; }
+        [JsonIgnore]
+        public decimal? PromoDiscountAmountSaved { get; set; }
+        [JsonIgnore]
+        public bool IsHavingPromoDiscount { get => PromoDiscountId is not null; }
         public bool IsHavingDiscount { get => DiscountId is not null; }
         
         public PromotionId? PromotionId { get; set; }
@@ -104,7 +111,7 @@ namespace DiamondShop.Domain.Common.Carts
             switch (giftReq.UnitType)
             {
                 case UnitType.Percent:
-                    savedAmount = Math.Ceiling((this.ReviewPrice.DiscountPrice * giftReq.UnitValue) / 100);
+                    savedAmount = Math.Ceiling(this.ReviewPrice.DiscountPrice * (giftReq.UnitValue / 100m));
                     if (giftReq.MaxAmout != null)
                     {
                         if (savedAmount > giftReq.MaxAmout.Value)
