@@ -22,6 +22,7 @@ namespace DiamondShop.Domain.Models.Orders.ErrorMessages
         public static ValidationError NoPermissionToCancelError = new ValidationError("Tài khoản không có quyền hủy đơn hàng");
         public static ValidationError NoDelivererAssignedError = new ValidationError("Đơn hàng chưa được giao cho nhân viên giao hàng");
         public static ValidationError NoDelivererToAssignError = new ValidationError("Không có nhân viên giao hàng để chuyển giao");
+        public static ValidationError DelivererHasNotReturnedError = new ValidationError("Đơn hàng chưa về cửa hàng");
         public static ValidationError OnlyDelivererAllowedError = new ValidationError("Chỉ có nhân viên giao hàng mới được thực hiện hành động");
         public static ValidationError UnproceedableError = new ValidationError("Đơn hàng không thể được tiếp tục");
         public static ConflictError NotValidForCODType = new ConflictError("Đơn hàng không hợp lệ cho phương thức thanh toán COD, gía trị đơn hàng phải trên " + OrderPaymentRules.Default.MinAmountForCOD + " thì mới được dùng COD");
@@ -33,6 +34,7 @@ namespace DiamondShop.Domain.Models.Orders.ErrorMessages
         public class Transfer
         {
             public static ConflictError ExistVerifyingTransferError = new ConflictError("Đơn hàng còn giao dịch chưa xác thực");
+            public static ConflictError ExistInvalidTransferError = new ConflictError("Đơn hàng có giao dịch không hợp lệ");
         }
         public class LogError
         {

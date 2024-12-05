@@ -48,11 +48,13 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
             var order = await _orderRepository.GetById(OrderId.Parse(orderId));
             if (order == null)
                 return Result.Fail(OrderErrors.OrderNotFoundError);
+            else if (order.HasDelivererReturned is false)
+                return Result.Fail(OrderErrors.DelivererHasNotReturnedError);
             else if (!_orderService.IsCancellable(order.Status))
                 return Result.Fail(OrderErrors.UncancellableError);
 
             var transactions = await _transactionRepository.GetByOrderId(order.Id);
-            //Can't reject because transaction hasn't been verified
+            //Can't reject because transaction hasn't been verified or is unvalid
             if (transactions != null && transactions.Any(p => p.Status == TransactionStatus.Verifying))
                 return Result.Fail(OrderErrors.Transfer.ExistVerifyingTransferError);
             if (isForUser)

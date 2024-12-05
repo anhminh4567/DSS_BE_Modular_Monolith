@@ -196,8 +196,7 @@ namespace DiamondShop.Api.Controllers.Orders
             var result = await _sender.Send(deliverEndOrderCommand);
             if (result.IsSuccess)
             {
-                var mappedResult = _mapper.Map<OrderDto>(result.Value);
-                return Ok(mappedResult);
+                return Ok("Đã cập nhật trạng thái");
             }
             else
                 return MatchError(result.Errors, ModelState);
