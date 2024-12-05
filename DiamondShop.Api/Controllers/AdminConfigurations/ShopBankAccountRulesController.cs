@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using DiamondShop.Application.Usecases.AdminConfigurations.BankAccounts.Queries;
 using DiamondShop.Application.Usecases.AdminConfigurations.BankAccounts.Commands;
+using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Application.Dtos.Responses;
 
 namespace DiamondShop.Api.Controllers.AdminConfigurations
 {
@@ -28,7 +30,18 @@ namespace DiamondShop.Api.Controllers.AdminConfigurations
         public async Task<ActionResult> GetShopBankRule()
         {
             var promotionRule = await _sender.Send(new GetShopBankAccountRuleQuery());
-            return Ok(promotionRule.Value);
+            var mappedRule = _mapper.Map<ShopBankAccountRulesDto>(promotionRule.Value);
+            return Ok(mappedRule);
+        }
+        [HttpPut]
+        public async Task<ActionResult> UpdateShopBankQr([FromForm] UpdateBankAccountQrCommand request)
+        {
+            var updateResult = await _sender.Send(request);
+            if (updateResult.IsFailed)
+            {
+                return MatchError(updateResult.Errors, ModelState);
+            }
+            return Ok(updateResult.Value);
         }
         [HttpPost]
         public async Task<ActionResult> UpdateShopBankRule([FromBody] ShopBankAccountRulesRequestDto request)
@@ -39,6 +52,14 @@ namespace DiamondShop.Api.Controllers.AdminConfigurations
                 return MatchError(updateResult.Errors, ModelState);
             }
             return Ok(updateResult.Value);
+        }
+        public record ShopBankAccountRulesDto
+        {
+            public string AccountNumber { get; set; } 
+            public string AccountName { get; set; } 
+            public string BankBin { get; set; } 
+            public string BankName { get; set; } 
+            public MediaDto? BankQr { get; set; }
         }
     }
 }

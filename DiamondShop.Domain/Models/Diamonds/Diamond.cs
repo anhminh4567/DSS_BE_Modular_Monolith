@@ -284,13 +284,12 @@ namespace DiamondShop.Domain.Models.Diamonds
                 ProductLock = null;
                 SoldPrice = null;
                 DefaultPrice = null;
-                ProductLock = null;
                 Status = ProductStatus.Locked;
-                UpdatedAt = DateTime.UtcNow;
+                //UpdatedAt = DateTime.UtcNow;
                 return;
             }
             SetSell();
-            UpdatedAt = DateTime.UtcNow;
+            //UpdatedAt = DateTime.UtcNow;
         }
         public void ChangeThumbnail(Media? thumbnail)
         {

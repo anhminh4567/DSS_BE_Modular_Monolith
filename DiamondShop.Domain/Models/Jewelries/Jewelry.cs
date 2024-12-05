@@ -1,22 +1,27 @@
-﻿using DiamondShop.Domain.Common;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Common.Products;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries.Entities;
+using DiamondShop.Domain.Models.Jewelries.ErrorMessages;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using FluentResults;
+using Microsoft.AspNetCore.Http.HttpResults;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DiamondShop.Domain.Models.Jewelries
 {
     public class Jewelry : Entity<JewelryId>, IAggregateRoot
     {
+        public static ProductStatus[] UnLockableState = new ProductStatus[] { ProductStatus.Sold, ProductStatus.Inactive, ProductStatus.PreOrder };
         public JewelryModelId ModelId { get; set; }
         public JewelryModel Model { get; set; }
         public SizeId SizeId { get; set; }
@@ -111,7 +116,7 @@ namespace DiamondShop.Domain.Models.Jewelries
                 Status = status,
             };
         }
-        public void SetSoldUnavailable( decimal soldPrice, string? engravedText, string? engravedFont)
+        public void SetSoldUnavailable(decimal soldPrice, string? engravedText, string? engravedFont)
         {
             //ND_Price = noDiamondPrice;
             //D_Price = soldPrice - noDiamondPrice;
@@ -122,7 +127,7 @@ namespace DiamondShop.Domain.Models.Jewelries
             {
                 if (p.Status == ProductStatus.PreOrder)
                 {
-                    p.SetSoldPreOrder(p.TruePrice,p.TruePrice);
+                    p.SetSoldPreOrder(p.TruePrice, p.TruePrice);
                     return;
                 }
                 if (p.TruePrice != null)
@@ -134,7 +139,7 @@ namespace DiamondShop.Domain.Models.Jewelries
             if (Status == ProductStatus.PreOrder)
                 Status = ProductStatus.Sold;
         }
-        public void SetSold( decimal soldPrice, string? engravedText, string? engravedFont)
+        public void SetSold(decimal soldPrice, string? engravedText, string? engravedFont)
         {
 
             Status = ProductStatus.Sold;
@@ -179,12 +184,23 @@ namespace DiamondShop.Domain.Models.Jewelries
             EngravedFont = null;
             EngravedText = null;
         }
-        public void SetLockForUser(Account userAccount, int lockHour)
+        public void SetLockForUser(Account? userAccount, int lockHour,bool isUnlock, JewelryRules rules)
         {
+            if(isUnlock)
+            {
+                RemoveLock();
+                return;
+            }
             if (Status == ProductStatus.Sold)
                 throw new Exception("Can not lock a sold product");
-            Status = ProductStatus.Locked;
-            ProductLock = ProductLock.CreateLockForUser(userAccount.Id, TimeSpan.FromHours(lockHour));
+            if (lockHour > rules.MaxLockHours || lockHour < 1)
+                throw new Exception("thoi gian lock san pham toi da la  " + rules.MaxLockHours + " va toi thieu la 1");
+            Status = ProductStatus.LockForUser;
+            if (userAccount is not null)
+                ProductLock = ProductLock.CreateLockForUser(userAccount.Id, TimeSpan.FromHours(lockHour));
+            else
+                ProductLock = ProductLock.CreateLock(TimeSpan.FromHours(lockHour));
+
         }
         public void RemoveLock()
         {
@@ -208,6 +224,12 @@ namespace DiamondShop.Domain.Models.Jewelries
         public void AssignJewelryPromotion(Promotion promotion, decimal reducedAmount)
         {
             PromotionReducedAmount = reducedAmount;
+        }
+        public Result CanBeLock()
+        {
+            if (UnLockableState.Contains(this.Status))
+                return Result.Fail(JewelryErrors.InCorrectState("không thể khóa sản phẩm này"));
+            return Result.Ok();
         }
     }
 }

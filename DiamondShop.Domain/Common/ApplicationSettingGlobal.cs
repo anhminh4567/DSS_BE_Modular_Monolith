@@ -26,6 +26,7 @@ namespace DiamondShop.Domain.Common
         public OrderRule OrderRule { get; set; } = OrderRule.Default;
         public LocationRules LocationRules { get; set; } = LocationRules.Default;
         public ShopBankAccountRules ShopBankAccountRules { get; set; } = ShopBankAccountRules.Default;
+        public JewelryRules JewelryRules { get; set; } = JewelryRules.Default;
         public static Dictionary<string, object> DEFAULTS = new Dictionary<string, object>
         {
             { DiamondRule.key, DiamondRule.Default },
@@ -45,6 +46,7 @@ namespace DiamondShop.Domain.Common
             { OrderRule.key, OrderRule.Default },
             { LocationRules.Key, LocationRules.Default },
             {ShopBankAccountRules.Key,ShopBankAccountRules.Default },
+            {JewelryRules.Key, JewelryRules.Default }
         };
         public static List<string> RULE_KEYS = new List<string>
         {
@@ -61,7 +63,9 @@ namespace DiamondShop.Domain.Common
             LoggingRules.key,
             OrderPaymentRules.key,
             OrderRule.key,
-            LocationRules.Key
+            LocationRules.Key,
+            JewelryRules.Key,
+            ShopBankAccountRules.Key
         };
         private Dictionary<string, object > _extraSetting= new();
         public Dictionary<string, object> ExtraSettings { get => _extraSetting; }

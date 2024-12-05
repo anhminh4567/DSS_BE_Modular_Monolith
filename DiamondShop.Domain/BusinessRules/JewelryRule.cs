@@ -10,4 +10,12 @@ namespace DiamondShop.Domain.BusinessRules
     {
         public static int MinimumItemPerPaging = 5;
     }
+    public  class JewelryRules
+    {
+        public static JewelryRules Default = new JewelryRules();
+        public const string Key = "JewelryRulesVer1";
+        public int MaxLockHours { get; set; } = 48;
+        public int MinimumItemPerPaging { get; set; } = 5;
+    }
+
 }
