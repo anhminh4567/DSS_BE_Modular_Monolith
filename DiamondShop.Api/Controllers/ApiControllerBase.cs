@@ -40,7 +40,7 @@ namespace DiamondShop.Api.Controllers
                 _ => (StatusCodes.Status400BadRequest, error.Message),
             };
 
-            return Problem(statusCode: statusCode, title: message);
+            return Problem(statusCode: statusCode, detail: message);
         }
 
         //private IActionResult ValidationProblem(List<IError> errors)
