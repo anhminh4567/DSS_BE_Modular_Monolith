@@ -16,12 +16,12 @@ namespace DiamondShop.Domain.Common.Enums
         {
             return status switch
             {
-                ProductStatus.Active => "đang bán",
-                ProductStatus.Sold => "đã bán",
-                ProductStatus.Locked => "khóa cho khách hoặc cho trang sức",
+                ProductStatus.Active => "Đang bán",
+                ProductStatus.Sold => "Đã bán",
+                ProductStatus.Locked => "Khóa cho khách hoặc cho trang sức",
                 ProductStatus.Inactive => "không bán",
-                ProductStatus.LockForUser => "khóa cho khách mua",
-                ProductStatus.PreOrder => "Sản phẩm đặt trước",
+                ProductStatus.LockForUser => "Khóa cho khách mua",
+                ProductStatus.PreOrder => "Đặt trước",
                 _ => throw new Exception("invalid state")
             }; 
         }
