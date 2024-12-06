@@ -158,8 +158,11 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                                 await _unitOfWork.CommitAsync();
                             }
                         }
-                        result["return_code"] = 2;
-                        result["return_message"] = "success";
+                        else
+                        {
+                            result["return_code"] = 2;
+                            result["return_message"] = "success";
+                        }
                     }
 
                     //if () { } // con lai thi loi, ko callback
