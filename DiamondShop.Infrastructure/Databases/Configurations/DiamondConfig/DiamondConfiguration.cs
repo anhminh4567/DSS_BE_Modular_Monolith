@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -54,6 +55,9 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondConfig
                 .HasConversion(
                     Id => Id.Value,
                     dbValue => JewelryId.Parse(dbValue)).IsRequired(false);
+            builder.HasIndex(o => o.SerialCode).IsUnique();
+            builder.Property<byte[]>("Version")
+                .IsRowVersion();
             builder.HasKey(o => o.Id);
             builder.HasIndex(o => new { o.Carat, o.Color, o.Clarity, o.Cut, o.IsLabDiamond, o.JewelryId });
         }

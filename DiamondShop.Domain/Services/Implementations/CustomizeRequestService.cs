@@ -17,8 +17,11 @@ namespace DiamondShop.Domain.Services.Implementations
                 return Result.Fail("");
             if (request.ClarityFrom > diamond.Clarity || request.ClarityTo < diamond.Clarity)
                 return Result.Fail("");
-            if (request.CutFrom > diamond.Cut || request.CutTo < diamond.Cut)
-                return Result.Fail("");
+            if(diamond.Cut != null)
+            {
+                if (request.CutFrom > diamond.Cut || request.CutTo < diamond.Cut)
+                    return Result.Fail("");
+            }
             if (request.ColorFrom > diamond.Color || request.ColorTo < diamond.Color)
                 return Result.Fail("");
             if (request.CaratFrom > diamond.Carat || request.CaratTo < diamond.Carat)

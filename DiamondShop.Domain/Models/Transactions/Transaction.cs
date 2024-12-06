@@ -39,6 +39,8 @@ namespace DiamondShop.Domain.Models.Transactions
         public AccountId? VerifierId { get; set; }
         public Account? Verifier { get; set; }
         public Media? Evidence { get; set; }
+        public string? ShopBank { get; set; }
+        public string? ShopAccount { get; set; }
 
         public static Transaction CreatePayment(PaymentMethodId paymentMethodId, OrderId orderId, string description, string appTransactionCode, string paygateTransactionCode, string timeStamp, decimal amount, DateTime paygatePaydate)
         {

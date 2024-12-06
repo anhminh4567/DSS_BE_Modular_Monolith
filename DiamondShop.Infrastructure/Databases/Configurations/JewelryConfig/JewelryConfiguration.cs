@@ -64,6 +64,9 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryConfig
                     Id => Id.Value,
                     dbValue => AccountId.Parse(dbValue));
             });
+            builder.Property<byte[]>("Version")
+                .IsRowVersion();
+            builder.HasIndex(x => x.SerialCode).IsUnique();
             builder.HasKey(o => o.Id);
             //builder.HasIndex(o => o.Id);
         }

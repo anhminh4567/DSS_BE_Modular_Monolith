@@ -9,6 +9,7 @@ using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.Promotions;
+using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Models.Transactions;
 using DiamondShop.Domain.Models.Transactions.Entities;
@@ -45,6 +46,8 @@ namespace DiamondShop.Domain.Models.Orders
         public decimal TotalPrice { get; set; }
         public decimal OrderAmountSaved { get; set; } = 0;
         public decimal UserRankAmountSaved { get; set; } = 0;
+        public decimal ShippingFeeSaved { get; set; } = 0;
+        public decimal TotalPromotionAmountSaved { get; set; } = 0;
         public decimal TotalRefund { get; set; } = 0;
         public decimal TotalFine { get; set; } = 0;
         //tobe removed
@@ -60,6 +63,7 @@ namespace DiamondShop.Domain.Models.Orders
         public DateTime? FinishPreparedDate { get; set; }
         public bool IsCollectAtShop { get; set; } = false;
         public bool? HasDelivererReturned { get; set; } = true;
+        public string? PhoneNumber { get; set; }
         [NotMapped]
         public bool IsCustomOrder { get => CustomizeRequestId != null; }
         public void AddTransaction(Transaction transactionTypePay) 

@@ -25,7 +25,8 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
             JewelryId id = (JewelryId)ids[0];
             return await _set.Include(d => d.SideDiamond)
                 .Include(d => d.Diamonds)
-                .ThenInclude(d => d.DiamondShape).FirstOrDefaultAsync(d => d.Id == id);
+                .ThenInclude(d => d.DiamondShape)
+                .Include(d => d.Model).FirstOrDefaultAsync(d => d.Id == id);
         }
        
         public void UpdateRange(List<Jewelry> jewelries)

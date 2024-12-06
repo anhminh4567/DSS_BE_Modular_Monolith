@@ -85,7 +85,7 @@ namespace DiamondShop.Domain.Services.Implementations
             var fakeRequirement = new PromoReq()
             {
                 TargetType = gift.TargetType,
-                ModelId = gift.TargetType == TargetType.Jewelry_Model ? JewelryModelId.Parse(gift.ItemId) : null,
+                ModelId = gift.TargetType == TargetType.Jewelry_Model ? JewelryModelId.Parse(gift.ItemCode) : null,
                 CaratFrom = gift.CaratFrom,
                 CaratTo = gift.CaratTo,
                 ColorFrom = gift.ColorFrom,

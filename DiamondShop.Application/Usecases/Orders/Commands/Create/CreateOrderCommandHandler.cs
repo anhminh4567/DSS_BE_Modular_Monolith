@@ -192,7 +192,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             foreach (var product in cartModel.Products)
             {
                 string giftedId = product.Diamond?.Id?.Value ?? product.Jewelry?.Id?.Value;
-                var gift = giftedId is null ? null : orderPromo?.Gifts.FirstOrDefault(k => k.ItemId == giftedId);
+                var gift = giftedId is null ? null : orderPromo?.Gifts.FirstOrDefault(k => k.ItemCode == giftedId);
                 //If shop replacement, then bought price should be 0
                 //TODO: Add final price
                 var getDiscountIfExist = cartModel.DiscountsApplied.FirstOrDefault(k => k.Id == product.DiscountId);

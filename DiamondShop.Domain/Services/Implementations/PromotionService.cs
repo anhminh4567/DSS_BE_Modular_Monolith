@@ -312,7 +312,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 if (product.Jewelry is not null)
                     isThisGift = CheckIfJewelryIsGift(product.Jewelry, gift);
                 else if (product.JewelryModel is not null)
-                    isThisGift = CheckIfJewelryModelIsGift(product.JewelryModel.Id, gift);
+                    isThisGift = CheckIfJewelryModelIsGift(product.JewelryModel.ModelCode, gift);
                 else if (product.Diamond is not null)
                     isThisGift = CheckIfDiamondIsGift(product.Diamond, gift);
                 if (isThisGift)
@@ -434,13 +434,13 @@ namespace DiamondShop.Domain.Services.Implementations
         }
         private static bool CheckIfJewelryIsGift(Jewelry jewelry, Gift gift)
         {
-            return CheckIfJewelryModelIsGift(jewelry.ModelId, gift);
+            return CheckIfJewelryModelIsGift(jewelry.Model.ModelCode, gift);
         }
-        private static bool CheckIfJewelryModelIsGift(JewelryModelId jewelryModelId, Gift gift)
+        private static bool CheckIfJewelryModelIsGift(string code, Gift gift)
         {
             if (gift.TargetType != TargetType.Jewelry_Model)
                 return false;
-            if (gift.ItemId == jewelryModelId.Value)           
+            if (gift.ItemCode == code)           
                 return true;
 
             return false;

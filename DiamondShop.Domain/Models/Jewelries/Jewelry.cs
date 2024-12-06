@@ -15,6 +15,7 @@ using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using FluentResults;
 using Microsoft.AspNetCore.Http.HttpResults;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DiamondShop.Domain.Models.Jewelries
@@ -84,6 +85,8 @@ namespace DiamondShop.Domain.Models.Jewelries
         public string? EngravedFont { get; set; }
         public ProductStatus Status { get; set; } = ProductStatus.Active;
         public ProductLock? ProductLock { get; set; }
+        [Timestamp]
+        public byte[] Version { get; set; }
         private Jewelry() { }
         public static Jewelry Create(
            JewelryModelId modelId, SizeId sizeId, MetalId metalId,

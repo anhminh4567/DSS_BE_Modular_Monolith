@@ -32,6 +32,7 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public bool CanBePermanentlyDeleted => Status == Status.Cancelled || Status == Status.Expired;
         [NotMapped]
         public List<Gift> DiscountGift { get; set; } = new();
+        public decimal? MoneyLimit { get; set; }
         public static Discount Create(string name, DateTime startDate, DateTime endDate, int percent, string? code)
         {
             return new Discount()

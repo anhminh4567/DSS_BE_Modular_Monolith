@@ -21,7 +21,7 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public Promotion? Promotion { get; set; }
         public string Name { get; set; }
         public TargetType TargetType { get; set; }
-        public string? ItemId { get; set; }
+        public string? ItemCode { get; set; }
         public UnitType UnitType { get; set; }
         public decimal UnitValue { get; set; }
         public decimal? MaxAmout { get; set; } = null;
@@ -39,14 +39,14 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public Color? ColorTo { get; set; }
         [NotMapped]
         public JewelryModel? GiftedModel { get; set; }
-        public static Gift CreateJewelry(string name,string itemId,UnitType unitType,decimal unitValue,int amount)
+        public static Gift CreateJewelry(string name,string itemCode,UnitType unitType,decimal unitValue,int amount)
         {
             return new Gift()
             {
                 Id = GiftId.Create(),
                 Name = name,
                 TargetType = TargetType.Jewelry_Model,
-                ItemId = itemId,
+                ItemCode = itemCode,
                 UnitType = unitType,
                 UnitValue = SetUnitValue(unitType,unitValue),
                 Amount = amount
@@ -69,7 +69,7 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
                 Id = GiftId.Create(),
                 Name = name,
                 TargetType = TargetType.Diamond,
-                ItemId = itemId  ,
+                ItemCode = itemId  ,
                 UnitType = unitType,
                 UnitValue = SetUnitValue(unitType, unitValue),
                 Amount = amount,
@@ -92,7 +92,7 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
                 Id = GiftId.Create(),
                 Name = name,
                 TargetType = TargetType.Order,
-                ItemId = null,
+                ItemCode = null,
                 UnitType = unitType,
                 UnitValue = SetUnitValue(unitType, unitValue),
                 Amount = 1,
