@@ -69,7 +69,6 @@ namespace DiamondShop.Test.Integration
                 WriteError(priceResult.Errors);
             Assert.True(priceResult.IsSuccess);
         }
-
         async Task<CustomizeRequest> SeedingDefaultModelRequest(AccountId accountId)
         {
             var jewelryModel = await TestData.SeedDefaultRingModel(_context);
@@ -89,6 +88,20 @@ namespace DiamondShop.Test.Integration
                 new(firstShape.ShapeId.Value,Clarity.IF,Clarity.IF,Color.K,Color.K,Cut.Good,Cut.Good,firstShape.CaratFrom,firstShape.CaratTo,false,null,null,null,null),
             };
             CustomizeModelRequest customizeModelRequest = new(jewelryModel.Id.Value, sizeMetal.MetalId.Value, sizeMetal.SizeId.Value, jewelryModel.SideDiamonds[0].Id.Value, "engraving", "ASCII", null, diamondRequests);
+            var result = await _sender.Send(new CreateCustomizeRequestCommand(accountId.Value, customizeModelRequest));
+            if (result.IsFailed)
+                WriteError(result.Errors);
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Value);
+            return result.Value;
+        }
+        async Task<CustomizeRequest> SeedingSideModelRequest(AccountId accountId)
+        {
+            var jewelryModel = await TestData.SeedDefaultRingModel(_context);
+            Assert.NotNull(jewelryModel.SizeMetals);
+            var sizeMetal = jewelryModel.SizeMetals.FirstOrDefault();
+
+            CustomizeModelRequest customizeModelRequest = new(jewelryModel.Id.Value, sizeMetal.MetalId.Value, sizeMetal.SizeId.Value, jewelryModel.SideDiamonds[0].Id.Value, "engraving", "ASCII", null,null);
             var result = await _sender.Send(new CreateCustomizeRequestCommand(accountId.Value, customizeModelRequest));
             if (result.IsFailed)
                 WriteError(result.Errors);
@@ -168,6 +181,16 @@ namespace DiamondShop.Test.Integration
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Value);
             return result.Value;
+        }
+        [Trait("ReturnTrue", "CreateSideDiamondPendingRequest")]
+        [Fact]
+        public async Task Create_PricedSideDiamond_CustomizeRequest_Should_ReturnRequesting()
+        {
+            var account = await TestData.SeedDefaultCustomer(_context, _authentication);
+            var result = await SeedingSideModelRequest(account.Id);
+            var request = await _context.Set<CustomizeRequest>().FirstOrDefaultAsync();
+            _output.WriteLine(request.ToString());
+            Assert.Equal(CustomizeRequestStatus.Requesting, request.Status);
         }
 
         [Trait("ReturnTrue", "CreatePendingRequest")]

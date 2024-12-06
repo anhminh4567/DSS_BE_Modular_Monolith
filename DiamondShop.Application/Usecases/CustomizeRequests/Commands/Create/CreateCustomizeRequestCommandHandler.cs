@@ -62,22 +62,11 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.SendReques
                 if (selectedOne == null)
                     return Result.Fail(JewelryModelErrors.SideDiamond.UnsupportedSideDiamondCaratError);
                 sideDiamondOpt = selectedOne;
-                await _diamondServices.GetSideDiamondPrice(sideDiamondOpt);
-                //Side diamond exist and price is unset
-                if (sideDiamondOpt != null && sideDiamondOpt.TotalPrice == 0)
-                {
-                    customizedRequest = CustomizeRequest.CreatePending(AccountId.Parse(accountId), modelOpt.ModelId, modelOpt.SizeId, modelOpt.MetalId, sideDiamondOpt.Id, engravedText, engravedFont, note);
-                }
-                //Side diamond exist and price is unset
-                else
-                    customizedRequest = CustomizeRequest.CreateRequesting(AccountId.Parse(accountId), modelOpt.ModelId, modelOpt.SizeId, modelOpt.MetalId, sideDiamondOpt?.Id, engravedText, engravedFont, note);
             }
-            //No Side diamond
-            else
-                customizedRequest = CustomizeRequest.CreateRequesting(AccountId.Parse(accountId), modelOpt.ModelId, modelOpt.SizeId, modelOpt.MetalId, null, engravedText, engravedFont, note);
+            customizedRequest = CustomizeRequest.CreateRequesting(AccountId.Parse(accountId), modelOpt.ModelId, modelOpt.SizeId, modelOpt.MetalId, sideDiamondOpt?.Id, engravedText, engravedFont, note);
             await _customizeRequestRepository.Create(customizedRequest);
             await _unitOfWork.SaveChangesAsync(token);
-            if (diamondRequests != null && diamondRequests.Count > 0 )
+            if (diamondRequests != null && diamondRequests.Count > 0)
             {
                 customizedRequest.SetPending();
                 await _customizeRequestRepository.Update(customizedRequest);
