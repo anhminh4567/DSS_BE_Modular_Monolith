@@ -177,9 +177,11 @@ namespace DiamondShop.Domain.Models.Jewelries
                 diamond.SetForJewelry(this);
             }
         }
-        public void SetLock()
+        public void SetInactive()
         {
-            Status = ProductStatus.Locked;
+            if (Status == ProductStatus.LockForUser)
+                RemoveLock();
+            Status = ProductStatus.Inactive;
             ND_Price = null;
             D_Price = null;
             SD_Price = null;

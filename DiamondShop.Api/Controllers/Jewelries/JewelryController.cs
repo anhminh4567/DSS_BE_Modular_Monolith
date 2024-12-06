@@ -4,6 +4,7 @@ using DiamondShop.Application.Dtos.Responses.Jewelries;
 using DiamondShop.Application.Usecases.Jewelries.Commands.Create;
 using DiamondShop.Application.Usecases.Jewelries.Commands.Delete;
 using DiamondShop.Application.Usecases.Jewelries.Commands.LockForUser;
+using DiamondShop.Application.Usecases.Jewelries.Commands.UpdateStatus;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetAll;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetAvailable;
 using DiamondShop.Application.Usecases.Jewelries.Queries.GetDetail;
@@ -93,6 +94,17 @@ namespace DiamondShop.Api.Controllers.Jewelries
 
         [HttpPost("Create")]
         public async Task<ActionResult> Create([FromBody] CreateJewelryCommand command)
+        {
+            var result = await _sender.Send(command);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<JewelryDto>(result.Value);
+                return Ok(mappedResult);
+            }
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPut("ChangeStatus")]
+        public async Task<ActionResult> ChangeStatus([FromQuery] UpdateJewelryStatusCommand command)
         {
             var result = await _sender.Send(command);
             if (result.IsSuccess)
