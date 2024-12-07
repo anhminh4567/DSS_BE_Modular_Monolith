@@ -54,15 +54,13 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetDetail
             int pos = 1;
             foreach (var diamondRequest in diamondRequests)
             {
-                diamondRequest.Position = pos;
+                diamondRequest.Position = pos++;
                 var diamond = diamondRequest.Diamond;
-                if (diamond == null)
+                if (diamond != null)
                 {
-                    break;
+                    var prices = await _diamondPriceRepository.GetPrice(diamond.Cut, diamond.DiamondShape, false, cancellationToken);
+                    var diamondPrice = await _diamondServices.GetDiamondPrice(diamond, prices);
                 }
-                var prices = await _diamondPriceRepository.GetPrice(diamond.Cut, diamond.DiamondShape, false, cancellationToken);
-                var diamondPrice = await _diamondServices.GetDiamondPrice(diamond, prices);
-                pos++;
             }
             if (customizeRequest.Status == CustomizeRequestStatus.Accepted)
             {
