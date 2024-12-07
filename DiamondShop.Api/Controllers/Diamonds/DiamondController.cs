@@ -19,6 +19,8 @@ using DiamondShop.Application.Usecases.Diamonds.Queries.GetFilters;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetLockItemsForUser;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Repositories;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -98,8 +100,8 @@ namespace DiamondShop.Api.Controllers.Diamonds
             return MatchError(result.Errors, ModelState);
         }
         [HttpGet("Page")]
-        [Produces(typeof(PagingResponseDto<DiamondDto>))]
-        public async Task<ActionResult> GetPaging([FromQuery]GetDiamondPagingQuery getDiamondPagingQuery)
+        [Produces(typeof(PagingResponseDto<DiamondDto>))]// diamond paging replaced with this official one
+        public async Task<ActionResult> GetPaging([FromQuery] TestGetDiamondPagingQuery getDiamondPagingQuery)
         {
             var result = await _sender.Send(getDiamondPagingQuery);
             if(result.IsSuccess)
@@ -110,6 +112,18 @@ namespace DiamondShop.Api.Controllers.Diamonds
                 
             return MatchError(result.Errors, ModelState);
         }
+        //[HttpGet("Page/Test")]
+        //[Produces(typeof(PagingResponseDto<DiamondDto>))]
+        //public async Task<ActionResult> GetPagingTest([FromQuery] TestGetDiamondPagingQuery query)
+        //{
+        //    var result = await _sender.Send(query);
+        //    if (result.IsSuccess)
+        //    {
+        //        var mappedResult = _mapper.Map<PagingResponseDto<DiamondDto>>(result.Value);
+        //        return Ok(mappedResult);
+        //    }
+        //    return MatchError(result.Errors, ModelState);
+        //}
         [HttpPost]
         [Produces(typeof(DiamondDto))]
         public async Task<ActionResult> Create([FromBody] CreateDiamondRequestDto createDiamondCommand)

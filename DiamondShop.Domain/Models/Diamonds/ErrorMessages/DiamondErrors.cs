@@ -64,5 +64,9 @@ namespace DiamondShop.Domain.Models.Diamonds.ErrorMessages
             public static Error SoldError => new Error("Khóa giá không thể thực hiện với kim cương đã bán");
             
         }
+        public class UpdateError
+        {
+            public static Error PriceOffsetNotInLimit => new Error("Không thể cập nhật off set diamond");
+        }
     }
 }

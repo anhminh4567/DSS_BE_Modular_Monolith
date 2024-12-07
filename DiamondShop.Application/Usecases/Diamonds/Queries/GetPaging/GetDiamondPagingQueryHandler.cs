@@ -91,7 +91,9 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             var response = new PagingResponseDto<Diamond>(
                 TotalPage: totalPage,
                 CurrentPage: start,
-                Values: finalResult
+                Values: finalResult,
+                totalCount: Count,
+                totalTake: finalResult.Count
                 );
             return response;
         }//,List<DiamondPrice> roundPrice, List<DiamondPrice> fancyPrice

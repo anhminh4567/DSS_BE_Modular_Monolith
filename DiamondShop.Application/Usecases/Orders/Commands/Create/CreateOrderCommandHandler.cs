@@ -224,6 +224,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                     }
                 }
             }
+            var totalProductPromoSavedAmount = orderItems.Sum(k => k.PromotionSavedAmount);
+            var totalOrderPromoSavedAmount = order.OrderAmountSaved + totalProductPromoSavedAmount;
+            order.TotalPromotionAmountSaved = totalOrderPromoSavedAmount.Value;
             await _orderRepository.Create(order);
             await _unitOfWork.SaveChangesAsync(token);
             await _orderLogRepository.Create(log);

@@ -60,6 +60,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
             var mappedListPrice = request.listPrices.Select(x => new { CriteriaId = DiamondCriteriaId.Parse(x.DiamondCriteriaId), Price = MoneyVndRoundUpRules.RoundAmountFromDecimal(x.price), cut = x.cut, color = x.Color, clarity = x.Clarity });
             var mappedCriteria = mappedListPrice.Select(x => x.CriteriaId).ToList();
             getCriteria = await _diamondCriteriaRepository.GetCriteriasByManyId(mappedCriteria);
+            List<DiamondCriteriaId> checkCriteriaIds = new();
             foreach (var price in mappedListPrice)
             {
                 if (request.IsSideDiamond == false)
@@ -76,6 +77,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
                             throw new Exception("round cần có cut , shape còn lại thì ko");
                         newPrice = DiamondPrice.Create(correctShape.Id, tryGetCriteria.Id, price.Price, request.IsLabDiamond, price.cut, price.color, price.clarity);
                     }
+                    checkCriteriaIds.Add(tryGetCriteria.Id);
                     await _diamondPriceRepository.Create(newPrice);
                 }
                 else
@@ -84,12 +86,14 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
                     if (tryGetCriteria is null)
                         return Result.Fail(DiamondPriceErrors.DiamondCriteriaErrors.NotFoundError);
                     var newPrice = DiamondPrice.CreateSideDiamondPrice(tryGetCriteria.Id, price.Price, request.IsLabDiamond, correctShape, null, price.color, price.clarity);
+                    checkCriteriaIds.Add(tryGetCriteria.Id);
                     await _diamondPriceRepository.Create(newPrice);
                 }
             }
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
             _diamondPriceRepository.RemoveAllCache();
+            _diamondPriceRepository.ExecuteUpdateCriteriaUpdateTime(checkCriteriaIds.ToArray());
             return Result.Ok();
         }
     }

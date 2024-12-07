@@ -38,6 +38,8 @@ namespace DiamondShop.Application.Usecases.Transactions.Queries.GetAllMethods
             var paymentMethodRules = _optionsMonitor.CurrentValue.OrderPaymentRules;
             var httpContext = _httpContextAccessor.HttpContext;
             var result = await _paymentMethodRepository.GetAll();
+            //get onlyl active method
+            result = result.Where(x => x.Status == true).ToList();    
             if (httpContext != null)
             {
                 var getRole = httpContext.User.GetUserRoles();

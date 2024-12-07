@@ -11,6 +11,7 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
 {
     public  class DiamondPriceDto
     {
+        public string Id { get; set; }
         public string ShapeId { get; set; }
         public string CriteriaId { get; set; }
         public DiamondCriteriaDto Criteria { get; set; }

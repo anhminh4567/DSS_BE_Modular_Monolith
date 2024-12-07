@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.DiamondPrices;
+﻿using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
@@ -13,13 +14,15 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
     internal class DiamondPriceRepository : BaseRepository<DiamondPrice>, IDiamondPriceRepository
     {
         private readonly IMemoryCache _cache;
-        private static CancellationTokenSource _resetCacheToken = new CancellationTokenSource();
-        private static MemoryCacheEntryOptions options = new MemoryCacheEntryOptions()
-            .SetPriority(CacheItemPriority.High)
-            .SetAbsoluteExpiration(TimeSpan.FromHours(1));
-        public DiamondPriceRepository(DiamondShopDbContext dbContext, IMemoryCache cache) : base(dbContext)
+        //private static CancellationTokenSource _resetCacheToken = new CancellationTokenSource();
+        //private static MemoryCacheEntryOptions options = new MemoryCacheEntryOptions()
+        //    .SetPriority(CacheItemPriority.High)
+       //.SetAbsoluteExpiration(TimeSpan.FromHours(1));
+        private readonly IDiamondCriteriaRepository _diamondCriteriaRepository;
+        public DiamondPriceRepository(DiamondShopDbContext dbContext, IMemoryCache cache , IDiamondCriteriaRepository diamondCriteriaRepository) : base(dbContext)
         {
             _cache = cache;
+            _diamondCriteriaRepository = diamondCriteriaRepository;
         }
         public override Task<DiamondPrice?> GetById(params object[] ids)
         {
@@ -27,10 +30,15 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             DiamondCriteriaId criteriaId = (DiamondCriteriaId)ids[0];
             return _set.FirstOrDefaultAsync(d => d.CriteriaId == criteriaId);
         }
+        public int ExecuteUpdateCriteriaUpdateTime(DiamondCriteriaId[] criteriasId)
+        {
+            return _dbContext.DiamondCriteria.Where(x => criteriasId.Distinct().Contains(x.Id)).ExecuteUpdate(x => x.SetProperty(x => x.LastUpdatedTable, DateTime.UtcNow));
+        }
         public Task<DiamondPrice?> GetById(DiamondShapeId shapeId, DiamondCriteriaId criteriaId, CancellationToken cancellationToken = default)
         {
             return _set.Include(p => p.Criteria).ThenInclude(p => p.Shape)
                 .FirstOrDefaultAsync(d => d.CriteriaId == criteriaId && d.Criteria.ShapeId == shapeId, cancellationToken);
+            
         }
         public override async Task<List<DiamondPrice>> GetAll(CancellationToken token = default)
         {
@@ -42,28 +50,29 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             await base.Create(entity, token);
             //RemoveAllKey(entity.ShapeId);
             RemoveAllCache();
-            //var getCacheKeyForRange = GetPriceKey(null,entity.IsLabDiamond,entity.Cut,entity.CriteriaId);
-            //var getSideKeyForRange = GetSidePriceKey(null,entity.IsLabDiamond, entity.CriteriaId);
-            //_cache.Remove(getCacheKeyForRange);
-            //_cache.Remove(getSideKeyForRange);
+            //ExecuteUpdateCriteriaUpdateTime(new DiamondPrice[] { entity });
         }
+
         public override async Task Update(DiamondPrice entity, CancellationToken token = default)
         {
             await base.Update(entity, token);
             //RemoveAllKey(entity.ShapeId);
             RemoveAllCache();
+            //ExecuteUpdateCriteriaUpdateTime(new DiamondPrice[] { entity });
         }
         public override async Task Delete(DiamondPrice entity, CancellationToken token = default)
         {
             await base.Delete(entity, token);
             //RemoveAllKey(entity.ShapeId);
             RemoveAllCache();
+           // ExecuteUpdateCriteriaUpdateTime(new DiamondPrice[] { entity });
         }
 
         public async Task CreateMany(List<DiamondPrice> prices)
         {
             await _set.AddRangeAsync(prices);
             RemoveAllCache();
+            ExecuteUpdateCriteriaUpdateTime(prices.Select(x => x.CriteriaId).ToArray());
         }
 
         public Task<List<DiamondPrice>> GetPriceByCriteria(DiamondCriteriaId diamondCriteriaId, bool? isLabDiamond = null, CancellationToken token = default)
@@ -189,6 +198,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                 return Result.Fail("no diamond price found for this criteria");
             var getCorrectPrice = getResult.Where(x => priceIds.Contains(x.Id)); //getResult.Where(x => getShape.Any(s => s == x.ShapeId)).ToList();
             _set.RemoveRange(getCorrectPrice);
+            ExecuteUpdateCriteriaUpdateTime(getCorrectPrice.Select(x => x.CriteriaId).ToArray());
             //getShape.ForEach(x => RemoveAllKey(x));
             RemoveAllCache();
             return Result.Ok();
@@ -215,18 +225,6 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
 
         public void RemoveAllCache()
         {
-            //if (_resetCacheToken != null 
-            //    && !_resetCacheToken.IsCancellationRequested 
-            //    && _resetCacheToken.Token.CanBeCanceled)
-            //{
-            //    _resetCacheToken.Cancel();
-            //    _resetCacheToken.Dispose();
-            //}
-            //_resetCacheToken = new CancellationTokenSource();
-            //foreach (var shape in DiamondShape.All_Shape)
-            //{
-            //    RemoveAllKey(shape.Id);
-            //}
             if (_cache is MemoryCache concreteMemoryCache)
             {
                 concreteMemoryCache.Clear();

@@ -20,11 +20,13 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.ChangePriceOffset
     {
         private readonly IDiamondRepository _diamondRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public ChangeDiamondPriceOffsetCommanndHandler(IDiamondRepository diamondRepository, IUnitOfWork unitOfWork)
+        public ChangeDiamondPriceOffsetCommanndHandler(IDiamondRepository diamondRepository, IUnitOfWork unitOfWork, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _diamondRepository = diamondRepository;
             _unitOfWork = unitOfWork;
+            _optionsMonitor = optionsMonitor;
         }
 
         public async Task<Result<Diamond>> Handle(ChangeDiamondPriceOffsetCommannd request, CancellationToken cancellationToken)
@@ -35,7 +37,13 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.ChangePriceOffset
             {
                 return Result.Fail(DiamondErrors.DiamondNotFoundError);
             }
+            var diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
+            if(request.priceOffset > diamondRule.MaxPriceOffset || request.priceOffset < diamondRule.MinPriceOffset)
+            {
+                return Result.Fail(DiamondErrors.UpdateError.PriceOffsetNotInLimit);
+            }
             getDiamond.ChangeOffset(request.priceOffset);
+            await _diamondRepository.Update(getDiamond);
             await _unitOfWork.SaveChangesAsync();
             return getDiamond;
         }

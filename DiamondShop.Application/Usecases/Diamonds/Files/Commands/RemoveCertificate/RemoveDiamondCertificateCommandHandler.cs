@@ -39,6 +39,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.RemoveCertifi
             string relativePath =  _diamondFileService.ToRelativePath(request.certificateAbsolutePath);
             var removeResult = await _diamondFileService.DeleteFileAsync(relativePath, cancellationToken);
             getDiamond.SetCertificate(null,null);
+            getDiamond.SetInActive();
+            await _unitOfWork.SaveChangesAsync();
             return removeResult;
         }
     }

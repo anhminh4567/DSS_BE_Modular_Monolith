@@ -55,6 +55,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.AddCertficate
                     _diamondFileService.DeleteFileAsync(currentCert.MediaPath);
                 var certificate = Media.Create(fileName, uploadResult.Value, request.pdfFile.ContentType);
                 getDiamond.SetCertificate(request.certificateCode, certificate);
+                if (getDiamond.Status == Domain.Common.Enums.ProductStatus.Inactive)
+                    getDiamond.SetSell();
                 await _diamondRepository.Update(getDiamond);
                 await _unitOfWork.SaveChangesAsync();
                 return Result.Ok();

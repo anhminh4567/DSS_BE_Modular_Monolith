@@ -7,9 +7,17 @@ using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
+using System.Linq.Expressions;
+using DiamondShop.Domain.Models.Diamonds.Enums;
 
 namespace DiamondShop.Domain.Repositories
 {
+    public record GetDiamond_4C(Cut? cutFrom = 0, Cut? cutTo = Cut.Excellent, 
+        Color? colorFrom = Color.K, Color? colorTo = Color.D, 
+        Clarity? clarityFrom = Clarity.S12, Clarity? clarityTo = Clarity.FL, float? caratFrom= 0, float? caratTo = 50);
+    public record GetDiamond_Details(Polish? Polish, Symmetry? Symmetry, Girdle? Girdle, Fluorescence? Fluorescence, Culet? Culet, bool isGIA = true);
+    public record GetDiamond_ManagerQuery(List<ProductStatus>? diamondStatuses, int? diamondLastUpdatedRange, string? sku = null);
+
     public interface IDiamondRepository : IBaseRepository<Diamond>
     {
         Task<(Diamond diamond,List<Discount> discounts, List<Promotion> promotion)> GetByIdIncludeDiscountAndPromotion(DiamondId id, CancellationToken cancellationToken = default);
@@ -26,5 +34,11 @@ namespace DiamondShop.Domain.Repositories
         Task<List<Diamond>> GetTotalSoldDiamonds(bool? isLab, DateTime? startDate = null, DateTime? endDate = null, CancellationToken cancellationToken = default);
         Task<List<Diamond>> GetTotalSoldDiamondsByShape(DiamondShape shape, bool? isLab,DateTime? startDate = null, DateTime? endDate = null, CancellationToken cancellationToken = default);
         Task<List<Diamond>> GetWhereSkuContain(string containingString, int skip, int take, CancellationToken cancellationToken = default);
+        Task<IQueryable<Diamond>> GetWhereSkuContain(IQueryable<Diamond> query,string containingString, CancellationToken cancellationToken = default);
+
+        Task ExecuteUpdateDiamondUpdatedTime(IQueryable<Diamond> query);
+        IQueryable<Diamond> Filtering4C(IQueryable<Diamond> query, GetDiamond_4C diamond_4C);
+        IQueryable<Diamond> FilteringDetail(IQueryable<Diamond> query, GetDiamond_Details diamond_Details);
+        Task<IQueryable<Diamond>> FilteringPrice(IQueryable<Diamond> query, GetDiamond_4C diamond_4C, decimal priceFrom, decimal priceTo);
     }
 }

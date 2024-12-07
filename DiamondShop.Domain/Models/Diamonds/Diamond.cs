@@ -13,11 +13,13 @@ using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Models.Promotions.Enum;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -28,6 +30,7 @@ namespace DiamondShop.Domain.Models.Diamonds
     public record Diamond_4C (Cut? Cut , Color Color, Clarity Clarity, float Carat, bool isLabDiamond);
     public record Diamond_Measurement(float withLenghtRatio, float Depth, float table, string Measurement);
     public record Diamond_Details( Polish Polish, Symmetry Symmetry, Girdle Girdle, Fluorescence Fluorescence, Culet Culet);
+
     public class Diamond : Entity<DiamondId> , IAggregateRoot
     {  
         public JewelryId? JewelryId { get;  set; }
@@ -88,6 +91,8 @@ namespace DiamondShop.Domain.Models.Diamonds
         public string Title { get => GetTitle(this); }
         [NotMapped]
         public decimal CutOffsetFounded { get; set; }
+        [NotMapped]
+        public decimal? CalculatedPrice { get; set; }
         public static Diamond Create(DiamondShape shape, Diamond_4C diamond_4C, Diamond_Details diamond_Details,
            Diamond_Measurement diamond_Measurement,decimal priceOffset,string? sku, Certificate certificate = Certificate.GIA) 
         {
@@ -115,6 +120,7 @@ namespace DiamondShop.Domain.Models.Diamonds
                 Certificate = certificate,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
+                Status = ProductStatus.Inactive
             };
             if(sku!= null)
                 newdiamond.SerialCode = sku;
@@ -206,7 +212,7 @@ namespace DiamondShop.Domain.Models.Diamonds
             SoldPrice = null;
             DefaultPrice = null;
             ProductLock = null;
-            UpdatedAt = DateTime.UtcNow;
+            //UpdatedAt = DateTime.UtcNow;
         }   
         public void SetCorrectPrice(decimal truePrice, DiamondRule rule)
         {
@@ -325,11 +331,12 @@ namespace DiamondShop.Domain.Models.Diamonds
             if(Status == ProductStatus.Sold)
                 throw new Exception("Cannot change status of a sold item");
             if(Status == ProductStatus.Locked)
-                throw new Exception("Cannot change status of a locked item");
-            if(isActive)
-                Status = ProductStatus.Active;
+                throw new Exception("Cannot change status of a locked diammond for jewelry");
+            if (isActive)
+                SetSell();
             else
-                Status = ProductStatus.Inactive;
+                SetInActive();
+                //Status = ProductStatus.Inactive;
         }
         public bool IsSetForCustomizeJewelryNotExistingInShop()
         {
@@ -345,6 +352,6 @@ namespace DiamondShop.Domain.Models.Diamonds
                 throw new Exception("chỉ được tự deal giá nếu kim cương trong pre order");
             DefaultPrice = dealedPrice;
         }
-        private Diamond() { }
+        public Diamond() { }
     }
 }

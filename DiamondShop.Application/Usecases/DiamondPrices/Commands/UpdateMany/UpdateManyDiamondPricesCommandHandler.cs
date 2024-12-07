@@ -102,6 +102,8 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
                 await _diamondPriceRepository.Update(price);
             }
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+            _diamondPriceRepository.RemoveAllCache();
+            _diamondPriceRepository.ExecuteUpdateCriteriaUpdateTime(getPriceByIds.Select(x => x.CriteriaId).ToArray());
             return new List<DiamondPrice>();
 
 
