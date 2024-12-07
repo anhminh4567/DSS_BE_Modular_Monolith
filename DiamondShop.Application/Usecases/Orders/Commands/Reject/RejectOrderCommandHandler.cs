@@ -72,7 +72,14 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
             else
             {
                 order.Status = OrderStatus.Rejected;
-                order.PaymentStatus = PaymentStatus.Refunding;
+                if (order.Status == OrderStatus.Pending)
+                {
+                    order.PaymentStatus = PaymentStatus.No_Refund;
+                }
+                else
+                {
+                    order.PaymentStatus = PaymentStatus.Refunding;
+                }
             }
             order.CancelledDate = DateTime.UtcNow;
             order.CancelledReason = reason;
