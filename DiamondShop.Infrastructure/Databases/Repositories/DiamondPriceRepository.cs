@@ -143,10 +143,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         {
             Cut? tobeComparedCut = cut;
             DiamondShape getShape = shape;
-            bool isFancyShape = DiamondShape.IsFancyShape(getShape.Id);
-            if (isFancyShape == false && tobeComparedCut == null)
-                throw new Exception("round cut need to include cut");
+            bool isFancyShape = getShape.IsFancy();
             if (isFancyShape)
+                tobeComparedCut = null;
+            else
                 tobeComparedCut = null;
             //if (isLabDiamond != null)
             //{

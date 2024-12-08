@@ -18,23 +18,23 @@ using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using System.Linq.Expressions;
-using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
-using System.Diagnostics;
-using static OpenQA.Selenium.PrintOptions;
-using Microsoft.EntityFrameworkCore.Internal;
-using Syncfusion.XlsIO.Implementation.Collections.Grouping;
+using Microsoft.Extensions.Options;
+using DiamondShop.Domain.Common;
 using FluentValidation.Results;
 using System.Text.RegularExpressions;
+using Syncfusion.XlsIO.Implementation.Security;
+
 
 namespace DiamondShop.Infrastructure.Databases.Repositories
 {
     internal class DiamondRepository : BaseRepository<Diamond>, IDiamondRepository
     {
-        public DiamondRepository(DiamondShopDbContext dbContext) : base(dbContext)
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
+
+        public DiamondRepository(DiamondShopDbContext dbContext, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor) : base(dbContext)
         {
+            _optionsMonitor = optionsMonitor;
         }
 
         public void UpdateRange(List<Diamond> diamonds)
@@ -220,63 +220,90 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
 
         public async Task<IQueryable<Diamond>> FilteringPrice(IQueryable<Diamond> query, GetDiamond_4C diamond_4C, decimal priceFrom, decimal priceTo)
         {
-            //var matchingCriteriaWithPricesQuery =
-            //    from c in _dbContext.DiamondCriteria
-            //    join p in _dbContext.DiamondPrices
-            //        on c.Id equals p.CriteriaId into priceGroup
-            //    from p in priceGroup.DefaultIfEmpty()
-            //    where c.IsSideDiamond == false
-            //        && diamond_4C.caratFrom.Value <= c.CaratTo
-            //        && c.CaratFrom <= diamond_4C.caratTo.Value
-            //        && p.Color >= diamond_4C.colorFrom
-            //         && (p == null || ( // Handle criteria without prices
-            //           p.Color >= diamond_4C.colorFrom
-            //           && p.Color <= diamond_4C.colorTo
-            //           && p.Clarity >= diamond_4C.clarityFrom
-            //           && p.Clarity <= diamond_4C.clarityTo))
-            //    select new
+            var diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
+            var smallestDiamondPriceAllowed = diamondRule.MinimalMainDiamondPrice;
+            //var testingtQuery =
+            //from diamond in query // Start with all diamonds
+            //join criteria in _dbContext.DiamondCriteria
+            //    on new
             //    {
-            //        Criteria = c,
-            //        Price = p
-            //    };
-            //var diamondResult = await query.ToListAsync();
-
-            var resultQuery =
-                 from diamond in query // Start with all diamonds
-                 join criteria in _dbContext.DiamondCriteria
-                     on diamond.DiamondShapeId equals criteria.ShapeId // Match ShapeId
-                     into criteriaGroup
-                 from matchedCriteria in criteriaGroup.DefaultIfEmpty() // Include diamonds without criteria
-                 where matchedCriteria == null // Include diamonds without matching criteria
-                       || (matchedCriteria.IsSideDiamond == false // Ensure IsSideDiamond == false
-                           && diamond.Carat >= matchedCriteria.CaratFrom // Carat within range
-                           && diamond.Carat <= matchedCriteria.CaratTo
-                           )
-                 join price in _dbContext.DiamondPrices
+            //        ShapeId = DiamondShape.All_Fancy_Shape.Select(x => x.Id).Contains(diamond.DiamondShapeId) // Check if diamond is a fancy shape
+            //            ? diamond.DiamondShapeId // If fancy, use the diamond's ShapeId
+            //            : DiamondShape.FANCY_SHAPES.Id // For round shapes, join with the generic round criteria
+            //    }
+            //    equals new
+            //    {
+            //        ShapeId = DiamondShape.All_Fancy_Shape.Select(x => x.Id).Contains(criteria.ShapeId) // Check if criteria matches fancy shapes
+            //            ? criteria.ShapeId // Use the criteria's ShapeId for fancy
+            //            : DiamondShape.FANCY_SHAPES.Id // Match round criteria for non-fancy shapes
+            //    }
+            //    into criteriaGroup
+            //from matchedCriteria in criteriaGroup.DefaultIfEmpty()
+            //select new
+            //{
+            //    Diamond = diamond,
+            //    Criteria = matchedCriteria
+            //};
+            var testingQuery =
+                from diamond in query // Start with all diamonds
+                join criteria in _dbContext.DiamondCriteria
+                     .Where(c => c.IsSideDiamond == false) // Pre-filter criteria
+                        on diamond.DiamondShapeId equals criteria.ShapeId
+                        into criteriaGroup
+                from matchedCriteria in criteriaGroup.DefaultIfEmpty() // Include diamonds without matching criteria
+                let isValidCriteria = matchedCriteria != null
+                   && diamond.Carat >= matchedCriteria.CaratFrom // Carat validation
+                   && diamond.Carat <= matchedCriteria.CaratTo
+                select new
+                {
+                    Diamond = diamond,
+                    Criteria = isValidCriteria ? matchedCriteria.Id : null // Nullify invalid criteria
+                };
+            var newtestingQuery = testingQuery.Distinct();
+            var newnewtestingQuery = from joinedQuery in newtestingQuery
+                join price in _dbContext.DiamondPrices
                      on new
                      {
-                         CriteriaId = matchedCriteria != null ? matchedCriteria.Id : DiamondCriteriaId.Parse("0"), // Match only if criteria exists
-                         Color = diamond.Color,
-                         Clarity = diamond.Clarity
+                         CriteriaId = joinedQuery.Criteria != null ? joinedQuery.Criteria : DiamondCriteriaId.Parse("0"), // Match only if criteria exists
+                         Color = joinedQuery.Diamond.Color,
+                         Clarity = joinedQuery.Diamond.Clarity,
+                         IsLab = joinedQuery.Diamond.IsLabDiamond
                      }
                      equals new
                      {
                          CriteriaId = price.CriteriaId,
                          Color = price.Color ?? 0,
-                         Clarity = price.Clarity ?? 0
+                         Clarity = price.Clarity ?? 0,
+                         IsLab = price.IsLabDiamond
                      }
                      into priceGroup
                  from matchedPrice in priceGroup.DefaultIfEmpty() // Include diamonds without matching prices
-                 let computedPrice = matchedPrice != null
-                 ? matchedPrice.Price * (1m + diamond.PriceOffset) * (decimal)diamond.Carat
-                 : (decimal?)null // Compute price, or null if no match
-                 where computedPrice == null || (computedPrice >= priceFrom && computedPrice <= priceTo) // Filter by price range
-                 select new 
+                 let rawComputedPrice = matchedPrice != null
+                     ? matchedPrice.Price * (1m + joinedQuery.Diamond.PriceOffset) * (decimal)joinedQuery.Diamond.Carat
+                    : (decimal?)null // Compute price, or null if no match
+                 let roundedComputedPrice = rawComputedPrice != null
+                    ? Math.Ceiling(rawComputedPrice.Value / 1000m) * 1000 // Round up to the nearest 1000 VND
+                    : (decimal?)null
+                 let computedPrice = roundedComputedPrice == null
+                 ? (decimal?)null
+                 : (roundedComputedPrice != null && roundedComputedPrice < smallestDiamondPriceAllowed)
+                    ? smallestDiamondPriceAllowed
+                    : rawComputedPrice // Ensure price is at least the smallest allowed price
+                 where joinedQuery.Criteria == null // Ensure diamonds without criteria are included
+                      || matchedPrice == null // Ensure diamonds without prices are included
+                      || computedPrice == null // Ensure null computedPrice is included
+                      || (computedPrice >= priceFrom && computedPrice <= priceTo) // Filter by price range // Filter by price range
+                 select new
                  {
-                     Diamond = diamond
+                     joinedQuery.Diamond,
+                     ComputedPrice = computedPrice,
+                     Priority = computedPrice != null ? 1 : 0
                  };
-            var testquery = resultQuery.Distinct().Select(x => x.Diamond);
-            return testquery;
+            var finalQuery = newnewtestingQuery
+                .GroupBy(x => x.Diamond.Id)
+                .Select(g => g.OrderByDescending(x => x.Priority).First().Diamond) // Select the highest priority row per diamond
+                ;//.ToList(); 
+            return finalQuery;
         }
 
         public async Task<IQueryable<Diamond>> GetWhereSkuContain(IQueryable<Diamond> query,string containingString, CancellationToken cancellationToken = default)

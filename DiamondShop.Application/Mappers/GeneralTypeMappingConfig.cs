@@ -108,6 +108,8 @@ namespace DiamondShop.Application.Mappers
             config.NewConfig<ProductLock, ProductLockDto>();
             config.NewConfig<NotificationId, string>()
                 .MapWith(src => src.Value).Compile();
+            config.NewConfig<DiamondPriceId, string>()
+                .MapWith(src => src.Value).Compile();
         }
     }
 }

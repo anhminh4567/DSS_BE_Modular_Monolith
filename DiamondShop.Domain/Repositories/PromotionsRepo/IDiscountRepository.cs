@@ -20,6 +20,7 @@ namespace DiamondShop.Domain.Repositories.PromotionsRepo
         IQueryable<Discount> QueryByStatuses(IQueryable<Discount> query,List<Status> statuses);
         Task<List<Discount>> GetContainingCode(string code, int start, int take, CancellationToken cancellationToken = default);
         Task<int> GetDiscountCountFromOrder(Discount discount,Expression<Func<Order, bool>> expression);
+        Task<decimal> GetDiscounMoneySpentOnOrders(Discount discount, Expression<Func<Order, bool>> expression);
         Task<List<OrderId>> GetOrderIdsFromOrder(Discount discount,Expression<Func<Order, bool>> expression);
 
         Task<List<DiscountId>> GetDiscountIds( Expression<Func<Discount, bool>> expression);

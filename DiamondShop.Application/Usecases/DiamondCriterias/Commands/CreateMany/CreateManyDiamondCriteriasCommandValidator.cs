@@ -29,9 +29,9 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
                 //{
                 //    RuleFor(c => c.Cut).IsInEnum().WithIsInEnumMessage();
                 //});
-                RuleFor(c => c.CaratFrom).NotEmpty().
+                RuleFor(c => c.CaratFrom).NotNull().
                         WithNotEmptyMessage()
-                    .GreaterThan(0)
+                    .GreaterThanOrEqualTo(0)
                         .WithGreaterThanMessage()
                     .Must((command, crf) => crf < command.CaratTo)
                         .WithMessage("carat from phải bé hơn carat to");

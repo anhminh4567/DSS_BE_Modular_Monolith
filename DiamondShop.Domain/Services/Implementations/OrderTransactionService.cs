@@ -121,9 +121,13 @@ namespace DiamondShop.Domain.Services.Implementations
                     refundAmount = sumTransactions - fine;
                 }
             }
-            else
+            else if(order.Status == OrderStatus.Rejected)
             {
                 refundAmount = sumTransactions;
+            }
+            else
+            {
+                return -1;
             }
             return refundAmount;
         }

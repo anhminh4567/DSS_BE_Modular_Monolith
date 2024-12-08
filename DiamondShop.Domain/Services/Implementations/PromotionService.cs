@@ -50,8 +50,8 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             //Init Data
             // the Data is that , the product req and gift is sorted, so that the ORDER TYPE is the last one
-            var promotionRequirement = promotion.PromoReqs.OrderBy(r => r.TargetType).ToList();
-            var promotionGift = promotion.Gifts.OrderBy(r => r.TargetType).ToList();
+            var promotionRequirement = promotion.PromoReqs.OrderBy(r => r.TargetType).ThenByDescending(x => x.Amount).ThenByDescending(x => x.Quantity).ToList();
+            var promotionGift = promotion.Gifts.OrderBy(r => r.TargetType).ThenByDescending(x => x.UnitValue).ToList();
             Dictionary<int, CartProduct> requirementProducts = new(); // int is index
             Dictionary<int, CartProduct> giftProducts = new();
             List<PromoReq> promoReqs = new();
@@ -196,7 +196,7 @@ namespace DiamondShop.Domain.Services.Implementations
         private static bool HandleProductRequirement(List<CartProduct> products, PromoReq requirement, Dictionary<int, CartProduct> scopedRequirementProducts)
         {
             //var productList = cartModel.Products;
-            var productList = products;
+            var productList = products.OrderByDescending(x => x.ReviewPrice.DiscountPrice).ToList();
             //var promotionRequirement = promotion.PromoReqs;
             bool isAnyValid = false;
             for (int i = 0; i < productList.Count; i++)

@@ -1,4 +1,5 @@
-﻿using DiamondShop.Application.Dtos.Responses.Promotions;
+﻿using Azure.Storage.Blobs.Models;
+using DiamondShop.Application.Dtos.Responses.Promotions;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Models.Diamonds.Enums;
@@ -41,7 +42,7 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
                 var current = sortedRanges[i];
                 var next = sortedRanges[i + 1];
                 // Check for a gap based on a precision of 0.01
-                if(IsSideDiamondBoardPrices == false)
+                if (IsSideDiamondBoardPrices == false)
                 {
                     if ((float)Math.Round(current.CaratTo + 0.01f, 2) < next.CaratFrom)
                     {
@@ -55,9 +56,9 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
                         missingGaps.Add((current.CaratTo, next.CaratFrom));
                     }
                 }
-                
+
             }
-            MissingRange =  missingGaps;
+            MissingRange = missingGaps;
         }
     }
     public class DiamondPriceTableDto
@@ -103,6 +104,8 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
                 var clarityIndex = (int)price.Clarity - 1;
                 CellMatrix[colorIndex, clarityIndex].Price = price.Price;
                 CellMatrix[colorIndex, clarityIndex].DiamondPriceId = price.Id.Value;
+                CellMatrix[colorIndex, clarityIndex].PriceStart = CellMatrix[colorIndex, clarityIndex].Price * (decimal)CaratFrom;
+                CellMatrix[colorIndex, clarityIndex].PriceEnd = CellMatrix[colorIndex, clarityIndex].Price * (decimal)CaratTo;
             }
         }
         public void MapDiscounts(List<Discount> activeDiscount, Cut mainCut, DiamondShape shape, bool isLabDiamond)
@@ -183,7 +186,6 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
                     }
                 }
             }
-
         }
     }
     public class DiamondPriceRowDto
@@ -194,23 +196,24 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
     public class DiamondPriceCellDataDto
     {
         public string? DiamondPriceId { get; set; }
-        public Cut? Cut { get; set; }
         public Color Color { get; set; }
         public Clarity Clarity { get; set; }
         public decimal Price { get; set; } = -1;
         public bool IsPriceKnown => Price > 0;
-        public decimal OffsetFromExellentCut { get; set; } = +0m;
+        //public decimal OffsetFromExellentCut { get; set; } = +0m;
         public string? DiscountCode { get; set; }
         public int? DiscountPercentage { get; set; }
         public string? LastUpdate { get; set; }
-        
+        public decimal? PriceStart { get; set; }
+        public decimal? PriceEnd { get; set; }
+
         public void CalculateOffsetFromExellentPrice(decimal exellentPrice)
         {
             if (IsPriceKnown is false)
                 return;
             var percentOffset = (Price / exellentPrice) - 1;
             var roundedNumber = Math.Round(percentOffset, 2);
-            OffsetFromExellentCut = roundedNumber;
+            //OffsetFromExellentCut = roundedNumber;
         }
     }
 }

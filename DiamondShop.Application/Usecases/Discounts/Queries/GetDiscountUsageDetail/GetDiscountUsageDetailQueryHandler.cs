@@ -35,12 +35,12 @@ namespace DiamondShop.Application.Usecases.Discounts.Queries.GetDiscountUsageDet
 
         public async Task<Result<DiscountUsageDetailResponseDto>> Handle(GetDiscountUsageDetailQuery request, CancellationToken cancellationToken)
         {
-            var parsedId = PromotionId.Parse(request.discountId);
+            var parsedId = DiscountId.Parse(request.discountId);
             var discount = await _discountRepository.GetById(parsedId);
             if (discount == null)
                 return Result.Fail(PromotionError.NotFound);
             var response = new DiscountUsageDetailResponseDto();
-            response.Discount= _mapper.Map<DiscountDto>(discount);
+            //response.Discount= _mapper.Map<DiscountDto>(discount);
             if (request.includeOrderCount != null && request.includeOrderCount.Value)
             {
                 response.TotalUsageFromOrders= await _discountRepository.GetDiscountCountFromOrder(discount, x => Discount.NotCountAsUsed.Contains(x.Status) == false);
@@ -53,7 +53,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Queries.GetDiscountUsageDet
             if (request.includeOrderPrices != null && request.includeOrderPrices.Value)
             {
                 //TODO: doi migrate lay gia tri tu order va item 
-                //response.TotalMoneySpent = await _promotionRepository.GetPromotionMoneySpentOnOrders(x => Promotion.StatusNOTQualifiedAsUsed.Contains(x.Status) == false);
+                response.TotalDiscountAmountFromOrder = await _discountRepository.GetDiscounMoneySpentOnOrders(discount,x => Discount.NotCountAsUsed.Contains(x.Status) == false);
             }
             return response;
         }

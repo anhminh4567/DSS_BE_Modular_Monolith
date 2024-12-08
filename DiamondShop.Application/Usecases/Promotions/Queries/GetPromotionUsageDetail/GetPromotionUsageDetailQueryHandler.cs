@@ -44,7 +44,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetPromotionUsageD
             if (promotion == null)
                 return Result.Fail(PromotionError.NotFound);
             var response = new PromotionUsageDetailResponseDto();
-            response.Promotion = _mapper.Map<PromotionDto>(promotion);
+            //response.Promotion = _mapper.Map<PromotionDto>(promotion);
             if (request.includeOrderCount != null && request.includeOrderCount.Value)
             {
                 response.TotalCurrentUsage = await _promotionRepository.GetPromotionCountFromOrders(promotion,x => Promotion.StatusNOTQualifiedAsUsed.Contains(x.Status) == false);

@@ -73,9 +73,9 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
                         newPrice = DiamondPrice.Create(correctShape.Id, tryGetCriteria.Id, price.Price, request.IsLabDiamond, null, price.color, price.clarity);
                     else
                     {
-                        if (price.cut == null)
-                            throw new Exception("round cần có cut , shape còn lại thì ko");
-                        newPrice = DiamondPrice.Create(correctShape.Id, tryGetCriteria.Id, price.Price, request.IsLabDiamond, price.cut, price.color, price.clarity);
+                        //if (price.cut == null)
+                        //    throw new Exception("round cần có cut , shape còn lại thì ko");
+                        newPrice = DiamondPrice.Create(correctShape.Id, tryGetCriteria.Id, price.Price, request.IsLabDiamond, null, price.color, price.clarity);
                     }
                     checkCriteriaIds.Add(tryGetCriteria.Id);
                     await _diamondPriceRepository.Create(newPrice);

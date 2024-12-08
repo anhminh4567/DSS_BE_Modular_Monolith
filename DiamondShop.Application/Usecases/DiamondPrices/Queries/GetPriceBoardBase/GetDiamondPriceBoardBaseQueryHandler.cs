@@ -66,10 +66,8 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoardBa
             if (request.isSideDiamond == false)
             {
                 bool isFancyShape = DiamondShape.IsFancyShape(getShape.Id);
-
                 prices = await _diamondPriceRepository.GetPrice(request.cut, getShape, request.isLabDiamond, cancellationToken);
                 priceBoard.IsSideDiamondBoardPrices = false;
-                //criteriasCarat = await _diamondCriteriaRepository.GroupAllAvailableCaratRange( cancellationToken);
                 priceBoard.MainCut = request.cut;
                 if (isFancyShape)
                     criteriasByGrouping = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getShape, cancellationToken);

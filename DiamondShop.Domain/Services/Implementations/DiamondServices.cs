@@ -1,32 +1,17 @@
-﻿using DiamondShop.Commons;
-using DiamondShop.Domain.BusinessRules;
+﻿using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
-using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
-using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
-using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Services.interfaces;
-using FluentResults;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Localization;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Services.Implementations
 {
@@ -54,6 +39,8 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 return diamond.Discount;
             }
+            if (diamond.Status == Common.Enums.ProductStatus.Sold)
+                return null;
             foreach (var discount in discounts)
             {
                 foreach (var req in discount.DiscountReq)
@@ -62,7 +49,7 @@ namespace DiamondShop.Domain.Services.Implementations
                         continue;
                     if (ValidateDiamond4CGlobal(diamond, req.CaratFrom.Value, req.CaratTo.Value, req.ColorFrom.Value, req.ColorTo.Value, req.ClarityFrom.Value, req.ClarityTo.Value, req.CutFrom.Value, req.CutTo.Value))
                     {
-                        if(req.PromoReqShapes.Any(x => x.ShapeId == diamond.DiamondShapeId) is false)
+                        if (req.PromoReqShapes.Any(x => x.ShapeId == diamond.DiamondShapeId) is false)
                         {
                             continue;
                         }
@@ -107,9 +94,9 @@ namespace DiamondShop.Domain.Services.Implementations
         public static async Task<DiamondPrice> GetDiamondPriceGlobal(Diamond diamond, List<DiamondPrice> diamondPrices, DiamondRule diamondRule)
         {
             // if diamond is locked for user, and price is seted
-            if(diamond.Status == Common.Enums.ProductStatus.LockForUser || diamond.Status == Common.Enums.ProductStatus.PreOrder || diamond.Status == Common.Enums.ProductStatus.Locked)
+            if (diamond.Status == Common.Enums.ProductStatus.LockForUser || diamond.Status == Common.Enums.ProductStatus.PreOrder || diamond.Status == Common.Enums.ProductStatus.Locked)
             {
-                if(diamond.DefaultPrice != null && diamond.DefaultPrice > 0)
+                if (diamond.DefaultPrice != null && diamond.DefaultPrice > 0)
                 {
                     var dealedDiamondPrice = DiamondPrice.CreateDealedLockedPriceForUser(diamond);
                     diamond.DiamondPrice = dealedDiamondPrice;
@@ -144,7 +131,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 {
                     if (clarityFrom <= diamond.Clarity && clarityTo >= diamond.Clarity)
                     {
-                        if(diamond.Cut != null)
+                        if (diamond.Cut != null)
                         {
                             if (cutFrom <= diamond.Cut && cutTo >= diamond.Cut)
                             {
@@ -157,9 +144,9 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             return false;
         }
-        public static bool ValidateDiamondOrigin(DiamondOrigin origin , Diamond diamond)
+        public static bool ValidateDiamondOrigin(DiamondOrigin origin, Diamond diamond)
         {
-            return ValidateOrigin(origin,diamond.IsLabDiamond);
+            return ValidateOrigin(origin, diamond.IsLabDiamond);
         }
         public static bool ValidateOrigin(DiamondOrigin origin, bool isLabDiamond)
         {
@@ -224,7 +211,8 @@ namespace DiamondShop.Domain.Services.Implementations
                 matchPrices.Add(DiamondPrice.CreateUnknownSideDiamondPrice(sideDiamond.IsLabGrown));
                 sideDiamond.DiamondPrice = matchPrices;
                 sideDiamond.AveragePricePerCarat = MoneyVndRoundUpRules.RoundAmountFromDecimal(matchPrices.Average(x => x.Price));
-            }else
+            }
+            else
             {
                 sideDiamond.DiamondPrice = matchPrices;
                 var averagePrice = matchPrices.Average(x => x.Price);
@@ -260,8 +248,7 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             else
             {
-                if (diamond.Cut == price.Cut
-                && diamond.Color == price.Color
+                if (diamond.Color == price.Color
                 && diamond.Clarity == price.Clarity
                 && diamond.Carat <= criteria.CaratTo
                 && diamond.Carat >= criteria.CaratFrom
@@ -276,7 +263,7 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             bool isColorInRange = price.Color >= sideDiamond.ColorMin && price.Color <= sideDiamond.ColorMax;
             bool isClarityInRange = price.Clarity >= sideDiamond.ClarityMin && price.Clarity <= sideDiamond.ClarityMax;
-            bool isCaratInRange = sideDiamond.IsInRange(price.Criteria.CaratFrom,price.Criteria.CaratTo);  // price.Criteria.CaratTo > sideDiamond.AverageCarat && price.Criteria.CaratFrom <= sideDiamond.AverageCarat;
+            bool isCaratInRange = sideDiamond.IsInRange(price.Criteria.CaratFrom, price.Criteria.CaratTo);  // price.Criteria.CaratTo > sideDiamond.AverageCarat && price.Criteria.CaratFrom <= sideDiamond.AverageCarat;
             //bool isPriceForFancyShape = price.IsFancyShape && sideDiamond.IsFancyShape;
             // all side diamond should be lab diamond
             //&& price.IsLabDiamond
@@ -287,9 +274,9 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             //sideDiamondOption.IsFancyShape
             var rule = _optionsMonitor.CurrentValue.DiamondRule;
-            List<DiamondPrice> diamondPrices = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat( sideDiamondOption.IsLabGrown, sideDiamondOption.AverageCarat);
+            List<DiamondPrice> diamondPrices = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamondOption.IsLabGrown, sideDiamondOption.AverageCarat);
             JewelrySideDiamond fakeDiamond = JewelrySideDiamond.Create(JewelryId.Create(), sideDiamondOption.CaratWeight, sideDiamondOption.Quantity, sideDiamondOption.ColorMin, sideDiamondOption.ColorMax, sideDiamondOption.ClarityMin, sideDiamondOption.ClarityMax, sideDiamondOption.SettingType);
-            var price = await GetSideDiamondPriceGlobal(fakeDiamond, diamondPrices,rule);
+            var price = await GetSideDiamondPriceGlobal(fakeDiamond, diamondPrices, rule);
             //sideDiamondOption.DiamondPriceFound = fakeDiamond.DiamondPriceFound;
             sideDiamondOption.DiamondPrice = fakeDiamond.DiamondPrice;
             sideDiamondOption.AveragePricePerCarat = MoneyVndRoundUpRules.RoundAmountFromDecimal(sideDiamondOption.DiamondPrice.Average(x => x.Price));
@@ -301,34 +288,11 @@ namespace DiamondShop.Domain.Services.Implementations
         public async Task<List<DiamondPrice>> GetPrice(Cut? cut, DiamondShape shape, bool? isLabDiamond = null, CancellationToken token = default)
         {
             List<DiamondPrice> result = new();
-            //if(shape == null)
-            //{
-            //    if(isLabDiamond != null)
-            //    {
-            //        var getRoundBrilliantPrice = await _diamondPriceRepository.GetPrice(false, true, token);
-            //        var getFancyPrice = await _diamondPriceRepository.GetPrice(true, true, token);
-            //        var getRoundBrilliantPriceNatural = await _diamondPriceRepository.GetPrice(false, false, token);
-            //        var getFancyPriceNatural = await _diamondPriceRepository.GetPrice(true, false, token);
-            //        result.AddRange(getRoundBrilliantPrice);
-            //        result.AddRange(getFancyPrice);
-            //        result.AddRange(getRoundBrilliantPriceNatural);
-            //        result.AddRange(getFancyPriceNatural);
-            //    }
-            //    else
-            //    {
-            //        var getRound = await _diamondPriceRepository.GetPrice(true, isLabDiamond, token);
-            //        var getFancy = await _diamondPriceRepository.GetPrice(false, isLabDiamond, token);
-            //        result.AddRange(getRound);
-            //        result.AddRange(getFancy);
-            //    }
-            //}
-            //else
-            //{
             bool isFancyShape = DiamondShape.IsFancyShape(shape.Id);
             if (isLabDiamond == null)
             {
-                var getlab = await _diamondPriceRepository.GetPrice(cut,shape, true, token);
-                var getNatural = await _diamondPriceRepository.GetPrice(cut,shape, false, token);
+                var getlab = await _diamondPriceRepository.GetPrice(cut, shape, true, token);
+                var getNatural = await _diamondPriceRepository.GetPrice(cut, shape, false, token);
                 result.AddRange(getlab);
                 result.AddRange(getNatural);
             }
@@ -377,7 +341,7 @@ namespace DiamondShop.Domain.Services.Implementations
             bool foundedCriteria = false;
             foreach (var group in caratGroup)
             {
-                if(sideDiamond.IsInRange(group.CaratFrom,group.CaratTo))
+                if (sideDiamond.IsInRange(group.CaratFrom, group.CaratTo))
                 //if (group.CaratFrom <= sideDiamondAvgCarat && group.CaratTo > sideDiamondAvgCarat)
                 {
                     var criteria = groupCriteria[group];

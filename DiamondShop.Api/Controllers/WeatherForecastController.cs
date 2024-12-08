@@ -1,17 +1,13 @@
 using DiamondShop.Api.Controllers;
-using DiamondShop.Application.Dtos.Requests.Deliveries;
 using DiamondShop.Application.Dtos.Requests.Diamonds;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Models;
 using DiamondShop.Application.Usecases.DeliveryFees.Commands.CreateMany;
 using DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromRange;
-using DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany;
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany;
-using DiamondShop.Application.Usecases.DiamondShapes.Queries.GetAll;
 using DiamondShop.Application.Usecases.Jewelries.Commands.Seeding;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate;
-using DiamondShop.Domain.Models.DeliveryFees;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
@@ -29,21 +25,12 @@ using DiamondShop.Domain.Models.Transactions.ValueObjects;
 using DiamondShop.Domain.Repositories.DeliveryRepo;
 using DiamondShop.Infrastructure.Databases;
 using DiamondShop.Infrastructure.Options;
-using DiamondShop.Infrastructure.Services.Excels;
-using DiamondShop.Infrastructure.Services.Locations.Locally;
-using DiamondShop.Infrastructure.Services.Payments.Paypals;
-using DiamondShop.Infrastructure.Services.Payments.Paypals.Models;
-using DiamondShop.Infrastructure.Services.Payments.Vnpays;
 using DiamondShop.Infrastructure.Services.Pdfs;
-using DiamondShop.Infrastructure.Services.Scrapers;
-using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using System;
 using System.Diagnostics;
-using System.Linq;
 
 namespace DiamondShopSystem.Controllers
 {
@@ -258,24 +245,24 @@ namespace DiamondShopSystem.Controllers
                 var basePrice = (decimal)(carat.caratFrom * 100) * (startPrice * (decimal)(carat.caratTo * 100));
                 var createresult = await _sender.Send(new CreateCriteriaFromRangeCommand(carat.caratFrom, carat.caratTo, round.Id.Value, false));
                 var result = createresult.Value.First();
-                foreach (Cut cut in cutEnums)
+                //foreach (Cut cut in cutEnums)
+                //{
+                List<DiamondPriceRequestDto> prices = new();
+                for (int i = 0; i < colorEnums.Length; i++)
                 {
-                    List<DiamondPriceRequestDto> prices = new();
-                    for (int i = 0; i < colorEnums.Length; i++)
+                    var color = (Color)colorEnums.GetValue(i);
+                    var rowPrice = basePrice + rowIncrementPrice * i;
+                    for (int j = 0; j < clarityEnums.Length; j++)
                     {
-                        var color = (Color)colorEnums.GetValue(i);
-                        var rowPrice = basePrice + rowIncrementPrice * i;
-                        for (int j = 0; j < clarityEnums.Length; j++)
-                        {
-                            var clarity = (Clarity)clarityEnums.GetValue(j);
-                            var columnPrice = rowPrice + columnIncrementPrice * j;
-                            prices.Add(new DiamondPriceRequestDto(result.Id.Value, columnPrice, cut, color, clarity));
-                        }
+                        var clarity = (Clarity)clarityEnums.GetValue(j);
+                        var columnPrice = rowPrice + columnIncrementPrice * j;
+                        prices.Add(new DiamondPriceRequestDto(result.Id.Value, columnPrice,null, color, clarity));
                     }
-
-                    var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(prices, round.Id.Value, true, false));
-                    var resultNatural = await _sender.Send(new CreateManyDiamondPricesCommand(prices, round.Id.Value, false, false));
                 }
+
+                var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(prices, round.Id.Value, true, false));
+                var resultNatural = await _sender.Send(new CreateManyDiamondPricesCommand(prices, round.Id.Value, false, false));
+                //}
             }
             // create fancy price
             var allFancyShape = getShapes.Where(x => x.Id != DiamondShape.ROUND.Id).ToList();
@@ -302,7 +289,6 @@ namespace DiamondShopSystem.Controllers
                     }
                     var resultLab = await _sender.Send(new CreateManyDiamondPricesCommand(prices, fancyShape.Id.Value, true, false));
                     var resultNatural = await _sender.Send(new CreateManyDiamondPricesCommand(prices, fancyShape.Id.Value, false, false));
-
                 }
             }
             return Ok();
@@ -318,6 +304,7 @@ namespace DiamondShopSystem.Controllers
             var getAnyShape = getShapes.FirstOrDefault(x => x.Id == DiamondShape.ANY_SHAPES.Id);
             List<(float caratFrom, float caratTo)> caratRange = new()
             {
+                new (0.00f, 0.001f), // (0.00f, 0.001f
                 new (0.001f, 0.01f),
                 new (0.01f, 0.03f),
                 new (0.03f, 0.07f),
@@ -390,7 +377,7 @@ namespace DiamondShopSystem.Controllers
             var pdf = _pdfService;
             var account = Account.Create(FullName.Create("a", "b"), "testing@gmail");
             var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 0, 20_000, "abc", null, null, 40_000, 0, null, OrderId.Parse("1"));
-            var diamond = OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null,  0);
+            var diamond = OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null, 0);
             var jewellry = OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, 20_000_000, null, null, null, 0);
             diamond.Diamond = Diamond.Create(DiamondShape.ROUND, new Diamond_4C(Cut.Excellent, Color.I, Clarity.FL, 0.22f, true), new Diamond_Details(Polish.Excellent, Symmetry.Excellent, Girdle.Thick, Fluorescence.Faint, Culet.Medium), new Diamond_Measurement(0.22f, 23f, 23f, "asdf"), 0.3m, "sfd");
             jewellry.Jewelry = Jewelry.Create(JewelryModelId.Create(), SizeId.Create(), MetalId.Create(), 2f, "sdf", DiamondShop.Domain.Common.Enums.ProductStatus.Active);
@@ -424,7 +411,7 @@ namespace DiamondShopSystem.Controllers
             var pdf = _pdfService;
             var account = Account.Create(FullName.Create("a", "b"), "testingwebandstuff@gmail.com");
             var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, 0, "abc", null, null, 40_000, 20_000, DateTime.UtcNow, OrderId.Parse("1"));
-            order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null,  0));
+            order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null, 0));
             order.Items.Add(OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, 20_000_000, null, null, null, 0));
 
             await _emailService.SendOrderPreparedEmail(order, account, DateTime.UtcNow);
@@ -438,8 +425,8 @@ namespace DiamondShopSystem.Controllers
             var pdf = _pdfService;
             var account = Account.Create(FullName.Create("a", "b"), "testingwebandstuff@gmail.com");
             var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, 0.312m, "abc", null, null, 40_000, 20_000, DateTime.UtcNow, OrderId.Parse("1"));
-            var diamond = OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null,  0);
-            var jewellry = OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, 20_000_000, null, null, null,  0);
+            var diamond = OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null, 0);
+            var jewellry = OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, 20_000_000, null, null, null, 0);
             diamond.Diamond = Diamond.Create(DiamondShape.ROUND, new Diamond_4C(Cut.Excellent, Color.I, Clarity.FL, 0.22f, true), new Diamond_Details(Polish.Excellent, Symmetry.Excellent, Girdle.Thick, Fluorescence.Faint, Culet.Medium), new Diamond_Measurement(0.22f, 23f, 23f, "asdf"), 0.3m, "sfd");
             jewellry.Jewelry = Jewelry.Create(JewelryModelId.Create(), SizeId.Create(), MetalId.Create(), 2f, "sdf", DiamondShop.Domain.Common.Enums.ProductStatus.Active);
             order.Items.Add(diamond);

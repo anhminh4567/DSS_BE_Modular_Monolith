@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.ValueObjects;
+using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
@@ -54,6 +55,20 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo
         public Task<List<Discount>> GetContainingCode(string code, int start, int take, CancellationToken cancellationToken = default)
         {
             return _set.Where(x => x.DiscountCode.ToUpper().Contains(code.ToUpper())).Skip(start).Take(take).ToListAsync(cancellationToken);
+        }
+
+        public async Task<decimal> GetDiscounMoneySpentOnOrders(Discount discount, Expression<Func<Order, bool>> expression)
+        {
+            var baseQuery = _dbContext.Orders
+                //.Where(x => Discount.NotCountAsUsed.Contains(x.Status))
+                .Where(expression)
+                .Include(x => x.Items)
+                .SelectMany(x => x.Items).Distinct()
+                .Where(x => x.DiscountCode == discount.DiscountCode)
+                .AsQueryable();
+            var getTotalItemsSaved = await baseQuery.SumAsync(x => x.DiscountSavedAmount);
+            return getTotalItemsSaved ?? 0;
+            throw new NotImplementedException();
         }
 
         public Task<int> GetDiscountCountFromOrder(Discount discount, Expression<Func<Order, bool>> expression)
