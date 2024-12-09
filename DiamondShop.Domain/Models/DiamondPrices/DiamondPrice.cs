@@ -73,6 +73,23 @@ namespace DiamondShop.Domain.Models.DiamondPrices
                 Cut = null,
             };
         }
+        public static DiamondPrice CreateSoldPrice(Diamond soldDiamond)
+        {
+            //this is not supposed to be in db, just for assigning
+            return new DiamondPrice
+            {
+                //ShapeId = diamondShapeId,
+                Id = DiamondPriceId.Parse("-11"),
+                CriteriaId = null,
+                Price = soldDiamond.SoldPrice ?? 0,
+                ForUnknownPrice = "Đã bán",
+                IsLabDiamond = soldDiamond.IsLabDiamond,
+                IsSideDiamond = false,
+                Clarity = soldDiamond.Clarity,
+                Color = soldDiamond.Color,
+                Cut = soldDiamond.Cut,
+            };
+        }
         public static DiamondPrice CreateDealedLockedPriceForUser(Diamond lockedDiamond)
         {
             //this is not supposed to be in db, just for assigning

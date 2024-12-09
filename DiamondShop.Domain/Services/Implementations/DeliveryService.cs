@@ -34,10 +34,15 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             var userCity = userAddress.Province;// null ToLocatoin is ignored, since the list pass here is expected to have all ToLocation values
             var shopCity = shopAddress.Province;
-            var correctFee = deliveryFeesWithLocation
-                .Where(x =>  x.ToLocation != null)
-                .FirstOrDefault(x => x.ToLocation.ToUpper() == userCity.ToUpper() );
-            return correctFee;
+            DeliveryFee? feeFounded = null;
+            feeFounded = deliveryFeesWithLocation.Where(x => x.ToLocationId == userAddress.ProvinceId).FirstOrDefault();
+            if(feeFounded == null)
+            {
+                feeFounded = deliveryFeesWithLocation
+                .Where(x => x.ToLocation != null)
+                .FirstOrDefault(x => x.ToLocation.ToUpper() == userCity.ToUpper());
+            }
+            return feeFounded;
         }
     }
 }

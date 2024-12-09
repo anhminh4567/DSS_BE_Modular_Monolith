@@ -3,6 +3,7 @@ using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Models.DiamondPrices.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -31,26 +32,17 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             bool isfancyShape = diamondShape.IsFancy();
             if (isfancyShape)
                 tobeComparedCut = null;
-            //if ()
-            //{
-            //    var result = await _set
-            //        .Where(x => x.IsSideDiamond == false && x.Cut == null)
-            //        .GroupBy(x => new { x.CaratFrom, x.CaratTo })
-            //        .Select(x => x.Key)
-            //        .ToListAsync();
-            //    return result.Select(result => (result.CaratFrom, result.CaratTo)).ToList();
-            //}
-            //else
-            //{
-            //    var result = await _set
-            //        .Where(x => x.IsSideDiamond == false && x.Cut != null)
-            //        .GroupBy(x => new { x.CaratFrom, x.CaratTo })
-            //        .Select(x => x.Key)
-            //        .ToListAsync();
-            //    return result.Select(result => (result.CaratFrom, result.CaratTo)).ToList();
-            //}
+            DiamondShapeId tobeComparedId = null;
+            if(isfancyShape)
+            {
+                tobeComparedId = DiamondShape.FANCY_SHAPES.Id;
+            }
+            else
+            {
+                tobeComparedId = diamondShape.Id;
+            }
 
-            var result = await _set.Where(x => x.IsSideDiamond == false && x.ShapeId == diamondShape.Id)
+            var result = await _set.Where(x => x.IsSideDiamond == false && x.ShapeId == tobeComparedId)
                 .GroupBy(x => new { x.CaratFrom, x.CaratTo })
                 .Select(x => x.Key)
                 .ToListAsync();
@@ -73,13 +65,20 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             bool isFancyShape = diamondShape.IsFancy();
             if (isFancyShape)
                 tobeComparedCut = null;
-
             else
                 if (tobeComparedCut == null) { }
-                    //throw new Exception("cut is required for round shape, only fancy shape need not provide cut");
-            
+            //throw new Exception("cut is required for round shape, only fancy shape need not provide cut");
+            DiamondShapeId tobeComparedId = null;
+            if (isFancyShape)
+            {
+                tobeComparedId = DiamondShape.FANCY_SHAPES.Id;
+            }
+            else
+            {
+                tobeComparedId = diamondShape.Id;
+            }
             var result = await _set
-               .Where(x => x.IsSideDiamond == false && x.ShapeId == diamondShape.Id) // Filtering if necessary
+               .Where(x => x.IsSideDiamond == false && x.ShapeId == tobeComparedId) // Filtering if necessary
                .GroupBy(x => new { x.CaratFrom, x.CaratTo }) // Group by CaratFrom
                .ToDictionaryAsync(
                    group => (group.Key.CaratFrom, group.Key.CaratTo), // Key is the CaratFrom value

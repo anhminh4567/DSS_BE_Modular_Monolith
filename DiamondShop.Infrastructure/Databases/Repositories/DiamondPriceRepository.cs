@@ -145,9 +145,14 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             DiamondShape getShape = shape;
             bool isFancyShape = getShape.IsFancy();
             if (isFancyShape)
+            {
                 tobeComparedCut = null;
+                getShape = DiamondShape.FANCY_SHAPES;
+            }
             else
+            {
                 tobeComparedCut = null;
+            }
             //if (isLabDiamond != null)
             //{
             string diamondKey = GetPriceKey(getShape.Id, isLabDiamond, tobeComparedCut,null);

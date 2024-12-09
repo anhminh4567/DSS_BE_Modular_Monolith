@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Accounts.Commands.RegisterDeliverer
 {
-    public record RegisterDeliveryCommand(string email, string password, FullName fullName) : IRequest<Result<AuthenticationResultDto>>;
+    public record RegisterDeliveryCommand(string email, string password,string phoneNumber, FullName fullName) : IRequest<Result<AuthenticationResultDto>>;
     internal class RegisterDeliveryCommandHandler : IRequestHandler<RegisterDeliveryCommand, Result<AuthenticationResultDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -41,6 +41,7 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.RegisterDeliverer
                 return Result.Fail(identityResult.Errors);
             string identityId = identityResult.Value;
             Account staff = Account.CreateBaseStaff(request.fullName, request.email, identityId, storeRoles);
+            staff.PhoneNumber = request.phoneNumber;
             AccountRole? getDeliveryRoll = storeRoles.FirstOrDefault(r => r.Id == AccountRole.Deliverer.Id);
             if(getDeliveryRoll == null)
                 return Result.Fail("Delivery role not found");

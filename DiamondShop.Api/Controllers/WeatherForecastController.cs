@@ -209,10 +209,7 @@ namespace DiamondShopSystem.Controllers
             var cutEnums = Enum.GetValues(typeof(Cut));
             //Cut defaultCut = Cut.Ideal;
             decimal startPrice = 30_000;//vnd
-            List<DiamondShape> getShapes = _dbContext.DiamondShapes.Where(x => x.Id != DiamondShape.ANY_SHAPES.Id
-            && x.Id != DiamondShape.FANCY_SHAPES.Id).ToList();
-            if (getShapes.Count != 10)
-                return BadRequest("sai so luong shape");
+            List<DiamondShape> getShapes = _dbContext.DiamondShapes.IgnoreQueryFilters().Where(x => x.Id != DiamondShape.ANY_SHAPES.Id).ToList();
             //_dbContext.DiamondShapes.IgnoreQueryFilters().ToList()
             //.Where(x => x.Id == DiamondShape.ROUND.Id
             //|| x.Id == DiamondShape.FANCY_SHAPES.Id)// only 2 shape
@@ -265,7 +262,8 @@ namespace DiamondShopSystem.Controllers
                 //}
             }
             // create fancy price
-            var allFancyShape = getShapes.Where(x => x.Id != DiamondShape.ROUND.Id).ToList();
+            //var allFancyShape = getShapes.Where(x => x.Id != DiamondShape.ROUND.Id && x.Id != DiamondShape.FANCY_SHAPES.Id).ToList();
+            var allFancyShape = getShapes.Where(x => x.Id == DiamondShape.FANCY_SHAPES.Id).ToList();
             foreach (var carat in caratRange)
             {
                 //List<DiamondCriteriaRequestDto> diamondCriteriaRequestDtos = new();

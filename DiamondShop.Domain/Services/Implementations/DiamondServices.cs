@@ -4,6 +4,7 @@ using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.DiamondShapes.ErrorMessages;
 using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
@@ -103,6 +104,14 @@ namespace DiamondShop.Domain.Services.Implementations
                     diamond.TruePrice = dealedDiamondPrice.Price;
                     return dealedDiamondPrice;
                 }
+            }
+            if(diamond.Status == Common.Enums.ProductStatus.Sold)
+            {
+                var soldPrice = DiamondPrice.CreateSoldPrice(diamond);
+                diamond.DiamondPrice = soldPrice;
+                diamond.TruePrice = soldPrice.Price;
+                diamond.DiscountPrice = 0;
+                return soldPrice;
             }
             foreach (var price in diamondPrices)
             {
@@ -232,7 +241,15 @@ namespace DiamondShop.Domain.Services.Implementations
             bool isFancyShapePrice = DiamondShape.IsFancyShape(price.Criteria.ShapeId);
             if (diamond.DiamondShapeId != price.Criteria.ShapeId)
             {
-                return false;
+                if (isFancyShapeDiamond && isFancyShapePrice == false)
+                {
+                    return false;
+                }
+                else if (isFancyShapeDiamond == false && isFancyShapePrice)
+                {
+                    return false;
+                }
+                else { }
             }
             var criteria = price.Criteria;
             if (isFancyShapeDiamond)
@@ -267,7 +284,7 @@ namespace DiamondShop.Domain.Services.Implementations
             //bool isPriceForFancyShape = price.IsFancyShape && sideDiamond.IsFancyShape;
             // all side diamond should be lab diamond
             //&& price.IsLabDiamond
-            return isCaratInRange && price.IsSideDiamond && isColorInRange && isClarityInRange;//&& isPriceForFancyShape;
+            return isCaratInRange && price.IsSideDiamond && isColorInRange && isClarityInRange && (sideDiamond.IsLabGrown == price.IsLabDiamond);//&& isPriceForFancyShape;
         }
 
         public async Task<List<DiamondPrice>> GetSideDiamondPrice(SideDiamondOpt sideDiamondOption)
@@ -275,7 +292,8 @@ namespace DiamondShop.Domain.Services.Implementations
             //sideDiamondOption.IsFancyShape
             var rule = _optionsMonitor.CurrentValue.DiamondRule;
             List<DiamondPrice> diamondPrices = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamondOption.IsLabGrown, sideDiamondOption.AverageCarat);
-            JewelrySideDiamond fakeDiamond = JewelrySideDiamond.Create(JewelryId.Create(), sideDiamondOption.CaratWeight, sideDiamondOption.Quantity, sideDiamondOption.ColorMin, sideDiamondOption.ColorMax, sideDiamondOption.ClarityMin, sideDiamondOption.ClarityMax, sideDiamondOption.SettingType);
+            //JewelrySideDiamond fakeDiamond = JewelrySideDiamond.Create(JewelryId.Create(), sideDiamondOption.CaratWeight, sideDiamondOption.Quantity, sideDiamondOption.ColorMin, sideDiamondOption.ColorMax, sideDiamondOption.ClarityMin, sideDiamondOption.ClarityMax, sideDiamondOption.SettingType);
+            JewelrySideDiamond fakeDiamond = JewelrySideDiamond.Create(sideDiamondOption);
             var price = await GetSideDiamondPriceGlobal(fakeDiamond, diamondPrices, rule);
             //sideDiamondOption.DiamondPriceFound = fakeDiamond.DiamondPriceFound;
             sideDiamondOption.DiamondPrice = fakeDiamond.DiamondPrice;
@@ -310,7 +328,7 @@ namespace DiamondShop.Domain.Services.Implementations
             bool isFancyShapeDiamond = DiamondShape.IsFancyShape(diamond.DiamondShapeId);
             var getShape = await _diamondShapeRepository.GetById(diamond.DiamondShapeId);
             if (getShape is null)
-                throw new Exception("this shape not exist");
+                throw new Exception(DiamondShapeErrors.NotFoundError.Message);
             var groupedCritera = await _diamondCriteriaRepository.GroupAllAvailableCriteria(getShape);
             var diamondCarat = diamond.Carat;
             var caratGroup = groupedCritera.Keys.ToList();
@@ -360,7 +378,8 @@ namespace DiamondShop.Domain.Services.Implementations
 
         public Task<bool> IsSideDiamondFoundInCriteria(SideDiamondOpt sideDiamondOpt)
         {
-            var mappedToJewelrySideDiamond = JewelrySideDiamond.Create(JewelryId.Create(), sideDiamondOpt.CaratWeight, sideDiamondOpt.Quantity, sideDiamondOpt.ColorMin, sideDiamondOpt.ColorMax, sideDiamondOpt.ClarityMin, sideDiamondOpt.ClarityMax, sideDiamondOpt.SettingType);
+            //var mappedToJewelrySideDiamond = JewelrySideDiamond.Create(JewelryId.Create(), sideDiamondOpt.CaratWeight, sideDiamondOpt.Quantity, sideDiamondOpt.ColorMin, sideDiamondOpt.ColorMax, sideDiamondOpt.ClarityMin, sideDiamondOpt.ClarityMax, sideDiamondOpt.SettingType);
+            var mappedToJewelrySideDiamond = JewelrySideDiamond.Create(sideDiamondOpt);
             return IsSideDiamondFoundInCriteria(mappedToJewelrySideDiamond);
         }
     }

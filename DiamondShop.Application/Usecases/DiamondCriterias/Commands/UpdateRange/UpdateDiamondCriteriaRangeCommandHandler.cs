@@ -78,7 +78,11 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.UpdateRange
                 var getCriteriasFromCutGroup = allCriteria[tobeUpdatedRange.Value];
                 if (getCriteriasFromCutGroup == null)
                     throw new Exception("at this point this should not be null at all");
-                getCriteriasFromCutGroup.ForEach(x => x.ChangeCaratRange(request.newCaratRange.caratFrom, request.newCaratRange.caratTo));
+                getCriteriasFromCutGroup.ForEach(x => 
+                {
+                    x.ChangeCaratRange(request.newCaratRange.caratFrom, request.newCaratRange.caratTo);
+                    _diamondCriteriaRepository.Update(x).Wait();
+                });
                 await _unitOfWork.SaveChangesAsync();
                 _diamondPriceRepository.RemoveAllCache();
                 return allCriteria.Values

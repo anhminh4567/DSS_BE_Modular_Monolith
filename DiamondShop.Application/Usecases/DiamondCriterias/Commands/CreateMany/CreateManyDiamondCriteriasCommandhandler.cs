@@ -51,10 +51,17 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateMany
                 if (correctShape is null)
                     return Result.Fail(DiamondShapeErrors.NotFoundError);
                 bool isFancyShape = correctShape.IsFancy();
-                if(isFancyShape)
-                    mappedItems = request.listCriteria.Select(c => DiamondCriteria.Create( c.CaratFrom, c.CaratTo, correctShape)).ToList();
-                else
+                if (isFancyShape)
+                {
+                    correctShape = getAllShape.FirstOrDefault(x => x.Id == DiamondShape.FANCY_SHAPES.Id);
+                    if (correctShape is null)
+                        return Result.Fail(DiamondShapeErrors.NotFoundError);
                     mappedItems = request.listCriteria.Select(c => DiamondCriteria.Create(c.CaratFrom, c.CaratTo, correctShape)).ToList();
+                }
+                else
+                {
+                    mappedItems = request.listCriteria.Select(c => DiamondCriteria.Create(c.CaratFrom, c.CaratTo, correctShape)).ToList();
+                }
             }
 
             await _unitOfWork.BeginTransactionAsync();

@@ -11,7 +11,7 @@ namespace DiamondShop.Application.Usecases.DiamondCriterias.Commands.UpdateRange
             When(x => x.oldCaratRange != null && x.newCaratRange != null, () =>
             {
                 RuleFor(x => x.oldCaratRange.caratFrom).GreaterThanOrEqualTo(0);
-                RuleFor(x => x.oldCaratRange.caratFrom).GreaterThanOrEqualTo(0);
+                RuleFor(x => x.newCaratRange.caratFrom).GreaterThanOrEqualTo(0);
                 RuleFor(x => x.oldCaratRange.caratFrom).LessThan(x => x.oldCaratRange.caratTo);
                 RuleFor(x => x.newCaratRange.caratFrom).LessThan(x => x.newCaratRange.caratTo);
             });

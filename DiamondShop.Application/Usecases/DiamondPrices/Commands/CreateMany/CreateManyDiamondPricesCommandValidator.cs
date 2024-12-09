@@ -24,10 +24,10 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
                 {
                     RuleFor(c => c.Clarity).IsInEnum().WithIsInEnumMessage();
                 });
-                When(x => x.cut != null, () =>
-                {
-                    RuleFor(c => c.cut).IsInEnum().WithIsInEnumMessage();
-                });
+                //When(x => x.cut != null, () =>
+                //{
+                //    RuleFor(c => c.cut).IsInEnum().WithIsInEnumMessage();
+                //});
 
             }
         }
