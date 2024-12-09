@@ -35,6 +35,8 @@ namespace DiamondShop.Api.Controllers.Orders.AssignDeliverer
             var order = _orderRepository.QueryFilter(orderQuery, p => p.Id == OrderId.Parse(orderId)).FirstOrDefault();
             if (order == null)
                 return Result.Fail(OrderErrors.OrderNotFoundError);
+            if (order.Status != OrderStatus.Prepared)
+                return Result.Fail(OrderErrors.UnproceedableError);
             await _orderService.AssignDeliverer(order, delivererId);
             await _orderRepository.Update(order);
             await _unitOfWork.SaveChangesAsync(token);

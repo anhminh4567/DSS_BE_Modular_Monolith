@@ -9,9 +9,6 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetAll
     {
         public GetAllCustomizeRequestQueryValidator()
         {
-            RuleFor(p => p.Email)
-                .EmailAddress().When(p => p.Email != null);
-
             RuleFor(p => p.Status)
                 .Must(p => Enum.IsDefined(typeof(CustomizeRequestStatus), p)).When(p => p.Status != null);
         }
