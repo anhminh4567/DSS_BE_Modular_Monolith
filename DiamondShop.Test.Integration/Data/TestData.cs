@@ -270,7 +270,12 @@ namespace DiamondShop.Test.Integration.Data
         }
         public static async Task<DiamondPrice> SeedDefaultDiamondPrice(DiamondShopDbContext _context, DiamondShapeId shapeId, DiamondCriteriaId criteriaId, bool isLab, Cut? cut, Clarity clarity, Color color, decimal price = 100_000_000M)
         {
-            var diamondPrice = DefaultDiamondPrice(shapeId, criteriaId, isLab,cut,clarity,color,price);
+            DiamondShapeId correctShapeId = null;
+            if (DiamondShape.IsFancyShape(shapeId))
+                correctShapeId = DiamondShape.FANCY_SHAPES.Id;
+            else
+                correctShapeId = shapeId;
+            var diamondPrice = DefaultDiamondPrice(correctShapeId, criteriaId, isLab,cut,clarity,color,price);
             await SeedingPrice(_context, diamondPrice);
             return diamondPrice;
         }

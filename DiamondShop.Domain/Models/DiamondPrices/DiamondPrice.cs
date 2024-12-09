@@ -53,7 +53,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices
                 IsSideDiamond = false,
                 Clarity = clarity,
                 Color = color,
-                Cut = cut,
+                Cut = null,
             };
         }
         public static DiamondPrice CreateUnknownPrice(DiamondShapeId diamondShapeId, DiamondCriteriaId diamondCriteriaId, bool isLab)

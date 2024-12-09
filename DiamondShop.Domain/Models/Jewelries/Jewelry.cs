@@ -87,8 +87,8 @@ namespace DiamondShop.Domain.Models.Jewelries
         public string? EngravedFont { get; set; }
         public ProductStatus Status { get; set; } = ProductStatus.Active;
         public ProductLock? ProductLock { get; set; }
-        [Timestamp]
-        public byte[] Version { get; set; }
+        //[Timestamp]
+        //public byte[] Version { get; set; }
         private Jewelry() { }
         public static Jewelry Create(
            JewelryModelId modelId, SizeId sizeId, MetalId metalId,

@@ -163,7 +163,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                     .Where(d => d.ShapeId == getShape.Id && d.IsSideDiamond == false)
                     .Include(d => d.DiamondPrices)
                     .SelectMany(d => d.DiamondPrices)
-                    .Where(dp => dp.IsLabDiamond == isLabDiamond && dp.Cut == tobeComparedCut)
+                    .Where(dp => dp.IsLabDiamond == isLabDiamond)//&& dp.Cut == tobeComparedCut
                     .Include(dp => dp.Criteria)
                     .AsSplitQuery()
                     .ToListAsync();

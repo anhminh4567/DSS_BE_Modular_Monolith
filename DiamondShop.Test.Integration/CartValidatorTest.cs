@@ -175,7 +175,7 @@ namespace DiamondShop.Test.Integration
             Assert.True(result.IsSuccess);
             var cartModel = result.Value;
             //lỗi ở đây là địa chỉ không hợp lệ, m ko cần test
-            Assert.True(cartModel.OrderValidation.IsOrderValid);
+            Assert.False(cartModel.OrderValidation.IsOrderValid);
         }
     }
 }

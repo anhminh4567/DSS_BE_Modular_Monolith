@@ -93,7 +93,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
             _diamondPriceRepository.RemoveAllCache();
-            _diamondPriceRepository.ExecuteUpdateCriteriaUpdateTime(checkCriteriaIds.ToArray());
+            //_diamondPriceRepository.ExecuteUpdateCriteriaUpdateTime(checkCriteriaIds.ToArray());
             return Result.Ok();
         }
     }

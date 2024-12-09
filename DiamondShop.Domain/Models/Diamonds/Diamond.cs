@@ -121,7 +121,7 @@ namespace DiamondShop.Domain.Models.Diamonds
                 Certificate = certificate,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                Status = ProductStatus.Inactive
+                Status = ProductStatus.Active
             };
             if(sku!= null)
                 newdiamond.SerialCode = sku;
