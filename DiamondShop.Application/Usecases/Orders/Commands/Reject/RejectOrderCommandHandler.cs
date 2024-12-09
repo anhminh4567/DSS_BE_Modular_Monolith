@@ -81,6 +81,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
                 }
                 order.Status = OrderStatus.Rejected;
             }
+            order.DelivererId = null;
             order.CancelledDate = DateTime.UtcNow;
             order.CancelledReason = reason;
             await _orderRepository.Update(order);
