@@ -12,6 +12,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
         public CreateDiamondCommandValidator(IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _optionsMonitor = optionsMonitor;
+            ClassLevelCascadeMode = CascadeMode.Stop;
             var diamondRule= _optionsMonitor.CurrentValue.DiamondRule;
             RuleFor(c => c.shapeId).NotEmpty().WithNotEmptyMessage();
             RuleFor(c => c.diamond4c.Cut).NotEmpty().WithNotEmptyMessage().IsInEnum().WithIsInEnumMessage();

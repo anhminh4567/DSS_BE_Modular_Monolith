@@ -17,8 +17,8 @@ namespace DiamondShop.Application.Dtos.Responses.Jewelries
         public AccountDto Account { get; set; }
         public string Content { get; set; }
         public int StarRating { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime ModifiedDate { get; set; }
+        public string CreatedDate { get; set; }
+        public string ModifiedDate { get; set; }
         public bool IsHidden { get; set; }
         public List<MediaDto> Medias { get; set; } = new();
     }

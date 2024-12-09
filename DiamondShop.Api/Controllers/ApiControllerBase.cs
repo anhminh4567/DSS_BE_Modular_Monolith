@@ -15,6 +15,7 @@ namespace DiamondShop.Api.Controllers
         {
             if (errors.Any(err => err is ValidationError))
             {
+                string message = "Validation error";
                 foreach (var error in errors)
                 {
                     var metaError = error.Metadata;
@@ -25,8 +26,18 @@ namespace DiamondShop.Api.Controllers
                             modelState.AddModelError(errAtt.Key, (string)errMess);
                         //modelState.AddModelError(errAtt.Key,(string)errAtt.Value);
                     }
+                    var firstError = metaError.FirstOrDefault();
+                    if (firstError.Equals(default(KeyValuePair<string, object>)) == false)
+                    {
+                        // Handle the case where firstError is not the default value
+                        var messageList = firstError.Value as List<object>;
+                        var firstMessage = messageList.FirstOrDefault();
+                        if (firstMessage != null)
+                            message = (string)firstMessage;
+
+                    }
                 }
-                return ValidationProblem(modelStateDictionary: modelState, detail: errors.First(x => x is ValidationError).Message);
+                return ValidationProblem(modelStateDictionary: modelState, detail: message );// errors.First(x => x is ValidationError).Message
             }
             return Problem(errors.First());
         }

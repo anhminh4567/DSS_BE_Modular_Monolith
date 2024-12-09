@@ -37,5 +37,10 @@ namespace DiamondShop.Application.Dtos.Responses.Promotions
         public DiamondSpecDto? DiamondRequirementSpec { get; set; }
         public JewelryModelDto? Model { get; set; }
         //public List<RequirementShapeDto> PromoReqShapes { get; set; } = new();
+        public string RequirementMessage { get
+            {
+                string baseMessage = string.Empty;
+                return string.Empty;
+            } }
     }
 }

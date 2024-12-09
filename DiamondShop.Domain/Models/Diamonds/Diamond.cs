@@ -33,6 +33,7 @@ namespace DiamondShop.Domain.Models.Diamonds
 
     public class Diamond : Entity<DiamondId> , IAggregateRoot
     {  
+        public static ProductStatus[] UnallowedToDeleteStatus = new ProductStatus[] { ProductStatus.Sold, ProductStatus.Locked, ProductStatus.PreOrder };
         public JewelryId? JewelryId { get;  set; }
         public DiamondShapeId DiamondShapeId { get; set;}
         public DiamondShape DiamondShape { get; set;}
@@ -229,7 +230,12 @@ namespace DiamondShop.Domain.Models.Diamonds
             if (TruePrice < 0)
                 throw new Exception();
             else
-                TruePrice = finalPrice;
+            {
+                if (FixPriceOffset != null)
+                    TruePrice = finalPrice + FixPriceOffset.Value;
+                else
+                    TruePrice = finalPrice;
+            }
         }
         public void SetLockPriceForJewelry(int lockHour, decimal? LockedPriceForCustomer, DiamondRule rule)
         {
@@ -309,6 +315,16 @@ namespace DiamondShop.Domain.Models.Diamonds
                 throw new Exception();
             PriceOffset = newOffset;
             UpdatedAt = DateTime.UtcNow;
+        }
+        public void SetExtraFee(decimal? extraFee)
+        {
+            if (extraFee != null)
+                if (extraFee < 0)
+                    throw new Exception();
+                else
+                    FixPriceOffset = extraFee;
+            else
+                FixPriceOffset = null;
         }
         public void AssignPromotion(Promotion promotion, decimal reducedAmount)
         {

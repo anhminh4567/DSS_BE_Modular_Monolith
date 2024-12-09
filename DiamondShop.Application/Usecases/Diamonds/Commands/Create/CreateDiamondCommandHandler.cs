@@ -23,8 +23,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
 {
-    public record CreateDiamondRequestDto(Diamond_4C diamond4c, Diamond_Details details, Diamond_Measurement measurement, string shapeId, string? sku, Certificate? Certificate = Certificate.GIA, decimal priceOffset = 1);
-    public record CreateDiamondCommand(Diamond_4C diamond4c, Diamond_Details details, Diamond_Measurement measurement, string shapeId, string? sku,Certificate? Certificate = Certificate.GIA, decimal priceOffset = 1) :IRequest<Result<Diamond>>;
+    public record CreateDiamondRequestDto(Diamond_4C diamond4c, Diamond_Details details, Diamond_Measurement measurement, string shapeId, string? sku, Certificate? Certificate = Certificate.GIA, decimal priceOffset = 0, decimal? extraFee = null);
+    public record CreateDiamondCommand(Diamond_4C diamond4c, Diamond_Details details, Diamond_Measurement measurement, string shapeId, string? sku,Certificate? Certificate = Certificate.GIA, decimal priceOffset = 0, decimal? extraFee = null) :IRequest<Result<Diamond>>;
     internal class CreateDiamondCommandHandler : IRequestHandler<CreateDiamondCommand, Result<Diamond>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -49,7 +49,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
         public async Task<Result<Diamond>> Handle(CreateDiamondCommand request, CancellationToken cancellationToken)
         {
             DiamondRule diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
-            request.Deconstruct(out var diamond4c, out var details, out var measurement, out string shapeGivenId, out string? sku, out var certificate, out var priceOffset);
+            request.Deconstruct(out var diamond4c, out var details, out var measurement, out string shapeGivenId, out string? sku, out var certificate, out var priceOffset, out decimal? extraFee);
             DiamondShapeId shapeId = DiamondShapeId.Parse(shapeGivenId);
             var getShapes = await _diamondShapeRepository.GetAll();
             DiamondShape? getShape = getShapes.FirstOrDefault(x => x.Id == shapeId);
@@ -65,6 +65,11 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
             if (isDiamondBelongToACriteraGroup == false )
                 return Result.Fail(DiamondErrors.DiamondNotExistInAnyCriteria);
 
+            if(extraFee != null)
+            {
+                var fee = MoneyVndRoundUpRules.RoundAmountFromDecimal(extraFee.Value);
+                newDiamond.SetExtraFee(fee);
+            }
             await _diamondRepository.Create(newDiamond);
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(newDiamond);

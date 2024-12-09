@@ -3,6 +3,7 @@ using DiamondShop.Application.Dtos.Responses.CustomizeRequests;
 using DiamondShop.Application.Dtos.Responses.Diamonds;
 using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetAll;
 using DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetDetail;
+using DiamondShop.Application.Usecases.Diamonds.Commands.ChangePriceOffset;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Create;
 using DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeRequest;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Delete;
@@ -158,6 +159,19 @@ namespace DiamondShop.Api.Controllers.Diamonds
         public async Task<ActionResult> SetLock([FromBody] LockDiamondForUserCommand lockDiamondForUserCommand)
         {
             var result = await _sender.Send(lockDiamondForUserCommand);
+            if (result.IsSuccess)
+            {
+                var mappedResult = _mapper.Map<DiamondDto>(result.Value);
+                return Ok(mappedResult);
+            }
+
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPut("{diamondId}")]
+        [Produces(typeof(DiamondDto))]
+        public async Task<ActionResult> UpdatePrice([FromRoute] string diamondId,[FromBody] ChangeDiamondPriceOffsetRequest updateRequest)
+        {
+            var result = await _sender.Send(new ChangeDiamondPriceOffsetCommannd(diamondId,updateRequest.priceOffset,updateRequest.extraFee));
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<DiamondDto>(result.Value);

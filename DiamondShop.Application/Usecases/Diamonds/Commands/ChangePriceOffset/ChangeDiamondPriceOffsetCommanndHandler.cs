@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
+using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
@@ -15,7 +16,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Diamonds.Commands.ChangePriceOffset
 {
-    public record ChangeDiamondPriceOffsetCommannd(string diamondId, decimal priceOffset) : IRequest<Result<Diamond>>;
+    public record ChangeDiamondPriceOffsetRequest(decimal? priceOffset, decimal? extraFee);
+    public record ChangeDiamondPriceOffsetCommannd(string diamondId, decimal? priceOffset, decimal? extraFee) : IRequest<Result<Diamond>>;
     internal class ChangeDiamondPriceOffsetCommanndHandler : IRequestHandler<ChangeDiamondPriceOffsetCommannd, Result<Diamond>>
     {
         private readonly IDiamondRepository _diamondRepository;
@@ -42,7 +44,20 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.ChangePriceOffset
             {
                 return Result.Fail(DiamondErrors.UpdateError.PriceOffsetNotInLimit);
             }
-            getDiamond.ChangeOffset(request.priceOffset);
+            if (getDiamond.Status == Domain.Common.Enums.ProductStatus.Sold)
+                return Result.Fail(DiamondErrors.SoldError());
+            if(request.priceOffset != null)
+                getDiamond.ChangeOffset(request.priceOffset.Value);
+            if (request.extraFee != null)
+            {
+                var fee = MoneyVndRoundUpRules.RoundAmountFromDecimal(request.extraFee.Value);
+                getDiamond.SetExtraFee(fee);
+            }
+            else
+            {
+                getDiamond.SetExtraFee(null);
+            }
+
             await _diamondRepository.Update(getDiamond);
             await _unitOfWork.SaveChangesAsync();
             return getDiamond;

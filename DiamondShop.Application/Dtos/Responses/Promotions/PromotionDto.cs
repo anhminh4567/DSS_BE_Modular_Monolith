@@ -25,5 +25,11 @@ namespace DiamondShop.Application.Dtos.Responses.Promotions
         public List<RequirementDto> PromoReqs { get; set; } = new();
         public List<GiftDto> Gifts { get; set; } = new();
         public MediaDto? Thumbnail { get; set; }
+        public string PromotionDescriptionDetail { get
+            {
+                var baseMessage = $"chương trình {Name},";
+                
+                return "";
+            } }
     }
 }

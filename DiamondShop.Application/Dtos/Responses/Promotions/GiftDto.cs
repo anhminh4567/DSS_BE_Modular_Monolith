@@ -33,5 +33,13 @@ namespace DiamondShop.Application.Dtos.Responses.Promotions
         public decimal? MaxAmout { get; set; }
         public DiamondSpecDto? DiamondRequirementSpec { get; set; }
         public JewelryModelDto? GiftedModel { get; set; }
+        public string Gift
+        {
+            get
+            {
+                string baseMessage = string.Empty;
+                return string.Empty;
+            }
+        }
     }
 }

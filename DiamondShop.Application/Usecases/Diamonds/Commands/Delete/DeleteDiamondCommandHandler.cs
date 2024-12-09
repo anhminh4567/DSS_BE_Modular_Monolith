@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Commons;
 using DiamondShop.Domain.Common.Enums;
+using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories;
@@ -36,7 +37,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Delete
                 return Result.Fail(DiamondErrors.SoldError());
             if (getDiamond.JewelryId is not null)
                 return Result.Fail(DiamondErrors.DiamondAssignedToJewelryAlready(detail: "Không thể xóa"));
-            if (getDiamond.Status != ProductStatus.Inactive)
+            if (Diamond.UnallowedToDeleteStatus.Contains(getDiamond.Status))
                 return Result.Fail(DiamondErrors.DeleteUnallowed());
             await _diamondRepository.Delete(getDiamond);
             await _unitOfWork.SaveChangesAsync();
