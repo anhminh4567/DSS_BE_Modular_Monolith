@@ -59,7 +59,6 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
                 return Result.Fail(OrderErrors.Transfer.ExistVerifyingTransferError);
             if (isForUser)
             {
-                order.Status = OrderStatus.Cancelled;
                 if (order.Status == OrderStatus.Pending || order.PaymentType == PaymentType.COD)
                 {
                     order.PaymentStatus = PaymentStatus.No_Refund;
@@ -68,10 +67,10 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
                 {
                     order.PaymentStatus = PaymentStatus.Refunding;
                 }
+                order.Status = OrderStatus.Cancelled;
             }
             else
             {
-                order.Status = OrderStatus.Rejected;
                 if (order.Status == OrderStatus.Pending)
                 {
                     order.PaymentStatus = PaymentStatus.No_Refund;
@@ -80,6 +79,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
                 {
                     order.PaymentStatus = PaymentStatus.Refunding;
                 }
+                order.Status = OrderStatus.Rejected;
             }
             order.CancelledDate = DateTime.UtcNow;
             order.CancelledReason = reason;
