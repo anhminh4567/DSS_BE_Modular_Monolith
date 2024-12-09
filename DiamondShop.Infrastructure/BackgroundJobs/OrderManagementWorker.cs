@@ -52,7 +52,7 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
             DateTime utcNow = DateTime.UtcNow;
             DateTime correctExpiredTime = utcNow.Subtract(TimeSpan.FromHours(orderRule.ExpiredOrderHour));
             query = query.Where(o =>o.Status == Domain.Models.Orders.Enum.OrderStatus.Pending
-            && o.CreatedDate <= correctExpiredTime ).Include(x => x.Items);
+            && o.CreatedDate <= correctExpiredTime ).Include(x => x.Items).Include(x => x.Transactions);
             var result = query.ToList();
 
             if (result.Count == 0)
@@ -60,8 +60,17 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
             _logger.LogInformation("Found {0} order(s) to be expired", result.Count);
             foreach (var order in result)
             {
+                order.SetExpired(utcNow);
+                foreach (var item in order.Transactions)
+                {
+                    if(item.Status == Domain.Models.Transactions.Enum.TransactionStatus.Verifying)
+                    {
+                        item.Invalidate("Hết hạn thanh toán");
+                    }
+                }
                 await _orderService.CancelItems(order);
                 await _paymentService.RemoveAllPaymentCache(order);
+                await _orderRepository.Update(order);
             }
             await _unitOfWork.SaveChangesAsync();
 

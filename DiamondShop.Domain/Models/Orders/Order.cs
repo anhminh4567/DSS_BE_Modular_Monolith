@@ -145,10 +145,11 @@ namespace DiamondShop.Domain.Models.Orders
         public void SetExpired(DateTime expiredTime)
         {
             CancelledDate = expiredTime.ToUniversalTime();
-            ExpiredDate = CancelledDate;
+            //ExpiredDate = CancelledDate;
             Status = OrderStatus.Cancelled;
             CancelledReason = "quá hạn thanh toán, vui lòng mua đơn mới ";
         }
+
 
         public decimal GetOrderItemPriceOnly()
         {
