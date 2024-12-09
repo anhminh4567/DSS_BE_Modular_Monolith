@@ -24,6 +24,11 @@ namespace DiamondShop.Api.Controllers.Transactions
             var result = await _sender.Send(new GetAllPaymentMethodQuery());
             return Ok(result);
         }
+        [HttpPut("{methodId}")]
+        public async Task<ActionResult> UpdatePaymentMethodStatus([FromRoute] string methodId)
+        {
+            throw new NotImplementedException();
+        }
        
     }
 }

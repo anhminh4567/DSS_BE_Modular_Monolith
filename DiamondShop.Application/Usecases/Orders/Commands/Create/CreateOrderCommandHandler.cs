@@ -50,8 +50,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         private readonly IEmailService _emailService;
         private readonly INotificationRepository _notificationRepository;
         private readonly IOptions<LocationRules> _locationOptions;
+        private readonly IOrderTransactionService _orderTransactionService;
 
-        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, ISizeMetalRepository sizeMetalRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IJewelryService jewelryService, IPaymentMethodRepository paymentMethodRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderLogRepository orderLogRepository, IEmailService emailService, INotificationRepository notificationRepository, IOptions<LocationRules> locationOptions)
+        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, ISizeMetalRepository sizeMetalRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IJewelryService jewelryService, IPaymentMethodRepository paymentMethodRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderLogRepository orderLogRepository, IEmailService emailService, INotificationRepository notificationRepository, IOptions<LocationRules> locationOptions, IOrderTransactionService orderTransactionService)
         {
             _accountRepository = accountRepository;
             _orderRepository = orderRepository;
@@ -69,6 +70,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             _emailService = emailService;
             _notificationRepository = notificationRepository;
             _locationOptions = locationOptions;
+            _orderTransactionService = orderTransactionService;
         }
 
         public async Task<Result<Order>> Handle(CreateOrderCommand request, CancellationToken token)
@@ -140,13 +142,6 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                     errors.Add(new Error(errMess));
                 }
             }
-
-            if (paymentMethod.Id == PaymentMethod.ZALOPAY.Id)
-            {
-                if (cartModelResult.Value.OrderPrices.FinalPrice > transactionRule.MaximumPerTransaction)
-                    errors.Add(TransactionErrors.PaygateError.MaxTransactionError(paymentName, transactionRule.MaximumPerTransaction));
-                //return Result.Fail( TransactionErrors.PaygateError.MaxTransactionError(paymentName,transactionRule.MaximumPerTransaction));
-            }
             //check the pay method
             if (paymentType == PaymentType.Payall)
             {
@@ -166,6 +161,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                     //errors.Add(new Error($"Tổng giá trị đơn hàng vượt quá giới hạn cho phép {orderRule.MaxCOD}"));
                 }
             }
+            
+            
             if (errors.Count > 0)
                 return Result.Fail(errors);
             var customizeRequestId = requestId == null ? null : CustomizeRequestId.Parse(requestId);
@@ -185,6 +182,22 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             {
                 order.ChangeToCollectAtShop();
             }
+
+            //check if zalopay, check maximum 
+            if (paymentMethod.Id == PaymentMethod.ZALOPAY.Id)
+            {
+                var expectedValue = _orderTransactionService.GetCorrectAmountFromOrder(order);
+                if(expectedValue > paymentMethod.MaxSupportedPrice)
+                {
+                    errors.Add(TransactionErrors.PaygateError.MaxTransactionError(paymentName, (long)paymentMethod.MaxSupportedPrice ));
+                }
+                if (cartModelResult.Value.OrderPrices.FinalPrice > transactionRule.MaximumPerTransaction)
+                   errors.Add(TransactionErrors.PaygateError.MaxTransactionError(paymentName, transactionRule.MaximumPerTransaction));
+                //return Result.Fail( TransactionErrors.PaygateError.MaxTransactionError(paymentName,transactionRule.MaximumPerTransaction));
+            }
+            if (errors.Count > 0)
+                return Result.Fail(errors);
+
             var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Pending);
             List<OrderItem> orderItems = new();
             List<Jewelry> jewelries = new();

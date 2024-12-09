@@ -42,6 +42,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetDetail
             query = _jewelryRepository.QueryInclude(query, p => p.Diamonds);
             query = _jewelryRepository.QueryFilter(query, p => p.Id == JewelryId.Parse(request.jewelryId));
             query = _jewelryRepository.QuerySplit(query);
+            query = _jewelryRepository.QueryInclude(query, p => p.Review);
             var item = query.FirstOrDefault();
             if (item == null) return Result.Fail(JewelryErrors.JewelryNotFoundError);
             var activeDiscount = await _discountRepository.GetActiveDiscount();
