@@ -23,6 +23,7 @@ namespace DiamondShop.Domain.Models.Orders.ErrorMessages
         public static ValidationError NoDelivererAssignedError = new ValidationError("Đơn hàng chưa được giao cho nhân viên giao hàng");
         public static ValidationError NoDelivererToAssignError = new ValidationError("Không có nhân viên giao hàng để chuyển giao");
         public static ValidationError DelivererHasNotReturnedError = new ValidationError("Đơn hàng chưa về cửa hàng");
+        public static ValidationError DelivererIsUnavailableError = new ValidationError("Nhân viên giao hàng hiện đang công tác");
         public static ValidationError OnlyDelivererAllowedError = new ValidationError("Chỉ có nhân viên giao hàng mới được thực hiện hành động");
         public static ValidationError UnproceedableError = new ValidationError("Đơn hàng không thể được tiếp tục");
         public static ConflictError NotValidForCODType = new ConflictError("Đơn hàng không hợp lệ cho phương thức thanh toán COD, gía trị đơn hàng phải trên " + OrderPaymentRules.Default.MinAmountForCOD + " thì mới được dùng COD");

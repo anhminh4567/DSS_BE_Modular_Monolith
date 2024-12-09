@@ -1,9 +1,11 @@
 ﻿using DiamondShop.Domain.Common.Enums;
+using DiamondShop.Domain.Models.AccountAggregate.ErrorMessages;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
+using DiamondShop.Domain.Models.Orders.ErrorMessages;
 using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Models.Warranties.Enum;
 using DiamondShop.Domain.Models.Warranties.ErrorMessages;
@@ -149,13 +151,13 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             var account = await _accountRepository.GetById(AccountId.Parse(delivererId));
             if (account == null)
-                return Result.Fail("This deliverer doesn't exist");
+                return Result.Fail(AccountErrors.AccountNotFoundError);
             if (account.Roles.Any(p => p.Id != AccountRole.Deliverer.Id))
-                return Result.Fail("This account is not a deliverer");
+                return Result.Fail("Tài khoản không phải người giao hàng");
             var orderQuery = _orderRepository.GetQuery();
             var conflictedOrderFlag = _orderRepository.QueryFilter(orderQuery, p => p.DelivererId == account.Id && p.Id != order.Id).Any(p => p.Status == OrderStatus.Prepared || p.Status == OrderStatus.Delivering);
             if (conflictedOrderFlag)
-                return Result.Fail("This deliverer is currently unavailable");
+                return Result.Fail(OrderErrors.DelivererIsUnavailableError);
             order.DelivererId = account.Id;
             return order;
         }
