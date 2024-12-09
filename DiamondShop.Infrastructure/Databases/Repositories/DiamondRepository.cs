@@ -264,6 +264,30 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                               };
             //var queryString = rejoinQuery.ToQueryString();
             //var testResult = rejoinQuery.ToList();
+            //var testingQuery = from joinedQuery in rejoinQuery
+            //                   join price in _dbContext.DiamondPrices
+            //                   on new
+            //                   {
+            //                       CriteriaId = joinedQuery.Criteria != null ? joinedQuery.Criteria : DiamondCriteriaId.Parse("-404"), // Match only if criteria exists
+            //                       Color = joinedQuery.Diamond.Color,
+            //                       Clarity = joinedQuery.Diamond.Clarity,
+            //                       IsLab = joinedQuery.Diamond.IsLabDiamond
+            //                   }
+            //                   equals new
+            //                   {
+            //                       CriteriaId = price.CriteriaId,
+            //                       Color = price.Color ?? 0,
+            //                       Clarity = price.Clarity ?? 0,
+            //                       IsLab = price.IsLabDiamond
+            //                   }
+            //                   into priceGroup
+            //                   from matchedPrice in priceGroup.DefaultIfEmpty()
+            //                   select new
+            //                   {
+            //                       joinedQuery.Diamond.Id,
+            //                       priceId = matchedPrice != null ? matchedPrice.Id : null,
+            //                       price = matchedPrice != null ? matchedPrice.Price : (decimal?)null,
+            //                   };
             var joinPriceQuery = (from joinedQuery in rejoinQuery
                                   join price in _dbContext.DiamondPrices
                                   on new
@@ -283,33 +307,34 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                                   into priceGroup
                                   from matchedPrice in priceGroup.DefaultIfEmpty() // Include diamonds without matching prices
                                   let rawComputedPrice = matchedPrice != null
-                                      ? matchedPrice.Price * (1m + joinedQuery.Diamond.PriceOffset) * (decimal)joinedQuery.Diamond.Carat + joinedQuery.Diamond.FixPriceOffset
-                                     : (decimal?)null // Compute price, or null if no match
+                                      ? matchedPrice.Price * (1m + joinedQuery.Diamond.PriceOffset) * (decimal)joinedQuery.Diamond.Carat + ( joinedQuery.Diamond.FixPriceOffset == null ? 0 : joinedQuery.Diamond.FixPriceOffset.Value) // Compute price
+                                      : (decimal?)null // Compute price, or null if no match
                                   let roundedComputedPrice = rawComputedPrice != null
                                      ? Math.Ceiling(rawComputedPrice.Value / 1000m) * 1000 // Round up to the nearest 1000 VND
                                      : (decimal?)null
                                   let computedPrice = roundedComputedPrice == null
                                   ? (decimal?)null
-                                  : (roundedComputedPrice != null && roundedComputedPrice < smallestDiamondPriceAllowed)
+                                  : (roundedComputedPrice <= smallestDiamondPriceAllowed)
                                      ? smallestDiamondPriceAllowed
-                                     : rawComputedPrice // Ensure price is at least the smallest allowed price
-                                                        //where joinedQuery.Criteria == null // Ensure diamonds without criteria are included
-                                                        //     || matchedPrice == null // Ensure diamonds without prices are included
-                                                        //     || computedPrice == null // Ensure null computedPrice is included
-                                                        //     || (computedPrice >= priceFrom && computedPrice <= priceTo) // Filter by price range // Filter by price range
+                                     : roundedComputedPrice // Ensure price is at least the smallest allowed price
+                                                            //where joinedQuery.Criteria == null // Ensure diamonds without criteria are included
+                                                            //     || matchedPrice == null // Ensure diamonds without prices are included
+                                                            //     || computedPrice == null // Ensure null computedPrice is included
+                                                            //     || (computedPrice >= priceFrom && computedPrice <= priceTo) // Filter by price range // Filter by price range
                                   select new
                                   {
                                       joinedQuery.Diamond,
                                       ComputedPrice = computedPrice,
                                       Priority = computedPrice != null ? 1 : 0
-                                  }).Where(x => x.ComputedPrice == null || (x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo));
-            var finalQuery = joinPriceQuery
+                                  });//.Where(x => x.ComputedPrice == null || (x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo));
+            var finalQuery = joinPriceQuery.Where(x => x.ComputedPrice == null || (x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo))
                 .GroupBy(x => x.Diamond.Id)
                 .Select(g => g.OrderByDescending(x => x.Priority).First().Diamond)// Select the highest priority row per diamond
                 ;//.ToList(); 
-            var testquery = joinPriceQuery
+            var testquery = joinPriceQuery.Where(x => x.ComputedPrice == null || (x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo))
                 .GroupBy(x => x.Diamond.Id)
-                .Select(g => g.OrderByDescending(x => x.Priority).Select(x => new { x.Diamond.Id, x.ComputedPrice }).First());
+                .Select(g => g.OrderByDescending(x => x.Priority).Select(x => new { x.Diamond.Id, x.ComputedPrice })
+                .Where(x => x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo));
                 //.Where(x => x.ComputedPrice == null || (x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo));
 
             //throw new NotImplementedException();
