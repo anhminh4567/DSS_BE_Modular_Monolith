@@ -70,6 +70,7 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
                 else
                     order.PaymentStatus = PaymentStatus.Refunding;
             }
+            order.DelivererId = null;
             order.Status = OrderStatus.Cancelled;
             order.CancelledDate = DateTime.UtcNow;
             order.CancelledReason = reason;

@@ -16,7 +16,7 @@ using Microsoft.Extensions.Options;
 
 namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
 {
-    public record GetSellingModelQuery(int page = 0, string? Category = null, string? MetalId = null, decimal? MinPrice = null, decimal? MaxPrice = null, bool? IsRhodiumFinished = null, bool? IsEngravable = null) : IRequest<Result<PagingResponseDto<JewelryModelSelling>>>;
+    public record GetSellingModelQuery(int page = 0, string? Category = null, string? MetalId = null, decimal? MinPrice = null, decimal? MaxPrice = null, bool? IsEngravable = null) : IRequest<Result<PagingResponseDto<JewelryModelSelling>>>;
     internal class GetSellingModelQueryHandler : IRequestHandler<GetSellingModelQuery, Result<PagingResponseDto<JewelryModelSelling>>>
     {
         private readonly Dictionary<string, JewelryModelGalleryTemplate?> cachedGallery = new();
@@ -43,7 +43,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
         {
             var getActiveDiscount = await _discountRepository.GetActiveDiscount();
             var rule = _optionsMonitor.CurrentValue.JewelryModelRules;
-            request.Deconstruct(out int page, out string? Category, out string? metalId, out decimal? minPrice, out decimal? maxPrice, out bool? isRhodiumFinished, out bool? isEngravable);
+            request.Deconstruct(out int page, out string? Category, out string? metalId, out decimal? minPrice, out decimal? maxPrice, out bool? isEngravable);
             var query = _jewelryModelRepository.GetSellingModelQuery();
             if (!string.IsNullOrEmpty(Category))
             {
@@ -54,10 +54,6 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                 }
                 query = _jewelryModelRepository.QueryFilter(query, p => p.CategoryId == category.Id);
             }
-            //if (isRhodiumFinished != null)
-            //{
-            //    query = _jewelryModelRepository.QueryFilter(query, p => p.IsRhodiumFinish == isRhodiumFinished);
-            //}
             if (isEngravable != null)
             {
                 query = _jewelryModelRepository.QueryFilter(query, p => p.IsEngravable == isEngravable);
