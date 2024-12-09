@@ -8,6 +8,7 @@ using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
+using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
@@ -25,19 +26,22 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
         private readonly IJewelryModelFileService _jewelryModelFileService;
         private readonly IDiamondServices _diamondServices;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
+        private readonly IDiscountRepository _discountRepository;
 
-        public GetSellingModelQueryHandler(IJewelryModelCategoryRepository categoryRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, IDiamondServices diamondServices, IJewelryModelFileService jewelryModelFileService, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
+        public GetSellingModelQueryHandler( IJewelryModelCategoryRepository categoryRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, IJewelryModelFileService jewelryModelFileService, IDiamondServices diamondServices, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IDiscountRepository discountRepository)
         {
             _categoryRepository = categoryRepository;
             _jewelryRepository = jewelryRepository;
             _jewelryModelRepository = jewelryModelRepository;
-            _diamondServices = diamondServices;
             _jewelryModelFileService = jewelryModelFileService;
+            _diamondServices = diamondServices;
             _optionsMonitor = optionsMonitor;
+            _discountRepository = discountRepository;
         }
 
         public async Task<Result<PagingResponseDto<JewelryModelSelling>>> Handle(GetSellingModelQuery request, CancellationToken cancellationToken)
         {
+            var getActiveDiscount = await _discountRepository.GetActiveDiscount();
             var rule = _optionsMonitor.CurrentValue.JewelryModelRules;
             request.Deconstruct(out int page, out string? Category, out string? metalId, out decimal? minPrice, out decimal? maxPrice, out bool? isRhodiumFinished, out bool? isEngravable);
             var query = _jewelryModelRepository.GetSellingModelQuery();
@@ -60,6 +64,11 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
             }
             List<JewelryModelSelling> sellingModels = new();
             var pageIndex = await GetData(sellingModels, query, page, metalId, minPrice, maxPrice,rule.ModelPerQuery,rule.MinimumItemPerPaging);
+            //assign discount
+            sellingModels.ForEach(p =>
+            {
+                p.AssignDiscount(getActiveDiscount);
+            });
             return new PagingResponseDto<JewelryModelSelling>(0, pageIndex, sellingModels);
         }
         private PagingResponseDto<JewelryModelSelling> BlankPaging() => new PagingResponseDto<JewelryModelSelling>(0, 0, []);

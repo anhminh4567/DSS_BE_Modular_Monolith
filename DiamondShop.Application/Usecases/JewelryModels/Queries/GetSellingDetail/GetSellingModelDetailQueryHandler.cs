@@ -5,8 +5,10 @@ using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
+using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
+using FluentValidation.Results;
 using MediatR;
 
 namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetail
@@ -19,16 +21,20 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
         private readonly IJewelryModelRepository _modelRepository;
         private readonly IDiamondServices _diamondServices;
         private readonly IJewelryModelFileService _jewelryModelFileService;
-        public GetSellingModelDetailQueryHandler(IJewelryModelRepository modelRepository, IJewelryRepository jewelryRepository, IDiamondServices diamondServices, IJewelryModelFileService jewelryModelFileService)
+        private readonly IDiscountRepository _discountRepository;
+
+        public GetSellingModelDetailQueryHandler(IJewelryRepository jewelryRepository, IJewelryModelRepository modelRepository, IDiamondServices diamondServices, IJewelryModelFileService jewelryModelFileService, IDiscountRepository discountRepository)
         {
-            _modelRepository = modelRepository;
             _jewelryRepository = jewelryRepository;
+            _modelRepository = modelRepository;
             _diamondServices = diamondServices;
             _jewelryModelFileService = jewelryModelFileService;
+            _discountRepository = discountRepository;
         }
 
         public async Task<Result<JewelryModelSellingDetail>> Handle(GetSellingModelDetailQuery request, CancellationToken token)
         {
+            var activeDiscount = await _discountRepository.GetActiveDiscount();
             request.Deconstruct(out string modelId);
             var query = _modelRepository.GetSellingModelQuery();
             query = _modelRepository.IncludeMainDiamondQuery(query);
@@ -73,7 +79,10 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
                         ));
                 }
             }
-            return JewelryModelSellingDetail.Create(model, metalGroups, sideDiamonds, metalList, null);
+            var result = JewelryModelSellingDetail.Create(model, metalGroups, sideDiamonds, metalList, null);
+            // assign discount
+            result.AssignDiscount(activeDiscount);
+            return result;
         }
     }
 }

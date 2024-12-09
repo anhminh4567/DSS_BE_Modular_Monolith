@@ -51,6 +51,8 @@ namespace DiamondShop.Domain.Models.Jewelries
         [NotMapped]
         public decimal DiscountReducedAmount { get; set; } = 0;
         [NotMapped]
+        public Discount? Discount { get; set; } 
+        [NotMapped]
         public decimal PromotionReducedAmount { get; set; } = 0;
 
         [NotMapped]
@@ -222,9 +224,12 @@ namespace DiamondShop.Domain.Models.Jewelries
         {
             D_Price = totalAllDiamondPrice;
         }
-        public void AssignJewelryDiscount(Discount discount, decimal reducedAmount)
+        public void AssignJewelryDiscount(Discount discount)
         {
-            DiscountReducedAmount = reducedAmount;
+            var reducedAmountRaw = TotalPrice * ((decimal)discount.DiscountPercent / (decimal)100);
+            var correctReducedAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(reducedAmountRaw);
+            DiscountReducedAmount = correctReducedAmount;
+            Discount = discount;
         }
         public void AssignJewelryPromotion(Promotion promotion, decimal reducedAmount)
         {

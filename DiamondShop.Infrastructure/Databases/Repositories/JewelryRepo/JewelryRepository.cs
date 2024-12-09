@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.Common.Enums;
+using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.Entities;
@@ -85,7 +86,18 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
 
         public Task<List<Jewelry>> GetLockJewelry(CancellationToken cancellationToken = default)
         {
-            return _set.Where(p => p.ProductLock != null && p.Status == ProductStatus.Locked).ToListAsync(cancellationToken);
+            return _set.Where(p => p.ProductLock != null && p.Status == ProductStatus.LockForUser)
+                .Include(d => d.Diamonds)
+                .Include(d => d.SideDiamond)
+                .ToListAsync(cancellationToken);
+        }
+
+        public Task<List<Jewelry>> GetLockJewelryForUser(Account userAccount, CancellationToken cancellationToken = default)
+        {
+            return _set.Where(x => x.ProductLock != null && x.Status == ProductStatus.LockForUser && x.ProductLock.AccountId == userAccount.Id)
+                .Include(d => d.Diamonds)
+                .Include(d => d.SideDiamond)
+                .ToListAsync();
         }
     }
 }

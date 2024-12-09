@@ -11,6 +11,8 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         public int ReviewCount { get; set; }
         public decimal MinPrice { get; set; }
         public decimal MaxPrice { get; set; }
+        public decimal MinPriceAfterDiscount { get; set; }
+        public decimal MaxPriceAfterDiscount { get; set; }
         public string JewelryModelId { get; set; }
         public string MetalId { get; set; }
         public string SideDiamondOptId { get; set; }

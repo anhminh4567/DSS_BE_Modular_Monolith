@@ -1,9 +1,13 @@
 ﻿using DiamondShop.Domain.Common.ValueObjects;
+using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.Entities;
+using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.JewelryModels.Enum;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
+using DiamondShop.Domain.Models.Promotions.Entities;
+using DiamondShop.Domain.Services.Implementations;
 
 namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetail
 {
@@ -48,6 +52,22 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
                 HasMainDiamond = model.MainDiamonds.Count > 0,
             };
         }
+        public void AssignDiscount(List<Discount> activeDiscounts)
+        {
+            foreach (var metal in MetalGroups)
+            {
+                var fakeJewelryFromSellingModel = Jewelry.Create(Id, SizeId.Parse("NONE"), metal.MetalId, 0, "NONE", Domain.Common.Enums.ProductStatus.Active, JewelryId.Parse("NONE"));
+                var sizeGroup = metal.SizeGroups;
+                foreach (var size in sizeGroup)
+                {
+                    fakeJewelryFromSellingModel.ND_Price = size.Price ;
+                    fakeJewelryFromSellingModel.D_Price = 0;
+                    JewelryService.AssignJewelryDiscountGlobal(fakeJewelryFromSellingModel, activeDiscounts).Wait();
+                    var salePrice = fakeJewelryFromSellingModel.SalePrice;
+                    size.SetSalePrice(salePrice);
+                }
+            }
+        }
     }
     public class SellingDetailMetal
     {
@@ -86,6 +106,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
     {
         public float Size { get; set; }
         public decimal Price { get; set; }
+        public decimal SalePrice { get; set; } = 0;
         public bool IsInStock { get; set; }
         public static SellingDetailSize Create(float sizeValue, decimal Price, bool isInStock)
         {
@@ -95,6 +116,10 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
                 Price = Price,
                 IsInStock = isInStock
             };
+        }
+        public void SetSalePrice (decimal salePrice)
+        {
+            SalePrice = salePrice;
         }
     }
 }

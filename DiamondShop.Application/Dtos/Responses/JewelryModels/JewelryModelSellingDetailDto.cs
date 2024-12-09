@@ -38,6 +38,7 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
     {
         public float Size { get; set; }
         public decimal Price { get; set; }
+        public decimal SalePrice { get; set; }
         public bool IsInStock { get; set; }
     }
 }

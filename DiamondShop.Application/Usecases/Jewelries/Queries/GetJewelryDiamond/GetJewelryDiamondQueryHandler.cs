@@ -17,6 +17,7 @@ using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
 using System.ComponentModel.DataAnnotations;
 using System.Collections;
+using DiamondShop.Domain.Repositories.PromotionsRepo;
 
 namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond
 {
@@ -25,11 +26,13 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond
     {
         private readonly IJewelryModelRepository _jewelryModelRepository;
         private readonly IJewelryService _jewelryService;
+        private readonly IDiscountRepository _discountRepository;
 
-        public GetJewelryDiamondQueryHandler(IJewelryModelRepository jewelryModelRepository, IJewelryService jewelryService)
+        public GetJewelryDiamondQueryHandler(IJewelryModelRepository jewelryModelRepository, IJewelryService jewelryService, IDiscountRepository discountRepository)
         {
             _jewelryModelRepository = jewelryModelRepository;
             _jewelryService = jewelryService;
+            _discountRepository = discountRepository;
         }
 
         public async Task<Result<PagingResponseDto<Jewelry>>> Handle(GetJewelryDiamondQuery request, CancellationToken cancellationToken)
@@ -37,10 +40,11 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond
             request.Deconstruct(out int currentPage, out int pageSize, out string modelId, out string metalId, out string sizeId, out string? sideDiamondOptId, out decimal? minPrice, out decimal? maxPrice, out bool orderByDesc);
             pageSize = pageSize == 0 ? JewelryRule.MinimumItemPerPaging : pageSize;
             currentPage = currentPage == 0 ? 1 : currentPage;
+            var activeDiscount = await _discountRepository.GetActiveDiscount(); 
             var model = await _jewelryModelRepository.GetSellingModelDetail(JewelryModelId.Parse(modelId), MetalId.Parse(metalId), SizeId.Parse(sizeId));
             if (model == null)
                 return Result.Fail("Can't get the requested model");
-
+            
             var sizeMetal = model.SizeMetals.FirstOrDefault(p => p.MetalId == MetalId.Parse(metalId) && p.SizeId == SizeId.Parse(sizeId));
             if (sizeMetal == null)
                 return Result.Fail("The size metal option for this model doesn't exist");
@@ -71,6 +75,10 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond
             else
                 jewelries = jewelries.OrderBy(p => p.TotalPrice).ToList();
             jewelries.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+            foreach (var item in jewelries)
+            {
+                _jewelryService.AssignJewelryDiscount(item, activeDiscount).Wait();
+            }
             return new PagingResponseDto<Jewelry>(maxPage, currentPage, jewelries);
         }
     }

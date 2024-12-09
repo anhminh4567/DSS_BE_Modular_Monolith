@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.Diamonds;
+﻿using DiamondShop.Domain.Models.AccountAggregate;
+using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.Jewelries.Entities;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
@@ -24,6 +25,7 @@ namespace DiamondShop.Domain.Repositories.JewelryRepo
         public Task<bool> CheckDuplicatedSerial(string serialNumber);
         public Task<bool> IsHavingDiamond(Jewelry jewelry, CancellationToken cancellationToken = default);
         Task<List<Jewelry>> GetLockJewelry(CancellationToken cancellationToken = default);
+        Task<List<Jewelry>> GetLockJewelryForUser(Account userAccount,CancellationToken cancellationToken = default);
 
     }
 }

@@ -148,8 +148,8 @@ namespace DiamondShop.Domain.Services.Implementations
             }
             if (mostValuableDiscont != null)
             {
-                var reducedAmount = jewelry.TotalPrice * ((decimal)mostValuableDiscont.DiscountPercent / (decimal)100);
-                jewelry.AssignJewelryDiscount(mostValuableDiscont, reducedAmount);
+                //var reducedAmount = jewelry.TotalPrice * ((decimal)mostValuableDiscont.DiscountPercent / (decimal)100);
+                jewelry.AssignJewelryDiscount(mostValuableDiscont);//,reducedAmount
             }
             return mostValuableDiscont;
         }

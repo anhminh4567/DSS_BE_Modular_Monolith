@@ -4,6 +4,7 @@ using DiamondShop.Domain.Models.Jewelries.ErrorMessages;
 using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
+using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
@@ -21,11 +22,14 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetDetail
         private readonly IJewelryRepository _jewelryRepository;
         private readonly IJewelryService _jewelryService;
         private readonly ISizeMetalRepository _sizeMetalRepository;
-        public GetJewelryDetailQueryHandler(IJewelryRepository jewelryRepository, IJewelryService jewelryService, ISizeMetalRepository sizeMetalRepository)
+        private readonly IDiscountRepository _discountRepository;
+
+        public GetJewelryDetailQueryHandler(IJewelryRepository jewelryRepository, IJewelryService jewelryService, ISizeMetalRepository sizeMetalRepository, IDiscountRepository discountRepository)
         {
             _jewelryRepository = jewelryRepository;
             _jewelryService = jewelryService;
             _sizeMetalRepository = sizeMetalRepository;
+            _discountRepository = discountRepository;
         }
 
         public async Task<Result<Jewelry>> Handle(GetJewelryDetailQuery request, CancellationToken token)
@@ -40,7 +44,10 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetDetail
             query = _jewelryRepository.QuerySplit(query);
             var item = query.FirstOrDefault();
             if (item == null) return Result.Fail(JewelryErrors.JewelryNotFoundError);
-            return _jewelryService.AddPrice(item, _sizeMetalRepository);
+            var activeDiscount = await _discountRepository.GetActiveDiscount();
+            var result =  _jewelryService.AddPrice(item, _sizeMetalRepository);
+            _jewelryService.AssignJewelryDiscount(result, activeDiscount).Wait();
+            return result;
         }
     }
 }
