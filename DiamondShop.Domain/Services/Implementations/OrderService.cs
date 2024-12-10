@@ -159,6 +159,7 @@ namespace DiamondShop.Domain.Services.Implementations
             if (conflictedOrderFlag)
                 return Result.Fail(OrderErrors.DelivererIsUnavailableError);
             order.DelivererId = account.Id;
+            order.HasDelivererReturned = false;
             return order;
         }
 
