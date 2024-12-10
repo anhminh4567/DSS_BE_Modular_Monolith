@@ -17,5 +17,6 @@ namespace DiamondShop.Domain.Repositories.JewelryModelRepo
         bool ExistingModelName(string name);
         bool ExistingModelCode(string code);
         bool ExistingCategory(JewelryModelCategoryId modelCategoryId);
+        Task<JewelryModel?> GetByCode(string code);
     }
 }

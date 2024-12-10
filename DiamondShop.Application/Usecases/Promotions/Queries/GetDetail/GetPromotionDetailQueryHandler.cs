@@ -63,8 +63,8 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetDetail
             {
                 if(gift.TargetType == Domain.Models.Promotions.Enum.TargetType.Jewelry_Model && gift.ItemCode!= null)
                 {
-                    var modelId = JewelryModelId.Parse(gift.ItemCode);
-                    var model = await _jewelryModelRepository.GetById(modelId);
+                    //var modelId = JewelryModelId.Parse(gift.ItemCode);
+                    var model = await _jewelryModelRepository.GetByCode(gift.ItemCode);
                     gift.GiftedModel = model;
                 }
             }

@@ -15,7 +15,7 @@ namespace DiamondShop.Application.Dtos.Responses.Promotions
         public string PromotionId { get; set; }
         public string Name { get; set; }
         public TargetType TargetType { get; set; }
-        public string? ItemId { get; set; }
+        public string? ItemCode { get; set; }
         public UnitType UnitType { get; set; }
         public decimal UnitValue { get; set; }
         public int Amount { get; set; }

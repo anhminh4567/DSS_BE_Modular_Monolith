@@ -78,5 +78,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
         {
             return _set.Any(p => p.CategoryId == modelCategoryId);
         }
+
+        public async Task<JewelryModel?> GetByCode(string code)
+        {
+            return _set.Where(x => x.ModelCode == code).FirstOrDefault();
+        }
     }
 }
