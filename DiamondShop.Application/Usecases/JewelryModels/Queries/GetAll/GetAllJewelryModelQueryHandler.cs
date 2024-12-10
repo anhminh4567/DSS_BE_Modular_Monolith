@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll
 {
-    public record GetAllJewelryModelQuery(int CurrentPage, int PageSize, string? Name, string? Code, string? Category, bool? IsRhodiumFinished, bool? IsEngravable) : IRequest<PagingResponseDto<JewelryModel>>;
+    public record GetAllJewelryModelQuery(int CurrentPage, int PageSize, string? Name, string? Code, string? Category, bool? IsEngravable, int? MainDiamondQuantity = -1) : IRequest<PagingResponseDto<JewelryModel>>;
     internal class GetAllJewelryModelQueryHandler : IRequestHandler<GetAllJewelryModelQuery, PagingResponseDto<JewelryModel>>
     {
         private readonly IJewelryModelCategoryRepository _categoryRepository;
@@ -22,7 +22,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll
         }
         public async Task<PagingResponseDto<JewelryModel>> Handle(GetAllJewelryModelQuery request, CancellationToken token)
         {
-            request.Deconstruct(out int currentPage, out int pageSize, out string? name, out string? code, out string? categoryName, out bool? isRhodiumFinished, out bool? isEngravable);
+            request.Deconstruct(out int currentPage, out int pageSize, out string? name, out string? code, out string? categoryName, out bool? isEngravable, out int? MainDiamondQuantity);
             currentPage = currentPage == 0 ? 1 : currentPage;
             pageSize = pageSize == 0 ? 20 : pageSize;
             var query = _jewelryModelRepository.GetSellingModelQuery();
@@ -50,6 +50,10 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetAll
             if (!string.IsNullOrEmpty(code))
             {
                 query = _jewelryModelRepository.QueryFilter(query, p => p.ModelCode.ToUpper().Contains(code.ToUpper()));
+            }
+            if (MainDiamondQuantity >= 0)
+            {
+                query = _jewelryModelRepository.QueryFilter(query, p => p.MainDiamonds.Sum(p => p.Quantity) == MainDiamondQuantity);
             }
             int maxPage = (int)Math.Ceiling((decimal)query.Count() / pageSize);
             var list = query.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
