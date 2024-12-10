@@ -28,12 +28,12 @@ namespace DiamondShop.Application.Commons.Validators
                         return true;
                     }
 
-                    var getFractional = numToString.Split('.')[1];
+                    var getFractional = numToString.Split('.');
                     if (getFractional.Length == 1)
                     {
                         return true;
                     }
-                    if (getFractional.Length > maxFractionalNumber)
+                    if (getFractional[1].Length > maxFractionalNumber)
                     {
                         return false;
                     }

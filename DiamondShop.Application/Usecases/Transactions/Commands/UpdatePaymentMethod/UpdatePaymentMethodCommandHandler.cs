@@ -16,7 +16,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Transactions.Commands.UpdatePaymentMethod
 {
-    public record UpdatePaymentMethodCommand(string methodId, bool changeStatus = false, decimal? setMaxPrice = null) : IRequest<Result<PaymentMethod>>;
+    public record UpdatePaymentMethodRequestDto(bool? removeMaxPrice = null, bool? changeStatus = null, decimal? setMaxPrice = null);
+    public record UpdatePaymentMethodCommand(string methodId,bool? removeMaxPrice = null, bool? changeStatus =null, decimal? setMaxPrice = null) : IRequest<Result<PaymentMethod>>;
     internal class UpdatePaymentMethodCommandHandler : IRequestHandler<UpdatePaymentMethodCommand, Result<PaymentMethod>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -38,14 +39,21 @@ namespace DiamondShop.Application.Usecases.Transactions.Commands.UpdatePaymentMe
             {
                 return Result.Fail(TransactionErrors.PaymentMethodErrors.NotFoundError);
             }
-            if (request.changeStatus)
+            if (request.changeStatus != null)
             {
-                method.ChangeStatus();
+                method.ChangeStatus(request.changeStatus.Value);
             }
             if(request.setMaxPrice.HasValue)
             {
                 method.ChangeMaxSupportedPrice(request.setMaxPrice.Value);
             }
+            if(request.removeMaxPrice.HasValue)
+                if (request.removeMaxPrice.Value == true)
+                    method.ChangeMaxSupportedPrice(null);
+                
+            await _paymentMethodRepository.Update(method);
+            await _unitOfWork.SaveChangesAsync();
+            return method;
             throw new NotImplementedException();
         }
     }

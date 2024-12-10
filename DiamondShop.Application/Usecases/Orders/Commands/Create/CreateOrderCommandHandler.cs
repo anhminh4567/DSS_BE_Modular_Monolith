@@ -161,8 +161,17 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                     //errors.Add(new Error($"Tổng giá trị đơn hàng vượt quá giới hạn cho phép {orderRule.MaxCOD}"));
                 }
             }
+            //if(isAtShop.Value == false)
+            //{
+            //    if(cartModel.OrderPrices.FinalPrice > orderRule.MaxOrderAmountForDelivery)
+            //        errors.Add(new Error($"Tổng giá trị đơn hàng vượt quá giới hạn cho phép {orderRule.MaxOrderAmountForDelivery}.VND để giao cho khách, vui lòng chọn nhận tại shop, xin lỗi vì sự bất tiện"));
+            //}
+            //else
+            //{
+            //    //if()
+            //} 
             
-            
+                        
             if (errors.Count > 0)
                 return Result.Fail(errors);
             var customizeRequestId = requestId == null ? null : CustomizeRequestId.Parse(requestId);

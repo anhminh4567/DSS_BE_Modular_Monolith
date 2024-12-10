@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs.Models;
 using DiamondShop.Application.Dtos.Responses.Promotions;
+using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Models.Diamonds.Enums;
@@ -97,6 +98,7 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         }
         public void MapPriceToCells(List<DiamondPrice> prices)
         {
+            DateTime? mostCurrentDateTime = null;
             foreach (var price in prices)
             {
                 //var criteria = price.Criteria;
@@ -106,7 +108,21 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
                 CellMatrix[colorIndex, clarityIndex].DiamondPriceId = price.Id.Value;
                 CellMatrix[colorIndex, clarityIndex].PriceStart = CellMatrix[colorIndex, clarityIndex].Price * (decimal)CaratFrom;
                 CellMatrix[colorIndex, clarityIndex].PriceEnd = CellMatrix[colorIndex, clarityIndex].Price * (decimal)CaratTo;
+                CellMatrix[colorIndex, clarityIndex].LastUpdate = price.UpdatedAt.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat);
+                if(mostCurrentDateTime is null)
+                {
+                    mostCurrentDateTime = price.UpdatedAt;
+                }
+                else
+                {
+                    if (mostCurrentDateTime < price.UpdatedAt)
+                        mostCurrentDateTime = price.UpdatedAt;
+                }
             }
+            if (mostCurrentDateTime != null)
+                LastUpdate = mostCurrentDateTime.Value.ToLocalTime().ToString(DateTimeFormatingRules.DateTimeFormat);
+            else
+                LastUpdate = "chưa có thời gian cụ thể";
         }
         public void MapDiscounts(List<Discount> activeDiscount, Cut mainCut, DiamondShape shape, bool isLabDiamond)
         {
@@ -122,8 +138,8 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
                         continue;
                     if ((criteria.CaratFrom <= CaratTo && criteria.CaratTo >= CaratFrom) is false)
                         continue;
-                    if (criteria.CutFrom > mainCut || criteria.CutTo < mainCut)
-                        continue;
+                    //if (criteria.CutFrom > mainCut || criteria.CutTo < mainCut)
+                    //    continue;
                     if (DiamondServices.ValidateOrigin(criteria.DiamondOrigin.Value, isLabDiamond) == false)
                         continue;
                     MapToCells(criteria, discount);
@@ -206,14 +222,5 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public string? LastUpdate { get; set; }
         public decimal? PriceStart { get; set; }
         public decimal? PriceEnd { get; set; }
-
-        public void CalculateOffsetFromExellentPrice(decimal exellentPrice)
-        {
-            if (IsPriceKnown is false)
-                return;
-            var percentOffset = (Price / exellentPrice) - 1;
-            var roundedNumber = Math.Round(percentOffset, 2);
-            //OffsetFromExellentCut = roundedNumber;
-        }
     }
 }

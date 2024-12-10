@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.DiamondPrices.Queries.GetPriceBoardDetails
 {
-    public record GetDiamondPriceBoardDetailQuery(GetDiamondPriceBoardBaseQuery basePrice) : IRequest<Result<DiamondPriceBoardDto>>;
+    public record GetDiamondPriceBoardDetailQuery(GetDiamondPriceBoardBaseQuery basePrice,  bool? includeDiscount = false) : IRequest<Result<DiamondPriceBoardDto>>;
     internal class GetDiamondPriceBoardDetailQueryHandler : IRequestHandler<GetDiamondPriceBoardDetailQuery, Result<DiamondPriceBoardDto>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;

@@ -39,7 +39,7 @@ namespace DiamondShop.Domain.Models.Transactions.Entities
                 MaxSupportedPrice = maxAmount
             };
         }
-        public void ChangeStatus() => Status = !Status;
+        public void ChangeStatus(bool status) => Status = status;
         public void ChangeMaxSupportedPrice(decimal? newPrice) => MaxSupportedPrice = newPrice;
         public PaymentMethod() { }
     }
