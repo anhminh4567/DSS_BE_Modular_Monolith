@@ -69,7 +69,7 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
                 return SetActive();
             else
                 return Result.Fail("can only pause when active");
-            return Result.Fail("cannot pause a discount that is not active");
+            return Result.Ok();
         }
         public void Expired()
         {

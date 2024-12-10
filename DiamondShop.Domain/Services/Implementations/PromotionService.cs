@@ -379,18 +379,25 @@ namespace DiamondShop.Domain.Services.Implementations
 
             if (requirement.TargetType != TargetType.Diamond)
                 return false;
+            bool Check4CResult = false;
             if (requirement.DiamondOrigin == DiamondOrigin.Both)
-                return CheckDiamond4C(diamond, requirement);
+                Check4CResult =  CheckDiamond4C(diamond, requirement);
 
             else if (requirement.DiamondOrigin == DiamondOrigin.Natural && diamond.IsLabDiamond == false)
-                return CheckDiamond4C(diamond, requirement);
+                Check4CResult =CheckDiamond4C(diamond, requirement);
 
             else if (requirement.DiamondOrigin == DiamondOrigin.Lab && diamond.IsLabDiamond == true)
-                return CheckDiamond4C(diamond, requirement);
+                Check4CResult = CheckDiamond4C(diamond, requirement);
 
             else
                 return false;
-
+            if (Check4CResult == false)
+                return false;
+            else
+            {
+                var shapes = requirement.PromoReqShapes;
+                return shapes.Any(s => s.ShapeId == diamond.DiamondShapeId);
+            }
         }
         private static bool CheckDiamond4C(Diamond diamond, PromoReq requirement)
         {
@@ -402,20 +409,24 @@ namespace DiamondShop.Domain.Services.Implementations
         }
         private static bool ValidateDiamond4C(Diamond diamond, float caratFrom, float caratTo, Color colorFrom, Color colorTo, Clarity clarityFrom, Clarity clarityTo, Cut cutFrom, Cut cutTo)
         {
-            if (caratFrom <= diamond.Carat && caratTo >= diamond.Carat)
-            {
-                if (colorFrom <= diamond.Color && colorTo >= diamond.Color)
-                {
-                    if (clarityFrom <= diamond.Clarity && clarityTo >= diamond.Clarity)
-                    {
-                        if (cutFrom <= diamond.Cut && cutTo >= diamond.Cut)
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
+            //if (caratFrom <= diamond.Carat && caratTo >= diamond.Carat)
+            //{
+            //    if (colorFrom <= diamond.Color && colorTo >= diamond.Color)
+            //    {
+            //        if (clarityFrom <= diamond.Clarity && clarityTo >= diamond.Clarity)
+            //        {
+            //            if(diamond.Cut != null)
+            //            {
+            //                if (cutFrom <= diamond.Cut && cutTo >= diamond.Cut)
+            //                {
+            //                    return true;
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+            //return false;
+            return DiamondServices.ValidateDiamond4CGlobal(diamond,caratFrom,caratTo,colorFrom,colorTo,clarityFrom, clarityTo, cutFrom, cutTo);
         }
         private static bool CheckIfDiamondIsGift(Diamond diamond, Gift gift)
         {
@@ -430,7 +441,15 @@ namespace DiamondShop.Domain.Services.Implementations
 
             else if (gift.DiamondOrigin == DiamondOrigin.Lab && diamond.IsLabDiamond == true)
                 isQualified = CheckDiamond4CGift(diamond, gift);
-            return isQualified;
+            else
+                return false;
+            if (isQualified == false)
+                return false;
+            else
+            {
+                var shapes = gift.DiamondGiftShapes;
+                return shapes.Any(s => s == diamond.DiamondShapeId);
+            }
         }
         private static bool CheckIfJewelryIsGift(Jewelry jewelry, Gift gift)
         {
