@@ -99,11 +99,8 @@ namespace DiamondShop.Test.Integration
         public async Task Create_DefaultRing_WithDifferentDiamondCount_ShouldNot_AddToDb()
         {
             var model = await TestData.SeedMultiMainDiamondRingModel(_context);
-            var diamonds = await TestData.SeedDefaultDiamonds(_context, 2, "1");
-
             var jewelryReq = new JewelryRequestDto(model.Id.Value, TestData.SizeIds[0].Value, TestData.MetalIds[0].Value, Domain.Common.Enums.ProductStatus.Active);
-            var attachedDiamonds = diamonds.Select(p => p.Id.Value).ToList();
-            var command = new CreateJewelryCommand(jewelryReq, model.SideDiamonds.FirstOrDefault().Id.Value, attachedDiamonds);
+            var command = new CreateJewelryCommand(jewelryReq, model.SideDiamonds.FirstOrDefault().Id.Value, null);
             var result = await _sender.Send(command);
             if (result.IsFailed)
             {

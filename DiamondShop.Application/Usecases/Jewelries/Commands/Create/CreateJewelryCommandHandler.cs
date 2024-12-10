@@ -54,6 +54,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands.Create
             request.Deconstruct(out JewelryRequestDto jewelryRequest, out string? sideDiamondOptId, out List<string>? attachedDiamondIds);
             var modelQuery = _jewelryModelRepository.GetQuery();
             modelQuery = _jewelryModelRepository.QueryInclude(modelQuery, p => p.SideDiamonds);
+            modelQuery = _jewelryModelRepository.QueryInclude(modelQuery, p => p.MainDiamonds);
             modelQuery = _jewelryModelRepository.QueryInclude(modelQuery, p => p.SizeMetals);
             var model = modelQuery.FirstOrDefault(p => p.Id == JewelryModelId.Parse(jewelryRequest.ModelId));
             if (model is null) return Result.Fail(JewelryModelErrors.JewelryModelNotFoundError);
@@ -76,6 +77,8 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands.Create
                 if (flagUnmatchedDiamonds.IsFailed)
                     return Result.Fail(flagUnmatchedDiamonds.Errors);
             }
+            else if (model.MainDiamonds.Sum(p => p.Quantity) != attachedDiamondIds?.Count)
+                return Result.Fail(JewelryModelErrors.MainDiamond.MainDiamondCountError(model.MainDiamonds.Sum(p => p.Quantity)));
             var serialCode = _jewelryService.GetSerialCode(model, sizeMetal.Metal, sizeMetal.Size);
             var jewelry = Jewelry.Create
           (
