@@ -169,6 +169,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 && p.SideDiamond.ColorMax == sideDiamondOpt.ColorMax
                 && p.SideDiamond.SettingType == sideDiamondOpt.SettingType
                 && p.SideDiamond.DiamondShapeId == sideDiamondOpt.ShapeId
+                && p.SideDiamond.IsLabGrown == sideDiamondOpt.IsLabGrown
                 );
             return jewelryQuery;
         }

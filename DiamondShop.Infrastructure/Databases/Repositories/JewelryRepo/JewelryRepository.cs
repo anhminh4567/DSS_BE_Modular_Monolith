@@ -29,7 +29,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
                 .ThenInclude(d => d.DiamondShape)
                 .Include(d => d.Model).FirstOrDefaultAsync(d => d.Id == id);
         }
-       
+
         public void UpdateRange(List<Jewelry> jewelries)
         {
             _set.UpdateRange(jewelries);
@@ -52,7 +52,8 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
             p.Status == ProductStatus.Active && p.ModelId == modelId && p.MetalId == metalId &&
             p.SideDiamond.ColorMin == sideDiamondOpt.ColorMin && p.SideDiamond.ColorMax == sideDiamondOpt.ColorMax &&
             p.SideDiamond.ClarityMin == sideDiamondOpt.ClarityMin && p.SideDiamond.ClarityMax == sideDiamondOpt.ClarityMax &&
-            p.SideDiamond.SettingType == sideDiamondOpt.SettingType && p.SideDiamond.Carat == sideDiamondOpt.CaratWeight && p.SideDiamond.Quantity == sideDiamondOpt.Quantity && p.SideDiamond.DiamondShapeId == sideDiamondOpt.ShapeId
+            p.SideDiamond.SettingType == sideDiamondOpt.SettingType && p.SideDiamond.Carat == sideDiamondOpt.CaratWeight && p.SideDiamond.Quantity == sideDiamondOpt.Quantity && p.SideDiamond.DiamondShapeId == sideDiamondOpt.ShapeId &&
+            p.SideDiamond.IsLabGrown == sideDiamondOpt.IsLabGrown
             ).Select(p => p.SizeId).Distinct();
         }
         public IQueryable<SizeId> GetSizesInStock(JewelryModelId modelId, MetalId metalId)
@@ -75,13 +76,14 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
             p.SideDiamond.Carat == sideDiamondOpt.CaratWeight && p.SideDiamond.SettingType == sideDiamondOpt.SettingType &&
             p.SideDiamond.Quantity == sideDiamondOpt.Quantity && p.SideDiamond.DiamondShapeId == sideDiamondOpt.ShapeId &&
             p.SideDiamond.ColorMin == sideDiamondOpt.ColorMin && p.SideDiamond.ColorMax == sideDiamondOpt.ColorMax &&
-            p.SideDiamond.ClarityMax == sideDiamondOpt.ClarityMax && p.SideDiamond.ClarityMax == sideDiamondOpt.ClarityMax
+            p.SideDiamond.ClarityMax == sideDiamondOpt.ClarityMax && p.SideDiamond.ClarityMax == sideDiamondOpt.ClarityMax &&
+            p.SideDiamond.IsLabGrown == sideDiamondOpt.IsLabGrown
             ).AnyAsync();
         }
 
         public int GetSameModelCount(JewelryModelId jewelryModelId, MetalId metalId, SizeId sizeId)
         {
-            return _set.Where(p => p.ModelId == jewelryModelId &&  p.MetalId == metalId && p.SizeId ==  sizeId).Count();
+            return _set.Where(p => p.ModelId == jewelryModelId && p.MetalId == metalId && p.SizeId == sizeId).Count();
         }
 
         public Task<List<Jewelry>> GetLockJewelry(CancellationToken cancellationToken = default)
