@@ -155,8 +155,8 @@ namespace DiamondShop.Domain.Services.Implementations
             if (account.Roles.Any(p => p.Id != AccountRole.Deliverer.Id))
                 return Result.Fail("Tài khoản không phải người giao hàng");
             var orderQuery = _orderRepository.GetQuery();
-            var conflictedOrderFlag = _orderRepository.QueryFilter(orderQuery, p => p.DelivererId == account.Id && p.Id != order.Id).Any(p => p.Status == OrderStatus.Prepared || p.Status == OrderStatus.Delivering);
-            if (conflictedOrderFlag)
+            var conflictedOrderFlag = await _orderRepository.GetDelivererCurrentlyHandledOrder(account);
+            if (conflictedOrderFlag != null)
                 return Result.Fail(OrderErrors.DelivererIsUnavailableError);
             order.DelivererId = account.Id;
             order.HasDelivererReturned = false;
