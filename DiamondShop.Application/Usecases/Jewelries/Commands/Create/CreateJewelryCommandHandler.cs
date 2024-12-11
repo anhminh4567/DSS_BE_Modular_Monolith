@@ -67,19 +67,25 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands.Create
 
             var attachedDiamonds = new List<Diamond>();
             await _unitOfWork.BeginTransactionAsync(token);
-            if (attachedDiamondIds is not null && attachedDiamondIds.Count > 0)
+            var mainDiamondRequiredCount = model.MainDiamonds.Sum(p => p.Quantity);
+            if (mainDiamondRequiredCount != 0)
             {
-                var convertedId = attachedDiamondIds.Select(DiamondId.Parse).ToList();
-                var diamondQuery = _diamondRepository.GetQuery();
-                diamondQuery = _diamondRepository.QueryFilter(diamondQuery, p => convertedId.Contains(p.Id));
-                attachedDiamonds = diamondQuery.ToList();
-                var flagUnmatchedDiamonds = await _mainDiamondService.CheckMatchingDiamond(model.Id, attachedDiamonds);
-                if (flagUnmatchedDiamonds.IsFailed)
-                    return Result.Fail(flagUnmatchedDiamonds.Errors);
+                if (mainDiamondRequiredCount != attachedDiamondIds?.Count)
+                    return Result.Fail(JewelryModelErrors.MainDiamond.MainDiamondCountError(mainDiamondRequiredCount));
+                if (attachedDiamondIds is not null && attachedDiamondIds.Count > 0)
+                {
+                    var convertedId = attachedDiamondIds.Select(DiamondId.Parse).ToList();
+                    var diamondQuery = _diamondRepository.GetQuery();
+                    diamondQuery = _diamondRepository.QueryFilter(diamondQuery, p => convertedId.Contains(p.Id));
+                    attachedDiamonds = diamondQuery.ToList();
+                    var flagUnmatchedDiamonds = await _mainDiamondService.CheckMatchingDiamond(model.Id, attachedDiamonds);
+                    if (flagUnmatchedDiamonds.IsFailed)
+                        return Result.Fail(flagUnmatchedDiamonds.Errors);
+                }
             }
-            else if (model.MainDiamonds.Sum(p => p.Quantity) != attachedDiamondIds?.Count)
-                return Result.Fail(JewelryModelErrors.MainDiamond.MainDiamondCountError(model.MainDiamonds.Sum(p => p.Quantity)));
-            var serialCode = _jewelryService.GetSerialCode(model, sizeMetal.Metal, sizeMetal.Size);
+            var serialCode = jewelryRequest.ModelCode;
+            if(String.IsNullOrEmpty(serialCode))
+                serialCode = await _jewelryService.GetSerialCode(model, sizeMetal.Metal, sizeMetal.Size);
             var jewelry = Jewelry.Create
           (
               model.Id,

@@ -30,11 +30,18 @@ namespace DiamondShop.Domain.Services.Implementations
             _discountRepository = discountRepository;
             _jewelryRepository = jewelryRepository;
         }
-        public string GetSerialCode(JewelryModel model, Metal metal, Size size)
+        public async Task<string> GetSerialCode(JewelryModel model, Metal metal, Size size)
         {
             if (model == null || metal == null || size == null)
                 throw new Exception("model or metal or size is null");
-            int count = _jewelryRepository.GetSameModelCount(model.Id,metal.Id,size.Id) +1;
+            var jewelries = await _jewelryRepository.GetLatestSameModel(model.Id, metal.Id, size.Id);
+            var latestOne = jewelries.OrderBy(p => p.SerialCode).LastOrDefault();
+            int count = 1;
+            if(latestOne != null)
+            {
+                var splittedCode = latestOne.SerialCode.Split("_");
+                count = int.Parse(splittedCode[splittedCode.Length - 1])+1;
+            }
             return $"J_{model.ModelCode}-{metal.CodeName}{size.Value}_{count}";
         }
 

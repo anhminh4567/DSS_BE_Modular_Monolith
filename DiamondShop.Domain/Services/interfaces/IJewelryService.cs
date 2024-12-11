@@ -9,7 +9,7 @@ namespace DiamondShop.Domain.Services.interfaces
 {
     public interface IJewelryService
     {
-        string GetSerialCode(JewelryModel model, Metal metal, Size size);
+        Task<string> GetSerialCode(JewelryModel model, Metal metal, Size size);
         bool SetupUnmapped(List<Jewelry> jewelries, SizeMetal sizeMetal);
         bool SetupUnmapped(List<Jewelry> jewelries, List<SizeMetal> sizeMetals);
         Task<Discount?> AssignJewelryDiscount(Jewelry jewelry, List<Discount> discounts);

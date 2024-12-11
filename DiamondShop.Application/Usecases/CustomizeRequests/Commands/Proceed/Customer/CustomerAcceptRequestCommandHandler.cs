@@ -46,7 +46,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.Cu
             if (customizeRequest.Status != CustomizeRequestStatus.Priced)
                 return Result.Fail(CustomizeRequestErrors.UnrequestableError);
             var diamondList = customizeRequest.DiamondRequests.Count > 0 ? customizeRequest.DiamondRequests.Select(p => p.DiamondId.Value).ToList() : null;
-            JewelryRequestDto jewelryRequestDto = new(customizeRequest.JewelryModelId.Value, customizeRequest.SizeId.Value, customizeRequest.MetalId.Value, ProductStatus.PreOrder);
+            JewelryRequestDto jewelryRequestDto = new(customizeRequest.JewelryModelId.Value, customizeRequest.SizeId.Value, customizeRequest.MetalId.Value, null, ProductStatus.PreOrder);
             var jewelryResult = await _sender.Send(new CreateJewelryCommand(jewelryRequestDto, customizeRequest.SideDiamondId?.Value, diamondList));
             if (jewelryResult.IsFailed)
                 return Result.Fail(jewelryResult.Errors);
