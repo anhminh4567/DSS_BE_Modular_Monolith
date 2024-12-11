@@ -20,7 +20,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.PromotionsRepo
         public DiscountRepository(DiamondShopDbContext dbContext) : base(dbContext)
         {
         }
-
+        public override Task<List<Discount>> GetAll(CancellationToken token = default)
+        {
+            return _set.Include(x => x.DiscountReq).ThenInclude(x => x.PromoReqShapes).ToListAsync(token);
+        }
         public Task<List<Discount>> GetActiveDiscount(bool isDateComparisonRequired = false,CancellationToken cancellationToken = default)
         {
             if(isDateComparisonRequired)

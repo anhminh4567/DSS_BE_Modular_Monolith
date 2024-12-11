@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Quic;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,7 +17,6 @@ namespace DiamondShop.Application.Usecases.Discounts.Queries.GetAll
     {
         private readonly IDiscountRepository _discountRepository;
         private readonly ILogger<GetAllDiscountQueryHandler> _logger;
-
         public GetAllDiscountQueryHandler(IDiscountRepository discountRepository, ILogger<GetAllDiscountQueryHandler> logger)
         {
             _discountRepository = discountRepository;
@@ -26,9 +26,8 @@ namespace DiamondShop.Application.Usecases.Discounts.Queries.GetAll
         public async Task<List<Discount>> Handle(GetAllDiscountQuery request, CancellationToken cancellationToken)
         {
             _logger.LogDebug("get all discount is called");
-            var query = _discountRepository.GetQuery();
-            query = _discountRepository.QueryInclude(query, r => r.DiscountReq);
-            return (query.ToList());
+            var result = await _discountRepository.GetAll();
+            return result;
         }
     }
 }

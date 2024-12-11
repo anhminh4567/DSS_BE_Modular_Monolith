@@ -19,5 +19,6 @@ namespace DiamondShop.Application.Dtos.Responses.Promotions
         public string DiscountCode { get; set; }
         public int DiscountPercent { get; set; }
         public List<RequirementDto> DiscountReq { get; set; } = new();
+        public MediaDto? Thumbnail { get; set; }
     }
 }
