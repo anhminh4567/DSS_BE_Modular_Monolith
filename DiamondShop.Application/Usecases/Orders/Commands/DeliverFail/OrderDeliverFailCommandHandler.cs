@@ -51,7 +51,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.DeliverFail
             if (!isShopFault)
                 order.ShipFailedCount++;
             order.Status = OrderStatus.Delivery_Failed;
-            var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Delivery_Failed, ", lỗi bên " + (isShopFault ? "Shop" : "khach"));
+            var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Delivery_Failed, ",lỗi bên " + (isShopFault ? "Shop" : "Khách"));
             await _orderLogRepository.Create(log);
             await _orderRepository.Update(order);
             await _unitOfWork.SaveChangesAsync(token);
