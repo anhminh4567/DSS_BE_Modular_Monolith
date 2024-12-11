@@ -307,12 +307,10 @@ namespace DiamondShop.Domain.Models.Diamonds
         public void ChangeThumbnail(Media? thumbnail)
         {
             Thumbnail = thumbnail;
-            UpdatedAt = DateTime.UtcNow;
+            //UpdatedAt = DateTime.UtcNow;
         }
         public void ChangeOffset(decimal newOffset)
         {
-            if (newOffset <= 0)
-                throw new Exception();
             PriceOffset = newOffset;
             UpdatedAt = DateTime.UtcNow;
         }
@@ -325,6 +323,7 @@ namespace DiamondShop.Domain.Models.Diamonds
                     FixPriceOffset = extraFee;
             else
                 FixPriceOffset = null;
+            UpdatedAt = DateTime.UtcNow;
         }
         public void AssignPromotion(Promotion promotion, decimal reducedAmount)
         {
