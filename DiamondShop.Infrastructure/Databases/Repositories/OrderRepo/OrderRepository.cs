@@ -44,9 +44,13 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.OrderRepo
 
         public Task<Order?> GetDelivererCurrentlyHandledOrder(Account delivererAccount, CancellationToken cancellationToken = default)
         {
-            return _set.Where(x => (x.Status == OrderStatus.Delivering || x.Status == OrderStatus.Prepared)
-            && x.DelivererId != null && x.DelivererId == delivererAccount.Id && x.HasDelivererReturned == false)
-                .FirstOrDefaultAsync();
+            return _set.Where(x => 
+            x.DelivererId != null &&
+            x.DelivererId == delivererAccount.Id &&
+            ((x.Status == OrderStatus.Delivering) ||
+                (x.Status == OrderStatus.Prepared && x.HasDelivererReturned == false) ||
+                (x.Status == OrderStatus.Delivery_Failed && x.HasDelivererReturned == false))
+            ).FirstOrDefaultAsync();
         }
 
         public IQueryable<Order> GetDetailQuery(IQueryable<Order> query, bool isIncludeJewelry = true, bool isIncludeDiamond = true)
