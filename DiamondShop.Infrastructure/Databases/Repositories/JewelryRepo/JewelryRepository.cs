@@ -81,9 +81,9 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
             ).AnyAsync();
         }
 
-        public int GetSameModelCount(JewelryModelId jewelryModelId, MetalId metalId, SizeId sizeId)
+        public Task<List<Jewelry>> GetLatestSameModel(JewelryModelId jewelryModelId, MetalId metalId, SizeId sizeId)
         {
-            return _set.Where(p => p.ModelId == jewelryModelId && p.MetalId == metalId && p.SizeId == sizeId).Count();
+            return _set.Where(p => p.ModelId == jewelryModelId && p.MetalId == metalId && p.SizeId == sizeId).ToListAsync();
         }
 
         public Task<List<Jewelry>> GetLockJewelry(CancellationToken cancellationToken = default)

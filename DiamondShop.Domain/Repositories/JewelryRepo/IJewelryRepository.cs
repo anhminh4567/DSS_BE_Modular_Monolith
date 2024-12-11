@@ -18,7 +18,7 @@ namespace DiamondShop.Domain.Repositories.JewelryRepo
         public IQueryable<SizeId> GetSizesInStock(JewelryModelId modelId, MetalId metalId,
             SideDiamondOpt sideDiamondOpt);
         public IQueryable<SizeId> GetSizesInStock(JewelryModelId modelId, MetalId metalId);
-        public int GetSameModelCount(JewelryModelId jewelryModelId, MetalId metalId, SizeId sizeId);
+        public Task<List<Jewelry>> GetLatestSameModel(JewelryModelId jewelryModelId, MetalId metalId, SizeId sizeId);
         public Task<bool> Existing(JewelryModelId modelId);
         public Task<bool> Existing(JewelryModelId modelId, MetalId metalId, SizeId sizeId);
         public Task<bool> Existing(JewelryModelId modelId, SideDiamondOpt sideDiamondOpt);

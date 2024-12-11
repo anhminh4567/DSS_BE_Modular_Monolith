@@ -133,7 +133,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands.Seeding
                     {
                         foreach (var sideDiamond in model.SideDiamonds)
                         {
-                            var serialCode = _jewelryService.GetSerialCode(model, sizeMetal.Metal, sizeMetal.Size);
+                            var serialCode = await _jewelryService.GetSerialCode(model, sizeMetal.Metal, sizeMetal.Size);
                             var jewelry = Jewelry.Create
                               (
                                   model.Id,
@@ -154,7 +154,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands.Seeding
                     }
                     else
                     {
-                        var serialCode = _jewelryService.GetSerialCode(model, sizeMetal.Metal, sizeMetal.Size);
+                        var serialCode = await _jewelryService.GetSerialCode(model, sizeMetal.Metal, sizeMetal.Size);
                         var jewelry = Jewelry.Create
                           (
                               model.Id,
