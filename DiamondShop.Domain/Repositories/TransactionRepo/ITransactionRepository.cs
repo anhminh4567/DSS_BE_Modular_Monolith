@@ -14,5 +14,6 @@ namespace DiamondShop.Domain.Repositories.TransactionRepo
         Task<Transaction?> GetByAppAndPaygateId(string appid, string paygateId, CancellationToken cancellationToken = default);
         Task<List<Transaction>> GetByOrderId(OrderId orderId, CancellationToken cancellationToken = default);
         Task<bool> CheckExist(OrderId orderId, bool isManual, TransactionType transactionType);
+        Task<bool> CheckCodeExist(string transactionCode);
     }
 }
