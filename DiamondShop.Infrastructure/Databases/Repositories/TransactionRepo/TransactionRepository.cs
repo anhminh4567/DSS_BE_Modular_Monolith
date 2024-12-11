@@ -36,5 +36,10 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.TransactionRepo
         {
             return _set.AnyAsync(p => p.OrderId == orderId && p.IsManual == isManual && p.TransactionType == transactionType);
         }
+        public Task<bool> CheckCodeExist(string transactionCode)
+        {
+            return _set.AnyAsync(p => p.AppTransactionCode == transactionCode);
+        }
+
     }
 }

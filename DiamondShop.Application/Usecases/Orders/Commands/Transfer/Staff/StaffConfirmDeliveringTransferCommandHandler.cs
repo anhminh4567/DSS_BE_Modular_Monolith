@@ -44,6 +44,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Transfer.Staff
             request.Deconstruct(out string accountId, out TransferConfirmRequestDto transferCompleteRequestDto);
             transferCompleteRequestDto.Deconstruct(out string transactionId, out decimal amount, out string transactionCode);
             await _unitOfWork.BeginTransactionAsync(token);
+            var transactionCodeExist = await _transactionRepository.CheckCodeExist(transactionCode);
+            if (transactionCodeExist)
+                return Result.Fail(TransactionErrors.TransactionExistError);
             var manualPayment = await _transactionRepository.GetById(TransactionId.Parse(transactionId));
             if (manualPayment == null)
                 return Result.Fail(TransactionErrors.TransactionNotFoundError);
@@ -54,8 +57,6 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Transfer.Staff
                 return Result.Fail(OrderErrors.OrderNotFoundError);
             else if ((order.Status != OrderStatus.Delivering && order.Status != OrderStatus.Delivery_Failed) && order.PaymentMethodId != PaymentMethod.BANK_TRANSFER.Id)
                 return Result.Fail(OrderErrors.UnproceedableError);
-            else if (DateTime.UtcNow > order.ExpiredDate)
-                return Result.Fail(OrderErrors.ExpiredTimeDueError);
             manualPayment.VerifySuccess(AccountId.Parse(accountId), transactionCode);
             await _transactionRepository.Update(manualPayment, token);
             order.PaymentStatus = PaymentStatus.Paid;

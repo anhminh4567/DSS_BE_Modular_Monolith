@@ -30,10 +30,11 @@ namespace DiamondShop.Application.Usecases.Metals.Commands.Update
             MetalId metalId = MetalId.Parse(request.id);
             Metal getMetal = await _metalRepository.GetById(metalId);
             if (getMetal == null)
-                return Result.Fail(new NotFoundError("no metal found"));
+                return Result.Fail(new NotFoundError("Không tìm thấy kim loại"));
             getMetal.ChangePrice(request.price);
             await _metalRepository.Update(getMetal);
             await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CommitAsync();
             return getMetal;
         }
     }
