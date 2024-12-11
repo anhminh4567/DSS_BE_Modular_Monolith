@@ -116,7 +116,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.ChangeDiam
                                 diamondRequest.DiamondId = diamond.Id;
                                 await _diamondRequestRepository.Update(diamondRequest);
                                 if (diamond.Status != ProductStatus.PreOrder)
-                                    diamond.SetLock();
+                                    diamond.SetLockForCustomizeRequest();
                                 await _diamondRepository.Update(diamond);
                                 await _unitOfWork.SaveChangesAsync(token);
                             }

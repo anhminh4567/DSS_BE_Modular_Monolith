@@ -54,7 +54,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Reject.Cus
                 {
                     if (diamondReq.Diamond != null)
                     {
-                        if(diamondReq.Diamond.Status == ProductStatus.Active)
+                        if(diamondReq.Diamond.Status == ProductStatus.Locked)
                         {
                             diamondReq.DiamondId = null;
                             tobeSellDiamonds.Add(diamondReq.Diamond);

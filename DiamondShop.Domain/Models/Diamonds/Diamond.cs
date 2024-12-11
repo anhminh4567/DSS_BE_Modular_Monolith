@@ -196,7 +196,7 @@ namespace DiamondShop.Domain.Models.Diamonds
             ProductLock = null;
             JewelryId = null;
         }
-        public void SetLock()
+        public void SetLockForCustomizeRequest()
         {
             Status = ProductStatus.Locked;
             SoldPrice = null;
@@ -245,6 +245,8 @@ namespace DiamondShop.Domain.Models.Diamonds
                 throw new Exception("giá bán phải lớn hơn giá tối thiểu là "+ rule.MinimalMainDiamondPrice);
             if (lockHour > rule.MaxLockTimeForCustomer || lockHour < 1)
                 throw new Exception("thoi gian lock san pham toi da la  " + rule.MaxLockTimeForCustomer + " va toi thieu la 1");
+            if (JewelryId == null || Status != ProductStatus.Locked)
+                throw new Exception("không thể khóa giá cho kim cương này, chỉ khi khóa cho trang sức, còn TH còn lại không được khóa gía");
             Status = ProductStatus.LockForUser;
             ProductLock = ProductLock.CreateLock( TimeSpan.FromHours(lockHour));
             if (LockedPriceForCustomer != null)
@@ -264,6 +266,8 @@ namespace DiamondShop.Domain.Models.Diamonds
                 throw new Exception("giá bán phải lớn hơn giá tối thiểu là " + rule.MinimalMainDiamondPrice);
             if (lockHour > rule.MaxLockTimeForCustomer || lockHour < 1)
                 throw new Exception("thoi gian lock san pham toi da la  " + rule.MaxLockTimeForCustomer + " va toi thieu la 1");
+            if (Status != ProductStatus.Active)
+                throw new Exception("chỉ sản phẩm đang mở bán mới khóa được cho người dùng");
             Status = ProductStatus.LockForUser;
             ProductLock = ProductLock.CreateLockForUser(userAccount.Id, TimeSpan.FromHours(lockHour));
             if(LockedPriceForCustomer != null)
