@@ -35,9 +35,9 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
             _set.UpdateRange(jewelries);
         }
 
-        public async Task<bool> CheckDuplicatedSerial(string serialNumber)
+        public async Task<bool> CheckDuplicatedSerial(string serialCode)
         {
-            return await _set.AnyAsync(p => p.SerialCode == serialNumber);
+            return await _set.AnyAsync(p => p.SerialCode == serialCode.ToUpper());
         }
 
         public Task<bool> IsHavingDiamond(Jewelry jewelry, CancellationToken cancellationToken = default)

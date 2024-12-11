@@ -6,6 +6,7 @@ namespace DiamondShop.Domain.Models.Jewelries.ErrorMessages
     public class JewelryErrors
     {
         public static NotFoundError JewelryNotFoundError = new NotFoundError("Không tìm thấy trang sức");
+        public static ConflictError CodeInUseError = new ConflictError("Mã trang sức đã tồn tại");
         public static ConflictError JewelryInUseError = new ConflictError("Trang sức đang được sử dụng");
         public static ConflictError IsSold = new ConflictError("Trang sức đã được bán");
         public static ConflictError IsPreOrder = new ConflictError("Trang sức đang ở trạng thái đặt trước");

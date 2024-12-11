@@ -86,6 +86,12 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands.Create
             var serialCode = jewelryRequest.ModelCode;
             if(String.IsNullOrEmpty(serialCode))
                 serialCode = await _jewelryService.GetSerialCode(model, sizeMetal.Metal, sizeMetal.Size);
+            else
+            {
+                var conflicted = await _jewelryRepository.CheckDuplicatedSerial(serialCode);
+                if (conflicted)
+                    return Result.Fail(JewelryErrors.CodeInUseError);
+            }
             var jewelry = Jewelry.Create
           (
               model.Id,

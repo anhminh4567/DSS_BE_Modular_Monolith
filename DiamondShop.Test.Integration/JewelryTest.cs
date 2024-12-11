@@ -128,6 +128,25 @@ namespace DiamondShop.Test.Integration
             }
             Assert.True(result.IsFailed);
         }
+        [Trait("ReturnTrue", "NoConflict")]
+        [Fact]
+        public async Task No_Conflicting_Code()
+        {
+            var model = await TestData.SeedNoDiamondRingModel(_context);
+            var jewelryReq = new JewelryRequestDto(model.Id.Value, TestData.SizeIds[0].Value, TestData.MetalIds[0].Value, "ABC", Domain.Common.Enums.ProductStatus.Active);
+            var createResult = await _sender.Send(new CreateJewelryCommand(jewelryReq, null, null));
+            if (createResult.IsFailed)
+            {
+                _output.WriteLine(createResult.Errors[0].Message);
+            }
+            Assert.True(createResult.IsSuccess);
+            var createSecondResult = await _sender.Send(new CreateJewelryCommand(jewelryReq, null, null));
+            if (createSecondResult.IsFailed)
+            {
+                _output.WriteLine(createSecondResult.Errors[0].Message);
+            }
+            Assert.True(createSecondResult.IsFailed);
+        }
         [Trait("ReturnTrue", "DeleteJewelryStillCreateNewOne")]
         [Fact]
         public async Task Delete_Jewelry_Should_StillAbleTo_Create_New_One_AddToDb()
