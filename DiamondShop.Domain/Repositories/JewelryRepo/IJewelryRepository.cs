@@ -22,7 +22,7 @@ namespace DiamondShop.Domain.Repositories.JewelryRepo
         public Task<bool> Existing(JewelryModelId modelId);
         public Task<bool> Existing(JewelryModelId modelId, MetalId metalId, SizeId sizeId);
         public Task<bool> Existing(JewelryModelId modelId, SideDiamondOpt sideDiamondOpt);
-        public Task<bool> CheckDuplicatedSerial(string serialNumber);
+        public Task<bool> CheckDuplicatedSerial(string serialCode);
         public Task<bool> IsHavingDiamond(Jewelry jewelry, CancellationToken cancellationToken = default);
         Task<List<Jewelry>> GetLockJewelry(CancellationToken cancellationToken = default);
         Task<List<Jewelry>> GetLockJewelryForUser(Account userAccount,CancellationToken cancellationToken = default);
