@@ -402,14 +402,16 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
         {
             var tryGetAccount = await _userManager.FindByIdAsync(identityId);
             if (tryGetAccount is null)
-                return Result.Fail(new NotFoundError()); ;
+                return Result.Fail(AccountErrors.AccountNotFoundError);
+            if (oldPassword == newPassword)
+                return Result.Fail(new Error("password mới giống password cũ"));
             var result = await _userManager.ChangePasswordAsync(tryGetAccount, oldPassword, newPassword);
             if (result.Succeeded is false)
             {
                 Dictionary<string, object> errors = new();
                 foreach (var error in result.Errors)
                 {
-                    errors.Add(error.Code,new List<object> { "lỗi thay đổi password, hãy chắc ràng password " } );
+                    errors.Add(error.Code,new List<object> { "lỗi thay đổi password, hãy chắc ràng bạn nhập đúng password cũ của mình" } );
                 }
                 return Result.Fail(new ValidationError("lỗi thay đỏi password", errors));
             }
