@@ -16,6 +16,7 @@ namespace DiamondShop.Application.Usecases.SideDiamonds.Commands.Create
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
         public CreateModelSideDiamondCommandValidator(IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
+            _optionsMonitor = optionsMonitor;
             RuleFor(c => c.ModelId)
                 .NotEmpty();
              
