@@ -91,6 +91,8 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
                         DiamondPriceId = null,
                         Color = color,
                         Clarity = clarity,
+                        ColorText = color.ToString(),
+                        ClarityText = clarity.ToString(),
                         Price = -1,
                     };
                 }
@@ -214,6 +216,8 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public string? DiamondPriceId { get; set; }
         public Color Color { get; set; }
         public Clarity Clarity { get; set; }
+        public string ColorText { get; set; }
+        public string ClarityText { get; set; }
         public decimal Price { get; set; } = -1;
         public bool IsPriceKnown => Price > 0;
         //public decimal OffsetFromExellentCut { get; set; } = +0m;
