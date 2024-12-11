@@ -88,15 +88,28 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromo
             //this step is to apply promotion from the clone of result.value cartmodel
             // a concurrent bag is needed
             var successfulPromotions = new ConcurrentBag<PromoResponse>();
+            var errorPromotions = new ConcurrentDictionary<PromotionId, string?>();
             Parallel.ForEach(getAllActivePromo, (promo) => 
             {
                 var clonedCart = CartModel.CloneCart(cartModel);
+                Result applyResult = Result.Fail("unknown error");
                 if (clonedCart == null)
                     return;
-                var result = PromotionService.IsCartMeetPromotionRequirent(clonedCart, promo, promotionRule);
-                if(result.IsSuccess)
+                try
+                {
+                     applyResult = PromotionService.IsCartMeetPromotionRequirent(clonedCart, promo, promotionRule);
+                }
+                catch
+                {
+
+                }
+                if(applyResult.IsSuccess)
                 {
                     successfulPromotions.Add(new PromoResponse(clonedCart.OrderPrices.OrderPriceExcludeShipAndWarranty,promo.Id.Value, _mapper.Map<PromotionDto>(promo), true));
+                }
+                else
+                {
+                    errorPromotions.TryAdd(promo.Id, applyResult.Errors.FirstOrDefault()?.Message);
                 }
             });
             foreach (var item in response.Promotions)
@@ -106,6 +119,14 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromo
                 {
                     item.IsApplicable = true;
                     item.AmountSaved = founded.AmountSaved;
+                }
+            }
+            foreach(var failItem in errorPromotions)
+            {
+                var founded = response.Promotions.FirstOrDefault(x => x.PromoId == failItem.Key.Value);
+                if (founded != null)
+                {
+                    founded.ErrorMessage = failItem.Value;
                 }
             }
             response.Promotions.OrderByDescending(x => x.AmountSaved).ToList();

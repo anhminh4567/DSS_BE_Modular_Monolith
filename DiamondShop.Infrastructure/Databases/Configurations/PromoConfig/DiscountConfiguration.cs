@@ -24,6 +24,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.PromoConfig
                 childBuilder.ToJson();
             });
             builder.HasKey(o => o.Id);
+            builder.HasQueryFilter(x => x.Status != Domain.Models.Promotions.Enum.Status.Soft_deleted);
         }
     }
 }

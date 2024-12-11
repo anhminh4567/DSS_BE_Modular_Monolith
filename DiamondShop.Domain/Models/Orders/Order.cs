@@ -161,7 +161,7 @@ namespace DiamondShop.Domain.Models.Orders
         public decimal GetOrderExcludeShipping()
         {
             return TotalPrice - ShippingFee;
-        }
+        } 
         public void ChangeToCollectAtShop()
         {
             IsCollectAtShop = true;

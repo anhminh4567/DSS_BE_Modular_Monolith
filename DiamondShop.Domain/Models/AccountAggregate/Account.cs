@@ -143,6 +143,7 @@ namespace DiamondShop.Domain.Models.AccountAggregate
             if (TotalPoint < 0)
                 TotalPoint = 0;
         }
+        
         private Account()
         {
 

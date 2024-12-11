@@ -139,6 +139,12 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         {
             return RandomGenerators.GetRandomString(PromotionRules.MinCode);
         }
+        public void SetSoftDelete()
+        {
+            if (CanBePermanentlyDeleted == false)
+                throw new Exception();
+            Status = Status.Soft_deleted;
+        }
         public Discount() { }
     }
 

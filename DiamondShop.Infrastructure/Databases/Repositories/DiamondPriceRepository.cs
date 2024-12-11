@@ -234,6 +234,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             {
                 concreteMemoryCache.Clear();
             }
+
         }
         private string GetPriceKey(DiamondShapeId? shapeId, bool IsLabDiamond, Cut? cut, DiamondCriteriaId? criteriaId)
         {

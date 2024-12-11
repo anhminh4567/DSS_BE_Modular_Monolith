@@ -27,6 +27,7 @@ namespace DiamondShop.Domain.Models.Promotions.ErrorMessages
         public static Error ChangeDataNotValid = new Error("Dữ liệu thay đổi không hợp lệ");
         public static Error NotInCorrectState = new Error("Khuyến mãi không ở trạng thái yêu cầu để thực hiện hành động này");
         public static Error DeleteUnallowed = new Error("Không thể xóa khuyến mãi này, chỉ có thể xóa nếu nó cancelled, expired, scheduled");
+        public static Error InvalidState => new Error("Chương trình khuyến mãi hiện đang bị lỗi và không thể áp dụng, hãy liên hệ chúng tôi ngay");
         public static Error RequirentTypeLimit(TargetType type, int limit)
         {
             return new Error($"Không thể thêm yêu cầu mới, đã đạt giới hạn {type} là {limit}");

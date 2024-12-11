@@ -42,7 +42,8 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Delete
             {
                 return Result.Fail(PromotionError.DeleteUnallowed);
             }
-            await _promotionRepository.Delete(tryGet);
+            tryGet.SetSoftDelete();
+            await _promotionRepository.Update(tryGet);
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(tryGet);
         }

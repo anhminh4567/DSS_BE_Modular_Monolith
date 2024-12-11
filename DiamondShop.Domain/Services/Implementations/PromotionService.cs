@@ -67,7 +67,8 @@ namespace DiamondShop.Domain.Services.Implementations
                 return Result.Fail(PromotionError.ApplyingError.AlreadyAppliedPromo);
             if (promotionRequirement.Count <= 0 || promotionGift.Count <= 0)
             {
-                throw new Exception("this promotion dont even have a requirement or gift, major error, it should not exist");
+                return Result.Fail(PromotionError.InvalidState);
+                //throw new Exception("this promotion dont even have a requirement or gift, major error, it should not exist");
             }
             //account orders should not null here
             if (cartModel.Account != null)
@@ -581,7 +582,7 @@ namespace DiamondShop.Domain.Services.Implementations
             var result = ApplyPromotionOnCartModelGlobal(clonedCartModel,promotion,promotionRule);
             if (result.IsSuccess)
                 return result;
-            return Result.Fail("this promotion is not applicable for this cart");
+            return Result.Fail(result.Errors);
         }
         public static Result CheckIfUserHasAlreadyUsedThisPromotionToLimit(List<Order> userOrders , Promotion promotionToCheck, PromotionRule promotionRule)
         {

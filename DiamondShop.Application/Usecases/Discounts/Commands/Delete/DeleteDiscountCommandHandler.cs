@@ -36,7 +36,9 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Delete
                 return Result.Fail(DiscountErrors.NotFound);
             if(tryGetDiscount.CanBePermanentlyDeleted == false)
                 return Result.Fail(DiscountErrors.DeleteUnallowed("chỉ có thể xóa nếu expired hoặc cancelled"));
-            await _discountRepository.Delete(tryGetDiscount);
+            tryGetDiscount.SetSoftDelete();
+            await _discountRepository.Update(tryGetDiscount);
+            //await _discountRepository.Delete(tryGetDiscount);
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(tryGetDiscount);
         }

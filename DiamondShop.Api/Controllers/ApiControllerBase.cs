@@ -34,7 +34,10 @@ namespace DiamondShop.Api.Controllers
                         var firstMessage = messageList.FirstOrDefault();
                         if (firstMessage != null)
                             message = (string)firstMessage;
-
+                    }
+                    else
+                    {
+                        message = error.Message;
                     }
                 }
                 return ValidationProblem(modelStateDictionary: modelState, detail: message );// errors.First(x => x is ValidationError).Message

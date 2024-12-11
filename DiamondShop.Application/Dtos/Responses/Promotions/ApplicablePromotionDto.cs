@@ -27,5 +27,6 @@ namespace DiamondShop.Application.Dtos.Responses.Promotions
         public string PromoId { get; set; }
         public PromotionDto PromotionDto { get; set; }
         public bool IsApplicable { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 }

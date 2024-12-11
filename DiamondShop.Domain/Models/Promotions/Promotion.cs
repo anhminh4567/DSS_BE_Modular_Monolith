@@ -132,6 +132,12 @@ namespace DiamondShop.Domain.Models.Promotions
         {
             return orders.Where(o => o.PromotionId == Id && StatusNOTQualifiedAsUsed.Contains(o.Status) == false).ToList();
         }
+        public void SetSoftDelete()
+        {
+            if (CanBePermanentlyDeleted == false)
+                throw new Exception();
+            Status = Status.Soft_deleted;
+        }
         public Promotion() { }
     }
 }
