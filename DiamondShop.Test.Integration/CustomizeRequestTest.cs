@@ -340,6 +340,8 @@ namespace DiamondShop.Test.Integration
             Assert.True(result.IsSuccess);
             _output.WriteLine(account.PhoneNumber.ToString());
             var order = _context.Set<Order>().FirstOrDefault();
+            _output.WriteLine(order.TotalPrice.ToString());
+            _output.WriteLine(order.DepositFee.ToString());
             Assert.NotNull(order.CustomizeRequestId);
         }
     }
