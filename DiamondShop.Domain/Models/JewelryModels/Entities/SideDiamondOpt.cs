@@ -42,7 +42,7 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
         [NotMapped]
         public bool IsPriceKnown { get => TotalPrice > 0; }
         [NotMapped]
-        public decimal TotalPrice { get => AveragePricePerCarat * Quantity; }
+        public decimal TotalPrice { get => AveragePricePerCarat * (decimal)AverageCarat * Quantity; }
         [NotMapped]
         public float AverageCarat { get => (float)CaratWeight / (float)Quantity; }
         public SideDiamondOpt() { }

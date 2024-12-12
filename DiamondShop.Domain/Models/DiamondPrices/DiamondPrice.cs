@@ -20,6 +20,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices
     {
         //public DiamondShapeId ShapeId { get; set; }
         //public DiamondShape Shape { get; set; }
+        public static DiamondPriceId UknonwDiamondPrice = DiamondPriceId.Parse("-1");
         public DiamondCriteriaId CriteriaId { get; set; }
         public DiamondCriteria Criteria { get; set; }
         public bool IsLabDiamond { get; set; }
@@ -62,7 +63,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices
             return new DiamondPrice
             {
                 //ShapeId = diamondShapeId,
-                Id = DiamondPriceId.Create(),
+                Id = UknonwDiamondPrice,
                 CriteriaId = diamondCriteriaId,
                 Price = 0,
                 ForUnknownPrice = "Liên hệ chúng tôi để được tư vấn giá",
@@ -112,7 +113,7 @@ namespace DiamondShop.Domain.Models.DiamondPrices
             //this is not supposed to be in db, just for assigning
             return new DiamondPrice
             {
-                Id = DiamondPriceId.Create(),
+                Id = UknonwDiamondPrice,
                 //ShapeId = DiamondShape.ANY_SHAPES.Id,
                 CriteriaId = DiamondCriteriaId.Parse("-1"),
                 Price = 0,

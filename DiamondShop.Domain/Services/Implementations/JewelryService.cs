@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.JewelryModels;
@@ -119,7 +120,18 @@ namespace DiamondShop.Domain.Services.Implementations
             decimal totalDiamondPrice = 0;
             var thisSidePrice = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamond.IsLabGrown,sideDiamond.AverageCarat);
             var price = await _diamondServices.GetSideDiamondPrice(sideDiamond);
-            jewelry.IsAllSideDiamondPriceKnown = true;
+            if(price.Count > 1)
+            {
+                jewelry.IsAllSideDiamondPriceKnown = true;
+            }
+            else
+            {
+                var firstPrice = price.FirstOrDefault();
+                if(firstPrice == null)
+                    jewelry.IsAllSideDiamondPriceKnown = false;
+                if(firstPrice.Id == DiamondPrice.UknonwDiamondPrice)
+                    jewelry.IsAllSideDiamondPriceKnown = false;
+            }
             return sideDiamond.TotalPrice;
         }
         public async Task<Discount?> AssignJewelryDiscount(Jewelry jewelry, List<Discount> discounts)
