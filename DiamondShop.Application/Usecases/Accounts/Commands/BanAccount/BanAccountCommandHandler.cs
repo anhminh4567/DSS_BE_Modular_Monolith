@@ -32,7 +32,8 @@ namespace DiamondShop.Application.Usecases.Accounts.Commands.BanAccount
                 else
                     endDateTimeUtc = null;
             }
-            return await _authenticationService.BanAccount(request.identityId, endDateTimeUtc, cancellationToken);
+            var banResult =  await _authenticationService.BanAccount(request.identityId, endDateTimeUtc, cancellationToken);
+            return banResult;
         }
     }
 }

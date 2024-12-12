@@ -15,6 +15,7 @@ using DiamondShop.Domain.Models.Orders;
 using System.Runtime.CompilerServices;
 using DiamondShop.Domain.Models.AccountAggregate.Events;
 using System.ComponentModel.DataAnnotations.Schema;
+using DiamondShop.Domain.Models.AccountAggregate.Enums;
 
 namespace DiamondShop.Domain.Models.AccountAggregate
 {
@@ -37,6 +38,7 @@ namespace DiamondShop.Domain.Models.AccountAggregate
         public string Email { get; private set; }
         public string? PhoneNumber { get; set; }
         public decimal TotalPoint { get; set; } = 0;
+        public AccountStatus  Status { get; set; } = AccountStatus.Active;
         [NotMapped]
         public IUserIdentity? UserIdentity { get; set; }
         [NotMapped]
@@ -147,6 +149,10 @@ namespace DiamondShop.Domain.Models.AccountAggregate
         private Account()
         {
 
+        }
+        public void SetStatus(AccountStatus status)
+        {
+            Status = status;
         }
     }
 }

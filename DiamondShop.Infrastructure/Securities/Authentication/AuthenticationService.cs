@@ -5,6 +5,7 @@ using DiamondShop.Commons;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate;
+using DiamondShop.Domain.Models.AccountAggregate.Enums;
 using DiamondShop.Domain.Models.AccountAggregate.ErrorMessages;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.AccountRoleAggregate.ValueObjects;
@@ -347,7 +348,11 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
         {
             var tryGetAccount = await _userManager.FindByIdAsync(identityID);
             if (tryGetAccount is null)
-                return Result.Fail(new NotFoundError()); 
+                return Result.Fail(AccountErrors.AccountNotFoundError); 
+            var account = await _accountRepository.GetByIdentityId(identityID);
+            if (account is null)
+                return Result.Fail(AccountErrors.AccountNotFoundError);
+            await _unitOfWork.BeginTransactionAsync();
             tryGetAccount.LockoutEnabled = !tryGetAccount.LockoutEnabled;
             if(tryGetAccount.LockoutEnabled == true)
             {
@@ -359,10 +364,12 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                     }
                     tryGetAccount.LockoutEnd = endDateTime;
                 }
+                account.SetStatus(AccountStatus.Banned);
             }
             else
             {
                 tryGetAccount.LockoutEnd = null;
+                account.SetStatus(AccountStatus.Active);
             }
             // if date time is present, then auto lock
             if (endDateTime != null)
@@ -373,9 +380,13 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 }
                 tryGetAccount.LockoutEnd = endDateTime;
                 tryGetAccount.LockoutEnabled = true;
+                account.SetStatus(AccountStatus.Banned);
             }
             await _userManager.UpdateSecurityStampAsync(tryGetAccount);
             await _userManager.UpdateAsync(tryGetAccount);
+            await _accountRepository.Update(account);
+            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CommitAsync();
             return Result.Ok();
         }
         public async Task<Result<string>> ConfirmEmail(string accountId, string token)

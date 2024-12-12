@@ -69,7 +69,11 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.CustomizeRequestCo
                 .HasForeignKey(o => o.SideDiamondId)
                 .IsRequired(false);
             builder.HasOne(o => o.Order).WithOne(k => k.CustomizeRequest).HasForeignKey<Order>(k => k.CustomizeRequestId);
-
+            builder.HasOne(o => o.Jewelry)
+                .WithOne()
+                .HasForeignKey<CustomizeRequest>(x => x.JewelryId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
             builder.HasKey(o => o.Id);
         }
     }

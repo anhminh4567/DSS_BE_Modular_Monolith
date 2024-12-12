@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.Entities;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
+using DiamondShop.Domain.Models.Locations;
 using DiamondShop.Infrastructure.Identity.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -27,6 +28,11 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.AccountConfig
                    Id => Id.Value,
                    dbValue => AccountId.Parse(dbValue));
             builder.HasKey(o => o.Id);
+            builder.HasOne<AppCities>()
+                .WithMany()
+                .HasForeignKey(x => x.ProvinceId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
             builder.HasIndex(aa => new { aa.Id, aa.AccountId });
         }
     }
