@@ -40,7 +40,7 @@ namespace DiamondShop.Domain.Models.Jewelries.Entities
         [NotMapped]
         public decimal AveragePricePerCarat { get; set; } = 0;
         [NotMapped]
-        public decimal TotalPrice { get => AveragePricePerCarat * Quantity; }
+        public decimal TotalPrice { get => AveragePricePerCarat * (decimal)AverageCarat * Quantity; }
         [NotMapped]
         public bool IsPriceKnown { get => AveragePricePerCarat > 0; }
         // price is not just from diamondPrice, must * the amount of diamond to get real price
