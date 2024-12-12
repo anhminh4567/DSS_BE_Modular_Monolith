@@ -4,6 +4,7 @@ using DiamondShop.Infrastructure.Services.Payments.Zalopays;
 using DiamondShop.Infrastructure.Services.Payments.Zalopays.Constants;
 using DiamondShop.Infrastructure.Services.Payments.Zalopays.Models;
 using DiamondShop.Infrastructure.Services.Payments.Zalopays.Models.Responses;
+using DiamondShop.Infrastructure.Services.Payments.Zalopays.Utils;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -91,7 +92,24 @@ namespace DiamondShop.Api.Controllers.ThirdParties
             {
                 var sucessStatus = ZalopayReturnCode.SUCCESS;
                 var status = data["return_code"];
-                return RedirectPermanent(returnUrl + "/" + HttpContext.Request.QueryString.Value);
+                if(status != "00")
+                {
+
+                }
+                //var data = Request.Query;
+                //var checksumData = data["appid"] + "|" + data["apptransid"] + "|" + data["pmcid"] + "|" +
+                //    data["bankcode"] + "|" + data["amount"] + "|" + data["discountamount"] + "|" + data["status"];
+                //var checksum = HmacHelper.Compute(ZaloPayHMAC.HMACSHA256, key2, checksumData);
+
+                //if (!checksum.Equals(data["checksum"]))
+                //{
+                //    return StatusCode(400, "Bad Request");
+                //}
+                //else
+                //{
+                    // kiểm tra xem đã nhận được callback hay chưa, nếu chưa thì tiến hành gọi API truy vấn trạng thái thanh toán của đơn hàng để lấy kết quả cuối cùng
+                    //return StatusCode(200, "OK");
+                    return RedirectPermanent(returnUrl + "/" + HttpContext.Request.QueryString.Value);
             }
 
             //return Ok(HttpContext.Request.QueryString.Value);

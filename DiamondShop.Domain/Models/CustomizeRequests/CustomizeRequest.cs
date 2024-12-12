@@ -18,7 +18,7 @@ namespace DiamondShop.Domain.Models.CustomizeRequests
 {
     public class CustomizeRequest : Entity<CustomizeRequestId>
     {
-        public string RequestCode { get; set; }
+        public string RequestCode { get; set; } 
         public Order? Order { get; set; }
         public AccountId AccountId { get; set; }
         public Account Account { get; set; }

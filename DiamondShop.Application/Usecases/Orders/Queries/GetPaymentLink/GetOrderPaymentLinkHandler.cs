@@ -70,7 +70,6 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetPaymentLink
                     Account = getAccount,
                     Address = getOrder.ShippingAddress,
                     Amount = correctAmount,//getOrder.TotalPrice,
-                    Description = getOrder.Note,
                     Email = getAccount.Email,
                     Order = getOrder,
                     Title = "Thanh toán cho đơn hàng " + getOrder.OrderCode,

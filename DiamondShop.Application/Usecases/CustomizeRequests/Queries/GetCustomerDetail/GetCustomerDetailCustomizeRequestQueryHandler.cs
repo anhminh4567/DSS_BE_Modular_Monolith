@@ -59,7 +59,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetCustomer
                 {
                     break;
                 }
-                var prices = await _diamondPriceRepository.GetPrice(diamond.Cut, diamond.DiamondShape, false, cancellationToken);
+                var prices = await _diamondPriceRepository.GetPrice(diamond.Cut, diamond.DiamondShape, diamond.IsLabDiamond, cancellationToken);
                 var diamondPrice = await _diamondServices.GetDiamondPrice(diamond, prices);
             }
             if (customizeRequest.Status == CustomizeRequestStatus.Accepted)

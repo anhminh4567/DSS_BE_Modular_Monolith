@@ -156,6 +156,10 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                                 await _orderRepository.Update(getOrderDetail);
                                 await _unitOfWork.SaveChangesAsync();
                                 await _unitOfWork.CommitAsync();
+                            }else if(tryGetTransaction.Status == TransactionStatus.Invalid)
+                            {
+                                result["return_code"] = -1;
+                                result["return_message"] = "transaction no longer valid";
                             }
                         }
                         else
@@ -259,7 +263,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             var timeStampe = order.PaymentStatus == PaymentStatus.Pending
                 ? ZalopayUtils.GetTimeStamp(DateTime.Now).ToString()
                 : ZalopayUtils.GetTimeStamp(DateTime.Now).ToString();
-            var description = paymentLinkRequest.Description is null ? $"thanh toan cho don hang {paymentLinkRequest.Order.OrderCode}, timestampe = {timeStampe}" : paymentLinkRequest.Description;
+            var description = paymentLinkRequest.Description is null ? $"#{paymentLinkRequest.Order.OrderCode}" : paymentLinkRequest.Description;
             PaymentMetadataBodyPerTransaction descriptionBodyJson = new PaymentMetadataBodyPerTransaction
             {
                 GeneratedCode = app_trans_id,
@@ -294,14 +298,6 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             temporalTransaction.Status = TransactionStatus.Verifying;
             await _transactionRepository.Create(temporalTransaction);
             await _unitOfWork.SaveChangesAsync();
-            //await _dbCachingService.SetValue(new DbCacheModel()
-            //{
-            //    CreationTime= DateTime.UtcNow,
-            //    KeyId = cacheKey,
-            //    Name = cacheKey,
-            //    Value = JsonConvert.SerializeObject(result),
-            //    Type = typeof(ZalopayCreateOrderResponse).GetType().AssemblyQualifiedName
-            //});
             return Result.Ok(new PaymentLinkResponse { PaymentUrl = result.order_url, QrCode = GenQRImagePng(result.order_url) });
         }
 
