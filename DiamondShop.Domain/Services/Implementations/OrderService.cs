@@ -72,7 +72,7 @@ namespace DiamondShop.Domain.Services.Implementations
             List<Diamond> diamonds = new List<Diamond>();
             foreach (var item in items)
             {
-                item.Status = OrderItemStatus.Removed;
+                item.SetCancel();
                 if (item.JewelryId != null)
                 {
                     var jewelry = await _jewelryRepository.GetById(item.JewelryId);

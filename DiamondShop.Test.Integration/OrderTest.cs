@@ -6,6 +6,8 @@ using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Orders;
 using DiamondShop.Application.Services.Interfaces.Transfers;
+using DiamondShop.Application.Usecases.Diamonds.Commands.Delete;
+using DiamondShop.Application.Usecases.Jewelries.Commands.Delete;
 using DiamondShop.Application.Usecases.Orders.Commands.Checkout;
 using DiamondShop.Application.Usecases.Orders.Commands.Create;
 using DiamondShop.Application.Usecases.Orders.Commands.DeliverEnd;
@@ -39,6 +41,8 @@ using DiamondShop.Test.Integration.Data;
 using FluentResults;
 using HtmlAgilityPack.CssSelectors.NetCore;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Utilities;
 using Xunit.Abstractions;
 
 namespace DiamondShop.Test.Integration
@@ -421,6 +425,11 @@ namespace DiamondShop.Test.Integration
                 diamonds = _context.Set<Diamond>().ToList();
                 foreach (Diamond diamond in diamonds)
                     _output.WriteLine($"{diamond.Id} - {diamond.Status}");
+                var items = await _context.Set<OrderItem>().ToListAsync();
+                foreach (var item in items)
+                {
+                    _output.WriteLine($"{item.JewelryId?.Value}-{item.DiamondId?.Value} {item.ProductId} {item.Name} {item.IsProductDelete}");
+                }
             }
         }
         [Trait("ReturnTrue", "RejectNonPendingOrder")]
@@ -463,6 +472,7 @@ namespace DiamondShop.Test.Integration
                 Assert.Equal(OrderStatus.Rejected, order.Status);
                 Assert.Equal(PaymentStatus.Refunded, order.PaymentStatus);
             }
+
         }
         [Trait("ReturnTrue", "CompleteRefund")]
         [Fact()]
@@ -525,6 +535,11 @@ namespace DiamondShop.Test.Integration
             order = rejectTransferResult.Value;
             Assert.Equal(OrderStatus.Cancelled, order.Status);
             Assert.Equal(PaymentStatus.No_Refund, order.PaymentStatus);
+            var items = await _context.Set<OrderItem>().ToListAsync();
+            foreach (var item in items)
+            {
+                _output.WriteLine($"{item.JewelryId?.Value}-{item.DiamondId?.Value} {item.ProductId} {item.Name} {item.IsProductDelete}");
+            }
         }
         [Trait("ReturnTrue", "RejectCODTransferPendingOrder")]
         [Fact()]
@@ -583,13 +598,62 @@ namespace DiamondShop.Test.Integration
                     WriteError(deliveryEndResult.Errors);
                 }
                 Assert.True(order.HasDelivererReturned);
-                var rejectResult = await _sender.Send(new RejectOrderCommand(order.Id.Value,"huy",true));
+                var rejectResult = await _sender.Send(new RejectOrderCommand(order.Id.Value, "huy", true));
                 if (rejectResult.IsFailed)
                 {
                     WriteError(rejectResult.Errors);
                 }
                 Assert.Equal(OrderStatus.Cancelled, order.Status);
                 Assert.Equal(PaymentStatus.No_Refund, order.PaymentStatus);
+                var items = await _context.Set<OrderItem>().ToListAsync();
+                foreach(var item in items)
+                {
+                    _output.WriteLine($"{item.JewelryId?.Value}-{item.DiamondId?.Value} {item.ProductId} {item.Name} {item.IsProductDelete}");
+                }
+            }
+        }
+        [Trait("ReturnTrue", "Test delete jewelry-item")]
+        [Fact()]
+        public async Task DeleteJewelry()
+        {
+            var manager = await TestData.SeedDefaultManager(_context, _authentication);
+            var customer = await TestData.SeedDefaultCustomer(_context, _authentication);
+            var order = await SeedingPendingOrder(customer.Id.Value, PaymentType.COD);
+            var transaction = await fakeCustomerTransfer(order);
+            Assert.NotNull(transaction);
+            Assert.Equal(TransactionStatus.Verifying, transaction.Status);
+            var rejectTransferResult = await _sender.Send(new StaffRejectTransferCommand(manager.Id.Value, new(transaction.Id.Value)));
+            if (rejectTransferResult.IsFailed)
+            {
+                WriteError(rejectTransferResult.Errors);
+            }
+            Assert.True(rejectTransferResult.IsSuccess);
+            Assert.NotNull(rejectTransferResult.Value);
+            order = rejectTransferResult.Value;
+            Assert.Equal(OrderStatus.Cancelled, order.Status);
+            Assert.Equal(PaymentStatus.No_Refund, order.PaymentStatus);
+            order = await _context.Set<Order>().Include(p => p.Items).FirstOrDefaultAsync();
+            foreach (var item in order.Items)
+            {
+                _output.WriteLine($"{item.JewelryId?.Value}-{item.DiamondId?.Value} {item.ProductId} {item.Name} {item.IsProductDelete}");
+                if (item.JewelryId != null)
+                {
+                    var deleteFlag = await _sender.Send(new DeleteJewelryCommand(item.JewelryId.Value));
+                    WriteError(deleteFlag.Errors);
+
+                    Assert.True(deleteFlag.IsSuccess);
+                }
+                if (item.DiamondId != null)
+                {
+                    var deleteFlag = await _sender.Send(new DeleteDiamondCommand(item.DiamondId.Value));
+                    WriteError(deleteFlag.Errors);
+                    Assert.True(deleteFlag.IsSuccess);
+                }
+            }
+            order = await _context.Set<Order>().Include(p => p.Items).FirstOrDefaultAsync();
+            foreach (var item in order.Items)
+            {
+                _output.WriteLine($"{item.JewelryId?.Value}-{item.DiamondId?.Value} {item.ProductId} {item.Name} {item.IsProductDelete}");
             }
         }
     }

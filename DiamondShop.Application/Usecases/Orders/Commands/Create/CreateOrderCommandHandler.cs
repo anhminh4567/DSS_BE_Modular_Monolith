@@ -10,6 +10,7 @@ using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
+using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Models.Notifications;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
@@ -26,6 +27,7 @@ using DiamondShop.Domain.Repositories.TransactionRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Create
@@ -218,7 +220,23 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 //If shop replacement, then bought price should be 0
                 //TODO: Add final price
                 var getDiscountIfExist = cartModel.DiscountsApplied.FirstOrDefault(k => k.Id == product.DiscountId);
-                orderItems.Add(OrderItem.Create(order.Id, product.Jewelry?.Id, product.Diamond?.Id, product.ReviewPrice.DefaultPrice,
+                var productName = "";
+                if (product.Jewelry != null)
+                {
+                    if (product.Jewelry.SideDiamond != null)
+                        productName = $"{product.Jewelry.Model.Name} in {product.Jewelry.Metal.Name} ({product.Jewelry.SideDiamond.Carat} Tw)";
+                    else
+                        productName = $"{product.Jewelry.Model.Name} in {product.Jewelry.Metal.Name}";
+                }
+                else if(product.Diamond != null)
+                {
+                    productName = Diamond.GetTitle(product.Diamond);
+                }
+                else
+                {
+                    return Result.Fail("Không tìm thấy id trang sức hoặc kim cương");
+                }
+                orderItems.Add(OrderItem.Create(order.Id, productName, product.Jewelry?.Id, product.Diamond?.Id, product.ReviewPrice.DefaultPrice,
                      product.ReviewPrice.FinalPrice,
                 getDiscountIfExist, product.ReviewPrice.PromotionAmountSaved,
                 product.ReviewPrice.DiscountAmountSaved, product.CurrentWarrantyPrice));

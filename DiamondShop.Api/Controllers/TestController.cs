@@ -48,8 +48,8 @@ namespace DiamondShop.Api.Controllers
         {
             var account = Account.Create(FullName.Create("a", "b"), "testingwebandstuff@gmail.com");
             var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, 0, "abc", null, null, 40_000, 20_000, DateTime.UtcNow, OrderId.Parse("1"));
-            order.Items.Add(OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null, 0));
-            order.Items.Add(OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, 20_000_000, null, null, null, 0));
+            order.Items.Add(OrderItem.Create(order.Id, "", null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null, 0));
+            order.Items.Add(OrderItem.Create(order.Id, "", JewelryId.Parse("2"), null, 25_000_000, 20_000_000, null, null, null, 0));
             return Ok(_externalBankServices.GenerateQrCodeFromOrder(order, 50_000_000));
         }
 
@@ -97,8 +97,8 @@ namespace DiamondShop.Api.Controllers
         {
             var account = Account.Create(FullName.Create("a", "b"), "testingwebandstuff@gmail.com");
             var order = Order.Create(account.Id, PaymentType.Payall, PaymentMethodId.Parse("1"), 50_000_000, 20_000, 0.312m, "abc", null, null, 40_000, 20_000, DateTime.UtcNow, OrderId.Parse("1"));
-            var diamond = OrderItem.Create(order.Id, null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null, 0);
-            var jewellry = OrderItem.Create(order.Id, JewelryId.Parse("2"), null, 25_000_000, 20_000_000, null, null, null, 0);
+            var diamond = OrderItem.Create(order.Id, "", null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null, 0);
+            var jewellry = OrderItem.Create(order.Id, "", JewelryId.Parse("2"), null, 25_000_000, 20_000_000, null, null, null, 0);
             diamond.Diamond = Diamond.Create(DiamondShape.ROUND, new Diamond_4C(Cut.Excellent, Color.I, Clarity.FL, 0.22f, true), new Diamond_Details(Polish.Excellent, Symmetry.Excellent, Girdle.Thick, Fluorescence.Faint, Culet.Medium), new Diamond_Measurement(0.22f, 23f, 23f, "asdf"), 0.3m, "sfd");
             jewellry.Jewelry = Jewelry.Create(JewelryModelId.Create(), SizeId.Create(), MetalId.Create(), 2f, "sdf", DiamondShop.Domain.Common.Enums.ProductStatus.Active);
             order.Items.Add(diamond);

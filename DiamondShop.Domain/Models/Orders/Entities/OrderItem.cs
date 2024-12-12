@@ -43,9 +43,14 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         //public List<OrderItemWarranty>? Warranties { get; set; } = new();
         public OrderItemWarrantyId? WarrantyId { get; set; }
         public OrderItemWarranty? Warranty { get; set; }
+        public string ProductId { get; set; }
+        public string Name { get; set; }
+        [NotMapped]
+        public bool IsProductDelete { get{ return (JewelryId == null && DiamondId == null);  } }
         public OrderItem() { }
-        public static OrderItem Create(OrderId orderId, JewelryId? jewelryId, DiamondId? diamondId,decimal? originalPrice, decimal? purchasedPrice = 0, Discount? discount = null, decimal? promotionAmountSaved = null, decimal? discountAmountSaved = null, decimal warrantyPrice = 0, OrderItemId? givenId = null)
+        public static OrderItem Create(OrderId orderId, string name, JewelryId? jewelryId, DiamondId? diamondId,decimal? originalPrice, decimal? purchasedPrice = 0, Discount? discount = null, decimal? promotionAmountSaved = null, decimal? discountAmountSaved = null, decimal warrantyPrice = 0, OrderItemId? givenId = null)
         {
+            var productItem = jewelryId is null ? diamondId.Value : jewelryId.Value;
             return new OrderItem()
             {
                 Id = givenId is null ? OrderItemId.Create() : givenId,
@@ -60,8 +65,16 @@ namespace DiamondShop.Domain.Models.Orders.Entities
                 DiscountCode = discount == null ? null : discount.DiscountCode,
                 PromotionSavedAmount = promotionAmountSaved,
                 DiscountSavedAmount = discountAmountSaved,
-                WarrantyPrice = warrantyPrice
+                WarrantyPrice = warrantyPrice,
+                ProductId = productItem,
+                Name = name,
             };
+        }
+        public void SetCancel()
+        {
+            JewelryId = null;
+            DiamondId = null;
+            Status = OrderItemStatus.Removed;
         }
     }
 }
