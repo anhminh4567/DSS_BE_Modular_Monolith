@@ -280,10 +280,9 @@ namespace DiamondShop.Domain.Services.Implementations
                 {
                     if (product.Diamond.ProductLock is null || CurrentCart.Account == null)
                         return Result.Fail("");
-                    if (product.Diamond.ProductLock.AccountId != CurrentCart.Account.Id)
+                    if (product.Diamond.ProductLock.AccountId != null &&  (product.Diamond.ProductLock.AccountId != CurrentCart.Account.Id))
                         return Result.Fail(CartModelErrors.CartProductError.NotLockForThisUser(product,CurrentCart.Account));
                 }
-
                 if (product.Diamond.DiamondPrice!.ForUnknownPrice != null)
                     return Result.Fail(CartModelErrors.CartProductError.UnknownPrice(productIndex + 1, product));
                 if (product.Diamond.IsSetForJewelry)
@@ -303,6 +302,17 @@ namespace DiamondShop.Domain.Services.Implementations
                     return Result.Fail(CartModelErrors.CartProductError.Sold(product));
                 if (product.Jewelry.IsAllDiamondPriceKnown == false)
                     return Result.Fail(CartModelErrors.CartProductError.UnknownPrice(productIndex,product));
+                if (product.Jewelry.Status != ProductStatus.Active 
+                    && product.Jewelry.Status != ProductStatus.LockForUser
+                    && product.Jewelry.Status != ProductStatus.PreOrder)
+                    return Result.Fail(CartModelErrors.CartProductError.IncorrectStateForSale(product));
+                if (product.Jewelry.Status == ProductStatus.LockForUser)
+                {
+                    if (product.Jewelry.ProductLock is null || CurrentCart.Account == null)
+                        return Result.Fail("Sản phẩm khóa cho khách khác");
+                    if (product.Jewelry.ProductLock.AccountId != CurrentCart.Account.Id)
+                        return Result.Fail(CartModelErrors.CartProductError.NotLockForThisUser(product, CurrentCart.Account));
+                }
                 return CheckDuplicate(CurrentCart, product);
             }
             if (product.JewelryModel is not null) { }
