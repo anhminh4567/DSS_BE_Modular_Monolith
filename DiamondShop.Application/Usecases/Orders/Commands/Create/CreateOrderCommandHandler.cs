@@ -32,7 +32,7 @@ using Microsoft.Extensions.Options;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Create
 {
-    public record CreateOrderInfo(PaymentType PaymentType, string methodId, string PaymentName, string? RequestId, string? PromotionId, BillingDetail BillingDetail, List<OrderItemRequestDto> OrderItemRequestDtos,bool? IsAtShopOrder = false);
+    public record CreateOrderInfo(PaymentType PaymentType, string methodId, string PaymentName, string? RequestId, string? PromotionId, BillingDetail BillingDetail, List<OrderItemRequestDto> OrderItemRequestDtos, bool? IsAtShopOrder = false);
     public record CreateOrderCommand(string AccountId, CreateOrderInfo CreateOrderInfo) : IRequest<Result<Order>>;
     internal class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Result<Order>>
     {
@@ -172,24 +172,27 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             //{
             //    //if()
             //} 
-            
-                        
+
+
             if (errors.Count > 0)
                 return Result.Fail(errors);
             var customizeRequestId = requestId == null ? null : CustomizeRequestId.Parse(requestId);
             var orderPromo = cartModel.Promotion.Promotion;
             string address = null;
-            if(isAtShop != null && isAtShop.Value == true)
-                address = "Tại cửa hàng, địa chỉ: "+ _locationOptions.Value.OriginalLocationName;
+            if (isAtShop != null && isAtShop.Value == true)
+                address = "Tại cửa hàng, địa chỉ: " + _locationOptions.Value.OriginalLocationName;
             else
                 address = billingDetail.GetAddressString();
-            decimal depositFee = paymentType == PaymentType.Payall ? 0m : (0.01m * paymentRule.CODPercent) * cartModel.OrderPrices.FinalPrice;
+            var CODAmount = (0.01m * paymentRule.CODPercent);
+            if (requestId != null)
+                CODAmount = 0.01m * paymentRule.DepositPercent;
+            decimal depositFee = paymentType == PaymentType.Payall ? 0m : CODAmount * cartModel.OrderPrices.FinalPrice;
             depositFee = MoneyVndRoundUpRules.RoundAmountFromDecimal(depositFee);
             DateTime? expiredDate = DateTime.UtcNow.AddHours(orderRule.ExpiredOrderHour);//paymentMethod.Id == PaymentMethod.BANK_TRANSFER.Id ? DateTime.UtcNow.AddHours(paymentRule.CODHourTimeLimit) : null;
             var order = Order.Create(account.Id, paymentType, paymentMethod.Id, cartModel.OrderPrices.FinalPrice, cartModel.ShippingPrice.FinalPrice, depositFee,
-                address, customizeRequestId, orderPromo, cartModel.OrderPrices.OrderAmountSaved, cartModel.OrderPrices.UserRankDiscountAmount,expiredDate);
+                address, customizeRequestId, orderPromo, cartModel.OrderPrices.OrderAmountSaved, cartModel.OrderPrices.UserRankDiscountAmount, expiredDate);
             //create log
-            if(isAtShop != null && isAtShop.Value == true)
+            if (isAtShop != null && isAtShop.Value == true)
             {
                 order.ChangeToCollectAtShop();
             }
@@ -198,12 +201,12 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             if (paymentMethod.Id == PaymentMethod.ZALOPAY.Id)
             {
                 var expectedValue = _orderTransactionService.GetCorrectAmountFromOrder(order);
-                if(expectedValue > paymentMethod.MaxSupportedPrice)
+                if (expectedValue > paymentMethod.MaxSupportedPrice)
                 {
-                    errors.Add(TransactionErrors.PaygateError.MaxTransactionError(paymentName, (long)paymentMethod.MaxSupportedPrice ));
+                    errors.Add(TransactionErrors.PaygateError.MaxTransactionError(paymentName, (long)paymentMethod.MaxSupportedPrice));
                 }
                 if (cartModelResult.Value.OrderPrices.FinalPrice > transactionRule.MaximumPerTransaction)
-                   errors.Add(TransactionErrors.PaygateError.MaxTransactionError(paymentName, transactionRule.MaximumPerTransaction));
+                    errors.Add(TransactionErrors.PaygateError.MaxTransactionError(paymentName, transactionRule.MaximumPerTransaction));
                 //return Result.Fail( TransactionErrors.PaygateError.MaxTransactionError(paymentName,transactionRule.MaximumPerTransaction));
             }
             if (errors.Count > 0)
@@ -228,7 +231,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                     else
                         productName = $"{product.Jewelry.Model.Name} in {product.Jewelry.Metal.Name}";
                 }
-                else if(product.Diamond != null)
+                else if (product.Diamond != null)
                 {
                     productName = Diamond.GetTitle(product.Diamond);
                 }
@@ -245,7 +248,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                     if (product.Jewelry != null)
                     {
                         _jewelryService.AddPrice(product.Jewelry, _sizeMetalRepository);
-                        product.Jewelry.SetSoldUnavailable( product.ReviewPrice.FinalPrice, product.EngravedText, product.EngravedFont);
+                        product.Jewelry.SetSoldUnavailable(product.ReviewPrice.FinalPrice, product.EngravedText, product.EngravedFont);
                         jewelries.Add(product.Jewelry);
                     }
                 }
@@ -279,7 +282,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             order.Account = account;
             //no wait to send email
             _emailService.SendInvoiceEmail(order, account);
-            var notificationToCustomer = Notification.CreateAccountMessage(order, account,"đơn hàng đã dược đặt, vui lòng thanh toán trong thời hạn",null);
+            var notificationToCustomer = Notification.CreateAccountMessage(order, account, "đơn hàng đã dược đặt, vui lòng thanh toán trong thời hạn", null);
             _notificationRepository.Create(notificationToCustomer).Wait();
             await _unitOfWork.SaveChangesAsync(token);
             // if order price = 0 then auto proceed;
