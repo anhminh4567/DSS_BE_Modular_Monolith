@@ -34,6 +34,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.DiamondConfig
                 .HasForeignKey(c => c.DiamondShapeId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.SetNull);
+            builder.Navigation(x => x.DiamondShape).AutoInclude();
             //builder.HasOne(o => o.Warranty).WithOne().HasForeignKey<DiamondWarranty>(p => p.Id).IsRequired(false);
             /*builder.HasMany(o => o.Medias).WithOne().HasForeignKey(p => p.DiamondId);*/
             builder.OwnsOne(o => o.Thumbnail, childBuilder =>
