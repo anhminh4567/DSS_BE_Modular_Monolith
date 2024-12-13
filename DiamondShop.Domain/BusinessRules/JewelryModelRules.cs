@@ -14,7 +14,5 @@ namespace DiamondShop.Domain.BusinessRules
         public JewelryModelRules() { }
         public int MaximumSideDiamondOption = 5;
         public int MaximumMainDiamond = 3;
-        public int ModelPerQuery = 3;
-        public int MinimumItemPerPaging = 20;
     }
 }
