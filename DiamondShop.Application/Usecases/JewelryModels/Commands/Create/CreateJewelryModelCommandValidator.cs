@@ -68,8 +68,8 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
                     items.RuleFor(c => c.IsEngravable)
                         .NotEmpty();
 
-                    items.RuleFor(c => c.IsRhodiumFinish)
-                        .NotEmpty();
+                    //items.RuleFor(c => c.IsRhodiumFinish)
+                    //    .NotEmpty();
 
                     items.RuleFor(c => c.BackType)
                         .IsInEnum();
