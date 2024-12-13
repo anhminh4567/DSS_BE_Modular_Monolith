@@ -16,7 +16,7 @@ using Microsoft.Extensions.Options;
 
 namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
 {
-    public record GetSellingModelQuery(int page = 0, string? Category = null, string? MetalId = null, decimal? MinPrice = null, decimal? MaxPrice = null, bool? IsEngravable = null) : IRequest<Result<PagingResponseDto<JewelryModelSelling>>>;
+    public record GetSellingModelQuery(int page = 1, string? Category = null, string? MetalId = null, decimal? MinPrice = null, decimal? MaxPrice = null, bool? IsEngravable = null) : IRequest<Result<PagingResponseDto<JewelryModelSelling>>>;
     internal class GetSellingModelQueryHandler : IRequestHandler<GetSellingModelQuery, Result<PagingResponseDto<JewelryModelSelling>>>
     {
         private readonly Dictionary<string, JewelryModelGalleryTemplate?> cachedGallery = new();
@@ -42,7 +42,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
         public async Task<Result<PagingResponseDto<JewelryModelSelling>>> Handle(GetSellingModelQuery request, CancellationToken cancellationToken)
         {
             var getActiveDiscount = await _discountRepository.GetActiveDiscount();
-            var rule = _optionsMonitor.CurrentValue.JewelryModelRules;
+            var rule = _optionsMonitor.CurrentValue.FrontendDisplayConfiguration;
             request.Deconstruct(out int page, out string? Category, out string? metalId, out decimal? minPrice, out decimal? maxPrice, out bool? isEngravable);
             var query = _jewelryModelRepository.GetSellingModelQuery();
             if (!string.IsNullOrEmpty(Category))
@@ -59,13 +59,13 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                 query = _jewelryModelRepository.QueryFilter(query, p => p.IsEngravable == isEngravable);
             }
             List<JewelryModelSelling> sellingModels = new();
-            var pageIndex = await GetData(sellingModels, query, page, metalId, minPrice, maxPrice,rule.ModelPerQuery,rule.MinimumItemPerPaging);
+            var pageIndex = await GetData(sellingModels, query, page-1, metalId, minPrice, maxPrice,rule.ModelPerQuery,rule.MinimumItemPerPaging);
             //assign discount
             sellingModels.ForEach(p =>
             {
                 p.AssignDiscount(getActiveDiscount);
             });
-            return new PagingResponseDto<JewelryModelSelling>(0, pageIndex, sellingModels);
+            return new PagingResponseDto<JewelryModelSelling>(0, 0, sellingModels);
         }
         private PagingResponseDto<JewelryModelSelling> BlankPaging() => new PagingResponseDto<JewelryModelSelling>(0, 0, []);
         private async Task<int> GetData(List<JewelryModelSelling> sellingModels, IQueryable<JewelryModel> query, int page, string? metalId, decimal? minPrice, decimal? maxPrice, int modelPerQuery, int minimumItemPerPage)

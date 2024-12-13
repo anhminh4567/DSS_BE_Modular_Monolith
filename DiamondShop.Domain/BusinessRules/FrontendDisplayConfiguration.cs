@@ -9,5 +9,7 @@
 		public int MaxCarouselImages { get; set; } = 10;
 		public int MinCarouselImages { get; set; } = 3;
 		public int DisplayTimeInSeconds { get; set; } = 5;
-	}
+        public int ModelPerQuery { get; set; } = 3;
+        public int MinimumItemPerPaging { get; set; } = 20;
+    }
 }
