@@ -1,6 +1,8 @@
 ﻿using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Models.DiamondPrices;
+using DiamondShop.Domain.Models.DiamondPrices.Entities;
 using DiamondShop.Domain.Models.Diamonds;
+using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Models.Jewelries;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.Entities;
@@ -87,6 +89,11 @@ namespace DiamondShop.Domain.Services.Implementations
             jewelry.D_Price = GetJewelryDiamondPrice(jewelry).Result;
             if(jewelry.SideDiamond != null)
                 jewelry.SD_Price = GetJewelrySideDiamondPrice(jewelry).Result;
+            if (jewelry.IsAllDiamondPriceKnown && jewelry.IsAllSideDiamondPriceKnown)
+            {
+                return jewelry;
+            }
+            //do something when any of the price is not known, set total price = 0 ??? add boolean to indicate price is not known for 
             return jewelry;
         }
 
@@ -97,7 +104,13 @@ namespace DiamondShop.Domain.Services.Implementations
             jewelry.D_Price = GetJewelryDiamondPrice(jewelry).Result;
             if (jewelry.SideDiamond != null)
                 jewelry.SD_Price = GetJewelrySideDiamondPrice(jewelry).Result;
+            if(jewelry.IsAllDiamondPriceKnown && jewelry.IsAllSideDiamondPriceKnown)
+            {
+                return jewelry;
+            }
+            //do something when any of the price is not known, set total price = 0 ??? add boolean to indicate price is not known for 
             return jewelry;
+
         }
         private async Task<decimal> GetJewelryDiamondPrice(Jewelry jewelry)
         {
@@ -107,10 +120,15 @@ namespace DiamondShop.Domain.Services.Implementations
             foreach (var diamond in getJewelryDiamonds)
             {
                 var prices = await _diamondPriceRepository.GetPrice(diamond.Cut.Value,diamond.DiamondShape, diamond.IsLabDiamond);
-                var diamondPrice = _diamondServices.GetDiamondPrice(diamond, prices).Result;
+                var diamondPrice = await _diamondServices.GetDiamondPrice(diamond, prices);
                 diamond.DiamondPrice = diamondPrice;
             }
             D_price = jewelry.Diamonds.Sum(d => d.TruePrice);
+            var unknownPrice = getJewelryDiamonds.Where(d => d.IsPriceKnown == false).ToList();
+            if(unknownPrice.Count > 0)
+            {
+                D_price = 0;
+            }
             jewelry.D_Price = D_price;
             return D_price;
         }

@@ -71,6 +71,8 @@ namespace DiamondShop.Test.Domain
             CartModel userCartModel = new CartModel();
             CartProduct product1 = new CartProduct() { Diamond = diamond1, ReviewPrice = new CheckoutPrice() { DefaultPrice = 1000 } };
             CartProduct product2 = new CartProduct() { Diamond = diamond2, ReviewPrice = new CheckoutPrice() { DefaultPrice = 2000 } };
+            string biggestPriceid = product1.ReviewPrice.DefaultPrice > product2.ReviewPrice.DefaultPrice ? product1.CartProductId : product2.CartProductId;
+            string smallestPriceid = product1.ReviewPrice.DefaultPrice < product2.ReviewPrice.DefaultPrice ? product1.CartProductId : product2.CartProductId;
             userCartModel.Products.Add(product1);
             userCartModel.Products.Add(product2);
 
@@ -81,8 +83,8 @@ namespace DiamondShop.Test.Domain
             // Assert
             Assert.True(result.IsSuccess);
             var promo = userCartModel.Promotion;
-            Assert.Equal(userCartModel.Products[promo.RequirementProductsIndex[0]].CartProductId, product1.CartProductId);
-            Assert.Equal(userCartModel.Products[promo.GiftProductsIndex[0]].CartProductId, product2.CartProductId);
+            Assert.Equal(userCartModel.Products[promo.RequirementProductsIndex[0]].CartProductId, smallestPriceid);
+            Assert.Equal(userCartModel.Products[promo.GiftProductsIndex[0]].CartProductId, biggestPriceid);
         }
         [Fact(DisplayName = "include qualifier")]
         public void ApplyPromotionOnCartModel_ShouldApplyPromotion_NOTExcludeQualifier()

@@ -6,6 +6,7 @@ using DiamondShop.Application.Usecases.Promotions.Commands.UpdateGifts;
 using DiamondShop.Application.Usecases.Promotions.Commands.UpdateInfo;
 using DiamondShop.Application.Usecases.Promotions.Commands.UpdateRequirements;
 using DiamondShop.Commons;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
@@ -15,6 +16,7 @@ using DiamondShop.Domain.Repositories.PromotionsRepo;
 using FluentResults;
 using MapsterMapper;
 using MediatR;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,13 +33,15 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Update
         private readonly ISender _sender;
         private readonly IPromotionRepository _promotionRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public UpdatePromotionCommandHandler(IMapper mapper, ISender sender, IPromotionRepository promotionRepository, IUnitOfWork unitOfWork)
+        public UpdatePromotionCommandHandler(IMapper mapper, ISender sender, IPromotionRepository promotionRepository, IUnitOfWork unitOfWork, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _mapper = mapper;
             _sender = sender;
             _promotionRepository = promotionRepository;
             _unitOfWork = unitOfWork;
+            _optionsMonitor = optionsMonitor;
         }
 
         public async Task<Result<Promotion>> Handle(UpdatePromotionCommand request, CancellationToken cancellationToken)
@@ -125,6 +129,18 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.Update
             {
                 await _unitOfWork.RollBackAsync();
                 return Result.Fail(PromotionError.RequirementError.CountIsZero);
+            }
+            var validateReqResult = getPromotion.ValidateRequirement(_optionsMonitor.CurrentValue.PromotionRule);
+            if(validateReqResult.IsFailed)
+            {
+                await _unitOfWork.RollBackAsync();
+                return Result.Fail(validateReqResult.Errors);
+            }
+            var validateGiftResult = getPromotion.ValidateGift(_optionsMonitor.CurrentValue.PromotionRule);
+            if (validateGiftResult.IsFailed)
+            {
+                await _unitOfWork.RollBackAsync();
+                return Result.Fail(validateGiftResult.Errors);
             }
             await _promotionRepository.Update(getPromotion);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

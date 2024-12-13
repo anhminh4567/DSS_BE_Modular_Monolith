@@ -67,9 +67,9 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetJewelryDiamond
             if (!addPriceFlag)
                 return Result.Fail("Can't get jewelries' price");
             if(minPrice != null)
-                jewelries = jewelries.Where(p => p.D_Price >= minPrice).ToList();
+                jewelries = jewelries.Where(p => p.D_Price >= minPrice || p.IsAllDiamondPriceKnown == false).ToList();
             if(maxPrice != null)
-                jewelries = jewelries.Where(p => p.D_Price <= maxPrice).ToList();
+                jewelries = jewelries.Where(p => p.D_Price <= maxPrice || p.IsAllDiamondPriceKnown == false).ToList();
             if (orderByDesc)
                 jewelries = jewelries.OrderByDescending(p => p.TotalPrice).ToList();
             else

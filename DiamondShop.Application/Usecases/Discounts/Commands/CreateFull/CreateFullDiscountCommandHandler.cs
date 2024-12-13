@@ -61,6 +61,12 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.CreateFull
                 return Result.Fail(DiscountErrors.OrderTargetNotAllowed);
             }
             requirements.ForEach(x => discount.SetRequirement(x));
+            var validateResult = discount.ValidateRequirement();
+            if (validateResult.IsFailed)
+            {
+                await _unitOfWork.RollBackAsync(cancellationToken);
+                return Result.Fail(validateResult.Errors);
+            }
             await _discountRepository.Update(discount);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync();

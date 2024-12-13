@@ -113,7 +113,8 @@ namespace DiamondShop.Domain.Services.Implementations
                 diamond.DiscountPrice = 0;
                 return soldPrice;
             }
-            foreach (var price in diamondPrices)
+            var getCorrectRange = diamondPrices.Where(x => x.Criteria.CaratFrom <= diamond.Carat && x.Criteria.CaratTo >= diamond.Carat).ToList();
+            foreach (var price in getCorrectRange)
             {
                 var isCorrectPrice = IsCorrectPrice(diamond, price);
                 if (isCorrectPrice)
@@ -252,6 +253,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 else { }
             }
             var criteria = price.Criteria;
+
             if (isFancyShapeDiamond)
             {
                 if (diamond.Color == price.Color

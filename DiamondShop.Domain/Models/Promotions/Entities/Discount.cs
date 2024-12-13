@@ -4,6 +4,7 @@ using DiamondShop.Domain.Common.Ultilities;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Promotions.Enum;
+using DiamondShop.Domain.Models.Promotions.ErrorMessages;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using FluentResults;
 using System;
@@ -28,6 +29,29 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public List<PromoReq> DiscountReq { get; set; } = new();
         public Media? Thumbnail { get; set; }
         public Status Status { get; set; }
+        public Result ValidateRequirement()
+        {
+            foreach (var req in DiscountReq)
+            {
+                var sameRequirement = DiscountReq.Where(x => x.TargetType == req.TargetType && x.Id != req.Id).ToList();
+                if (sameRequirement.Count > 0)
+                {
+                    switch (req.TargetType)
+                    {
+                        case TargetType.Jewelry_Model:
+                            var model = req.ModelId;
+                            if (sameRequirement.Any(x => x.ModelId == model))
+                            {
+                                return Result.Fail(PromotionError.RequirementError.RequirementExist);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            return Result.Ok();
+        }
         [NotMapped]
         public bool CanBePermanentlyDeleted => Status == Status.Cancelled || Status == Status.Expired;
         [NotMapped]

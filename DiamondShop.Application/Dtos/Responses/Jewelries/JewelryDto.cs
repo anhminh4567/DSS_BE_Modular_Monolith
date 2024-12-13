@@ -2,6 +2,7 @@
 using DiamondShop.Application.Dtos.Responses.JewelryModels;
 using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Common.ValueObjects;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DiamondShop.Application.Dtos.Responses.Jewelries
 {
@@ -36,5 +37,10 @@ namespace DiamondShop.Application.Dtos.Responses.Jewelries
         public decimal? SoldPrice { get; set; }
         public string? EngravedText { get; set; }
         public string? EngravedFont { get; set; }
+        public bool IsAllSideDiamondPriceKnown { get; set; }
+
+        public bool IsAllDiamondPriceKnown { get; set; }
+        public bool IsMetalPriceKnown { get; set; }
+        public bool IsJewelryPriceKnown { get; set; }
     }
 }

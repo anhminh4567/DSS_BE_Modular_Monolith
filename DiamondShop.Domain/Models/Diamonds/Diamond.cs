@@ -158,7 +158,7 @@ namespace DiamondShop.Domain.Models.Diamonds
         {
             var shapeId = diamond.DiamondShapeId;
             var getShape = DiamondShape.All_Shape.First(x => x.Id == shapeId);
-            var baseString = $"{diamond.Carat} carat {diamond.Color.ToString()}-{diamond.Clarity.ToString()} {diamond.Cut.ToString()} Cut  ";
+            var baseString = $"{diamond.Carat} carat {diamond.Color.ToString()}-{diamond.Clarity.ToString()} ";
             if(diamond.Cut != null)
             {
                 baseString = $"{baseString} {diamond.Cut.ToString()} Cut ";

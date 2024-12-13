@@ -55,6 +55,8 @@ namespace DiamondShop.Domain.Models.Promotions.ErrorMessages
             public static Error DeleteUnallowed = new Error("Không thể xóa quà tặng này");
             public static ValidationError ValidationError = new ValidationError("Lỗi dữ liệu quà tặng, không thể tạo hay xóa");
             public static Error CountIsZero = new Error("Số lượng quà tặng phải lớn hơn 0");
+            public static ConflictError DuplicateGift = new ConflictError("Quà tặng đã tồn tại");
+            public static Error ReachLimit(int limit) => new Error($"Không thể thêm quà tặng mới, đã đạt giới hạn {limit}");
         }
         public class RequirementError
         {
@@ -78,6 +80,8 @@ namespace DiamondShop.Domain.Models.Promotions.ErrorMessages
                 return new Error("Không thể xóa yêu cầu này");
             }
             public static Error CountIsZero = new Error("Số lượng requirement phải lớn hơn 0");
+            public static ConflictError RequirementExist = new ConflictError("Yêu cầu cho jewelry đã tồn tại");
+            public static Error ReachLimit(int limit) => new Error($"Không thể thêm điều kiện mới, đã đạt giới hạn {limit}");
         }
         public class ApplyingError
         {

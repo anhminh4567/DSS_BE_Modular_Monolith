@@ -165,7 +165,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                     .SelectMany(d => d.DiamondPrices)
                     .Where(dp => dp.IsLabDiamond == isLabDiamond)//&& dp.Cut == tobeComparedCut
                     .Include(dp => dp.Criteria)
-                    .AsSplitQuery()
+                    //.AsSplitQuery()
                     .ToListAsync();
                 _cache.Set(diamondKey, get);//, options.AddExpirationToken(new CancellationChangeToken(_resetCacheToken.Token))
                 return get;

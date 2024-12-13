@@ -1,4 +1,5 @@
-﻿using DiamondShop.Domain.Models.JewelryModels.Entities;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using MediatR;
 using System;
@@ -21,7 +22,8 @@ namespace DiamondShop.Application.Usecases.Sizes.Queries.GetAll
         public async Task<List<Size>> Handle(GetAllSizeQuery request, CancellationToken cancellationToken)
         {
             var query = _sizeRepository.GetQuery();
-            return (query.ToList());
+            var list =query.Where(x => x.Unit == SizeRules.DefaultUnit).OrderBy(x => x.Value).ToList();
+            return list;
         }
     }
 }

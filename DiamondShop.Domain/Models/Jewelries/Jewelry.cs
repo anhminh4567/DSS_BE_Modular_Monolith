@@ -51,7 +51,7 @@ namespace DiamondShop.Domain.Models.Jewelries
         [NotMapped]
         public decimal DiscountReducedAmount { get; set; } = 0;
         [NotMapped]
-        public Discount? Discount { get; set; } 
+        public Discount? Discount { get; set; }
         [NotMapped]
         public decimal PromotionReducedAmount { get; set; } = 0;
 
@@ -70,7 +70,18 @@ namespace DiamondShop.Domain.Models.Jewelries
                     return true;
                 if (!(Diamonds.Any(d => d.IsPriceKnown) == false))
                     return true;
+                D_Price = 0;
                 return false;
+            }
+        }
+        [NotMapped]
+        public bool IsMetalPriceKnown { get => ND_Price > 0; }
+        [NotMapped]
+        public bool IsJewelryPriceKnown
+        {
+            get
+            {
+                return IsAllDiamondPriceKnown && IsMetalPriceKnown && IsAllSideDiamondPriceKnown;
             }
         }
 
@@ -191,9 +202,9 @@ namespace DiamondShop.Domain.Models.Jewelries
             EngravedFont = null;
             EngravedText = null;
         }
-        public void SetLockForUser(Account? userAccount, int lockHour,bool isUnlock, JewelryRules rules)
+        public void SetLockForUser(Account? userAccount, int lockHour, bool isUnlock, JewelryRules rules)
         {
-            if(isUnlock)
+            if (isUnlock)
             {
                 RemoveLock();
                 return;

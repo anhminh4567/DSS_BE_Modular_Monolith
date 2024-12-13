@@ -1,9 +1,11 @@
-﻿using DiamondShop.Domain.Common;
+﻿using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
+using DiamondShop.Domain.Models.Promotions.ErrorMessages;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using FluentResults;
 using Microsoft.Extensions.Primitives;
@@ -13,6 +15,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Net.NetworkInformation; 
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DiamondShop.Domain.Models.Promotions
@@ -137,6 +140,49 @@ namespace DiamondShop.Domain.Models.Promotions
             if (CanBePermanentlyDeleted == false)
                 throw new Exception();
             Status = Status.Soft_deleted;
+        }
+        public Result ValidateRequirement(PromotionRule rule)
+        {
+            foreach (var req in PromoReqs)
+            {
+                var sameRequirement = PromoReqs.Where(x => x.TargetType == req.TargetType && x.Id != req.Id).ToList();
+                if (sameRequirement.Count > 0)
+                {
+                    switch (req.TargetType)
+                    {
+                        case TargetType.Jewelry_Model:
+                            var model = req.ModelId;
+                            if (sameRequirement.Any(x => x.ModelId == model))
+                            {
+                                return Result.Fail(PromotionError.RequirementError.RequirementExist);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            if (PromoReqs.Count > rule.MaxRequirement)
+                return Result.Fail(PromotionError.RequirementError.ReachLimit(rule.MaxRequirement));
+            return Result.Ok();
+        }
+        public Result ValidateGift(PromotionRule rule)
+        {
+            foreach (var gift in Gifts)
+            {
+                var sameTypeGif = Gifts.Where(x => x.TargetType == gift.TargetType && x.Id != gift.Id).ToList();
+                if (sameTypeGif.Count > 0)
+                {
+                    var code = gift.ItemCode;
+                    if (sameTypeGif.Any(x => x.ItemCode == code))
+                    {
+                        return Result.Fail(PromotionError.GiftError.DuplicateGift);
+                    }
+                }
+            }
+            if (Gifts.Count > rule.MaxGift)
+                return Result.Fail(PromotionError.GiftError.ReachLimit(rule.MaxGift));
+            return Result.Ok();
         }
         public Promotion() { }
     }

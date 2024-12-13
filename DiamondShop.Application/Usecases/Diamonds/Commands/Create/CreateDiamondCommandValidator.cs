@@ -15,7 +15,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
             ClassLevelCascadeMode = CascadeMode.Stop;
             var diamondRule= _optionsMonitor.CurrentValue.DiamondRule;
             RuleFor(c => c.shapeId).NotEmpty().WithNotEmptyMessage();
-            RuleFor(c => c.diamond4c.Cut).NotEmpty().WithNotEmptyMessage().IsInEnum().WithIsInEnumMessage();
+            RuleFor(c => c.diamond4c.Cut).IsInEnum().WithIsInEnumMessage()
+                .When(x => x.diamond4c.Cut != null);
             RuleFor(c => c.diamond4c.Color).NotEmpty().WithNotEmptyMessage().IsInEnum().WithIsInEnumMessage();
             RuleFor(c => c.diamond4c.Clarity).NotEmpty().WithNotEmptyMessage().IsInEnum().WithIsInEnumMessage();
             RuleFor(c => c.diamond4c.isLabDiamond).NotNull().WithNotEmptyMessage();
@@ -42,7 +43,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
             RuleFor(c => c.details.Fluorescence).NotEmpty().WithNotEmptyMessage().IsInEnum().WithIsInEnumMessage();
             RuleFor(c => c.Certificate).IsInEnum()
                 .When(x => x.Certificate != null);
-            RuleFor(c => c.priceOffset).ValidNumberFraction()
+            RuleFor(c => c.priceOffset).ValidNumberFractionBase(4)
                 .Must(c => c >= diamondRule.MinPriceOffset && c <= diamondRule.MaxPriceOffset)
                 .WithMessage($"giá offset phải nằm trong khoảng {diamondRule.MinPriceOffset} và  {diamondRule.MaxPriceOffset}, đây là business rule");
         }

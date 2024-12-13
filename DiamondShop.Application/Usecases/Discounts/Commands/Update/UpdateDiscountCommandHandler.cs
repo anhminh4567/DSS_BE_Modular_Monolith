@@ -100,6 +100,12 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Update
                 await _unitOfWork.RollBackAsync();
                 return Result.Fail(" requirement phải lớn hơn 0");
             }
+            var validateResult = getDiscount.ValidateRequirement();
+            if (validateResult.IsFailed)
+            {
+                await _unitOfWork.RollBackAsync(cancellationToken);
+                return Result.Fail(validateResult.Errors);
+            }
             await _discountRepository.Update(getDiscount);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);

@@ -6,6 +6,8 @@ using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
+using DiamondShop.Domain.Repositories.PromotionsRepo;
+using DiamondShop.Domain.Services.interfaces;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -19,16 +21,22 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetAll
     internal class GetAllJewelryQueryHandler : IRequestHandler<GetAllJewelryQuery, PagingResponseDto<Jewelry>>
     {
         private readonly IJewelryRepository _jewelryRepository;
-        public GetAllJewelryQueryHandler(
-            IJewelryRepository jewelryRepository
-            )
+        private readonly IJewelryService _jewelryService;
+        private readonly ISizeMetalRepository _sizeMetalRepository;
+        private readonly IDiscountRepository _discountRepository;
+
+        public GetAllJewelryQueryHandler(IJewelryRepository jewelryRepository, IJewelryService jewelryService, ISizeMetalRepository sizeMetalRepository, IDiscountRepository discountRepository)
         {
             _jewelryRepository = jewelryRepository;
+            _jewelryService = jewelryService;
+            _sizeMetalRepository = sizeMetalRepository;
+            _discountRepository = discountRepository;
         }
 
         public async Task<PagingResponseDto<Jewelry>> Handle(GetAllJewelryQuery request, CancellationToken cancellationToken)
         {
             request.Deconstruct(out int currentPage, out int pageSize, out string jewelryModelId, out string? serialCode, out string? metalId, out string? sizeId, out ProductStatus? status);
+            var activeDiscount = await _discountRepository.GetActiveDiscount();
             pageSize = pageSize == 0 ? JewelryRule.MinimumItemPerPaging : pageSize;
             currentPage = currentPage == 0 ? 1 : currentPage;
             var query = _jewelryRepository.GetQuery();
@@ -58,6 +66,11 @@ namespace DiamondShop.Application.Usecases.Jewelries.Queries.GetAll
             query = _jewelryRepository.QuerySplit(query);
             int maxPage = (int)Math.Ceiling((decimal)query.Count() / pageSize);
             var list = query.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+            foreach (var item in list)
+            {
+                _jewelryService.AddPrice(item, _sizeMetalRepository);
+                _ = _jewelryService.AssignJewelryDiscount(item, activeDiscount).Result;
+            }
             return new PagingResponseDto<Jewelry>(maxPage, currentPage, list);
         }
     }

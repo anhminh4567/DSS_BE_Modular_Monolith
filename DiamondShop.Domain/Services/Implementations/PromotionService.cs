@@ -99,7 +99,7 @@ namespace DiamondShop.Domain.Services.Implementations
                     // like not haveing enought price or quantity met, then we can ignore this requirement entirely, and keep the
                     // original requirementProducts empty to add the real requirement that met the conditon
                     // NOTE: the requirement IS THE DECISION MAKER, to decide whether you add the product to the requirement list or not
-                    var isAnyValid = HandleProductRequirement(cartModel.Products, req, scopedRequirementProducts);
+                    var isAnyValid = HandleProductRequirement(cartModel, req, scopedRequirementProducts);
                     if (isAnyValid)
                     {
                         var totalItemCount = scopedRequirementProducts.Count;
@@ -194,10 +194,10 @@ namespace DiamondShop.Domain.Services.Implementations
             };
             return isValid;
         }
-        private static bool HandleProductRequirement(List<CartProduct> products, PromoReq requirement, Dictionary<int, CartProduct> scopedRequirementProducts)
+        private static bool HandleProductRequirement(CartModel cartModel, PromoReq requirement, Dictionary<int, CartProduct> scopedRequirementProducts)
         {
-            //var productList = cartModel.Products;
-            var productList = products.OrderByDescending(x => x.ReviewPrice.DiscountPrice).ToList();
+            //auto orderby smallest price to check requirement first to give customer best value
+            var productList = cartModel.Products.OrderBy(x => x.ReviewPrice.DiscountPrice).ToList();
             //var promotionRequirement = promotion.PromoReqs;
             bool isAnyValid = false;
             for (int i = 0; i < productList.Count; i++)
@@ -226,7 +226,8 @@ namespace DiamondShop.Domain.Services.Implementations
                 {
                     product.PromotionId = requirement.PromotionId;
                     product.RequirementQualifedId = requirement.Id;
-                    scopedRequirementProducts.Add(i, product);
+                    var indexOf = cartModel.Products.IndexOf(product);
+                    scopedRequirementProducts.Add(indexOf, product);
                     isAnyValid = true;
                 }
                 else
