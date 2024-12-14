@@ -29,6 +29,15 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
                 .ThenInclude(d => d.DiamondShape)
                 .Include(d => d.Model).FirstOrDefaultAsync(d => d.Id == id);
         }
+        public Task<List<Jewelry>> GetJewelry(JewelryModelId jewelryModelId)
+        {
+            return _set.Include(p => p.Review).Where(p => p.ModelId == jewelryModelId).ToListAsync();
+        }
+
+        public Task<List<Jewelry>> GetJewelry(JewelryModelId jewelryModelId, MetalId metalId)
+        {
+            return _set.Include(p => p.Review).Where(p => p.ModelId == jewelryModelId && p.MetalId == metalId).ToListAsync();
+        }
 
         public void UpdateRange(List<Jewelry> jewelries)
         {
