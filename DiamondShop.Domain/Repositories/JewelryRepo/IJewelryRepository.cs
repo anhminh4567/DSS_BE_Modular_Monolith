@@ -15,6 +15,8 @@ namespace DiamondShop.Domain.Repositories.JewelryRepo
     public interface IJewelryRepository : IBaseRepository<Jewelry>
     {
         public void UpdateRange(List<Jewelry> jewelries);
+        public Task<List<Jewelry>> GetJewelry(JewelryModelId jewelryModelId);
+        public Task<List<Jewelry>> GetJewelry(JewelryModelId jewelryModelId, MetalId metalId);
         public IQueryable<SizeId> GetSizesInStock(JewelryModelId modelId, MetalId metalId,
             SideDiamondOpt sideDiamondOpt);
         public IQueryable<SizeId> GetSizesInStock(JewelryModelId modelId, MetalId metalId);

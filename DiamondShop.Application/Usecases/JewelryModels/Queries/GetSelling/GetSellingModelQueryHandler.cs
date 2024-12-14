@@ -6,6 +6,7 @@ using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
+using DiamondShop.Domain.Models.JewelryModels.Entities;
 using DiamondShop.Domain.Repositories.JewelryModelRepo;
 using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
@@ -28,7 +29,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
         private readonly IDiscountRepository _discountRepository;
 
-        public GetSellingModelQueryHandler( IJewelryModelCategoryRepository categoryRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, IJewelryModelFileService jewelryModelFileService, IDiamondServices diamondServices, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IDiscountRepository discountRepository)
+        public GetSellingModelQueryHandler(IJewelryModelCategoryRepository categoryRepository, IJewelryRepository jewelryRepository, IJewelryModelRepository jewelryModelRepository, IJewelryModelFileService jewelryModelFileService, IDiamondServices diamondServices, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IDiscountRepository discountRepository)
         {
             _categoryRepository = categoryRepository;
             _jewelryRepository = jewelryRepository;
@@ -59,13 +60,13 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                 query = _jewelryModelRepository.QueryFilter(query, p => p.IsEngravable == isEngravable);
             }
             List<JewelryModelSelling> sellingModels = new();
-            var pageIndex = await GetData(sellingModels, query, page-1, metalId, minPrice, maxPrice,rule.ModelPerQuery,rule.MinimumItemPerPaging);
+            var pageIndex = await GetData(sellingModels, query, page - 1, metalId, minPrice, maxPrice, rule.ModelPerQuery, rule.MinimumItemPerPaging);
             //assign discount
             sellingModels.ForEach(p =>
             {
                 p.AssignDiscount(getActiveDiscount);
             });
-            return new PagingResponseDto<JewelryModelSelling>(0, 0, sellingModels);
+            return new PagingResponseDto<JewelryModelSelling>(0, pageIndex + 1, sellingModels);
         }
         private PagingResponseDto<JewelryModelSelling> BlankPaging() => new PagingResponseDto<JewelryModelSelling>(0, 0, []);
         private async Task<int> GetData(List<JewelryModelSelling> sellingModels, IQueryable<JewelryModel> query, int page, string? metalId, decimal? minPrice, decimal? maxPrice, int modelPerQuery, int minimumItemPerPage)
@@ -102,11 +103,14 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                 var gallery = await GetModelGallery(model);
                 foreach (var sizeMetal in sizeMetals)
                 {
+                    var existedJewelry = await _jewelryRepository.GetJewelry(model.Id,sizeMetal.Metal.Id);
                     //check if model has product
-                    if (_jewelryRepository.GetSizesInStock(model.Id, sizeMetal.Metal.Id).Count() == 0)
+                    if (!existedJewelry.Any(p => p.Status == Domain.Common.Enums.ProductStatus.Active))
                         continue;
+                    
                     if (sideDiamonds != null && sideDiamonds.Count > 0)
                     {
+
                         var created_side = sideDiamonds
                             .Select(p =>
                             {
@@ -115,8 +119,17 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                                 var thumbnail = sideDiamondImages?.FirstOrDefault();
                                 if (sideDiamondImages != null && sideDiamondImages.Count >= 3)
                                     thumbnail = sideDiamondImages[2];
+                                var reviews = existedJewelry.Where(k =>
+                                k.SideDiamond.Carat == p.CaratWeight && k.SideDiamond.SettingType == p.SettingType &&
+                                k.SideDiamond.Quantity == p.Quantity && k.SideDiamond.DiamondShapeId == p.ShapeId &&
+                                k.SideDiamond.ColorMin == p.ColorMin && k.SideDiamond.ColorMax == p.ColorMax &&
+                                k.SideDiamond.ClarityMax == p.ClarityMax && k.SideDiamond.ClarityMax == p.ClarityMax &&
+                                k.SideDiamond.IsLabGrown == p.IsLabGrown && k.Review != null
+                                ).Select(p => p.Review);
+                                int totalReview = reviews.Count();
+                                float starRating = totalReview == 0 ? 0 : reviews.Sum(p => p.StarRating) / totalReview;
                                 return JewelryModelSelling.CreateWithSide(
-                            thumbnail, model.Name, sizeMetal.Metal.Name, 0, 0,
+                            thumbnail, model.Name, sizeMetal.Metal.Name, starRating, totalReview,
                             model.CraftmanFee, sizeMetal.Min.Price, sizeMetal.Max.Price,
                             model.Id, sizeMetal.Metal.Id, p);
                             })
@@ -137,8 +150,11 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                         var thumbnail = images.FirstOrDefault();
                         if (images != null && images.Count >= 3)
                             thumbnail = images[2];
+                        var reviews = existedJewelry.Where(p => p.Review != null).Select(p => p.Review);
+                        int totalReview = reviews.Count();
+                        float starRating = totalReview == 0 ? 0 : reviews.Sum(p => p.StarRating) / totalReview;
                         var created_noside = JewelryModelSelling.CreateNoSide(
-                            thumbnail, model.Name, sizeMetal.Metal.Name, 0, 0,
+                            thumbnail, model.Name, sizeMetal.Metal.Name, starRating, totalReview,
                             model.CraftmanFee, sizeMetal.Min.Price, sizeMetal.Max.Price, model.Id, sizeMetal.Metal.Id);
                         if (maxPrice != null)
                             if (created_noside.MinPrice > maxPrice) continue;
