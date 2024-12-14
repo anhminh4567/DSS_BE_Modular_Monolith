@@ -241,7 +241,7 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             cartModel.Promotion.ClearPreviousPromotionData();
             cartModel.Products.ForEach(p => p.ClearPreviousPromotion());
-            cartModel.OrderPrices.PromotionAmountSaved = 0;
+            cartModel.OrderPrices.ProductPromotionAmountSaved = 0;
         }
         private static void HandleOrderGift(CartModel cartModel, Gift orderGift)
         {
@@ -350,7 +350,7 @@ namespace DiamondShop.Domain.Services.Implementations
         private static void SetProductPriceFromGift(CartModel cartModel,CartProduct product, Gift giftReq)
         {
             product.PromotionApplyGiftOnCartProduct(giftReq);
-            cartModel.OrderPrices.PromotionAmountSaved += product.ReviewPrice.PromotionAmountSaved;  
+            cartModel.OrderPrices.ProductPromotionAmountSaved += product.ReviewPrice.PromotionAmountSaved;  
         }
         public void SetOrderPrice(CartModel cartModel)
         {
@@ -359,7 +359,7 @@ namespace DiamondShop.Domain.Services.Implementations
             var productList = cartModel.Products;
             foreach (var item in productList)
             {
-                cartModel.OrderPrices.PromotionAmountSaved += item.ReviewPrice.PromotionAmountSaved;
+                cartModel.OrderPrices.ProductPromotionAmountSaved += item.ReviewPrice.PromotionAmountSaved;
             }
         }
         private static bool CheckJewerlyModelIsQualified(JewelryModelId jewelryModelId, PromoReq requirement)

@@ -54,13 +54,13 @@ namespace DiamondShop.Application.Usecases.PromotionRequirements.Commands.Create
                 else if (req.Quantity is not null)
                     isMoneyAmount = false;
                 else
-                    return Result.Fail(new ConflictError("unspecified money or amount , 1 in 2 must be set,  in the requirement position at : " + (++i)));
+                    return Result.Fail(new ConflictError("không rõ tiền hay số lượng , 1 trong 2 phải được chọn,  ở vị trí: " + (++i)));
                 switch (req.TargetType)
                 {
                     case TargetType.Jewelry_Model:
                         var jewelryModelId = req.JewelryModelID;
                         if (jewelryModelId == null)
-                            return Result.Fail(new ConflictError("no jewelry id found for type jewerlry in the requirement position at : " + (++i)));
+                            return Result.Fail(new ConflictError("không tìm thấy jewelry model nào ở vị trí : " + (++i)));
                         var jewerlyModelId = JewelryModelId.Parse(jewelryModelId);
                         var jelReq = PromoReq.CreateJewelryRequirement(req.Name, req.Operator, isMoneyAmount, req.MoneyAmount, req.Quantity, jewerlyModelId);
                         requirements.Add(jelReq);
@@ -76,7 +76,7 @@ namespace DiamondShop.Application.Usecases.PromotionRequirements.Commands.Create
                         break;
                     case TargetType.Order:
                         if (req.MoneyAmount == null)
-                            return Result.Fail("order requirement dont have a money amount specify, error found in the requirement position at : " + (++i));
+                            return Result.Fail("loại yêu cầu đơn hàng không có giá trị ở vị trí: " + (++i));
                         var orderReq = PromoReq.CreateOrderRequirement(req.Name, req.Operator, req.MoneyAmount.Value);
                         requirements.Add(orderReq);
                         break;
@@ -86,13 +86,13 @@ namespace DiamondShop.Application.Usecases.PromotionRequirements.Commands.Create
                 }
             }
             if (requirements.Count == 0)
-                return Result.Fail(new NotFoundError("nothing to update"));
+                return Result.Fail(new NotFoundError("không có yêu cầu nào"));
             var getAnyModelId = requirements.Where(r => r.TargetType == TargetType.Jewelry_Model).Select(x => x.ModelId).ToList();
             if(getAnyModelId.Count > 0)
             {
                 var query =  _jewelryModelRepository.GetQuery();
-                query = _jewelryModelRepository.QueryFilter(query,x => getAnyModelId.Contains(x.Id));
                 var getModels = query.ToList();
+                query = _jewelryModelRepository.QueryFilter(query,x => getAnyModelId.Contains(x.Id));
                 if (getModels.Count != getAnyModelId.Count)
                     return Result.Fail(new NotFoundError("some model id not found"));
             }

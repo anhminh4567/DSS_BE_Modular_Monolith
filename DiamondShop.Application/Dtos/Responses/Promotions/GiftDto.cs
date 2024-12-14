@@ -30,7 +30,7 @@ namespace DiamondShop.Application.Dtos.Responses.Promotions
         //public Cut? CutTo { get; set; }
         //public Color? ColorFrom { get; set; }
         //public Color? ColorTo { get; set; }
-        public decimal? MaxAmout { get; set; }
+        public decimal? MaxAmount { get; set; }
         public DiamondSpecDto? DiamondRequirementSpec { get; set; }
         public JewelryModelDto? GiftedModel { get; set; }
         public string Gift

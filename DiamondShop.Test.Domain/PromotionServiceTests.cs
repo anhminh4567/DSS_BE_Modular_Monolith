@@ -212,7 +212,7 @@ namespace DiamondShop.Test.Domain
             // Assert
             Assert.True(result.IsSuccess);
             Assert.Equal(userCartModel.OrderPrices.DefaultPrice, diamond2Price + diamond1Price);
-            Assert.Equal(userCartModel.OrderPrices.PromotionAmountSaved, 0);
+            Assert.Equal(userCartModel.OrderPrices.ProductPromotionAmountSaved, 0);
             Assert.Equal(userCartModel.OrderPrices.FinalPrice, expectedFinalPrice);
             Assert.Equal(userCartModel.OrderPrices.OrderAmountSaved, giftOrderAmountReduced);
         }
