@@ -11,6 +11,8 @@ using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.ErrorMessages;
 using DiamondShop.Domain.Models.DiamondShapes;
+using DiamondShop.Domain.Models.Jewelries;
+using DiamondShop.Domain.Models.Jewelries.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.Entities;
@@ -176,6 +178,9 @@ namespace DiamondShop.Domain.Services.Implementations
             if (cartItem.JewelryId is not null)
             {
                 var jewelry = await _jewelryRepository.GetById(cartItem.JewelryId);
+                if(jewelry == null)
+                    return null;
+                
                 cartProduct.Jewelry = jewelry;
                 cartProduct.EngravedFont = cartItem.EngravedFont;
                 cartProduct.EngravedText = cartItem.EngravedText;
@@ -186,6 +191,9 @@ namespace DiamondShop.Domain.Services.Implementations
             if (cartItem.JewelryModelId is not null)
             {
                 var jewelryModel = await _jewelryModelRepository.GetByIdMinimal(cartItem.JewelryModelId);
+                if (jewelryModel == null)
+                    return null;
+
                 cartProduct.JewelryModel = jewelryModel;
                 cartProduct.EngravedFont = cartItem.EngravedFont;
                 cartProduct.EngravedText = cartItem.EngravedText;
@@ -193,7 +201,14 @@ namespace DiamondShop.Domain.Services.Implementations
             if (cartItem.DiamondId is not null)
             {
                 var diamond = await _diamondRepository.GetById(cartItem.DiamondId);
+                if (diamond == null)
+                    return null;
+
                 cartProduct.Diamond = diamond;
+            }
+            if(cartItem.DiamondId == null && cartItem.JewelryId == null && cartItem.JewelryModelId == null)
+            {
+                return null;
             }
             return cartProduct;
         }

@@ -49,15 +49,23 @@ namespace DiamondShop.Application.Usecases.Accounts.Queries.GetDelivererStatus
                     response.Add(new DelivererStatusDto
                     {
                         Account = _mapper.Map<AccountDto>(deliverer),
-                        OrderCurrentlyHandle = _mapper.Map<OrderDto>(orderCurrentlyHandle)
+                        OrderCurrentlyHandle = _mapper.Map<OrderDto>(orderCurrentlyHandle),
+                        IsFree = false,
+                        BusyMessage = "Đang giao cho đơn hàng với mã " + orderCurrentlyHandle.OrderCode
                     });
                 }
                 else
                 {
-                    response.Add(new DelivererStatusDto
+                    var mappedDeliverer = new DelivererStatusDto
                     {
                         Account = _mapper.Map<AccountDto>(deliverer),
-                    });
+                    };
+                    if (deliverer.Status == Domain.Models.AccountAggregate.Enums.AccountStatus.Banned)
+                    {
+                        mappedDeliverer.IsFree = false;
+                        mappedDeliverer.BusyMessage = "tài khoản người giao hàng đã bị khóa";
+                    }
+                    response.Add(mappedDeliverer);
                 }
             }
             return response;

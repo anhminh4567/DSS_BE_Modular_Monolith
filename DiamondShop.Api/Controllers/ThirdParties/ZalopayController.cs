@@ -35,10 +35,18 @@ namespace DiamondShop.Api.Controllers.ThirdParties
         [HttpPost]
         [Produces<ZalopayCreateOrderResponse>]
         //[ApiExplorerSettings(IgnoreApi = true)]
-        public async Task<ActionResult> CreateOrder([FromBody]ZalopayCreateOrderBody body )
+        public async Task<ActionResult> CreateOrder([FromBody] ZalopayCreateOrderBody body)
         {
             var myUrl = _urlOptions.Value.HttpsUrl;
-            var result = await _zalopayClient.CreateOrder(body,$"{myUrl}/swagger/index.html", $"{myUrl}/api/Zalopay/Callback");
+            var result = await _zalopayClient.CreateOrder(body, $"{myUrl}/api/Zalopay/Return", $"{myUrl}/api/Zalopay/Test/Callback");
+            return Ok(result);
+        }
+        [HttpPost("api/Zalopay/Test/Callback")]
+        //[ApiExplorerSettings(IgnoreApi = true)]
+        public async Task<ActionResult> TestCallback()
+        {
+            var myUrl = _urlOptions.Value.HttpsUrl;
+            var result = await _zalopayClient.Callback();
             return Ok(result);
         }
         [HttpGet("Banks")]
@@ -50,7 +58,7 @@ namespace DiamondShop.Api.Controllers.ThirdParties
         [HttpGet("Transaction/{app_transaction_id}")]
         [Produces<ZalopayTransactionResponse>]
         //[ApiExplorerSettings(IgnoreApi = true)]
-        public async Task<ActionResult> GetTransactionDetail(string app_transaction_id )
+        public async Task<ActionResult> GetTransactionDetail(string app_transaction_id)
         {
             var result = await _zalopayClient.GetTransactionDetail(app_transaction_id);
             return Ok(result);
@@ -68,14 +76,14 @@ namespace DiamondShop.Api.Controllers.ThirdParties
         //ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult> RefundTransaction([FromForm] string zalo_trans_id, [FromForm] long amount, [FromForm] long refund_ree = 0)
         {
-            var result = await _zalopayClient.RefundTransaction(zalo_trans_id,amount,refund_ree );
+            var result = await _zalopayClient.RefundTransaction(zalo_trans_id, amount, refund_ree);
             return Ok(result);
         }
         [HttpPost("Callback")]
         public async Task<ActionResult> Callback()
         {
             var result = await _paymentService.Callback();
-            return Ok(result);  
+            return Ok(result);
         }
         [HttpGet("Return")]
         public async Task<ActionResult> Return()
@@ -90,12 +98,12 @@ namespace DiamondShop.Api.Controllers.ThirdParties
             }
             else
             {
-                var sucessStatus = ZalopayReturnCode.SUCCESS;
-                var status = data["return_code"];
-                if(status != "00")
-                {
+                var result = _paymentService.Return().Result;
+                if(result.IsFailed)
+                    return RedirectPermanent(redirectUrl + "/" + HttpContext.Request.QueryString.Value);
+                else
+                    return RedirectPermanent(returnUrl + "/" + HttpContext.Request.QueryString.Value);
 
-                }
                 //var data = Request.Query;
                 //var checksumData = data["appid"] + "|" + data["apptransid"] + "|" + data["pmcid"] + "|" +
                 //    data["bankcode"] + "|" + data["amount"] + "|" + data["discountamount"] + "|" + data["status"];
@@ -107,9 +115,8 @@ namespace DiamondShop.Api.Controllers.ThirdParties
                 //}
                 //else
                 //{
-                    // kiểm tra xem đã nhận được callback hay chưa, nếu chưa thì tiến hành gọi API truy vấn trạng thái thanh toán của đơn hàng để lấy kết quả cuối cùng
-                    //return StatusCode(200, "OK");
-                    return RedirectPermanent(returnUrl + "/" + HttpContext.Request.QueryString.Value);
+                // kiểm tra xem đã nhận được callback hay chưa, nếu chưa thì tiến hành gọi API truy vấn trạng thái thanh toán của đơn hàng để lấy kết quả cuối cùng
+                //return StatusCode(200, "OK");
             }
 
             //return Ok(HttpContext.Request.QueryString.Value);

@@ -2,11 +2,13 @@
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.Enums;
+using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
 using DiamondShop.Infrastructure.Databases;
+using DiamondShop.Infrastructure.Databases.Repositories.OrderRepo;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -29,8 +31,9 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
         private readonly IPaymentService _paymentService;
         private readonly DiamondShopDbContext _dbContext;
         private readonly IOrderService _orderService;
+        private readonly IOrderLogRepository _orderLogRepository;
 
-        public OrderManagementWorker(IUnitOfWork unitOfWork, ILogger<OrderManagementWorker> logger, IOrderRepository orderRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IPaymentService paymentService, DiamondShopDbContext dbContext, IOrderService orderService)
+        public OrderManagementWorker(IUnitOfWork unitOfWork, ILogger<OrderManagementWorker> logger, IOrderRepository orderRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IPaymentService paymentService, DiamondShopDbContext dbContext, IOrderService orderService, IOrderLogRepository orderLogRepository)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -39,6 +42,7 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
             _paymentService = paymentService;
             _dbContext = dbContext;
             _orderService = orderService;
+            _orderLogRepository = orderLogRepository;
         }
 
         public async Task Execute(IJobExecutionContext context)
@@ -70,6 +74,8 @@ namespace DiamondShop.Infrastructure.BackgroundJobs
                 }
                 await _orderService.CancelItems(order);
                 await _paymentService.RemoveAllPaymentCache(order);
+                var log = OrderLog.CreateByChangeStatus(order, order.Status);
+                await _orderLogRepository.Create(log);
                 await _orderRepository.Update(order);
             }
             await _unitOfWork.SaveChangesAsync();

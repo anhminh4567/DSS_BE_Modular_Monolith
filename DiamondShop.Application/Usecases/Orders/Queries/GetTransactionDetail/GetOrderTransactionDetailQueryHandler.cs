@@ -52,6 +52,7 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetTransactionDetail
             response.PaymentStatus = order.PaymentStatus;
             response.OrderStatus = order.Status;
             response.PaymentType = order.PaymentType;
+            bool isOrderValidToBePaid = order.PaymentStatus == Domain.Models.Orders.Enum.PaymentStatus.Pending || order.PaymentStatus == Domain.Models.Orders.Enum.PaymentStatus.Deposited;
             response.IsCancelled = (order.Status == Domain.Models.Orders.Enum.OrderStatus.Cancelled || order.Status == Domain.Models.Orders.Enum.OrderStatus.Rejected);
             if (response.IsCancelled)
             {
@@ -60,7 +61,24 @@ namespace DiamondShop.Application.Usecases.Orders.Queries.GetTransactionDetail
             response.DepositAmount = order.DepositFee;
             response.TotalAmount = order.TotalPrice;
             response.IsRefundable = order.PaymentStatus == Domain.Models.Orders.Enum.PaymentStatus.Refunding;
-            response.ExpectedRefundAmount = _orderTransactionService.GetRefundAmountFromOrder(order,0,orderPaymentRule);
+            response.ExpectedRefundAmount = response.IsRefundable ? _orderTransactionService.GetRefundAmountFromOrder(order, 0, orderPaymentRule) : 0;
+            if (isOrderValidToBePaid)
+            {
+                if(response.OrderStatus == Domain.Models.Orders.Enum.OrderStatus.Pending)
+                {
+                    if (order.PaymentType == Domain.Models.Orders.Enum.PaymentType.Payall)
+                        response.ExpectedPayAmount = order.TotalPrice;
+                    else
+                        response.ExpectedPayAmount = response.DepositAmount;
+                }else
+                {
+                    if (order.PaymentType == Domain.Models.Orders.Enum.PaymentType.Payall)
+                        response.ExpectedPayAmount = 0;
+                    else
+                        response.ExpectedPayAmount =order.TotalPrice -  getOrderTransaction.Where(x => x.TransactionType == Domain.Models.Transactions.Enum.TransactionType.Pay && x.Status == Domain.Models.Transactions.Enum.TransactionStatus.Valid)
+                            .Sum(x => x.TotalAmount) ;
+                }
+            }
             return response;
         }
 

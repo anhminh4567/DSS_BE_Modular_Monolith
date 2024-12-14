@@ -115,7 +115,7 @@ namespace DiamondShop.Domain.Models.Orders
             AddTransaction(depositedTransaction);
             Status = OrderStatus.Processing;
             PaymentStatus = PaymentStatus.Deposited;
-            Items.ForEach(p => p.Status = OrderItemStatus.Pending);
+            //Items.ForEach(p => p.Status = OrderItemStatus.Pending);
         }
         public void DeliverEnd()
         {
@@ -129,7 +129,7 @@ namespace DiamondShop.Domain.Models.Orders
             AddTransaction(payAllTransaction);
             Status = OrderStatus.Processing;
             PaymentStatus = PaymentStatus.Paid;
-            Items.ForEach(p => p.Status = OrderItemStatus.Pending);
+            //Items.ForEach(p => p.Status = OrderItemStatus.Pending);
         }
         public void PayRemainingForDepositOrder(Transaction payRemainingTransaction)
         {

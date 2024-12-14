@@ -197,6 +197,11 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                 order.ChangeToCollectAtShop();
             }
 
+            if (order.IsCollectAtShop == false)
+            {
+                if (order.TotalPrice >= orderRule.MaxOrderAmountForDelivery)
+                    return Result.Fail("Đơn hàng giá quá cao, chúng tôi không hỗ trợ giao, vui lòng nhận tại quầy, tối đa giao là "+ orderRule.MaxOrderAmountForDelivery);
+            }
             //check if zalopay, check maximum 
             if (paymentMethod.Id == PaymentMethod.ZALOPAY.Id)
             {

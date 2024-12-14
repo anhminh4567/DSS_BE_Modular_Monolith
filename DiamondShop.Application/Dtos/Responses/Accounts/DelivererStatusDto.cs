@@ -10,16 +10,8 @@ namespace DiamondShop.Application.Dtos.Responses.Accounts
     public class DelivererStatusDto
     {
         public AccountDto Account { get; set; }
-        public bool IsFree { get => OrderCurrentlyHandle == null; }
-        public string? BusyMessage { get => GetMessage(); }
+        public bool IsFree { get; set; }
+        public string? BusyMessage { get; set; }
         public OrderDto? OrderCurrentlyHandle { get; set; }
-        private string? GetMessage()
-        {
-            if (IsFree)
-            {
-                return null;
-            }
-            return "Đang giao cho đơn hàng với mã " + OrderCurrentlyHandle.OrderCode;
-        }
     }
 }

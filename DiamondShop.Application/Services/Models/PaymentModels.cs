@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
+using DiamondShop.Domain.Models.Orders.Enum;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -45,6 +46,7 @@ namespace DiamondShop.Application.Services.Models
         public string ForOrderId { get; set; }
         public string ForAccountId { get; set; }
         public string Description { get; set; }
+        public OrderStatus? OrderStatus { get; set; }
     }
     public record PaymentDetail
     {

@@ -290,5 +290,10 @@ namespace DiamondShop.Infrastructure.Services.Payments.Vnpays
         {
             throw new NotImplementedException();
         }
+
+        public Task<Result> Return()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

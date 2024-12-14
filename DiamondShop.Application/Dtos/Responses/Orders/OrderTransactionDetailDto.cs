@@ -23,6 +23,7 @@ namespace DiamondShop.Application.Dtos.Responses.Orders
         public bool IsShopFault { get; set; }
         public bool IsRefundable { get; set; }
         public decimal ExpectedRefundAmount { get; set; }
+        public decimal ExpectedPayAmount { get; set; }
         
     }
 }

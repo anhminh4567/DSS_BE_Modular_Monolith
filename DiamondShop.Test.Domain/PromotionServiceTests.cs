@@ -12,6 +12,7 @@ using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Promotions.ValueObjects;
 using DiamondShop.Domain.Services.Implementations;
 using DiamondShop.Domain.Services.interfaces;
+using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;
 using OpenQA.Selenium.DevTools.V127.Audits;
@@ -382,6 +383,52 @@ namespace DiamondShop.Test.Domain
             Assert.Equal(hightestProductPrice.ReviewPrice.PromotionAmountSaved, maxAmount);
             Assert.Equal(userCartModel.OrderPrices.OrderAmountSaved, 0);
             Assert.Equal(userCartModel.OrderPrices.FinalPrice, expectedPrice);
+        }
+        [Fact(DisplayName = "gift amount greater than 1")]
+        public void ApplyPromotionOnCartModel_GiftGreaterThan1_Should_MissGift()
+        {
+            // Arrange
+            List<CartItem> userCartItemWithDiamonds = new List<CartItem>()
+            {
+                CartItem.CreateDiamond(DiamondId.Create(),null),
+                CartItem.CreateDiamond(DiamondId.Create(),null),
+                CartItem.CreateDiamond(DiamondId.Create(),null),
+            };
+            var giftAmount = 4;
+            var shapesIds = _diamondShapes.Select(s => s.Id).ToList();
+            var promotionRequirement = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, 1, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes);
+            var promotionGift = Gift.CreateDiamond("test", null, UnitType.Percent, 20, giftAmount, shapesIds, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D);
+            var promotion = Promotion.Create("test", "test", "test", DateTime.UtcNow, DateTime.UtcNow.AddDays(50), 1, true, RedemptionMode.Single);
+            promotionRequirement.PromotionId = promotion.Id;
+            promotionGift.PromotionId = promotion.Id;
+
+            promotion.AddRequirement(promotionRequirement);
+            promotion.AddGift(promotionGift);
+            promotion.SetActive();
+
+            Diamond diamond1 = Diamond.Create(_diamondShapes[0], new Diamond_4C(Cut.Very_Good, Color.I, Clarity.VVS1, 0.5f, true), new Diamond_Details(Polish.Good, Symmetry.Good, Girdle.Medium, Fluorescence.Medium, Culet.Medium), new Diamond_Measurement(2f, 22f, 2f, "whatever"), 1, "asdf");
+            Diamond diamond2 = Diamond.Create(_diamondShapes[1], new Diamond_4C(Cut.Very_Good, Color.I, Clarity.VVS1, 0.3f, true), new Diamond_Details(Polish.Good, Symmetry.Good, Girdle.Medium, Fluorescence.Medium, Culet.Medium), new Diamond_Measurement(2f, 22f, 2f, "whatever 2"), 1, "asdfasdf");
+
+            CartModel userCartModel = new CartModel();
+            CartProduct product1 = new CartProduct() { Diamond = diamond1, ReviewPrice = new CheckoutPrice() { DefaultPrice = 1000 } };
+            CartProduct product2 = new CartProduct() { Diamond = diamond2, ReviewPrice = new CheckoutPrice() { DefaultPrice = 2000 } };
+            string biggestPriceid = product1.ReviewPrice.DefaultPrice > product2.ReviewPrice.DefaultPrice ? product1.CartProductId : product2.CartProductId;
+            string smallestPriceid = product1.ReviewPrice.DefaultPrice < product2.ReviewPrice.DefaultPrice ? product1.CartProductId : product2.CartProductId;
+            userCartModel.Products.Add(product1);
+            userCartModel.Products.Add(product2);
+
+            var promotionService = new PromotionService();
+            // Act
+            var result = promotionService.ApplyPromotionOnCartModel(userCartModel, promotion, _optionsMonitor.CurrentValue.PromotionRule);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            var promo = userCartModel.Promotion;
+            Assert.Equal(userCartModel.Products[promo.RequirementProductsIndex[0]].CartProductId, smallestPriceid);
+            Assert.Equal(userCartModel.Products[promo.GiftProductsIndex[0]].CartProductId, biggestPriceid);
+            userCartModel.Promotion.MissingGifts.Count.Should().Be(1);
+            userCartModel.Promotion.MissingGifts.First().MissingQuantity.Should().Be(giftAmount - 1);
+
         }
     }
 }
