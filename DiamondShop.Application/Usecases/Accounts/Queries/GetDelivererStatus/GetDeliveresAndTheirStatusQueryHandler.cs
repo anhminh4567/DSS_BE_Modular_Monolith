@@ -59,6 +59,7 @@ namespace DiamondShop.Application.Usecases.Accounts.Queries.GetDelivererStatus
                     var mappedDeliverer = new DelivererStatusDto
                     {
                         Account = _mapper.Map<AccountDto>(deliverer),
+                        IsFree = true,
                     };
                     if (deliverer.Status == Domain.Models.AccountAggregate.Enums.AccountStatus.Banned)
                     {
