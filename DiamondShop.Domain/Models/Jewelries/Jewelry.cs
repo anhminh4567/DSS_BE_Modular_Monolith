@@ -84,7 +84,8 @@ namespace DiamondShop.Domain.Models.Jewelries
                 return IsAllDiamondPriceKnown && IsMetalPriceKnown && IsAllSideDiamondPriceKnown;
             }
         }
-
+        [NotMapped]
+        public string? Title { get => GetTitle(); }
         public List<Diamond> Diamonds { get; set; } = new();
         public JewelrySideDiamond? SideDiamond { get; set; }
         public JewelryReview? Review { get; set; }
@@ -251,6 +252,20 @@ namespace DiamondShop.Domain.Models.Jewelries
             if (UnLockableState.Contains(this.Status))
                 return Result.Fail(JewelryErrors.InCorrectState("không thể khóa sản phẩm này"));
             return Result.Ok();
+        }
+        public string GetTitle()
+        {
+            string title = "trang sức mã #" + SerialCode;
+            if (Model != null)
+            {
+                title = $"{Model.Name} ";
+                if(Metal != null)
+                    title += $"in {Metal.Name} ";
+                
+                if (SideDiamond != null)
+                    title += $"({SideDiamond.Carat} Tw)";
+            }
+            return title;
         }
     }
 }

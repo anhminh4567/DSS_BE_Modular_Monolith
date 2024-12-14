@@ -9,6 +9,7 @@ using DiamondShop.Domain.Models.Transactions.ValueObjects;
 using DiamondShop.Domain.Repositories;
 using DiamondShop.Domain.Repositories.OrderRepo;
 using FluentResults;
+using FluentResults.Extensions;
 using MediatR;
 using Microsoft.Extensions.Options;
 using System;
@@ -49,7 +50,14 @@ namespace DiamondShop.Application.Usecases.Diamonds.Files.Commands.DownloadCerti
                 return Result.Fail("kim cương không nằm trong đơn hàng này, bạn không được phép tải chứng chỉ");
             if (order.Status != Domain.Models.Orders.Enum.OrderStatus.Success)
                 return Result.Fail("Đơn hàng chưa hoàn tất, bạn chỉ được tải chứng từ nếu hoàn tất đơn");
-
+            if (diamond.CertificateCode == null || diamond.CertificateFilePath == null)
+                return Result.Fail("kim cương không có chứng từ, liên hệ shop để được nhận riêng");
+            var result = await _diamondFileService.DownloadFileAsync(diamond.CertificateFilePath.MediaPath);
+            if (result.IsFailed)
+                return Result.Fail(result.Errors);
+            var fileName = "GIA cert cho kim cương mã #"+ diamond.SerialCode ;
+            var file = new FileDownloadData(fileName, ".pdf", result.Value.ContentType, DateTime.UtcNow, result.Value.Stream);
+            return file;
             throw new NotImplementedException();
         }
     }

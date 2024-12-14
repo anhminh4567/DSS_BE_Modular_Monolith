@@ -42,5 +42,6 @@ namespace DiamondShop.Application.Dtos.Responses.Jewelries
         public bool IsAllDiamondPriceKnown { get; set; }
         public bool IsMetalPriceKnown { get; set; }
         public bool IsJewelryPriceKnown { get; set; }
+        public string? Title { get; set; }
     }
 }
