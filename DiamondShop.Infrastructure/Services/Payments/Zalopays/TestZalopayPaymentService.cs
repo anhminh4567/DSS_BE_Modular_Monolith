@@ -124,6 +124,10 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                     var getOrderDetail = await _orderRepository.GetById(orderIdParsed);
                     var zalopayMethod = paymentMethods.First(x => x.MethodName.ToUpper() == PaymentMethod.ZALOPAY.MethodName.ToUpper());
                     _logger.LogInformation("update order's status = success where app_trans_id = {0}", dataObject.app_trans_id);
+                    if (orderStatusBeforePayment != getOrderDetail.Status)
+                        throw new Exception("order status is not valid to create transaction");
+                    if(getOrderDetail.Transactions.Count != metaData.TotalTransactionCount)
+                        throw new Exception("transaction count is not valid");
                     if (tryGetTransaction == null ) // check neu thanh cong, check DB xem transaction ton tai hay chuaw thi tra ve return_code = 1
                     {
                         if (getOrderDetail.Status == OrderStatus.Cancelled || getOrderDetail.Status == OrderStatus.Rejected)
@@ -142,36 +146,36 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                         await _orderRepository.Update(getOrderDetail);
                         await _unitOfWork.SaveChangesAsync();
                         await _unitOfWork.CommitAsync();
-
                     }
                     else// neu ton tai Transaction, laf transaction da callback roi => tra ve = 2, la giao dich da xu ly
                     {
                         if (tryGetTransaction != null)
                         {
-                            if (getOrderDetail.Status == OrderStatus.Cancelled || getOrderDetail.Status == OrderStatus.Rejected)
-                                throw new Exception("");
-                            if (tryGetTransaction.Status == TransactionStatus.Verifying)
-                            {
-                                await _unitOfWork.BeginTransactionAsync();
-                                tryGetTransaction.VerifyZalopay(dataObject.zp_trans_id.ToString(), metaData.TimeStampe);
-                                result["return_code"] = 1;
-                                result["return_message"] = "success";
-                                //getOrderDetail.Status = OrderStatus.Processing;
-                                //getOrderDetail.PaymentStatus = getOrderDetail.PaymentType == PaymentType.Payall ? PaymentStatus.PaidAll : PaymentStatus.Deposited;
-                                await _publisher.Publish(new TransactionCreatedEvent(tryGetTransaction, DateTime.UtcNow));
-                                await _orderRepository.Update(getOrderDetail);
-                                await _unitOfWork.SaveChangesAsync();
-                                await _unitOfWork.CommitAsync();
-                            }else if(tryGetTransaction.Status == TransactionStatus.Invalid)
-                            {
-                                result["return_code"] = -1;
-                                result["return_message"] = "transaction no longer valid";
-                            }
+                            throw new Exception("transaction is already exist");
+                            //if (getOrderDetail.Status == OrderStatus.Cancelled || getOrderDetail.Status == OrderStatus.Rejected)
+                            //    throw new Exception("");
+                            //if (tryGetTransaction.Status == TransactionStatus.Verifying)
+                            //{
+                            //    await _unitOfWork.BeginTransactionAsync();
+                            //    tryGetTransaction.VerifyZalopay(dataObject.zp_trans_id.ToString(), metaData.TimeStampe);
+                            //    result["return_code"] = 1;
+                            //    result["return_message"] = "success";
+                            //    //getOrderDetail.Status = OrderStatus.Processing;
+                            //    //getOrderDetail.PaymentStatus = getOrderDetail.PaymentType == PaymentType.Payall ? PaymentStatus.PaidAll : PaymentStatus.Deposited;
+                            //    await _publisher.Publish(new TransactionCreatedEvent(tryGetTransaction, DateTime.UtcNow));
+                            //    await _orderRepository.Update(getOrderDetail);
+                            //    await _unitOfWork.SaveChangesAsync();
+                            //    await _unitOfWork.CommitAsync();
+                            //}else if(tryGetTransaction.Status == TransactionStatus.Invalid)
+                            //{
+                            //    result["return_code"] = -1;
+                            //    result["return_message"] = "transaction no longer valid";
+                            //}
                         }
                         else
                         {
                             result["return_code"] = 2;
-                            result["return_message"] = "success";
+                            result["return_message"] = "error";
                         }
                     }
 
@@ -277,6 +281,8 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                 ForAccountId = paymentLinkRequest.Account.Id.Value,
                 ForOrderId = paymentLinkRequest.Order.Id.Value,
                 Description = description,
+                OrderStatus = order.Status,
+                TotalTransactionCount = orderTransaction.Count,
             };
             //insert meta data
             embed_data.columninfo = JsonConvert.SerializeObject(descriptionBodyJson);

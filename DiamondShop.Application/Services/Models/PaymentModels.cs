@@ -47,6 +47,7 @@ namespace DiamondShop.Application.Services.Models
         public string ForAccountId { get; set; }
         public string Description { get; set; }
         public OrderStatus? OrderStatus { get; set; }
+        public int TotalTransactionCount { get; set; }
     }
     public record PaymentDetail
     {

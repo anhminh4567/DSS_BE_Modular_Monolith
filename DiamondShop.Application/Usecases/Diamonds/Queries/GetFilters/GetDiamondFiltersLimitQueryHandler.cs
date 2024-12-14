@@ -62,7 +62,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetFilters
             filterLimitResponse.Symmetry.Max = (int)symmetry.Max();
             filterLimitResponse.Symmetry.Min = (int)symmetry.Min();
             filterLimitResponse.Carat.Max = maxCarat;
-            filterLimitResponse.Carat.Min = minCarat;
+            filterLimitResponse.Carat.Min = 0.0f;
             filterLimitResponse.Shapes = _mapper.Map<List<DiamondShapeDto>>(getAllShapes);
             return filterLimitResponse;
         }

@@ -23,6 +23,7 @@ namespace DiamondShop.Application.Dtos.Responses.Orders
         public string? WarrantyId { get; set; }
         public decimal? DiscountSavedAmount { get; set; }
         public decimal? PromotionSavedAmount { get; set; }
+        public decimal WarrantyPrice { get; set; }
         public string ProductId { get; set; }
         public string Name { get; set; }
         public bool IsProductDelete { get; set; }
