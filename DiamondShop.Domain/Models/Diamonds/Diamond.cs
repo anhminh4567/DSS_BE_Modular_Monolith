@@ -158,7 +158,7 @@ namespace DiamondShop.Domain.Models.Diamonds
                     JewelryId = jewelry.Id;
                     return;
                 }
-                if(jewelry.Status != ProductStatus.PreOrder && Jewelry.Status != ProductStatus.Sold)
+                if(jewelry.Status != ProductStatus.PreOrder && jewelry.Status != ProductStatus.Sold)
                     SetSell();
                 JewelryId = jewelry.Id;
                 Status = ProductStatus.Locked;
