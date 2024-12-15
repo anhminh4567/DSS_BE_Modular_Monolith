@@ -59,6 +59,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
         {
             return _set.Where(p =>
             p.Status == ProductStatus.Active && p.ModelId == modelId && p.MetalId == metalId &&
+            p.SideDiamond != null &&
             p.SideDiamond.ColorMin == sideDiamondOpt.ColorMin && p.SideDiamond.ColorMax == sideDiamondOpt.ColorMax &&
             p.SideDiamond.ClarityMin == sideDiamondOpt.ClarityMin && p.SideDiamond.ClarityMax == sideDiamondOpt.ClarityMax &&
             p.SideDiamond.SettingType == sideDiamondOpt.SettingType && p.SideDiamond.Carat == sideDiamondOpt.CaratWeight && p.SideDiamond.Quantity == sideDiamondOpt.Quantity && p.SideDiamond.DiamondShapeId == sideDiamondOpt.ShapeId &&
@@ -82,6 +83,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
         public async Task<bool> Existing(JewelryModelId modelId, SideDiamondOpt sideDiamondOpt)
         {
             return await _set.Where(p => p.Status == ProductStatus.Active && p.ModelId == modelId &&
+            p.SideDiamond != null && 
             p.SideDiamond.Carat == sideDiamondOpt.CaratWeight && p.SideDiamond.SettingType == sideDiamondOpt.SettingType &&
             p.SideDiamond.Quantity == sideDiamondOpt.Quantity && p.SideDiamond.DiamondShapeId == sideDiamondOpt.ShapeId &&
             p.SideDiamond.ColorMin == sideDiamondOpt.ColorMin && p.SideDiamond.ColorMax == sideDiamondOpt.ColorMax &&
