@@ -26,6 +26,8 @@ namespace DiamondShop.Domain.Models.JewelryModels
         public decimal CraftmanFee { get; set;}
         [NotMapped]
         public decimal SettingPrice { get; set; }
+        [NotMapped]
+        public decimal? SD_Price { get; set; }
         public List<MainDiamondReq> MainDiamonds { get; set; } = new ();
         public List<SideDiamondOpt> SideDiamonds { get; set; } = new();
         public List<SizeMetal> SizeMetals { get; set; } = new();

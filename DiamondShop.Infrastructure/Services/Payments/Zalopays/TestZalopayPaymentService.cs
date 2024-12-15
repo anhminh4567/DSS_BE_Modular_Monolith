@@ -32,6 +32,7 @@ using Microsoft.Extensions.Caching.Memory;
 using DiamondShop.Domain.Models.Transactions.Events;
 using Azure.Storage.Blobs.Models;
 using QRCoder;
+using DiamondShop.Commons;
 
 namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
 {
@@ -84,6 +85,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
 
         public async Task<object> Callback()
         {
+            
             var httpClient = _httpContextAccessor.HttpContext;
             if (httpClient == null)
                 throw new Exception("cannot found httpClient");
@@ -125,15 +127,17 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                     var zalopayMethod = paymentMethods.First(x => x.MethodName.ToUpper() == PaymentMethod.ZALOPAY.MethodName.ToUpper());
                     _logger.LogInformation("update order's status = success where app_trans_id = {0}", dataObject.app_trans_id);
                     if (orderStatusBeforePayment != getOrderDetail.Status)
-                        throw new Exception("order status is not valid to create transaction");
-                    if(getOrderDetail.Transactions.Count != metaData.TotalTransactionCount)
-                        throw new Exception("transaction count is not valid");
+                        return returnError("order status is not valid to create transaction");
+                    if (getOrderDetail.Transactions.Count != metaData.TotalTransactionCount)
+                        return returnError("transaction count is not valid");
                     if (tryGetTransaction == null ) // check neu thanh cong, check DB xem transaction ton tai hay chuaw thi tra ve return_code = 1
                     {
                         if (getOrderDetail.Status == OrderStatus.Cancelled || getOrderDetail.Status == OrderStatus.Rejected)
-                            throw new Exception("order is not valid to create transaction");
+                            return returnError("order is not valid to create transaction");
                         if (getOrderDetail.Status != orderStatusBeforePayment)
-                            throw new Exception("transaction no longer valid");
+                            return returnError("transaction no longer valid");
+                        if (metaData.TotalTransactionCount != getOrderDetail.Transactions.Count)
+                            return returnError("transaction count is not valid");
                         await _unitOfWork.BeginTransactionAsync();
                         var newTran = Transaction.CreatePayment(zalopayMethod.Id, orderIdParsed, metaData.Description, dataObject.app_trans_id, dataObject.zp_trans_id.ToString(), metaData.TimeStampe, dataObject.amount, DateTime.UtcNow);
                         newTran.VerifyZalopay(dataObject.zp_trans_id.ToString(), metaData.TimeStampe);
@@ -151,7 +155,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
                     {
                         if (tryGetTransaction != null)
                         {
-                            throw new Exception("transaction is already exist");
+                            return returnError("transaction is already exist");
                             //if (getOrderDetail.Status == OrderStatus.Cancelled || getOrderDetail.Status == OrderStatus.Rejected)
                             //    throw new Exception("");
                             //if (tryGetTransaction.Status == TransactionStatus.Verifying)
@@ -186,6 +190,12 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             {
                 result["return_code"] = 0; // ZaloPay server sẽ callback lại (tối đa 3 lần)
                 result["return_message"] = ex.Message;
+            }
+            object returnError(string message)
+            {
+                result["return_code"] = -1;
+                result["return_message"] = message;
+                return result;
             }
             // thông báo kết quả cho ZaloPay server
             return result;
@@ -286,7 +296,7 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             };
             //insert meta data
             embed_data.columninfo = JsonConvert.SerializeObject(descriptionBodyJson);
-            var appTransactionId = DateTime.UtcNow.ToLocalTime().ToString("yyMMdd") + "_" + app_trans_id;//order.CreatedDate.ToLocalTime().ToString("yyMMdd") + "_" + app_trans_id;
+            var appTransactionId = DateTime.UtcNow.ToLocalTime().ToString("yyMMdd") + "_" + app_trans_id+ $"{Utilities.GenerateRandomString(5)}";//order.CreatedDate.ToLocalTime().ToString("yyMMdd") + "_" + app_trans_id;
             List<ZalopayItem> falseList = new List<ZalopayItem>() { new ZalopayItem() { name = "order", price = amount, quantity = 1, sale_price = amount } };
             param.Add("app_id", appid);
             param.Add("app_user", userId);

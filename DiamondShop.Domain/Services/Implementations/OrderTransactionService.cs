@@ -30,7 +30,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 throw new Exception("this is not of type COD ");
             }
             var codPercent = OrderPaymentRules.Default.CODPercent;
-            var neededToPayAmountRaw = order.TotalPrice * (Decimal.Divide(codPercent, 100));
+            var neededToPayAmountRaw = order.DepositFee; //order.TotalPrice * (Decimal.Divide(codPercent, 100));
             var roundedValue = MoneyVndRoundUpRules.RoundAmountFromDecimal(neededToPayAmountRaw); //Math.Round(Decimal.Divide(neededToPayAmountRaw, 1000), 1) * 1000;//the function is tested in linq pad
             return roundedValue;
         }
@@ -84,7 +84,7 @@ namespace DiamondShop.Domain.Services.Implementations
                 throw new Exception("this is not of type COD ");
             }
             var depositPercent = OrderPaymentRules.Default.DepositPercent;
-            var neededToPayAmountRaw = order.TotalPrice * (Decimal.Divide(depositPercent, 100));
+            var neededToPayAmountRaw = order.DepositFee; //order.TotalPrice * (Decimal.Divide(depositPercent, 100));
             var roundedValue = MoneyVndRoundUpRules.RoundAmountFromDecimal(neededToPayAmountRaw); //Math.Round(Decimal.Divide(neededToPayAmountRaw, 1000), 1) * 1000;//the function is tested in linq pad
             return roundedValue;
         }

@@ -65,5 +65,6 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         public List<SideDiamondOptDto> SideDiamonds { get; set; } = new();
         public List<SizeMetalDto> SizeMetals { get; set; } = new();
         public MediaDto? Thumbnail { get; set; }
+        public decimal SettingPrice { get; set; }
     }
 }

@@ -137,7 +137,9 @@ namespace DiamondShop.Infrastructure
             services.AddScoped<IDeliveryFeeRepository, DeliveryFeeRepository>();
             services.AddScoped<IWarrantyRepository, WarrantyRepository>();
 
-            services.AddScoped<IPaymentService, ZalopayPaymentService>();
+            //services.AddScoped<IPaymentService, ZalopayPaymentService>();
+            //services.AddScoped<IPaymentService, TestZalopayPaymentService>();
+
             services.AddScoped<ILocationRepository,LocationRepository>();
 
             services.AddScoped<IBlogRepository, BlogRepository>();
@@ -265,7 +267,9 @@ namespace DiamondShop.Infrastructure
         {
             services.AddSingleton<PaypalClient>();
             services.AddSingleton<ZalopayClient>();
-            services.AddTransient<IPaymentService, ZalopayPaymentService>();
+            //services.AddTransient<IPaymentService, ZalopayPaymentService>();
+            services.AddTransient<IPaymentService, TestZalopayPaymentService>();
+
             //services.AddScoped<IApplicationSettingService, ApplicationSettingService>();
             return services;
         }
