@@ -93,7 +93,7 @@ namespace DiamondShop.Application.Usecases.PromotionRequirements.Commands.Create
                 var query =  _jewelryModelRepository.GetQuery();
                 var getModels = query.ToList();
                 query = _jewelryModelRepository.QueryFilter(query,x => getAnyModelId.Contains(x.Id));
-                if (getModels.Count != getAnyModelId.Count)
+                if (query.Count()!= getAnyModelId.Count)
                     return Result.Fail(new NotFoundError("some model id not found"));
             }
             await _requirementRepository.CreateRange(requirements);
