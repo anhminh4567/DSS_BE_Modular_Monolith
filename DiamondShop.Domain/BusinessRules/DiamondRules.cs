@@ -59,6 +59,17 @@ namespace DiamondShop.Domain.BusinessRules
         public decimal AsscherOffsetFromFancyShape { get; set; } = -0.2m;
         public decimal MarquiseOffsetFromFancyShape { get; set; } = -0.2m;
         public decimal HeartOffsetFromFancyShape { get; set; } = -0.2m;
+        public decimal? GetFancyShapeOffset(DiamondShape shape)
+        {
+            if (shape.IsFancy() == false)
+                return null;
+            var shapeId = shape.Id;
+            if(shapeId == DiamondShape.HEART.Id)
+            {
+                return HeartOffsetFromFancyShape;
+            }
+            return null;
+        }
     }
     public class OffsetByShapeAndCut
     {

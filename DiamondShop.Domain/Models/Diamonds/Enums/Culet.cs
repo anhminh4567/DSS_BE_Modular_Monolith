@@ -10,4 +10,11 @@ namespace DiamondShop.Domain.Models.Diamonds.Enums
     {
         None = 1, Very_Small = 2, Small = 3, Medium = 4, Slightly_Large = 5, Large = 6 , Very_Large = 7, Extremely_Large = 8
     }
+    public static class CuletHelper
+    {
+        public static List<Culet> GetCuletsList()
+        {
+            return Enum.GetValues(typeof(Culet)).Cast<Culet>().ToList();
+        }
+    }
 }

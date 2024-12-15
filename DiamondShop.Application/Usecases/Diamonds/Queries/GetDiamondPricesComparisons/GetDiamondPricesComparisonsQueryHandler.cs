@@ -59,17 +59,32 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDiamondPricesComp
             //result.Diamond = _mapper.Map<DiamondDto>(fakeDiamond);
             result.CorrectPrice = fakeDiamond.TruePrice;
             result.CurrentGivenOffset = request.priceOffset;
+            result.Shape = _mapper.Map<DiamondShapeDto>(getShape);
             if (getPrice.ForUnknownPrice == null)//price is known{
             {
                 result.IsPriceKnown = true;
+                result.IsValid = true;
                 result.Message = "Đã biết rõ giá, có thể so sánh với giá hiện tại";
-                return Result.Ok(result);
+                //return Result.Ok(result);
             }
-            result.IsPriceKnown = false;
-            result.Message = "chưa rõ giá, bạn có muốn thêm vào ?";
+            else 
+            {
+                result.IsPriceKnown = false;
+                result.Message = "chưa rõ giá, bạn có muốn thêm vào ?";
+            }
             var diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
-            
+            bool isFancy = getShape.IsFancy();
+            if (isFancy)
+            {
+                result.IsFancyShape = true;
+                
+            }
+            else
+            {
+                result.IsFancyShape = false;
+            }
             return result;
         }
     }
 }
+
