@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Dtos.Responses.Diamonds;
+using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
@@ -77,12 +78,31 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDiamondPricesComp
             if (isFancy)
             {
                 result.IsFancyShape = true;
-                
+                var offsetFound = diamondRule.GetFancyShapeOffset(getShape);
+                if(offsetFound == null)
+                {
+                    result.FancyShapeOffsetSuggested = 0;
+                }
+                else
+                {
+                    result.FancyShapeOffsetSuggested = offsetFound.Value;
+                }
             }
             else
             {
                 result.IsFancyShape = false;
+                if (request.Diamond_4C.Cut != null)
+                {
+                    var cutOffsetFound = diamondRule.GetCutOffset(request.Diamond_4C.Cut.Value);
+                    if (cutOffsetFound != null)
+                        result.CutOffsetSuggested = cutOffsetFound.Value;
+                    else
+                        result.CutOffsetSuggested = 0;
+                }
+                else
+                    result.CutOffsetSuggested = 0;
             }
+            result.SuggestedOffsetTobeAdded = Math.Round((result.CutOffsetSuggested + result.FancyShapeOffsetSuggested) / 2m, 2);;
             return result;
         }
     }

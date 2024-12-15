@@ -21,7 +21,7 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public decimal SuggestedOffsetTobeAdded { get; set; }
         public DiamondShapeDto Shape { get; set; }
         public bool IsFancyShape { get; set; }
-        public decimal CutOffsetSuggested { get; set; }
-        public decimal FancyShapeOffsetSuggested { get; set; }
+        public decimal CutOffsetSuggested { get; set; } = 0;
+        public decimal FancyShapeOffsetSuggested { get; set; } = 0;
     }
 }

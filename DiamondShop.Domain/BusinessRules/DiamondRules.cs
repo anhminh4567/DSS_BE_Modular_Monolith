@@ -15,7 +15,7 @@ namespace DiamondShop.Domain.BusinessRules
     {
         public static DiamondRule Default = new DiamondRule();
         public static string Type = typeof(DiamondRule).AssemblyQualifiedName;
-        public static string key = "DiamondRuleVer3";
+        public static string key = "DiamondRuleVer4";
 
         public static string GetDiamondSerialCode(Diamond diamond,DiamondShape shape)
         {
@@ -43,12 +43,16 @@ namespace DiamondShop.Domain.BusinessRules
         public int MainDiamondMaxFractionalNumber { get; set; } = 2;
         public decimal AverageOffsetVeryGoodCutFromIdealCut { get; set; } = -0.11M;
         public decimal AverageOffsetGoodCutFromIdealCut { get; set; } = -0.15M;
+        public decimal AverageOffsetExcellentCutFromIdealCut { get; set; } = -0.02M;
+
         public int MaxLockTimeForCustomer { get; set; } = 24;
         /// <summary>
         /// 
         /// </summary>
         public decimal AverageOffsetVeryGoodCutFromIdealCut_FANCY_SHAPE { get; set; } = -0.11M;
         public decimal AverageOffsetGoodCutFromIdealCut_FANCY_SHAPE { get; set; } = -0.12M;
+        public decimal AverageOffsetExcellentCutFromIdealCut_FANCY_SHAPE { get; set; } = -0.02M;
+
         //public decimal AverageOffsetFancyShapeFromRoundShape { get; set; } = -0.2M;
         public decimal PearlOffsetFromFancyShape { get; set; } = -0.2m;
         public decimal PrincessOffsetFromFancyShape { get; set; } = +0.2m;
@@ -65,10 +69,38 @@ namespace DiamondShop.Domain.BusinessRules
                 return null;
             var shapeId = shape.Id;
             if(shapeId == DiamondShape.HEART.Id)
-            {
                 return HeartOffsetFromFancyShape;
-            }
+            if (shapeId == DiamondShape.RADIANT.Id)
+                return RadiantOffsetFromFancyShape;
+            if (shapeId == DiamondShape.OVAL.Id)
+                return OvalOffsetFromFancyShape;
+            if(shapeId == DiamondShape.CUSHION.Id)
+                return CushionOffsetFromFancyShape;
+            if(shapeId == DiamondShape.MARQUISE.Id)
+                return MarquiseOffsetFromFancyShape;
+            if(shapeId == DiamondShape.ASSCHER.Id)
+                return AsscherOffsetFromFancyShape;
+            if(shapeId == DiamondShape.CUSHION.Id)
+                return CushionOffsetFromFancyShape;
+            if(shapeId == DiamondShape.EMERALD.Id)
+                return EmeraldOffsetFromFancyShape;
+            if(shapeId == DiamondShape.PRINCESS.Id)
+                return PrincessOffsetFromFancyShape;
             return null;
+        }
+        public decimal? GetCutOffset(Cut cut)
+        {
+            switch (cut)
+            {
+                case Cut.Excellent:
+                    return AverageOffsetExcellentCutFromIdealCut;
+                case Cut.Very_Good:
+                    return AverageOffsetVeryGoodCutFromIdealCut;
+                case Cut.Good:
+                    return AverageOffsetGoodCutFromIdealCut;
+                default:
+                    return null;
+            }
         }
     }
     public class OffsetByShapeAndCut
