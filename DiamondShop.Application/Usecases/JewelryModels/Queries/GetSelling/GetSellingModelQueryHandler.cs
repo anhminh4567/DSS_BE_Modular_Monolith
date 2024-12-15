@@ -120,6 +120,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                                 if (sideDiamondImages != null && sideDiamondImages.Count >= 3)
                                     thumbnail = sideDiamondImages[2];
                                 var reviews = existedJewelry.Where(k =>
+                                k.SideDiamond != null &&
                                 k.SideDiamond.Carat == p.CaratWeight && k.SideDiamond.SettingType == p.SettingType &&
                                 k.SideDiamond.Quantity == p.Quantity && k.SideDiamond.DiamondShapeId == p.ShapeId &&
                                 k.SideDiamond.ColorMin == p.ColorMin && k.SideDiamond.ColorMax == p.ColorMax &&
