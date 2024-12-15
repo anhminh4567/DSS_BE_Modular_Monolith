@@ -458,13 +458,12 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
                 roleQuery = _accountRoleRepository.QueryFilter(roleQuery, x => parsedRolesId.Contains(x.Id));
             }
             roleQuery = _accountRoleRepository.QueryInclude(roleQuery, x => x.Accounts);
-            var accountQuery = roleQuery.SelectMany(x => x.Accounts);
+            var accountQuery = roleQuery.SelectMany(x => x.Accounts).Distinct();
             if(email is not null)
                 accountQuery = accountQuery.Where(x => x.Email.Contains(email));
             result = accountQuery
                 .Distinct()
                 .Include(x => x.Roles)
-                .AsSplitQuery()
                 .Skip(trueCurrent)
                 .Take(size)
                 .ToList();
@@ -480,7 +479,7 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
 
             result.ForEach(x => x.UserIdentity = customIdentityUsers.FirstOrDefault(u => u.Id == x.IdentityId));
 
-            total = roleQuery.SelectMany(x => x.Accounts).Count();
+            total = accountQuery.Count();//roleQuery.SelectMany(x => x.Accounts).Count();
 
             return new PagingResponseDto<Account>(
                 TotalPage: (int)Math.Ceiling((decimal)total / (decimal)size),
