@@ -92,6 +92,8 @@ namespace DiamondShop.Domain.Services.Implementations
                                 {
                                     diamond.SetSell();
                                     diamonds.Add(diamond);
+                                    if(order.IsCustomOrder)
+                                        await _diamondRepository.RemoveDiamondFromAllDiamondRequest(diamond);
                                 }
                             }
                         }
@@ -104,11 +106,13 @@ namespace DiamondShop.Domain.Services.Implementations
                             {
                                 diamond.SetForJewelry(jewelry);
                                 diamonds.Add(diamond);
+                                if (order.IsCustomOrder)
+                                    await _diamondRepository.RemoveDiamondFromAllDiamondRequest(diamond);
                             }
                         }
+                        jewelry.SetSell();
+                        jewelries.Add(jewelry);
                     }
-                    jewelry.SetSell();
-                    jewelries.Add(jewelry);
                 }
                 if (item.DiamondId != null)
                 {

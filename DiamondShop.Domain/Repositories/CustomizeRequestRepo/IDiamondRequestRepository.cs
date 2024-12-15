@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.Models.CustomizeRequests.Entities;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,6 @@ namespace DiamondShop.Domain.Repositories.CustomizeRequestRepo
     {
         public Task CreateRange(List<DiamondRequest> requests);
         Task<DiamondRequest?> GetById(DiamondRequestId diamondRequestId, CancellationToken cancellationToken = default);
+        Task<DiamondRequest?> GetByDiamondId(DiamondId diamondId);
     }
 }

@@ -99,7 +99,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromo
                 {
                      applyResult = PromotionService.IsCartMeetPromotionRequirent(clonedCart, promo, promotionRule);
                 }
-                catch
+                catch(Exception ex)
                 {
 
                 }

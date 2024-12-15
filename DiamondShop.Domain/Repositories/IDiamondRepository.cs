@@ -40,5 +40,6 @@ namespace DiamondShop.Domain.Repositories
         IQueryable<Diamond> Filtering4C(IQueryable<Diamond> query, GetDiamond_4C diamond_4C);
         IQueryable<Diamond> FilteringDetail(IQueryable<Diamond> query, GetDiamond_Details diamond_Details);
         Task<IQueryable<Diamond>> FilteringPrice(IQueryable<Diamond> query, GetDiamond_4C diamond_4C, decimal priceFrom, decimal priceTo);
+        Task RemoveDiamondFromAllDiamondRequest(Diamond diamond);
     }
 }

@@ -3,6 +3,8 @@ using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Models.DiamondShapes;
 using DiamondShop.Domain.Repositories;
+using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
+using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
@@ -27,8 +29,10 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail
         private readonly IDiscountService _discountService;
         private readonly IDiscountRepository _discountRepository;
         private readonly IAccountRepository _accountRepository;
+        private readonly IJewelryRepository _jewelryRepository;
+        private readonly IDiamondRequestRepository _diamondRequestRepository;
 
-        public GetDiamondDetailQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, ILogger<GetDiamondDetail> logger, IDiamondServices diamondServices, IDiscountService discountService, IDiscountRepository discountRepository, IAccountRepository accountRepository)
+        public GetDiamondDetailQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, ILogger<GetDiamondDetail> logger, IDiamondServices diamondServices, IDiscountService discountService, IDiscountRepository discountRepository, IAccountRepository accountRepository, IJewelryRepository jewelryRepository, IDiamondRequestRepository diamondRequestRepository)
         {
             _diamondRepository = diamondRepository;
             _diamondPriceRepository = diamondPriceRepository;
@@ -37,6 +41,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail
             _discountService = discountService;
             _discountRepository = discountRepository;
             _accountRepository = accountRepository;
+            _jewelryRepository = jewelryRepository;
+            _diamondRequestRepository = diamondRequestRepository;
         }
 
         public async Task<Result<Diamond>> Handle(GetDiamondDetail request, CancellationToken cancellationToken)
@@ -62,6 +68,15 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDetail
                     var account = await _accountRepository.GetById(getResult.ProductLock.AccountId);
                     getResult.ProductLock.Account = account;
                 }
+            }
+            var customizeRequest = await _diamondRequestRepository.GetByDiamondId(parsedId);
+            if(customizeRequest != null)
+                getResult.DiamondRequest = customizeRequest;
+            if(getResult.JewelryId != null)
+            {
+                var jewelry = await _jewelryRepository.GetById(getResult.JewelryId);
+                if (jewelry != null)
+                    getResult.Jewelry = jewelry;
             }
             return Result.Ok(getResult);
         }

@@ -8,6 +8,7 @@ using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.Promotions.Entities;
 using DiamondShop.Domain.Models.RoleAggregate;
 using DiamondShop.Domain.Repositories;
+using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using DiamondShop.Domain.Repositories.PromotionsRepo;
 using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
@@ -22,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
 {
-    public record TestGetDiamondPagingQuery(bool? isLab, string? shapeId, bool? includeJewelryDiamond = false, int pageSize = 20, int start = 0, decimal priceStart = 0, decimal priceEnd = decimal.MaxValue,
+    public record TestGetDiamondPagingQuery(bool? isLab, string? shapeId, bool? includeJewelryDiamond, int pageSize = 20, int start = 0, decimal priceStart = 0, decimal priceEnd = decimal.MaxValue,
      GetDiamond_4C? diamond_4C = null, GetDiamond_Details? diamond_Details = null, GetDiamond_ManagerQuery? GetDiamond_ManagerQuery = null) : IRequest<Result<PagingResponseDto<Diamond>>>;
     internal class TestGetDiamondPagingQueryHandler : IRequestHandler<TestGetDiamondPagingQuery, Result<PagingResponseDto<Diamond>>>
     {
@@ -34,8 +35,9 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
         private readonly IDiscountRepository _discountRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAccountRepository _accountRepository;
+        private readonly IDiamondRequestRepository _diamondRequestRepository;
 
-        public TestGetDiamondPagingQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, IDiamondServices diamondService, IDiamondShapeRepository diamondShapeRepository, IDiscountService discountService, IDiscountRepository discountRepository, IHttpContextAccessor httpContextAccessor, IAccountRepository accountRepository)
+        public TestGetDiamondPagingQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, IDiamondServices diamondService, IDiamondShapeRepository diamondShapeRepository, IDiscountService discountService, IDiscountRepository discountRepository, IHttpContextAccessor httpContextAccessor, IAccountRepository accountRepository, IDiamondRequestRepository diamondRequestRepository)
         {
             _diamondRepository = diamondRepository;
             _diamondPriceRepository = diamondPriceRepository;
@@ -45,6 +47,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             _discountRepository = discountRepository;
             _httpContextAccessor = httpContextAccessor;
             _accountRepository = accountRepository;
+            _diamondRequestRepository = diamondRequestRepository;
         }
 
         public async Task<Result<PagingResponseDto<Diamond>>> Handle(TestGetDiamondPagingQuery request, CancellationToken cancellationToken)
@@ -75,8 +78,13 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
                         query = _diamondRepository.QueryStatus(query, managerQuery.diamondStatuses);
                 }
             }
-            if (request.includeJewelryDiamond is false)
-                query = _diamondRepository.QueryFilter(query, d => d.JewelryId == null);
+            if (request.includeJewelryDiamond is not null)
+            {
+                if (request.includeJewelryDiamond == false)
+                    query = _diamondRepository.QueryFilter(query, d => d.JewelryId == null);
+                else
+                    query = _diamondRepository.QueryFilter(query, d => d.JewelryId != null);
+            }
             if (request.isLab != null)
                 query = _diamondRepository.QueryFilter(query, d => d.IsLabDiamond == request.isLab);
             if (parsedShapeId is not null)
@@ -98,7 +106,10 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
                         diamond.DiamondShape = getAllShape.First(s => s.Id == diamond.DiamondShapeId);
                         var diamondPriceBySHape = await _diamondPriceRepository.GetPrice(diamond.Cut, diamond.DiamondShape, diamond.IsLabDiamond);
                         diamondPrice = await _diamondService.GetDiamondPrice(diamond, diamondPriceBySHape);
+                        var diamondRequest = await _diamondRequestRepository.GetByDiamondId(diamond.Id);
                         _diamondService.AssignDiamondDiscount(diamond, getActiveDiscount).Wait();
+                        if (diamondRequest is not null)
+                            diamond.DiamondRequest = diamondRequest;
                     }
                     var skutotalPage = (int)Math.Ceiling((decimal)skuTotalCount / (decimal)request.pageSize);
                     return new PagingResponseDto<Diamond>(
@@ -120,6 +131,9 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
                 var diamondPriceBySHape = await _diamondPriceRepository.GetPrice(diamond.Cut, diamond.DiamondShape, diamond.IsLabDiamond);
                 diamondPrice = await _diamondService.GetDiamondPrice(diamond, diamondPriceBySHape);
                 _diamondService.AssignDiamondDiscount(diamond, getActiveDiscount).Wait();
+                var diamondRequest = await _diamondRequestRepository.GetByDiamondId(diamond.Id);
+                if (diamondRequest is not null)
+                    diamond.DiamondRequest = diamondRequest;
             }
             //var pageTake = finalQuery.Skip(request.start * request.pageSize).Take(request.pageSize).ToList();
             var selectLockedDiamond = returnList

@@ -67,6 +67,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Cancel
                             {
                                 diamondReq.Diamond.SetSell();
                                 await _diamondRepository.Update(diamondReq.Diamond);
+                                diamondReq.DiamondId = null;
                             }
                             else if (diamondReq.Diamond.Status == ProductStatus.PreOrder)
                             {
