@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.AdminConfigurations.DiamondPrices
 {
-    internal class DiamondPriceRulesValidator : AbstractValidator<DiamondPriceRules>
+    public class DiamondPriceRulesValidator : AbstractValidator<DiamondPriceRules>
     {
         public DiamondPriceRulesValidator()
         {
