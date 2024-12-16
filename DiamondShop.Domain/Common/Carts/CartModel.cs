@@ -46,7 +46,7 @@ namespace DiamondShop.Domain.Common.Carts
         {
             ShippingPrice = shipping;
             if (shipping.IsValid && shipping.IsLocationActive)
-                OrderPrices.TotalShippingPrice = shipping.FinalPrice;
+                OrderPrices.TotalShippingPrice = shipping.DefaultPrice;
             //OrderPrices.DefaultPrice += shipping.FinalPrice; 
             if (Account != null && Account.Roles != null)
             {
@@ -76,7 +76,8 @@ namespace DiamondShop.Domain.Common.Carts
                 var reducePercent = rankingBenefit.RankDiscountPercentOnShipping;
                 var savedAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(ShippingPrice.DefaultPrice * ((decimal)reducePercent / 100m));
                 ShippingPrice.UserRankReducedPrice = savedAmount;
-                OrderPrices.TotalShippingPrice = ShippingPrice.FinalPrice;
+                OrderPrices.ShippingPriceSaved = ShippingPrice.UserRankReducedPrice;
+                //OrderPrices.TotalShippingPrice = ShippingPrice.FinalPrice;
             };
         }
         public void SetWarrantyTotalPrice()
@@ -117,7 +118,7 @@ namespace DiamondShop.Domain.Common.Carts
         private void SetUserRankDiscountPercent(int reducePercent, decimal maxReduceAmount)
         {
             OrderPrices.UserRankDiscountPercent = reducePercent;
-            var savedAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(OrderPrices.OrderPriceExcludeShipAndWarranty * ((decimal)reducePercent / 100m));
+            var savedAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(OrderPrices.FinalPriceBeforeShippingAndUserRank * ((decimal)reducePercent / 100m));
             var trueSavedAmount = Math.Clamp(savedAmount,0, maxReduceAmount);
             OrderPrices.UserRankDiscountAmount = trueSavedAmount;
         }

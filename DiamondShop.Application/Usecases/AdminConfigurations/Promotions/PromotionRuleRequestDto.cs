@@ -12,6 +12,10 @@ namespace DiamondShop.Application.Usecases.AdminConfigurations.Promotions
         public int? MaxDiscountPercent { get; set; }
         public int? MinCode { get; set; }
         public int? MaxCode { get; set; }
+        public int? MaxRequirement { get; set; } 
+        public int? MaxGift { get; set; } 
+        public decimal? MaxOrderDiscount { get; set; } 
+        public decimal? MaxOrderReducedAmount { get; set; }
         //public int? BronzeUserDiscountPercent { get; set; }
         //public int? SilverUserDiscountPercent { get; set; }
         //public int? GoldUserDiscountPercent { get; set; }

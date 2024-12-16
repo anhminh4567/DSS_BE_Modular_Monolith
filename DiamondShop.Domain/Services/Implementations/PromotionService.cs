@@ -187,8 +187,8 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 //Operator.Larger => cartModel.OrderPrices.FinalPrice > orderRequirement.Amount,
                 //Operator.Equal_Or_Larger => cartModel.OrderPrices.FinalPrice >= orderRequirement.Amount,
-                Operator.Larger => cartModel.OrderPrices.OrderPriceExcludeShipAndWarranty > orderRequirement.Amount,
-                Operator.Equal_Or_Larger => cartModel.OrderPrices.OrderPriceExcludeShipAndWarranty >= orderRequirement.Amount,
+                Operator.Larger => cartModel.OrderPrices.OrderPriceExcludeShip > orderRequirement.Amount,
+                Operator.Equal_Or_Larger => cartModel.OrderPrices.OrderPriceExcludeShip >= orderRequirement.Amount,
 
                 _ => throw new Exception("Major error, requirement for order have not operator")
             };
@@ -242,12 +242,13 @@ namespace DiamondShop.Domain.Services.Implementations
             cartModel.Promotion.ClearPreviousPromotionData();
             cartModel.Products.ForEach(p => p.ClearPreviousPromotion());
             cartModel.OrderPrices.ProductPromotionAmountSaved = 0;
+            cartModel.OrderPrices.OrderAmountSaved = 0;
         }
         private static void HandleOrderGift(CartModel cartModel, Gift orderGift)
         {
             if (orderGift.TargetType != TargetType.Order)
                 return;
-            var orderPriceNow = cartModel.OrderPrices.OrderPriceExcludeShipAndWarranty;
+            var orderPriceNow = cartModel.OrderPrices.OrderPriceExcludeShip;
             decimal promotionPriceSavedAmount = 0;
             switch (orderGift.UnitType)
             {

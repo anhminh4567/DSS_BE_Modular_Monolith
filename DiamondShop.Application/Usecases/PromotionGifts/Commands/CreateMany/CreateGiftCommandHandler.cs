@@ -1,6 +1,7 @@
 ﻿using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Usecases.PromotionRequirements.Commands.CreateMany;
 using DiamondShop.Commons;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes.ValueObjects;
 using DiamondShop.Domain.Models.JewelryModels.ValueObjects;
@@ -12,6 +13,7 @@ using FluentResults;
 using FluentValidation;
 using Mapster;
 using MediatR;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,17 +31,20 @@ namespace DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany
         private readonly IPromotionRepository _promotionRepository;
         private readonly IDiamondShapeRepository _diamondShapeRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public CreateGiftCommandHandler(IGiftRepository giftRepository, IPromotionRepository promotionRepository, IDiamondShapeRepository diamondShapeRepository, IUnitOfWork unitOfWork)
+        public CreateGiftCommandHandler(IGiftRepository giftRepository, IPromotionRepository promotionRepository, IDiamondShapeRepository diamondShapeRepository, IUnitOfWork unitOfWork, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _giftRepository = giftRepository;
             _promotionRepository = promotionRepository;
             _diamondShapeRepository = diamondShapeRepository;
             _unitOfWork = unitOfWork;
+            _optionsMonitor = optionsMonitor;
         }
 
         public async Task<Result<List<Gift>>> Handle(CreateGiftCommand request, CancellationToken cancellationToken)
         {
+            var promotionRule = _optionsMonitor.CurrentValue.PromotionRule;
             var shapes = await _diamondShapeRepository.GetAll();
             List<Gift> gifts = new();
             for (int i = 0; i < request.giftSpecs.Count; i++)
@@ -72,6 +77,12 @@ namespace DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany
                         {
                             orderGift.SetMaxAmount(gift.maxAmount.Value);
                         }
+                        if (orderGift.UnitType == UnitType.Percent)
+                            if (orderGift.UnitValue > promotionRule.MaxOrderDiscount)
+                                return Result.Fail(new Error($"quà loại đơn hàng ở vị trí :{(++i)}; có phần trăm cao hơn cho phép là {promotionRule.MaxOrderDiscount}"));
+                        if(orderGift.UnitType == UnitType.Fix_Price)
+                            if(orderGift.UnitValue > promotionRule.MaxOrderReducedAmount)
+                                return Result.Fail(new Error($"quà loại đơn hàng ở vị trí :{(++i)}; có giá trị cao hơn cho phép là {promotionRule.MaxOrderReducedAmount}"));
                         gifts.Add(orderGift);
                         break;
                     default:

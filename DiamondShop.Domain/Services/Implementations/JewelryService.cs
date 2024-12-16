@@ -136,7 +136,7 @@ namespace DiamondShop.Domain.Services.Implementations
         {
             var sideDiamond = jewelry.SideDiamond;
             decimal totalDiamondPrice = 0;
-            var thisSidePrice = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamond.IsLabGrown,sideDiamond.AverageCarat);
+            //var thisSidePrice = await _diamondPriceRepository.GetSideDiamondPriceByAverageCarat(sideDiamond.IsLabGrown,sideDiamond.AverageCarat);
             var price = await _diamondServices.GetSideDiamondPrice(sideDiamond);
             if(price.Count > 1)
             {

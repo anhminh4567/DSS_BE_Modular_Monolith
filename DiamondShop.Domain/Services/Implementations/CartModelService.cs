@@ -102,7 +102,9 @@ namespace DiamondShop.Domain.Services.Implementations
             ValidateCartItems(CurrentCart).Wait();
             SetCartModelValidation(CurrentCart);
             InitOrderPrice(CurrentCart);
-            if(CurrentCart.Account != null)
+            CurrentCart.SetWarrantyTotalPrice();
+            CurrentCart.SetOrderShippingPrice(shipPrice, _optionsMonitor.CurrentValue.AccountRules);
+            if (CurrentCart.Account != null)
             {
                 if (CurrentCart.Account.CustomerOrders == null)
                     CurrentCart.Account.CustomerOrders = await _orderRepository.GetUserOrders(CurrentCart.Account);
@@ -124,8 +126,6 @@ namespace DiamondShop.Domain.Services.Implementations
                 }
             }
             CurrentCart.SetUserRankDiscount(_optionsMonitor.CurrentValue.AccountRules,account);
-            CurrentCart.SetOrderShippingPrice(shipPrice,_optionsMonitor.CurrentValue.AccountRules);
-            CurrentCart.SetWarrantyTotalPrice();
             CurrentCart.SetErrorMessages();
             CurrentCart.ValidateCartRules(cartModelRules);
             //CurrentCart.SetOrderPrice();

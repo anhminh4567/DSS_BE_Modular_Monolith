@@ -119,6 +119,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
         {
             DiamondShape correctShape = null;
             correctShape = DiamondShape.ANY_SHAPES;
+            //var getCriteriaInRange = _diamondCriteriaRepository.GroupAllAvailableSideDiamondCriteria().Result.Where(x => x.Key.CaratFrom <= avgCarat && x.Key.CaratTo >= avgCarat).SelectMany(x => x.Value).ToList().Select(x => x.Id).ToList();
             string diamondKey = GetSidePriceKey(correctShape.Id.Value, isLabDiamond,null);
             var tryGet = _cache.Get<List<DiamondPrice>>(diamondKey);
             if (tryGet == null || tryGet.Count() == 0)
@@ -132,7 +133,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                         .Include(dp => dp.Criteria)
                         .AsSplitQuery()
                         .ToListAsync();
-                _cache.Set(diamondKey, result);//, options.AddExpirationToken(new CancellationChangeToken(_resetCacheToken.Token))
+                //_cache.Set(diamondKey, result);//, options.AddExpirationToken(new CancellationChangeToken(_resetCacheToken.Token))
                 return result;
             }
             else

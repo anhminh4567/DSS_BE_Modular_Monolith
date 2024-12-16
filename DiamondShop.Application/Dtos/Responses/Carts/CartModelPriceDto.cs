@@ -11,7 +11,9 @@
         public decimal OrderAmountSaved { get; set; } = 0;
         public decimal ProductPromotionAmountSaved { get; set; } 
         public decimal TotalWarrantyPrice { get; set; } = 0;
+        public decimal ShippingPriceSaved { get; set; } = 0;
         public decimal TotalShippingPrice { get; set; } = 0;
+        public decimal FinalShippingPrice { get; set; } = 0;
         public decimal FinalPrice { get; set; }
     }
 }

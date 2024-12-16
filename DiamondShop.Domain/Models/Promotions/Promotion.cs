@@ -182,6 +182,8 @@ namespace DiamondShop.Domain.Models.Promotions
             }
             if (Gifts.Count > rule.MaxGift)
                 return Result.Fail(PromotionError.GiftError.ReachLimit(rule.MaxGift));
+            if (Gifts.Where(x => x.TargetType == TargetType.Diamond).Count() > 1)
+                return Result.Fail("Quà cho kim cương chỉ có 1 quà duy nhất để tránh lỗi giữa giá fix và %");
             return Result.Ok();
         }
         public Promotion() { }

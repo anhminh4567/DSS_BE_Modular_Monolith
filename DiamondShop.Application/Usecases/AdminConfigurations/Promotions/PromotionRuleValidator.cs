@@ -14,6 +14,21 @@ namespace DiamondShop.Application.Usecases.AdminConfigurations.Promotions
                     .WithGreaterThanOrEqualMessage()
                 .LessThanOrEqualTo(95)
                     .WithLessThanOrEqualMessage();
+            RuleFor(x => x.MaxGift).GreaterThanOrEqualTo(2)
+                .WithGreaterThanMessage()
+                .LessThanOrEqualTo(10)
+                .WithLessThanOrEqualMessage();
+            RuleFor(x => x.MaxCode).GreaterThanOrEqualTo((x) => x.MinCode).WithGreaterThanOrEqualMessage();
+            RuleFor(x => x.MinCode).GreaterThanOrEqualTo(3).WithGreaterThanOrEqualMessage()
+                .LessThanOrEqualTo(25).WithLessThanOrEqualMessage();
+            RuleFor(x => x.MaxRequirement).GreaterThanOrEqualTo(2).WithGreaterThanOrEqualMessage()
+                .LessThanOrEqualTo(10).WithLessThanOrEqualMessage();
+            RuleFor(x => x.MaxOrderDiscount).GreaterThanOrEqualTo(1).WithGreaterThanOrEqualMessage()
+                .LessThanOrEqualTo(90)
+                .WithLessThanOrEqualMessage();
+            RuleFor(x => x.MaxOrderReducedAmount).GreaterThanOrEqualTo(1000).WithGreaterThanOrEqualMessage()
+                .LessThanOrEqualTo(500_000_000)
+                .WithLessThanOrEqualMessage();
             //RuleFor(x => x.BronzeUserDiscountPercent).GreaterThanOrEqualTo(1)
             //        .WithGreaterThanOrEqualMessage()
             //    .LessThanOrEqualTo(95)

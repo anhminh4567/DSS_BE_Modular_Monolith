@@ -275,7 +275,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             var totalProductPromoSavedAmount = orderItems.Sum(k => k.PromotionSavedAmount);
             var totalOrderPromoSavedAmount = order.OrderAmountSaved + totalProductPromoSavedAmount;
             order.TotalPromotionAmountSaved = totalOrderPromoSavedAmount.Value;
-            order.ShippingFeeSaved = cartModel.ShippingPrice.UserRankReducedPrice;
+            order.ShippingFeeSaved = cartModel.OrderPrices.ShippingPriceSaved;
             await _orderRepository.Create(order);
             await _unitOfWork.SaveChangesAsync(token);
             await _orderLogRepository.Create(log);

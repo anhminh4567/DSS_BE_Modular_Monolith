@@ -105,7 +105,7 @@ namespace DiamondShop.Application.Usecases.Promotions.Queries.GetApplicablePromo
                 }
                 if(applyResult.IsSuccess)
                 {
-                    successfulPromotions.Add(new PromoResponse(clonedCart.OrderPrices.OrderPriceExcludeShipAndWarranty,promo.Id.Value, _mapper.Map<PromotionDto>(promo), true));
+                    successfulPromotions.Add(new PromoResponse(clonedCart.OrderPrices.PromotionAmountSaved,promo.Id.Value, _mapper.Map<PromotionDto>(promo), true));
                 }
                 else
                 {

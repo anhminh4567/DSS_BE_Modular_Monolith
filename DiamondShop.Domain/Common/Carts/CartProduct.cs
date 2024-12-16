@@ -112,6 +112,7 @@ namespace DiamondShop.Domain.Common.Carts
             {
                 case UnitType.Percent:
                     savedAmount = Math.Ceiling(this.ReviewPrice.DiscountPrice * (giftReq.UnitValue / 100m));
+                    //savedAmount = Math.Ceiling(this.ReviewPrice.DefaultPrice * (giftReq.UnitValue / 100m));
                     if (giftReq.MaxAmout != null)
                     {
                         if (savedAmount > giftReq.MaxAmout.Value)
