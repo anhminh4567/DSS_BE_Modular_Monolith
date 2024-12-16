@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Commons.Validators;
+using DiamondShop.Application.Commons.Validators.ErrorMessages;
 using DiamondShop.Domain.BusinessRules;
 using FluentValidation;
 
@@ -8,7 +9,8 @@ namespace DiamondShop.Application.Usecases.AdminConfigurations.Diamonds
     {
         public DiamondRuleValidator()
         {
-            RuleFor(x => x.MinPriceOffset)
+            RuleFor(x => x.MinPriceOffset).GreaterThanOrEqualTo(-0.95m).WithGreaterThanMessage()
+                .LessThanOrEqualTo(0.95m).WithLessThanMessage()
                 .ValidNumberFraction()
                 .WithMessage("MinPriceOffset only contain max 2 fractional number");
 

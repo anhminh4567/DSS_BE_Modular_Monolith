@@ -97,7 +97,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             {
                 if (request.GetDiamond_ManagerQuery.sku is not null)
                 {
-                    var getResult = await _diamondRepository.GetWhereSkuContain(query, request.GetDiamond_ManagerQuery.sku);
+                    var getResult = await _diamondRepository.GetWhereSkuContain(_diamondRepository.GetQuery(), request.GetDiamond_ManagerQuery.sku);
+                    //var getResult = await _diamondRepository.GetWhereSkuContain(request.GetDiamond_ManagerQuery.sku, trueStart,)
                     var skuTotalCount = getResult.Count();
                     var skuList = getResult.Skip(trueStart).Take(request.pageSize).ToList();
                     foreach (var diamond in skuList)
