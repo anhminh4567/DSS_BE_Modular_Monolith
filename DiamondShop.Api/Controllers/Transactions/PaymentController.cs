@@ -27,6 +27,13 @@ namespace DiamondShop.Api.Controllers.Transactions
             var result = await _sender.Send(new GetAllPaymentMethodQuery());
             return Ok(result);
         }
+        [HttpGet("All/AtShop")]
+        [Produces(typeof(List<PaymentMethodDto>))]
+        public async Task<ActionResult> GetAllPaymentMethodAtShop()
+        {
+            var result = await _sender.Send(new GetAllPaymentMethodQuery());
+            return Ok(result);
+        }
         [HttpPut("{methodId}")]
         [Produces(typeof(PaymentMethodDto))]
         public async Task<ActionResult> UpdatePaymentMethodStatus([FromRoute] string methodId, [FromBody] UpdatePaymentMethodRequestDto requestDto)
