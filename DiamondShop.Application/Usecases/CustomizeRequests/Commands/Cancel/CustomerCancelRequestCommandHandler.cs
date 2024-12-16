@@ -63,7 +63,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Cancel
                     {
                         if (diamondReq.Diamond != null)
                         {
-                            if (diamondReq.Diamond.Status == ProductStatus.Active)
+                            if (diamondReq.Diamond.Status == ProductStatus.Locked)
                             {
                                 diamondReq.Diamond.SetSell();
                                 await _diamondRepository.Update(diamondReq.Diamond);
