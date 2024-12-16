@@ -17,7 +17,8 @@ namespace DiamondShop.Application.Dtos.Responses.Orders
         public JewelryDto? Jewelry { get; set; }
         public string? DiamondId { get; set; }
         public DiamondDto? Diamond { get; set; }
-        public decimal FinalPrice { get; set; }
+        //public decimal FinalPrice { get; set; }
+        public decimal OriginalPrice { get; set; }
         public decimal PurchasedPrice { get; set; }
         public string? DiscountCode { get; set; }
         public string? WarrantyId { get; set; }

@@ -23,7 +23,7 @@ namespace DiamondShop.Domain.Models.Promotions
     public class Promotion : Entity<PromotionId>, IAggregateRoot
     {
         //trạng thái của order mà được xem là chưa qua sử dụng
-        public static OrderStatus[] StatusNOTQualifiedAsUsed = { OrderStatus.Rejected  };
+        public static OrderStatus[] StatusNOTQualifiedAsUsed = {   };//OrderStatus.Rejected
         public string Name { get; set; }
         public string PromoCode { get; set; }
         public string Description { get; set; } 
