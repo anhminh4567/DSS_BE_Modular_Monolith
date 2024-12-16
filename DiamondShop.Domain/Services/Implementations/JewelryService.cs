@@ -119,7 +119,7 @@ namespace DiamondShop.Domain.Services.Implementations
             decimal D_price = 0;
             foreach (var diamond in getJewelryDiamonds)
             {
-                var prices = await _diamondPriceRepository.GetPrice(diamond.Cut.Value,diamond.DiamondShape, diamond.IsLabDiamond);
+                var prices = await _diamondPriceRepository.GetPrice(diamond.Cut,diamond.DiamondShape, diamond.IsLabDiamond);
                 var diamondPrice = await _diamondServices.GetDiamondPrice(diamond, prices);
                 diamond.DiamondPrice = diamondPrice;
             }

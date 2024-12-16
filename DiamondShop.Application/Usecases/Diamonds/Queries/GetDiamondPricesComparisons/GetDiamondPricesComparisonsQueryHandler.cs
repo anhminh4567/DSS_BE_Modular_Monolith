@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDiamondPricesComparisons
 {
-    public record GetDiamondPricesComparisonsQuery(string shapeId,decimal priceOffset,Diamond_4C Diamond_4C) : IRequest<Result<DiamondPricingFormatDto>>;
+    public record GetDiamondPricesComparisonsQuery(string shapeId,decimal priceOffset,decimal? extraFee,Diamond_4C Diamond_4C) : IRequest<Result<DiamondPricingFormatDto>>;
     internal class GetDiamondPricesComparisonsQueryHandler : IRequestHandler<GetDiamondPricesComparisonsQuery, Result<DiamondPricingFormatDto>>
     {
         private readonly IDiamondPriceRepository _diamondPriceRepository;
@@ -48,7 +48,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDiamondPricesComp
                 return Result.Fail("no shape found for this diamomd");
             }
             //, Diamond_Details Diamond_Details , Diamond_Measurement Diamond_Measurement
-            var getPrices = await _diamondServices.GetPrice(request.Diamond_4C.Cut.Value,getShape,request.Diamond_4C.isLabDiamond,cancellationToken);
+            var getPrices = await _diamondServices.GetPrice(request.Diamond_4C.Cut,getShape,request.Diamond_4C.isLabDiamond,cancellationToken);
             var fakeDiamond = Diamond.Create(getShape, request.Diamond_4C,
                 new Diamond_Details(Polish.Fair, Symmetry.Fair, Girdle.Thick, Fluorescence.Faint, Culet.Slightly_Large),
                 new Diamond_Measurement(0.1f,0.1f,0.1f,"asdf"),request.priceOffset,null);
@@ -72,6 +72,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetDiamondPricesComp
             {
                 result.IsPriceKnown = false;
                 result.Message = "chưa rõ giá, bạn có muốn thêm vào ?";
+                var extraFee =   (request.extraFee == null  ? 0 : request.extraFee );
+                result.CorrectPrice += extraFee.Value;
             }
             var diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
             bool isFancy = getShape.IsFancy();

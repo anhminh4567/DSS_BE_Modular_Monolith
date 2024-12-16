@@ -56,13 +56,13 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetAllAdmin
                     //    diamondPrice = await _diamondServices.GetDiamondPrice(diamond, getFancyPrice);
                     //else
                     //    diamondPrice = await _diamondServices.GetDiamondPrice(diamond, getRoundBrilliantPrice);
-                    var priceByShape = await _diamondPriceRepository.GetPrice(diamond.Cut.Value, diamond.DiamondShape, true, cancellationToken);
+                    var priceByShape = await _diamondPriceRepository.GetPrice(diamond.Cut, diamond.DiamondShape, true, cancellationToken);
                     diamondPrice = await _diamondServices.GetDiamondPrice(diamond, priceByShape);
 
                 }
                 else
                 {
-                    var priceByShape = await _diamondPriceRepository.GetPrice(diamond.Cut.Value,diamond.DiamondShape, false, cancellationToken);
+                    var priceByShape = await _diamondPriceRepository.GetPrice(diamond.Cut,diamond.DiamondShape, false, cancellationToken);
                     diamondPrice = await _diamondServices.GetDiamondPrice(diamond, priceByShape);
                 }
                 _diamondServices.AssignDiamondDiscount(diamond, getAllDiscount).Wait();

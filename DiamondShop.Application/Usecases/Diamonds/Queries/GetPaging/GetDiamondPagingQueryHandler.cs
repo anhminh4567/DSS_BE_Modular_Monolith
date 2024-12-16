@@ -158,7 +158,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             {
                 DiamondPrice diamondPrice;
                 diamond.DiamondShape = Shapes.FirstOrDefault(s => s.Id == diamond.DiamondShapeId);
-                var diamondPriceBySHape = await _diamondPriceRepository.GetPrice(diamond.Cut.Value, diamond.DiamondShape,diamond.IsLabDiamond);
+                var diamondPriceBySHape = await _diamondPriceRepository.GetPrice(diamond.Cut, diamond.DiamondShape,diamond.IsLabDiamond);
                 diamondPrice = await _diamondService.GetDiamondPrice(diamond, diamondPriceBySHape);
                 _diamondService.AssignDiamondDiscount(diamond, ActiveDiscount).Wait();
             }
@@ -176,7 +176,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
                     {
                         DiamondPrice diamondPrice;
                         diamond.DiamondShape = Shapes.FirstOrDefault(s => s.Id == diamond.DiamondShapeId);
-                        var diamondPriceBySHape = await _diamondPriceRepository.GetPrice(diamond.Cut.Value, diamond.DiamondShape, diamond.IsLabDiamond);
+                        var diamondPriceBySHape = await _diamondPriceRepository.GetPrice(diamond.Cut, diamond.DiamondShape, diamond.IsLabDiamond);
                         diamondPrice = await _diamondService.GetDiamondPrice(diamond, diamondPriceBySHape);
                         _diamondService.AssignDiamondDiscount(diamond, ActiveDiscount).Wait();
                     }

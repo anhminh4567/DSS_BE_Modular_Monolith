@@ -224,7 +224,7 @@ namespace DiamondShop.Domain.Services.Implementations
             {
                 bool isFancyShape = DiamondShape.IsFancyShape(cartProduct.Diamond.DiamondShapeId);
                 List<DiamondPrice> prices = new();
-                prices = _diamondPriceRepository.GetPrice(cartProduct.Diamond.Cut.Value,cartProduct.Diamond.DiamondShape,cartProduct.Diamond.IsLabDiamond).Result;
+                prices = _diamondPriceRepository.GetPrice(cartProduct.Diamond.Cut,cartProduct.Diamond.DiamondShape,cartProduct.Diamond.IsLabDiamond).Result;
                 var diamondPrice = _diamondServices.GetDiamondPrice(cartProduct.Diamond, prices).Result;
                 reviewPrice.DefaultPrice = cartProduct.Diamond.TruePrice;
             }

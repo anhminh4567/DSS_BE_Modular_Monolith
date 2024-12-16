@@ -53,7 +53,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetLockItemsForUser
                 DiamondPrice diamondPrice;
                 diamond.DiamondShape = getAllShape.FirstOrDefault(s => s.Id == diamond.DiamondShapeId);
                 bool isFancyShape = diamond.DiamondShape!.IsFancy();
-                var diamondPriceByShape = await _diamondPriceRepository.GetPrice(diamond.Cut.Value,diamond.DiamondShape, diamond.IsLabDiamond, cancellationToken);
+                var diamondPriceByShape = await _diamondPriceRepository.GetPrice(diamond.Cut,diamond.DiamondShape, diamond.IsLabDiamond, cancellationToken);
                 diamondPrice = await _diamondServices.GetDiamondPrice(diamond, diamondPriceByShape);
                 var discount = await _diamondServices.AssignDiamondDiscount(diamond, getDiscounts);
             }
