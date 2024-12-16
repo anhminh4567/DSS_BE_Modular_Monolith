@@ -13,6 +13,9 @@ using DiamondShop.Domain.Models.Promotions.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
 using DiamondShop.Application.Dtos.Responses.Promotions;
 using DiamondShop.Domain.Common.Enums;
+using DiamondShop.Domain.Models.CustomizeRequests;
+using DiamondShop.Application.Dtos.Responses.CustomizeRequests;
+using DiamondShop.Application.Dtos.Responses.Jewelries;
 
 namespace DiamondShop.Application.Dtos.Responses.Diamonds
 {
@@ -55,5 +58,9 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public decimal? SalePrice { get; set; }
         public string Title { get; set; }
         public decimal CutOffsetFounded { get; set; }
+        public DiamondRequestDto? DiamondRequest { get; set; }
+        public JewelryDto? Jewelry { get; set; }
+        public bool IsLockForJewelry { get => JewelryId != null; }
+        public bool IsLockForCustomizeRequest { get => DiamondRequest != null; }
     }
 }

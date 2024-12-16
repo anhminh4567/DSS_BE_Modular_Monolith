@@ -66,5 +66,6 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         public List<SizeMetalDto> SizeMetals { get; set; } = new();
         public MediaDto? Thumbnail { get; set; }
         public decimal SettingPrice { get; set; }
+        public decimal? SD_Price { get; set; }
     }
 }

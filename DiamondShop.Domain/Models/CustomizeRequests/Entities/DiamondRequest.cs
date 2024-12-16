@@ -19,6 +19,7 @@ namespace DiamondShop.Domain.Models.CustomizeRequests.Entities
     {
         public DiamondRequestId DiamondRequestId { get; set; }
         public CustomizeRequestId CustomizeRequestId { get; set; }
+        public CustomizeRequest? CustomizeRequest { get; set; }
         public DiamondShapeId? DiamondShapeId { get; set; }
         public DiamondShape? DiamondShape { get; set; }
         public DiamondId? DiamondId { get; set; }

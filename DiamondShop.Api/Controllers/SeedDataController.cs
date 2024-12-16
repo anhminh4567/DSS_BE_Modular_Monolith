@@ -4,6 +4,9 @@ using DiamondShop.Application.Usecases.DiamondCriterias.Commands.CreateFromRange
 using DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany;
 using DiamondShop.Application.Usecases.Diamonds.Commands.Create;
 using DiamondShop.Application.Usecases.Jewelries.Commands.Seeding;
+using DiamondShop.Commons;
+using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.DiamondShapes;
@@ -41,8 +44,9 @@ namespace DiamondShop.Api.Controllers
         private readonly IEmailService _emailService;
         private readonly IPaymentService _paymentService;
         private readonly IPdfService _pdfService;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public SeedDataController(ILogger<WeatherForecastController> logger, IDateTimeProvider dateTimeProvider, IBlobFileServices blobFileServices, IOptions<PaypalOption> paypal, IOptions<VnpayOption> vnpayOption, IHttpContextAccessor httpContextAccessor, ISender sender, IOptions<LocationOptions> locationOptions, DiamondShopDbContext dbContext, ILocationService locationService, IDeliveryFeeRepository deliveryFeeRepository, IEmailService emailService, IPaymentService paymentService, IPdfService pdfService)
+        public SeedDataController(ILogger<WeatherForecastController> logger, IDateTimeProvider dateTimeProvider, IBlobFileServices blobFileServices, IOptions<PaypalOption> paypal, IOptions<VnpayOption> vnpayOption, IHttpContextAccessor httpContextAccessor, ISender sender, IOptions<LocationOptions> locationOptions, DiamondShopDbContext dbContext, ILocationService locationService, IDeliveryFeeRepository deliveryFeeRepository, IEmailService emailService, IPaymentService paymentService, IPdfService pdfService, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
@@ -58,7 +62,9 @@ namespace DiamondShop.Api.Controllers
             _emailService = emailService;
             _paymentService = paymentService;
             _pdfService = pdfService;
+            _optionsMonitor = optionsMonitor;
         }
+
         [HttpPost("seed-price-main-diamond")]
         public async Task<ActionResult> SeedCriteria()
         {
@@ -214,10 +220,14 @@ namespace DiamondShop.Api.Controllers
                 return MatchError(createResult.Errors, ModelState);
         }
         [HttpPost("seed-main-diamond")]
-        public async Task<ActionResult> SeedDiamondBellow1Carat(SeedMainDiamondRequest request)
+        public async Task<ActionResult> SeedDiamondBellow1Carat([FromForm]SeedMainDiamondRequest request)
         {
+            var random = new Random();
             var allShape = _dbContext.DiamondShapes.Where(x => x.Id != DiamondShape.ANY_SHAPES.Id && x.Id != DiamondShape.FANCY_SHAPES.Id).ToList();
             if (allShape.Count != 10)
+                throw new Exception();
+            var diamondRule = _optionsMonitor.CurrentValue.DiamondRule;
+            if(request.caratFrom < (float)diamondRule.MinCaratRange || request.caratTo > (float)diamondRule.MaxCaratRange)
                 throw new Exception();
             var parsedShapeIds = request.shapeIds.Select(x => DiamondShapeId.Parse(x)).ToList();
             var selectedShape = allShape.Where(x => parsedShapeIds.Contains(x.Id)).ToList();
@@ -226,8 +236,22 @@ namespace DiamondShop.Api.Controllers
             var clarityEnums = ClarityHelper.GetClarityList().Where(x => x >= request.clarityFom && x <= request.clarityTo).ToArray();
             if (selectedShape.Count == 0 || colorEnums.Count() == 0 || clarityEnums.Count() == 0)
                 throw new Exception();
-            //var detail = new Diamond_Details();
-           // var measurement = new Diamond_Measurement();
+            var polishEnums = PolishHelper.GetPolishList().ToArray();
+            var girdlEnums = GirdleHelper.GetGirdleList().ToArray();
+            var symmetryEnums = SymmetryHelper.GetSymmetryList().ToArray();
+            var flourescenceEnums = FluorescenceHelper.GetFluorescencesList().ToArray();
+            var culetEnums = CuletHelper.GetCuletsList().ToArray();
+            for (int i = 0; i < request.amount; i++)
+            {
+                var randomCarat = GetRandomFloat(request.caratFrom,request.caratTo);
+                var detail = new Diamond_Details(RandomEnum(polishEnums),RandomEnum(symmetryEnums),RandomEnum(girdlEnums),RandomEnum(flourescenceEnums),RandomEnum(culetEnums));
+                var measurement = new Diamond_Measurement(1f,56f,56f,$"{randomCarat}x{randomCarat}x{randomCarat}");
+                var fourC = new Diamond_4C(RandomEnum(cutEnums),RandomEnum(colorEnums),RandomEnum(clarityEnums),randomCarat,request.isLabGrown);
+                var shape = selectedShape[random.Next(0,selectedShape.Count - 1 )];
+                var createCommand = new CreateDiamondCommand(fourC,detail,measurement,shape.Id.Value, null,Certificate.GIA,0,null);
+                var result = await _sender.Send(createCommand);
+            }
+            return Ok();
             //new CreateDiamondCommand();
             throw new Exception();
 
@@ -237,7 +261,13 @@ namespace DiamondShop.Api.Controllers
             //T[] values = (T[])Enum.GetValues(typeof(T));
             return values[new Random().Next(0, values.Length)];
         }
+        float GetRandomFloat(float min, float max)
+        {
+            Random random = new Random();
+            float result = (float)(random.NextDouble() * (max - min) + min);
+            return (float)Math.Round(result, 2);
+        }
     }
-    public record SeedMainDiamondRequest(float caratFrom, float caratTo, Cut? cutFrom, Cut? cutTo, Color colorFrom, Color colorTo, Clarity clarityFom, Clarity clarityTo, bool isLabGrown, string[] shapeIds);
+    public record SeedMainDiamondRequest(float caratFrom, float caratTo, Cut? cutFrom, Cut? cutTo, Color colorFrom, Color colorTo, Clarity clarityFom, Clarity clarityTo, bool isLabGrown, string[] shapeIds, int amount);
     
 }

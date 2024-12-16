@@ -24,6 +24,8 @@ using DiamondShop.Domain.Common;
 using FluentValidation.Results;
 using System.Text.RegularExpressions;
 using Syncfusion.XlsIO.Implementation.Security;
+using DiamondShop.Domain.Models.CustomizeRequests;
+using DiamondShop.Domain.Models.CustomizeRequests.Entities;
 
 
 namespace DiamondShop.Infrastructure.Databases.Repositories
@@ -182,7 +184,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
 
         public Task<List<Diamond>> GetWhereSkuContain(string containingString, int skip, int take, CancellationToken cancellationToken = default)
         {
-            return _set.Where(x => x.SerialCode.Contains(containingString)).Skip(skip).Take(take).ToListAsync(cancellationToken);
+            return _set.Where(x => x.SerialCode.ToUpper().Contains(containingString.ToUpper())).Skip(skip).Take(take).ToListAsync(cancellationToken);
         }
 
 
@@ -343,7 +345,21 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
 
         public async Task<IQueryable<Diamond>> GetWhereSkuContain(IQueryable<Diamond> query,string containingString, CancellationToken cancellationToken = default)
         {
-            return query.Where(x => x.SerialCode.Contains(containingString));
+            return query.Where(x => x.SerialCode.ToUpper().Contains(containingString.ToUpper()));
+        }
+
+        public async Task RemoveDiamondFromAllDiamondRequest(Diamond diamond)
+        {
+            DbSet<DiamondRequest> dbset = _dbContext.Set<DiamondRequest>();
+            var getDiamondRequest = dbset.Where(x => x.DiamondId == diamond.Id).ToList();
+            if (getDiamondRequest.Count == 0)
+                return;
+            foreach (var item in getDiamondRequest)
+            {
+                item.DiamondId = null;
+                dbset.Update(item);
+            }
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

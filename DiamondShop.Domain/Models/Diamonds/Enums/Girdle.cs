@@ -10,4 +10,11 @@ namespace DiamondShop.Domain.Models.Diamonds.Enums
     {
         Extremely_Thin = 1, Very_Thin = 2, Thin = 3, Medium = 4, Slightly_Thick = 5, Thick = 6, Very_Thick = 7, Extremely_Thick = 8
     }
+    public static class GirdleHelper 
+    {
+        public static List<Girdle> GetGirdleList()
+        {
+            return Enum.GetValues(typeof(Girdle)).Cast<Girdle>().ToList();
+        }
+    }
 }

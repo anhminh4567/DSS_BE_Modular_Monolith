@@ -1,5 +1,6 @@
 ﻿using DiamondShop.Domain.Models.CustomizeRequests.Entities;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
+using DiamondShop.Domain.Models.Diamonds.ValueObjects;
 using DiamondShop.Domain.Repositories.CustomizeRequestRepo;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -16,6 +17,11 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.CustomizeRequestRepo
         public async Task CreateRange(List<DiamondRequest> requests)
         {
             await _set.AddRangeAsync(requests);
+        }
+
+        public Task<DiamondRequest?> GetByDiamondId(DiamondId diamondId)
+        {
+            return _set.Where(x => x.DiamondId == diamondId).Include(x => x.CustomizeRequest).FirstOrDefaultAsync();
         }
 
         public Task<DiamondRequest?> GetById(DiamondRequestId diamondRequestId, CancellationToken cancellationToken = default)

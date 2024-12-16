@@ -10,4 +10,12 @@ namespace DiamondShop.Domain.Models.Diamonds.Enums
     {
         None = 1, Faint = 2, Medium = 3, Strong = 4
     }
+    public static class FluorescenceHelper 
+    {
+        public static List<Fluorescence> GetFluorescencesList()
+        {
+            return Enum.GetValues(typeof(Fluorescence)).Cast<Fluorescence>().ToList();
+        }
+    }
+
 }

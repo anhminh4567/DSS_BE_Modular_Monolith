@@ -62,7 +62,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.CustomizeRequestCo
                 .WithMany()
                 .HasForeignKey(o => o.MetalId);
             builder.HasMany(o => o.DiamondRequests)
-                .WithOne()
+                .WithOne(o => o.CustomizeRequest)
                 .HasForeignKey(req => req.CustomizeRequestId);
             builder.HasOne(o => o.SideDiamond)
                 .WithMany()

@@ -57,12 +57,12 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeR
             var getCustomizeRequest = await _customizeRequestRepository.GetById(customizeRequestId);
             if(getCustomizeRequest is null)
                 return Result.Fail(CustomizeRequestErrors.CustomizeRequestNotFoundError);
-            await _unitOfWork.BeginTransactionAsync();
+            //await _unitOfWork.BeginTransactionAsync();
             var diamondRequest = getCustomizeRequest.DiamondRequests.FirstOrDefault(x => x.DiamondRequestId == diamondRequestId);
             var createResult = await _sender.Send(request.CreateDiamond);
             if(createResult.IsFailed)
             {
-                await _unitOfWork.RollBackAsync();
+                //await _unitOfWork.RollBackAsync();
                 return createResult;
             }
             var diamond = createResult.Value;
@@ -71,7 +71,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeR
             var isDiamondMetRquirement = _customizeRequestService.IsAssigningDiamondSpecValid(diamondRequest, diamond);
             if(isDiamondMetRquirement.IsFailed)
             {
-                await _unitOfWork.RollBackAsync();
+                //await _unitOfWork.RollBackAsync();
                 return Result.Fail(DiamondErrors.DiamondNotMeetingRequirementSpec);
             }
             if(request.lockPrice != null)
@@ -79,7 +79,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeR
                 var normalizedPrice = MoneyVndRoundUpRules.RoundAmountFromDecimal(request.lockPrice.Value);
                 if (request.lockPrice < 0 || normalizedPrice < 0)
                 {
-                    await _unitOfWork.RollBackAsync();
+                    //await _unitOfWork.RollBackAsync();
                     return Result.Fail(DiamondErrors.LockPriceNotValid("phải lớn hơn 0"));
                 }
             }
@@ -87,7 +87,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeR
             await _diamondRepository.Update(diamond);
             await _customizeRequestRepository.Update(getCustomizeRequest);
             await _unitOfWork.SaveChangesAsync();
-            await _unitOfWork.CommitAsync();
+            //await _unitOfWork.CommitAsync();
             return Result.Ok(diamond);
         }
     }

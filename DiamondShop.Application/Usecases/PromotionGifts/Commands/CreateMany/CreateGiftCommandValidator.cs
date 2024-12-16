@@ -66,7 +66,7 @@ namespace DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany
             });
             When(x => x.TargetType == TargetType.Jewelry_Model, () =>
             {
-                RuleFor(x => x.itemId).NotNull()
+                RuleFor(x => x.ItemCode).NotNull()
                     .WithName("ItemCode")
                         .WithNotEmptyMessage();
             });

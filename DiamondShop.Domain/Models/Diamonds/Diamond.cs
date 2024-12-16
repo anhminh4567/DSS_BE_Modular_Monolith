@@ -4,6 +4,8 @@ using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Common.Products;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate;
+using DiamondShop.Domain.Models.CustomizeRequests;
+using DiamondShop.Domain.Models.CustomizeRequests.Entities;
 using DiamondShop.Domain.Models.DiamondPrices;
 using DiamondShop.Domain.Models.Diamonds.Enums;
 using DiamondShop.Domain.Models.Diamonds.ValueObjects;
@@ -34,6 +36,8 @@ namespace DiamondShop.Domain.Models.Diamonds
     public class Diamond : Entity<DiamondId> , IAggregateRoot
     {  
         public static ProductStatus[] UnallowedToDeleteStatus = new ProductStatus[] { ProductStatus.Sold, ProductStatus.Locked, ProductStatus.PreOrder };
+        public static ProductStatus[] UnallowedToAssignStatus = new ProductStatus[] { ProductStatus.Sold, ProductStatus.Locked, ProductStatus.PreOrder, };
+
         public JewelryId? JewelryId { get;  set; }
         public DiamondShapeId DiamondShapeId { get; set;}
         public DiamondShape DiamondShape { get; set;}
@@ -94,6 +98,10 @@ namespace DiamondShop.Domain.Models.Diamonds
         public decimal CutOffsetFounded { get; set; }
         [NotMapped]
         public decimal? CalculatedPrice { get; set; }
+        [NotMapped]
+        public DiamondRequest? DiamondRequest { get; set; }
+        [NotMapped]
+        public Jewelry? Jewelry { get; set; }
         public static Diamond Create(DiamondShape shape, Diamond_4C diamond_4C, Diamond_Details diamond_Details,
            Diamond_Measurement diamond_Measurement,decimal priceOffset,string? sku, Certificate certificate = Certificate.GIA) 
         {
@@ -150,6 +158,8 @@ namespace DiamondShop.Domain.Models.Diamonds
                     JewelryId = jewelry.Id;
                     return;
                 }
+                if(jewelry.Status != ProductStatus.PreOrder && jewelry.Status != ProductStatus.Sold)
+                    SetSell();
                 JewelryId = jewelry.Id;
                 Status = ProductStatus.Locked;
             } 
