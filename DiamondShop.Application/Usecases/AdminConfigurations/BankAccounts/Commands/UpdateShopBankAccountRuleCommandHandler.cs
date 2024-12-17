@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.AdminConfigurations.BankAccounts.Commands
 {
-    public record ShopBankAccountRulesRequestDto(string AccountNumber, string AccountName, string BankBin);
+    public record ShopBankAccountRulesRequestDto(string? AccountNumber, string? AccountName, string? BankBin, string? BankName);
 
     public record UpdateShopBankAccountRuleCommand(ShopBankAccountRulesRequestDto RequestDto): IRequest<Result<ShopBankAccountRules>>;
     internal class UpdateShopBankAccountRuleCommandHandler : IRequestHandler<UpdateShopBankAccountRuleCommand, Result<ShopBankAccountRules>>

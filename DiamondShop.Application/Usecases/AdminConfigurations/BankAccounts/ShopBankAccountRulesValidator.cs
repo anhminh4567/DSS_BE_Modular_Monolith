@@ -17,6 +17,7 @@ namespace DiamondShop.Application.Usecases.AdminConfigurations.BankAccounts
             RuleFor(x => x.AccountNumber).NotEmpty().WithNotEmptyMessage();
             RuleFor(x => x.AccountName).NotEmpty().WithNotEmptyMessage();
             RuleFor(x => x.BankBin).NotEmpty().WithNotEmptyMessage();
+            RuleFor(x => x.BankName).NotEmpty().WithNotEmptyMessage();
         }
     }
 }

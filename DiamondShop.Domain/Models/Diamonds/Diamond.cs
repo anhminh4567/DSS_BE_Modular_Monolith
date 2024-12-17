@@ -173,7 +173,9 @@ namespace DiamondShop.Domain.Models.Diamonds
             {
                 baseString = $"{baseString} {diamond.Cut.ToString()} Cut ";
             }
-            baseString = $"{baseString} {getShape.Shape} Shape diamond";
+            baseString = $"{baseString} {getShape.Shape} Shape";
+            string origin = diamond.IsLabDiamond ? " Lab" : " Natural";
+            baseString = $"{baseString} {origin} diamond";
             return baseString;
         }
         public static string GetDescription(Diamond diamond)
