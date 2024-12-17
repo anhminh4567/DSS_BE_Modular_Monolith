@@ -165,9 +165,12 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             {
                 if (cartModel.OrderPrices.IsFreeOrder)
                     errors.Add(new Error("Đơn hàng miễn phí không được chọn loại COD"));
-                if (cartModel.OrderPrices.FinalPrice > orderRule.MaxOrderAmountForDelivery)
+                if(isAtShop == false)
                 {
-                    errors.Add(new Error($"Tổng giá trị đơn hàng vượt quá giới hạn cho phép {orderRule.MaxOrderAmountForDelivery}"));
+                    if (cartModel.OrderPrices.FinalPrice > orderRule.MaxOrderAmountForDelivery)
+                    {
+                        errors.Add(new Error($"Tổng giá trị đơn hàng vượt quá giới hạn cho phép {orderRule.MaxOrderAmountForDelivery}"));
+                    }
                 }
                 if (cartModel.OrderPrices.FinalPrice <= paymentRule.MinAmountForCOD)
                     errors.Add(new Error($"đơn hàng dưới {paymentRule.MinAmountForCOD} xin vui lòng trả hết"));

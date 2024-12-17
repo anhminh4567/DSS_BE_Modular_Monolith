@@ -38,8 +38,16 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public Color? ColorFrom { get; set; }
         public Color? ColorTo { get; set; }
         public List<PromoReqShape> PromoReqShapes { get; set; } = new();
-        public static PromoReq CreateJewelryRequirement(string Name, Operator @operator , bool isForAmount, decimal? amount , int? quantity, JewelryModelId jewelryModelId)
+        public static PromoReq CreateJewelryRequirement(string Name, Operator @operator, bool isForAmount, decimal? amount, int? quantity, JewelryModelId jewelryModelId)
         {
+            if (isForAmount)
+            {
+                if (amount <= 1000)
+                    throw new Exception("yêu cầu trang sức có yêu cầu dưới 1000");
+            }
+            else
+                if (quantity <= 0)
+                throw new Exception("yêu cầu trang sức phải lớn hơn 0");
             return new PromoReq()
             {
                 Id = PromoReqId.Create(),
@@ -63,6 +71,14 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
             Color? colorTo,
             List<DiamondShape> selectedDiamondShapes)
         {
+            if (isForAmount)
+            {
+                if (amount <= 1000)
+                    throw new Exception("yêu cầu kim cương có yêu cầu dưới 1000");
+            }
+            else
+                if (quantity <= 0)
+                    throw new Exception("yêu cầu kim cương phải lớn hơn 0");
             var Id = PromoReqId.Create();
             var newPromo = new PromoReq()
             {
@@ -82,22 +98,25 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
                 ColorTo = colorTo,
                 CutFrom = cutFrom,
                 CutTo = cutTo,
-                PromoReqShapes = selectedDiamondShapes.Select(s =>  PromoReqShape.Create(Id, s.Id)).ToList(),
+                PromoReqShapes = selectedDiamondShapes.Select(s => PromoReqShape.Create(Id, s.Id)).ToList(),
             };
             return newPromo;
         }
         public static PromoReq CreateOrderRequirement(string Name, Operator @operator, decimal amount)
         {
+            if (amount <= 1000)
+                throw new Exception("yêu cầu đơn hàng có yêu cầu dưới 1000");
+
             return new PromoReq()
             {
                 Id = PromoReqId.Create(),
                 Name = Name,
                 TargetType = TargetType.Order,
                 Operator = @operator,
-                Amount =  amount,
+                Amount = amount,
             };
         }
-        public void SetPromotion(PromotionId promotionId) 
+        public void SetPromotion(PromotionId promotionId)
         {
             PromotionId = promotionId;
         }

@@ -30,7 +30,7 @@ namespace DiamondShop.Application.Usecases.PromotionRequirements.Commands.Create
         private readonly IDiamondShapeRepository _diamondShapeRepository;
         private readonly IPromotionRepository _promotionRepository;
         private readonly IJewelryModelRepository _jewelryModelRepository;
-
+        private const int MAX_AMOUNT = 10;
         public CreateRequirementsCommandHandler(IUnitOfWork unitOfWork, IRequirementRepository requirementRepository, IDiamondShapeRepository diamondShapeRepository, IPromotionRepository promotionRepository, IJewelryModelRepository jewelryModelRepository)
         {
             _unitOfWork = unitOfWork;
@@ -63,6 +63,10 @@ namespace DiamondShop.Application.Usecases.PromotionRequirements.Commands.Create
                             return Result.Fail(new ConflictError("không tìm thấy jewelry model nào ở vị trí : " + (++i)));
                         var jewerlyModelId = JewelryModelId.Parse(jewelryModelId);
                         var jelReq = PromoReq.CreateJewelryRequirement(req.Name, req.Operator, isMoneyAmount, req.MoneyAmount, req.Quantity, jewerlyModelId);
+                        //if (req.Quantity < 1 || req.Quantity > MAX_AMOUNT)
+                        //{
+                        //    return Result.Fail($"loại yêu cầu vượt quá số lượng cho phép là {MAX_AMOUNT} ở vị trí: " + (++i));
+                        //}
                         requirements.Add(jelReq);
                         break;
                     case TargetType.Diamond:
@@ -72,6 +76,10 @@ namespace DiamondShop.Application.Usecases.PromotionRequirements.Commands.Create
                         var selectedShape = shapes.Where(s => shapesIdParsed.Contains(s.Id)).ToList();
                         var diamondReq = PromoReq.CreateDiamondRequirement(req.Name, req.Operator, isMoneyAmount, req.MoneyAmount, req.Quantity,
                             origin, caratFrom, caratTo, clarityFrom, clarityTo, cutFrom, cutTo, colorFrom, colorTo, selectedShape);
+                        //if (req.Quantity < 1 || req.Quantity > MAX_AMOUNT)
+                        //{
+                        //    return Result.Fail($"loại yêu cầu vượt quá số lượng cho phép là {MAX_AMOUNT} ở vị trí: " + (++i));
+                        //}
                         requirements.Add(diamondReq);
                         break;
                     case TargetType.Order:

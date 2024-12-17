@@ -32,7 +32,7 @@ namespace DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany
         private readonly IDiamondShapeRepository _diamondShapeRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
-
+        private const int MAX_AMOUNT = 10;
         public CreateGiftCommandHandler(IGiftRepository giftRepository, IPromotionRepository promotionRepository, IDiamondShapeRepository diamondShapeRepository, IUnitOfWork unitOfWork, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _giftRepository = giftRepository;
