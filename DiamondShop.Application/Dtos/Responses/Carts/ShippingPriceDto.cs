@@ -16,5 +16,6 @@ namespace DiamondShop.Application.Dtos.Responses.Carts
         public DeliveryFeeDto? DeliveryFeeFounded { get; set; }
         public bool IsValid { get; set; }
         public bool IsSameCityDelivery { get => From?.Province == To?.Province; }
+        public bool IsLocationActive { get; set; }
     }
 }

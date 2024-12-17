@@ -32,7 +32,6 @@ namespace DiamondShop.Domain.BusinessRules
         // gia toi thieu, thi gia se la gia toi thieu
         public decimal MinimalSideDiamondAveragePrice { get; set; } = 1000.0m ;
         public decimal MinimalMainDiamondPrice { get; set; } = 10000.0m;
-
         public decimal MinPriceOffset{ get; set; } = -0.90m;
         public decimal MaxPriceOffset { get; set; } = +0.90m;
         public decimal MinCaratRange { get; set; } = 0.15m;

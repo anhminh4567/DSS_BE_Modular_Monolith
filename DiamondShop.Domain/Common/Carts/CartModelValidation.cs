@@ -12,18 +12,20 @@ namespace DiamondShop.Domain.Common.Carts
         public string[] MainErrorMessage { get; set; } = new string[] { };
         public void SetErrorMessageInTheEnd(ShippingPrice shippingPrice)
         {
+            if (shippingPrice.IsLocationActive == false)
+            {
+                MainErrorMessage = MainErrorMessage.Append("địa chỉ ship không hỗ trợ, xin lỗi vì sự bất tiện").ToArray();
+                IsShippingValid = false;
+            }
+            if (shippingPrice.IsValid == false)
+            {
+                MainErrorMessage = MainErrorMessage.Append("địa chỉ ship không hợp lệ").ToArray();
+                IsShippingValid = false;
+            }
+
             if (InvalidItemIndex.Length > 0 || UnavailableItemIndex.Length > 0)
                 MainErrorMessage = MainErrorMessage.Append("Some items are invalid").ToArray();
-            if(shippingPrice.IsValid == false)
-            {
-                MainErrorMessage = MainErrorMessage.Append("Shipping address is invalid").ToArray();
-                IsShippingValid = false;
-            }
-            if(shippingPrice.IsLocationActive == false)
-            {
-                MainErrorMessage = MainErrorMessage.Append("the location is not supported for delivery").ToArray();
-                IsShippingValid = false;
-            }
+            
         }
         public void SetErrorMessage(string message)
         {
