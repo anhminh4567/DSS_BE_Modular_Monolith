@@ -143,7 +143,7 @@ namespace DiamondShop.Infrastructure.Services
                 ToEmail = account.Email,
                 Subject = "order prepared",
             };
-            var orderDetailurl = _frontendOptions.Value.OrderDetailUrl+ "?id"+ order.Id;
+            var orderDetailurl = _frontendOptions.Value.OrderDetailUrl+ "/"+ order.Id;
             var totalTransAmount = order.Transactions.Where(x => x.TransactionType == TransactionType.Pay)//|| x.TransactionType == TransactionType.Pay_Remain
                 .Sum(x => x.TransactionAmount);
             var model = new EmailOrderPreparedModel(order, account, completeeDate, orderDetailurl, totalTransAmount);
