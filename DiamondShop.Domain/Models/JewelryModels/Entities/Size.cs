@@ -6,10 +6,12 @@ namespace DiamondShop.Domain.Models.JewelryModels.Entities
 {
     public class Size : Entity<SizeId>
     {
+        public static string Milimeter { get; set; } = "milimeter";
+        public static string Centimeter { get; set; } = "centimeter";
         public string Unit { get; set; }
         public float Value { get; set; }
 
         public Size() { }
-        public static Size Create(float value, string unit = null, SizeId givenId = null) => new Size() { Id = givenId is null ? SizeId.Create() : givenId, Unit = unit is null ? SizeRules.DefaultUnit : unit, Value = value };
+        public static Size Create(float value, string unit, SizeId givenId = null) => new Size() { Id = givenId is null ? SizeId.Create() : givenId, Unit = unit, Value = value };
     }
 }

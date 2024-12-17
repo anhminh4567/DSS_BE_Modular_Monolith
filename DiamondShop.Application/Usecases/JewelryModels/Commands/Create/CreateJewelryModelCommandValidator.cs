@@ -62,9 +62,6 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
                     items.RuleFor(c => c.Width)
                         .GreaterThan(0).When(c => c.Width.HasValue);
 
-                    items.RuleFor(c => c.Length)
-                        .GreaterThan(0).When(c => c.Length.HasValue);
-
                     items.RuleFor(c => c.IsEngravable)
                         .NotEmpty();
 

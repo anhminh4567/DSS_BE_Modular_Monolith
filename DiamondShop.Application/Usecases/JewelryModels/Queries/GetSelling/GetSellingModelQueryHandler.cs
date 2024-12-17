@@ -103,50 +103,57 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                 var gallery = await GetModelGallery(model);
                 foreach (var sizeMetal in sizeMetals)
                 {
-                    var existedJewelry = await _jewelryRepository.GetJewelry(model.Id,sizeMetal.Metal.Id);
                     //check if model has product
-                    if (!existedJewelry.Any(p => p.Status == Domain.Common.Enums.ProductStatus.Active))
-                        continue;
-                    
+                    var existedJewelry = await _jewelryRepository.GetJewelry(model.Id, sizeMetal.Metal.Id);
                     if (sideDiamonds != null && sideDiamonds.Count > 0)
                     {
-
-                        var created_side = sideDiamonds
-                            .Select(p =>
-                            {
-                                var key = $"Categories/{sizeMetal.Metal.Id.Value}/{p.Id.Value}";
-                                gallery.Gallery.TryGetValue(key, out List<Media>? sideDiamondImages);
-                                var thumbnail = sideDiamondImages?.FirstOrDefault();
-                                if (sideDiamondImages != null && sideDiamondImages.Count >= 3)
-                                    thumbnail = sideDiamondImages[2];
-                                var reviews = existedJewelry.Where(k =>
+                        foreach (var p in sideDiamonds)
+                        {
+                            var existedJewelrySide = existedJewelry.Where(k =>
                                 k.SideDiamond != null &&
                                 k.SideDiamond.Carat == p.CaratWeight && k.SideDiamond.SettingType == p.SettingType &&
                                 k.SideDiamond.Quantity == p.Quantity && k.SideDiamond.DiamondShapeId == p.ShapeId &&
                                 k.SideDiamond.ColorMin == p.ColorMin && k.SideDiamond.ColorMax == p.ColorMax &&
                                 k.SideDiamond.ClarityMax == p.ClarityMax && k.SideDiamond.ClarityMax == p.ClarityMax &&
                                 k.SideDiamond.IsLabGrown == p.IsLabGrown && k.Review != null
-                                ).Select(p => p.Review);
-                                int totalReview = reviews.Count();
-                                float starRating = totalReview == 0 ? 0 : reviews.Sum(p => p.StarRating) / totalReview;
-                                return JewelryModelSelling.CreateWithSide(
-                            thumbnail, model.Name, sizeMetal.Metal.Name, starRating, totalReview,
-                            model.CraftmanFee, sizeMetal.Min.Price, sizeMetal.Max.Price,
-                            model.Id, sizeMetal.Metal.Id, p);
-                            })
-                        .Where(p =>
-                        {
+                                );
+                            if (!existedJewelrySide.Any(p => p.Status == Domain.Common.Enums.ProductStatus.Active))
+                                continue;
+                            var key = $"Categories/{sizeMetal.Metal.Id.Value}/{p.Id.Value}";
+                            gallery.Gallery.TryGetValue(key, out List<Media>? sideDiamondImages);
+                            var thumbnail = sideDiamondImages?.FirstOrDefault();
+                            if (sideDiamondImages != null && sideDiamondImages.Count >= 3)
+                                thumbnail = sideDiamondImages[2];
+                            var reviews = existedJewelry.Where(k =>
+                            k.SideDiamond != null &&
+                            k.SideDiamond.Carat == p.CaratWeight && k.SideDiamond.SettingType == p.SettingType &&
+                            k.SideDiamond.Quantity == p.Quantity && k.SideDiamond.DiamondShapeId == p.ShapeId &&
+                            k.SideDiamond.ColorMin == p.ColorMin && k.SideDiamond.ColorMax == p.ColorMax &&
+                            k.SideDiamond.ClarityMax == p.ClarityMax && k.SideDiamond.ClarityMax == p.ClarityMax &&
+                            k.SideDiamond.IsLabGrown == p.IsLabGrown && k.Review != null
+                            ).Select(p => p.Review);
+                            int totalReview = reviews.Count();
+                            float starRating = totalReview == 0 ? 0 : reviews.Sum(p => p.StarRating) / totalReview;
+
+                            var sideSelling = JewelryModelSelling.CreateWithSide(
+                       thumbnail, model.Name, sizeMetal.Metal.Name, starRating, totalReview,
+                       model.CraftmanFee, sizeMetal.Min.Price, sizeMetal.Max.Price,
+                       model.Id, sizeMetal.Metal.Id, p);
+
+                            //Check price
                             bool flag = true;
                             if (maxPrice != null)
-                                flag = flag && (p.MinPrice <= maxPrice);
+                                flag = flag && (sideSelling.MinPrice <= maxPrice);
                             if (minPrice != null)
-                                flag = flag && (p.MaxPrice >= minPrice);
-                            return flag;
-                        });
-                        sellingModels.AddRange(created_side);
+                                flag = flag && (sideSelling.MaxPrice >= minPrice);
+                            if (flag)
+                                sellingModels.Add(sideSelling);
+                        }
                     }
                     else
                     {
+                        if (!existedJewelry.Any(p => p.Status == Domain.Common.Enums.ProductStatus.Active))
+                            continue;
                         var images = gallery.BaseMetals.Where(p => p.MediaPath.Contains($"Metals/{sizeMetal.Metal.Id.Value}")).ToList();
                         var thumbnail = images.FirstOrDefault();
                         if (images != null && images.Count >= 3)

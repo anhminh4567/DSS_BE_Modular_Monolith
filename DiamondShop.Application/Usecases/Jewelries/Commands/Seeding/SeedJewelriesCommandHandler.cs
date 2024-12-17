@@ -91,7 +91,7 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands.Seeding
                 var existCodeFlag = _jewelryModelRepository.ExistingModelCode(command.ModelSpec.Code.ToUpper());
                 if (existCodeFlag)
                     return Result.Fail("Đã tồn tại");
-                var model = JewelryModel.Create(command.ModelSpec.Name, command.ModelSpec.Code.ToUpper(), JewelryModelCategoryId.Parse(command.ModelSpec.CategoryId), command.ModelSpec.craftmanFee, command.ModelSpec.Width, command.ModelSpec.Length, command.ModelSpec.IsEngravable, command.ModelSpec.BackType, command.ModelSpec.ClaspType, command.ModelSpec.ChainType);
+                var model = JewelryModel.Create(command.ModelSpec.Name, command.ModelSpec.Code.ToUpper(), JewelryModelCategoryId.Parse(command.ModelSpec.CategoryId), command.ModelSpec.craftmanFee, command.ModelSpec.Width, command.ModelSpec.IsEngravable, command.ModelSpec.BackType, command.ModelSpec.ClaspType, command.ModelSpec.ChainType);
                 await _jewelryModelRepository.Create(model);
                 await _unitOfWork.SaveChangesAsync(token);
 
@@ -200,20 +200,20 @@ namespace DiamondShop.Application.Usecases.Jewelries.Commands.Seeding
         }
         public List<JewelryModelRequestDto> FullDiamondRing = new()
         {
-            new JewelryModelRequestDto("Nhẫn kim cương Dominatus", "DN", "1", 300_000M, 1.0f,null,true,true,null,null,null),
-            new JewelryModelRequestDto("Nhẫn hột xoàn cao cấp Purus", "PUR", "1", 400_000M, 1.5f,null,true,true,null,null,null),
-            new JewelryModelRequestDto("Nhẫn kim cương cầu hôn Eternity", "ET", "1", 500_000M, 1.8f,null,true,true,null,null,null),
-            new JewelryModelRequestDto("Nhẫn xoàn sang trọng Rafaela", "RAF", "1", 600_000M, 2.0f,null,true,true,null,null,null),
+            new JewelryModelRequestDto("Nhẫn kim cương Dominatus", "DN", "1", 300_000M,null,true,true,null,null,null),
+            new JewelryModelRequestDto("Nhẫn hột xoàn cao cấp Purus", "PUR", "1", 400_000M,null,true,true,null,null,null),
+            new JewelryModelRequestDto("Nhẫn kim cương cầu hôn Eternity", "ET", "1", 500_000M,null,true,true,null,null,null),
+            new JewelryModelRequestDto("Nhẫn xoàn sang trọng Rafaela", "RAF", "1", 600_000M,null,true,true,null,null,null),
         };
         public List<JewelryModelRequestDto> NoDiamondRing = new()
         {
-            new JewelryModelRequestDto("Nhẫn trơn Sabina", "SAB", "1", 700_000M, 1.7f,null,true,true,null,null,null),
-            new JewelryModelRequestDto("Nhẫn trơn Olwen", "OLWEN", "1", 800_000M, 1.6f,null,true,true,null,null,null),
+            new JewelryModelRequestDto("Nhẫn trơn Sabina", "SAB", "1", 700_000M,null,true,true,null,null,null),
+            new JewelryModelRequestDto("Nhẫn trơn Olwen", "OLWEN", "1", 800_000M,null,true,true,null,null,null),
         };
         public List<JewelryModelRequestDto> SideDiamondRing = new()
         {
-            new JewelryModelRequestDto("Nhẫn kim cương tấm", "SAB", "1", 700_000M, 1.7f,null,true,true,null,null,null),
-            new JewelryModelRequestDto("Nhẫn kim cương tấm Solitare", "OLWEN", "1", 800_000M, 1.6f,null,true,true,null,null,null),
+            new JewelryModelRequestDto("Nhẫn kim cương tấm", "SAB", "1", 700_000M,null,true,true,null,null,null),
+            new JewelryModelRequestDto("Nhẫn kim cương tấm Solitare", "OLWEN", "1", 800_000M,null,true,true,null,null,null),
         };
 
         public List<MainDiamondRequestDto> OneMainDiamond

@@ -37,7 +37,6 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
             });
             /*builder.HasMany(o => o.Medias).WithOne().HasForeignKey(o => o.ModelId);*/
             builder.Property(o => o.Width).IsRequired(false);
-            builder.Property(o => o.Length).IsRequired(false);
             builder.Property(o => o.BackType).IsRequired(false).HasConversion<string>();
             builder.Property(o => o.ClaspType).IsRequired(false).HasConversion<string>();
             builder.Property(o => o.ChainType).IsRequired(false).HasConversion<string>();
