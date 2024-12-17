@@ -584,10 +584,10 @@ namespace DiamondShop.Domain.Services.Implementations
             var result = ApplyPromotionOnCartModelGlobal(clonedCartModel,promotion,promotionRule);
             if (result.IsSuccess)
             {
-                if(clonedCartModel.Promotion.GiftProductsIndex.Count == 0)
-                {
-                    return Result.Fail("khuyến mãi đạt yêu cầu, nhưng không sản phẩm nào trong giỏ đạt được điều kiện quà");
-                }
+                //if(clonedCartModel.Promotion.GiftProductsIndex.Count == 0)
+                //{
+                //    return Result.Fail("khuyến mãi đạt yêu cầu, nhưng không sản phẩm nào trong giỏ đạt được điều kiện quà");
+                //}
                 return result;
             }
             return Result.Fail(result.Errors);
