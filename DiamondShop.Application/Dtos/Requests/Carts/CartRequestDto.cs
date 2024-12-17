@@ -1,4 +1,5 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Accounts;
+using DiamondShop.Domain.Models.Orders.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +15,8 @@ namespace DiamondShop.Application.Dtos.Requests.Carts
         public AddressRequestDto? UserAddress { get; set; }
         public string? AccountId { get; set; }
         public bool IsAtShopOrder { get; set; }
+        public bool IsCustomOrder { get; set; } = false;
+        //public string? PaymentMethodId { get; set; }
+        public PaymentType? PaymentType { get; set; }
     }
 }

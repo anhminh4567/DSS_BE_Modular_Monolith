@@ -27,6 +27,12 @@ using DiamondShop.Application.Services.Interfaces.Deliveries;
 using DiamondShop.Domain.Models.AccountAggregate;
 using Microsoft.Extensions.Options;
 using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Repositories.TransactionRepo;
+using DiamondShop.Domain.Models.Transactions.Entities;
+using DiamondShop.Domain.Models.Transactions.ValueObjects;
+using DiamondShop.Application.Dtos.Requests.Orders;
+using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Models.Orders.Enum;
 
 namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
 {
@@ -43,8 +49,10 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
         private readonly IAccountRepository _accountRepository;
         private readonly IMapper _mapper;
         private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
+        private readonly IPaymentMethodRepository _paymentMethodRepository;
+        private readonly IOrderTransactionService _orderTransactionService;
 
-        public ValidateCartFromListCommandHandler(ICartModelService cartModelService, ILocationService locationService, IDeliveryService deliveryService, IDeliveryFeeRepository deliveryFeeRepository, IDiscountRepository discountRepository, IPromotionRepository promotionRepository, IDeliveryFeeServices deliveryFeeServices, IAccountRepository accountRepository, IMapper mapper, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
+        public ValidateCartFromListCommandHandler(ICartModelService cartModelService, ILocationService locationService, IDeliveryService deliveryService, IDeliveryFeeRepository deliveryFeeRepository, IDiscountRepository discountRepository, IPromotionRepository promotionRepository, IDeliveryFeeServices deliveryFeeServices, IAccountRepository accountRepository, IMapper mapper, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IPaymentMethodRepository paymentMethodRepository, IOrderTransactionService orderTransactionService)
         {
             _cartModelService = cartModelService;
             _locationService = locationService;
@@ -56,6 +64,8 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
             _accountRepository = accountRepository;
             _mapper = mapper;
             _optionsMonitor = optionsMonitor;
+            _paymentMethodRepository = paymentMethodRepository;
+            _orderTransactionService = orderTransactionService;
         }
 
         public async Task<Result<CartModel>> Handle(ValidateCartFromListCommand request, CancellationToken cancellationToken)
@@ -64,7 +74,9 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
             PromotionId promotionId = null;
             ShippingPrice getShippingPrice = new();
             Account? userAccount = null;
-            if(request.items.AccountId!= null)
+            var getAllMethod = await _paymentMethodRepository.GetAll();
+            var paymentRule = _optionsMonitor.CurrentValue.OrderPaymentRules;
+            if (request.items.AccountId!= null)
                userAccount= await _accountRepository.GetById(AccountId.Parse(request.items.AccountId));
             if (request.items.PromotionId != null)
                 promotionId = PromotionId.Parse(request.items.PromotionId);
@@ -83,7 +95,25 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
             }
             Result<CartModel> result = await _cartModelService.ExecuteNormalOrder(getProducts, getDiscounts, getPromotion,getShippingPrice,userAccount,_optionsMonitor.CurrentValue.CartModelRules);
             if (result.IsSuccess)
+            {
+                if(request.items.PaymentType != null)
+                {
+                    if (request.items.PaymentType == Domain.Models.Orders.Enum.PaymentType.Payall)
+                        result.Value.DepositAmount = 0;
+                    else
+                    {
+                        decimal depositOffset = 0;
+                        if (request.items.IsCustomOrder)
+                            depositOffset = (0.01m * paymentRule.CODPercent);
+                        else
+                            depositOffset = (0.01m * paymentRule.DepositPercent);
+                        decimal depositFee = depositOffset * result.Value.OrderPrices.FinalPrice;
+                        depositFee = MoneyVndRoundUpRules.RoundAmountFromDecimal(depositFee);
+                        result.Value.DepositAmount = depositFee;
+                    }
+                }
                 return result.Value;
+            }
             return Result.Fail(result.Errors);
         }
         private async Task<List<Promotion>> GetPromotion(PromotionId? promotionId)

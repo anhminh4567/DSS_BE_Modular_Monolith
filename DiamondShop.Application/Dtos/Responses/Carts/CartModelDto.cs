@@ -22,5 +22,7 @@ namespace DiamondShop.Application.Dtos.Responses.Carts
         public CartModelCounterDto OrderCounter { get; set; }
         public CartModelValidationDto OrderValidation { get; set; }
         public List<CartProductDto> Products { get; set; }
+        public decimal? PayAmount { get; set; }
+        public decimal? DepositAmount { get; set; }
     }
 }

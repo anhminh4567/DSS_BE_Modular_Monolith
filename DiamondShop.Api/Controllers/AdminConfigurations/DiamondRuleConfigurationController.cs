@@ -39,7 +39,7 @@ namespace DiamondShop.Api.Controllers.AdminConfigurations
             return Ok(diamondRule.Value);
         }
         [HttpPost()]
-        public async Task<ActionResult> UpdateDiamondRule([FromForm] DiamondRuleRequestDto diamondRuleRequestDto)
+        public async Task<ActionResult> UpdateDiamondRule([FromBody] DiamondRuleRequestDto diamondRuleRequestDto)
         {
             var updateResul = await _sender.Send(new UpdateDiamondRuleCommand(diamondRuleRequestDto));
             if(updateResul.IsFailed)

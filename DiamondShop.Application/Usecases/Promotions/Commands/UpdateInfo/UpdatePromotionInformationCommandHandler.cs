@@ -5,6 +5,7 @@ using DiamondShop.Application.Dtos.Requests.Promotions;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Commons;
 using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Promotions;
 using DiamondShop.Domain.Models.Promotions.ErrorMessages;
@@ -14,6 +15,7 @@ using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,26 +25,29 @@ using System.Threading.Tasks;
 namespace DiamondShop.Application.Usecases.Promotions.Commands.UpdateInfo
 {
 
-    public record UpdatePromotionInformationCommand(string? promotionId,bool? isExcludeQualifierProduct, string? name, string? description, UpdateStartEndDate? UpdateStartEndDate) : IRequest<Result<Promotion>>;
+    public record UpdatePromotionInformationCommand(string? promotionId,bool? isExcludeQualifierProduct, string? name, string? description, string? PromoCode, UpdateStartEndDate? UpdateStartEndDate) : IRequest<Result<Promotion>>;
     internal class UpdatePromotionInformationCommandHandler : IRequestHandler<UpdatePromotionInformationCommand, Result<Promotion>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPromotionRepository _promotionRepository;
         private readonly IPromotionServices _promotionServices;
         private readonly IBlobFileServices _blobFileServices;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public UpdatePromotionInformationCommandHandler(IUnitOfWork unitOfWork, IPromotionRepository promotionRepository, IPromotionServices promotionServices, IBlobFileServices blobFileServices)
+        public UpdatePromotionInformationCommandHandler(IUnitOfWork unitOfWork, IPromotionRepository promotionRepository, IPromotionServices promotionServices, IBlobFileServices blobFileServices, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _unitOfWork = unitOfWork;
             _promotionRepository = promotionRepository;
             _promotionServices = promotionServices;
             _blobFileServices = blobFileServices;
+            _optionsMonitor = optionsMonitor;
         }
 
         public async Task<Result<Promotion>> Handle(UpdatePromotionInformationCommand request, CancellationToken cancellationToken)
         {
             var parsedId = PromotionId.Parse(request.promotionId!);
             var getPromotion = await _promotionRepository.GetById(parsedId);
+            var promoRule = _optionsMonitor.CurrentValue.PromotionRule;
             if (getPromotion is null)
                 return Result.Fail(PromotionError.NotFound);
 
@@ -53,7 +58,12 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.UpdateInfo
                 getPromotion.Description = request.description;
             if(request.isExcludeQualifierProduct != null)
                 getPromotion.IsExcludeQualifierProduct = request.isExcludeQualifierProduct.Value;
-
+            if(request.PromoCode != null)
+            {
+                if (request.PromoCode.Length < promoRule.MinCode || request.PromoCode.Length > promoRule.MaxCode)
+                    return Result.Fail($"Mã khuyến mãi mới không hợp lệ, có chiều dài phải lớn hơn {promoRule.MinCode} và bé hơn {promoRule.MaxCode}");
+                getPromotion.PromoCode = request.PromoCode;
+            }
             if (request.UpdateStartEndDate != null)
             {
                 var parsedStartResults = DateTime.TryParseExact(request.UpdateStartEndDate.startDate, DateTimeFormatingRules.DateTimeFormat, null, System.Globalization.DateTimeStyles.None, out DateTime startParsed);
