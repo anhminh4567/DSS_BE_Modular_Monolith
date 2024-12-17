@@ -31,7 +31,10 @@ namespace DiamondShop.Application.Usecases.PromotionGifts.Commands.CreateMany
             RuleFor(x => x.TargetType).IsInEnum().WithMessage("TargetType is not valid.");
             RuleFor(x => x.UnitType).IsInEnum();
             RuleFor(x => x.UnitValue).GreaterThan(0);
-
+            When(x => x.UnitType == UnitType.Percent, () =>
+            {
+                RuleFor(x => x.UnitValue).LessThanOrEqualTo(90).WithLessThanMessage();
+            });
             When(x => x.TargetType == TargetType.Diamond, () =>
             {
                 ClassLevelCascadeMode = CascadeMode.Stop;

@@ -49,6 +49,7 @@ namespace DiamondShop.Application.Mappers
 
             config.NewConfig<Gift, GiftDto>()
                 .Map(dest => dest.Id, src => src.Id.Value)
+                .Map(dest => dest.MaxAmount, src => src.MaxAmout)
                 .Map(dest => dest.PromotionId, src => (src.PromotionId == null) ? null : src.PromotionId.Value)
                 //.Map(dest => dest.DiamondGiftShapes, src => src.DiamondGiftShapes.Select(x => x.Value))
                 .Map(dest => dest.DiamondRequirementSpec, src => new DiamondSpecDto
