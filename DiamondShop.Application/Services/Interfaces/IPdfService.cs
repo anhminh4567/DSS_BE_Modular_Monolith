@@ -10,7 +10,7 @@ namespace DiamondShop.Application.Services.Interfaces
 {
     public interface IPdfService
     {
-        string GetTemplateHtmlStringFromOrder(Order order, Account customerAccount);
+        string GetTemplateHtmlStringFromOrder(Order order, Account customerAccount, bool isEmail = false);
         Stream ParseHtmlToPdf(string htmlString);
     }
 }

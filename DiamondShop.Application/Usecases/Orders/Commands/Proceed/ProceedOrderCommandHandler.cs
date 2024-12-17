@@ -134,7 +134,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                 order.Status = OrderStatus.Prepared;
                 order.FinishPreparedDate = DateTime.UtcNow;
                 var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Prepared);
-                _ = _emailService.SendOrderPreparedEmail(order, account, order.FinishPreparedDate.Value);
+                _emailService.SendOrderPreparedEmail(order, account, order.FinishPreparedDate.Value);
                 await _orderLogRepository.Create(log);
             }
             else if (order.Status == OrderStatus.Prepared)

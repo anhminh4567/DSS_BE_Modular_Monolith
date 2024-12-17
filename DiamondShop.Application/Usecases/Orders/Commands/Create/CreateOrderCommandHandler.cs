@@ -5,6 +5,7 @@ using DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson;
 using DiamondShop.Application.Usecases.Orders.Commands.Proceed;
 using DiamondShop.Domain.BusinessRules;
 using DiamondShop.Domain.Common;
+using DiamondShop.Domain.Models.AccountAggregate;
 using DiamondShop.Domain.Models.AccountAggregate.ErrorMessages;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.CustomizeRequests.ValueObjects;
@@ -16,7 +17,10 @@ using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ErrorMessages;
+using DiamondShop.Domain.Models.Promotions.Enum;
+using DiamondShop.Domain.Models.Transactions;
 using DiamondShop.Domain.Models.Transactions.Entities;
+using DiamondShop.Domain.Models.Transactions.Enum;
 using DiamondShop.Domain.Models.Transactions.ErrorMessages;
 using DiamondShop.Domain.Models.Transactions.ValueObjects;
 using DiamondShop.Domain.Repositories;
@@ -53,8 +57,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
         private readonly INotificationRepository _notificationRepository;
         private readonly IOptions<LocationRules> _locationOptions;
         private readonly IOrderTransactionService _orderTransactionService;
+        private readonly ITransactionRepository _transactionRepository;
 
-        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, ISizeMetalRepository sizeMetalRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IJewelryService jewelryService, IPaymentMethodRepository paymentMethodRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderLogRepository orderLogRepository, IEmailService emailService, INotificationRepository notificationRepository, IOptions<LocationRules> locationOptions, IOrderTransactionService orderTransactionService)
+        public CreateOrderCommandHandler(IAccountRepository accountRepository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IDiamondRepository diamondRepository, ISizeMetalRepository sizeMetalRepository, IJewelryRepository jewelryRepository, IUnitOfWork unitOfWork, ISender sender, IOrderService orderService, IJewelryService jewelryService, IPaymentMethodRepository paymentMethodRepository, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor, IOrderLogRepository orderLogRepository, IEmailService emailService, INotificationRepository notificationRepository, IOptions<LocationRules> locationOptions, IOrderTransactionService orderTransactionService, ITransactionRepository transactionRepository)
         {
             _accountRepository = accountRepository;
             _orderRepository = orderRepository;
@@ -73,6 +78,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             _notificationRepository = notificationRepository;
             _locationOptions = locationOptions;
             _orderTransactionService = orderTransactionService;
+            _transactionRepository = transactionRepository;
         }
 
         public async Task<Result<Order>> Handle(CreateOrderCommand request, CancellationToken token)
@@ -293,8 +299,20 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             // if order price = 0 then auto proceed;
             if (order.TotalPrice == 0)
             {
-                var proceedOrderCommand = new ProceedOrderCommand(order.Id.Value, order.AccountId.Value);
-                var result = await _sender.Send(proceedOrderCommand);
+                var manualPayment = Transaction.CreateManualPayment(order.Id,"giao dịch 0 đồng cho đơn 0 đồng",order.TotalPrice, Domain.Models.Transactions.Enum.TransactionType.Pay);
+                manualPayment.Status = TransactionStatus.Valid;
+                manualPayment.VerifiedDate = DateTime.UtcNow;
+                manualPayment.TimeStamp = DateTime.UtcNow.ToString(DateTimeFormatingRules.DateTimeFormat);
+                await _transactionRepository.Update(manualPayment, token);
+                order.Status = OrderStatus.Processing;
+                order.PaymentStatus = PaymentStatus.Paid;//order.PaymentType == PaymentType.Payall ?  : PaymentStatus.Deposited;
+                order.ExpiredDate = null;
+                var processinglog = OrderLog.CreateByChangeStatus(order, OrderStatus.Processing);
+                await _orderLogRepository.Create(log);
+                await _orderRepository.Update(order);
+                await _unitOfWork.SaveChangesAsync(token);
+                //var proceedOrderCommand = new ProceedOrderCommand(order.Id.Value, order.AccountId.Value);
+                //var result = await _sender.Send(proceedOrderCommand);
             }
             return order;
         }

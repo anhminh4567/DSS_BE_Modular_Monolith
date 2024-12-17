@@ -102,7 +102,7 @@ namespace DiamondShop.Infrastructure.Services
             try
             {
                 var invoiceEmail = Path.Combine(Directory.GetCurrentDirectory(), "RazorTemplate", "EmailTemplate", ConfirmEmailFileName);
-                var mailString = _pdfService.GetTemplateHtmlStringFromOrder(order, account);
+                var mailString = _pdfService.GetTemplateHtmlStringFromOrder(order, account,true);
                 var metadata = new EmailMetaData()
                 {
                     ToEmail = account.Email,

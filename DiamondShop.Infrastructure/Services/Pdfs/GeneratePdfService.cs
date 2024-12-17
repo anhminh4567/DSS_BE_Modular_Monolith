@@ -95,23 +95,39 @@ namespace DiamondShop.Infrastructure.Services.Pdfs
             //return returnStream;
         }
 
-        public string GetTemplateHtmlStringFromOrder(Order order, Account customerAccount)
+        public string GetTemplateHtmlStringFromOrder(Order order, Account customerAccount,bool isEmail = false)
         {
             var publicOption = _publicBlobOptions.Value;
             var externalOption = _externalUrlsOptions.Value;
             var iconPath = _publicBlobOptions.Value.GetPath(externalOption, publicOption.ShopIcon);
             var diamondRingIconPath = _publicBlobOptions.Value.GetPath(externalOption,publicOption.DiamondRingIcon);
             var diamondIconPath = _publicBlobOptions.Value.GetPath(externalOption,publicOption.DiamondIcon);
-            string htmlString = RazorTemplateEngine.RenderAsync($"/RazorTemplate/InvoiceTemplate/{OrderInvoiceTemplateFileName}", new OrderInvoiceModels
+            if (isEmail)
             {
-                Account = customerAccount,
-                Order = order,
-                DiamondIconPath = diamondIconPath,
-                DiamondRingIconPath = diamondRingIconPath,
-                IconPath = iconPath,
-                ShopAddress = _applicationSettingGlobal.CurrentValue.LocationRules.OriginalLocationName
-            }).Result;
-            return htmlString;
+                string html = RazorTemplateEngine.RenderAsync($"/RazorTemplate/EmailTemplate/{OrderInvoiceTemplateFileName}", new OrderInvoiceModels
+                {
+                    Account = customerAccount,
+                    Order = order,
+                    DiamondIconPath = diamondIconPath,
+                    DiamondRingIconPath = diamondRingIconPath,
+                    IconPath = iconPath,
+                    ShopAddress = _applicationSettingGlobal.CurrentValue.LocationRules.OriginalLocationName
+                }).Result;
+                return html;
+            }
+            else
+            {
+                string htmlString = RazorTemplateEngine.RenderAsync($"/RazorTemplate/InvoiceTemplate/{OrderInvoiceTemplateFileName}", new OrderInvoiceModels
+                {
+                    Account = customerAccount,
+                    Order = order,
+                    DiamondIconPath = diamondIconPath,
+                    DiamondRingIconPath = diamondRingIconPath,
+                    IconPath = iconPath,
+                    ShopAddress = _applicationSettingGlobal.CurrentValue.LocationRules.OriginalLocationName
+                }).Result;
+                return htmlString;
+            }
         }
 
         public static string GetTemplateHtmlStringFromOrderGlobal(Order order, Account customerAccount)
