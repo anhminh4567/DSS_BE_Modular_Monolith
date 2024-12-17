@@ -68,6 +68,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
                     order.PaymentStatus = PaymentStatus.Refunding;
                 }
                 order.Status = OrderStatus.Cancelled;
+                var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Cancelled);
+                await _orderLogRepository.Create(log);
             }
             else
             {
@@ -80,6 +82,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
                     order.PaymentStatus = PaymentStatus.Refunding;
                 }
                 order.Status = OrderStatus.Rejected;
+                var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Rejected);
+                await _orderLogRepository.Create(log);
             }
             if (order.TotalPrice == 0)
                 order.PaymentStatus = PaymentStatus.No_Refund;
@@ -88,8 +92,6 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
             order.CancelledReason = reason;
             await _orderRepository.Update(order);
             await _orderService.CancelItems(order);
-            var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Rejected);
-            await _orderLogRepository.Create(log);
             var notificationForShop = Notification.CreateShopMessage(order, $"khách hủy đơn hàng #{order.OrderCode} tại thời điểm {order.CancelledDate.Value.ToString(DateTimeFormatingRules.DateTimeFormat)}");
             await _notificationRepository.Create(notificationForShop);
             await _unitOfWork.SaveChangesAsync(token);
