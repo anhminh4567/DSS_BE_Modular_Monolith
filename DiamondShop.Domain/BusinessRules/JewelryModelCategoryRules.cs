@@ -17,7 +17,7 @@ namespace DiamondShop.Domain.BusinessRules
         {
             "Ring",
             "Necklace",
-            "Bracelace",
+            "Bracelet",
             "Earring",
         };
     }

@@ -54,7 +54,7 @@ namespace DiamondShop.Test.Integration.Data
         public static JewelryModelCategoryId DefaultCategoryId = JewelryModelCategoryId.Parse("1");
         #region JewelryModel
         public static JewelryModel DefaultRingModel(string name, string code, JewelryModelCategoryId categoryId, float? width, float? height, bool? isEngravable, bool? isRhodiumFinish, BackType? backType, ClaspType? claspType, ChainType? chainType, string id) => JewelryModel.Create(
-            name, code, categoryId, 0,width, height, isEngravable,
+            name, code, categoryId, 0,width, isEngravable,
             backType, claspType, chainType, JewelryModelId.Parse(id));
 
         public static MainDiamondReq DefaultRingMainDiamondReq(JewelryModelId modelId, int quantity, string id) => MainDiamondReq.Create(modelId, SettingType.Prong, quantity, MainDiamondReqId.Parse($"{modelId.Value}_{id}"));

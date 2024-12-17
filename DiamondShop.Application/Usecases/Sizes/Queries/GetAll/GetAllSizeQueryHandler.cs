@@ -22,7 +22,10 @@ namespace DiamondShop.Application.Usecases.Sizes.Queries.GetAll
         public async Task<List<Size>> Handle(GetAllSizeQuery request, CancellationToken cancellationToken)
         {
             var query = _sizeRepository.GetQuery();
-            var list =query.Where(x => x.Unit == SizeRules.DefaultUnit).OrderBy(x => x.Value).ToList();
+            var list =query
+                .OrderBy(x => x.Unit == Size.Milimeter ? 0 : x.Unit == Size.Centimeter ? 1 : 2)
+                .ThenBy(x => x.Value)
+                .ToList();
             return list;
         }
     }

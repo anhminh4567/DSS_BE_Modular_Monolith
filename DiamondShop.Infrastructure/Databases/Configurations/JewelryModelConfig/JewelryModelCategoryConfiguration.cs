@@ -11,7 +11,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
         {
             JewelryModelCategory.Create("Ring", "A normal ring", "", true, null, JewelryModelCategoryId.Parse("1")),
             JewelryModelCategory.Create("Necklace", "A normal necklace", "", true, null, JewelryModelCategoryId.Parse("2")),
-            JewelryModelCategory.Create("Bracelace", "A normal bracelace", "", true, null, JewelryModelCategoryId.Parse("3")),
+            JewelryModelCategory.Create("Bracelet", "A normal bracelet", "", true, null, JewelryModelCategoryId.Parse("3")),
             JewelryModelCategory.Create("Earring", "A normal earring", "", true, null, JewelryModelCategoryId.Parse("4")),
         };
         public void Configure(EntityTypeBuilder<JewelryModelCategory> builder)

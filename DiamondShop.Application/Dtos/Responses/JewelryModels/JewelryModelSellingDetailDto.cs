@@ -10,7 +10,6 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
         public string Name { get; set; }
         public string Category { get; set; }
         public float? Width { get; set; }
-        public float? Length { get; set; }
         public bool IsEngravable { get; set; }
         public bool IsRhodiumFinish { get; set; }
         public BackType? BackType { get; set; }

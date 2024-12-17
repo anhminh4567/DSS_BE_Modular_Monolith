@@ -16,7 +16,7 @@ namespace DiamondShop.Domain.Repositories.JewelryModelRepo
         public SizeRepository(DiamondShopDbContext dbContext): base(dbContext) { }
         public async Task<Size?> GetByValue(float value, string unit = null)
         {
-            unit = unit is null ? SizeRules.DefaultUnit : unit;
+            unit = unit is null ? Size.Milimeter : unit;
             return await _dbContext.Sizes.FirstOrDefaultAsync(p => p.Value == value && p.Unit == unit);
         }
 

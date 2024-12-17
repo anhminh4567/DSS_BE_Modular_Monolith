@@ -38,7 +38,6 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
                 Name = model.Name,
                 Category = model.Category.Name,
                 Width = model.Width,
-                Length = model.Length,
                 IsEngravable = model.IsEngravable,
                 //IsRhodiumFinish = model.IsRhodiumFinish,
                 BackType = model.BackType,
