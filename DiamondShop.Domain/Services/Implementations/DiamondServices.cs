@@ -147,6 +147,8 @@ namespace DiamondShop.Domain.Services.Implementations
                             {
                                 return true;
                             }
+                            else
+                                return false;
                         }
                         return true;
                     }
