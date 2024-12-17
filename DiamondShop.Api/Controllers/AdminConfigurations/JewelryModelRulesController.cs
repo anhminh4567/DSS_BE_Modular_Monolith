@@ -28,7 +28,7 @@ namespace DiamondShop.Api.Controllers.AdminConfigurations
             return Ok(diamondRule.Value);
         }
         [HttpPost()]
-        public async Task<ActionResult> UpdateJewelryModelRules([FromForm] UpdateJewelryModelRuleRequestDto requets)
+        public async Task<ActionResult> UpdateJewelryModelRules([FromBody] UpdateJewelryModelRuleRequestDto requets)
         {
             var updateResul = await _sender.Send(new UpdateJewelryModelRuleCommand(requets));
             if (updateResul.IsFailed)

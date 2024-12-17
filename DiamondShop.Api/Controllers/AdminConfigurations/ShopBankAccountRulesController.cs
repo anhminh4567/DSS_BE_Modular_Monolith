@@ -34,7 +34,7 @@ namespace DiamondShop.Api.Controllers.AdminConfigurations
             return Ok(mappedRule);
         }
         [HttpPut]
-        public async Task<ActionResult> UpdateShopBankQr([FromForm] UpdateBankAccountQrCommand request)
+        public async Task<ActionResult> UpdateShopBankQr([FromBody] UpdateBankAccountQrCommand request)
         {
             var updateResult = await _sender.Send(request);
             if (updateResult.IsFailed)

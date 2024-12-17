@@ -29,7 +29,7 @@ namespace DiamondShop.Api.Controllers.AdminConfigurations
             return Ok(diamondRule.Value);
         }
         [HttpPost()]
-        public async Task<ActionResult> UpdateDiamondPriceRule([FromForm] DiamondPriceRulesRequestDto requestDto)
+        public async Task<ActionResult> UpdateDiamondPriceRule([FromBody] DiamondPriceRulesRequestDto requestDto)
         {
             var updateResul = await _sender.Send(new UpdateDiamondPriceRulesCommand(requestDto));
             if (updateResul.IsFailed)

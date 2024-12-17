@@ -30,7 +30,7 @@ namespace DiamondShop.Api.Controllers.AdminConfigurations
             return Ok(diamondRule.Value);
         }
         [HttpPost()]
-        public async Task<ActionResult> UpdateLocationRule([FromForm] LocationRulesRequestDto requets)
+        public async Task<ActionResult> UpdateLocationRule([FromBody] LocationRulesRequestDto requets)
         {
             var updateResul = await _sender.Send(new UpdateLocationRulesCommand(requets));
             if (updateResul.IsFailed)
