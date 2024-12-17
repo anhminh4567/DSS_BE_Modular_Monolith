@@ -103,7 +103,7 @@ namespace DiamondShop.Application.Usecases.Carts.Commands.ValidateFromJson
                     else
                     {
                         decimal depositOffset = 0;
-                        if (request.items.IsCustomOrder)
+                        if (request.items.IsCustomOrder == false)
                             depositOffset = (0.01m * paymentRule.CODPercent);
                         else
                             depositOffset = (0.01m * paymentRule.DepositPercent);
