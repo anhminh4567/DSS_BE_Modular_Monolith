@@ -7,7 +7,7 @@ namespace DiamondShop.Application.Usecases.Metals.Commands.Update
         public UpdateMetalCommandValidator() 
         { 
             RuleFor(c => c.price)
-                .NotNull().GreaterThanOrEqualTo(0);
+                .NotNull().GreaterThanOrEqualTo(10000);
         }
     }
 }

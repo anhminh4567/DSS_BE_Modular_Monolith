@@ -51,6 +51,10 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Checkout
             {
                 return Result.Fail(new Error($"Số lượng tối đa đơn hàng bạn được đặt hàng là {orderRule.MaxOrderAmountForCustomerToPlace} đơn xử lý"));
             }
+            if(getAccount.Status == Domain.Models.AccountAggregate.Enums.AccountStatus.Banned)
+            {
+                return Result.Fail(new Error("Tài khoản của bạn đã bị khóa"));
+            }
             if (String.IsNullOrEmpty(getAccount.PhoneNumber))
             {
                 await _unitOfWork.BeginTransactionAsync();

@@ -604,5 +604,20 @@ namespace DiamondShop.Infrastructure.Securities.Authentication
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok();
         }
+
+        public async Task<Result> ResetPassword(string identityId, string newPassword, CancellationToken cancellationToken = default)
+        {
+            var getIdentity = await _userManager.FindByIdAsync(identityId);
+            if (getIdentity is null)
+            {
+                return Result.Fail(new NotFoundError());
+            }
+            string resetToken = await _userManager.GeneratePasswordResetTokenAsync(getIdentity);
+            IdentityResult passwordChangeResult = await _userManager.ResetPasswordAsync(getIdentity, resetToken, newPassword);
+            if (passwordChangeResult.Succeeded)
+                return Result.Ok();
+            else
+                return Result.Fail(new Error("Thay đổi mật khẩu thất bại"));
+        }
     }
 }

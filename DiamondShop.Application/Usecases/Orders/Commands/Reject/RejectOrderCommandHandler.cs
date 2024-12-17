@@ -81,6 +81,8 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Reject
                 }
                 order.Status = OrderStatus.Rejected;
             }
+            if (order.TotalPrice == 0)
+                order.PaymentStatus = PaymentStatus.No_Refund;
             order.DelivererId = null;
             order.CancelledDate = DateTime.UtcNow;
             order.CancelledReason = reason;

@@ -68,7 +68,11 @@ namespace DiamondShop.Api.Controllers.Orders.Cancel
                 if (order.PaymentType == PaymentType.COD)
                     order.PaymentStatus = PaymentStatus.No_Refund;
                 else
+                {
                     order.PaymentStatus = PaymentStatus.Refunding;
+                    if (order.TotalPrice == 0)
+                        order.PaymentStatus = PaymentStatus.No_Refund;
+                }
             }
             order.DelivererId = null;
             order.Status = OrderStatus.Cancelled;

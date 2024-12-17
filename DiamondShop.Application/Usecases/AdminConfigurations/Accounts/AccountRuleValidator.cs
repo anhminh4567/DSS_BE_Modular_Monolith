@@ -41,7 +41,7 @@ namespace DiamondShop.Application.Usecases.AdminConfigurations.Accounts
                 RuleFor(x => x.RankDiscountPercentOnOrder)
                     .GreaterThanOrEqualTo(0)
                         .WithGreaterThanOrEqualMessage()
-                    .LessThanOrEqualTo(100)
+                    .LessThanOrEqualTo(50)
                         .WithLessThanOrEqualMessage();
                 RuleFor(x => x.MaxAmountDiscountOnOrder)
                     .GreaterThan(10_000)

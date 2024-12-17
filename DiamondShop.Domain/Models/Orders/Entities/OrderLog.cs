@@ -23,11 +23,11 @@ namespace DiamondShop.Domain.Models.Orders.Entities
         public List<Media>? LogImages { get; set; }
         [NotMapped]
         public bool IsParentLog { get => PreviousLogId == null; }
-        public static OrderLog CreateByChangeStatus(Order order, OrderStatus statusToChange,string? extraMessage = null) 
+        public static OrderLog CreateByChangeStatus(Order order, OrderStatus statusToChange,string? extraMessage = null, OrderLogId? id = null) 
         {
             var newLog = new OrderLog
             {
-                Id = OrderLogId.Create(),
+                Id = id == null ? OrderLogId.Create() : id ,
                 OrderId = order.Id,
                 Message = $"{OrderStatusExtension.ToFriendlyString(statusToChange)} ",
                 CreatedDate = DateTime.UtcNow,

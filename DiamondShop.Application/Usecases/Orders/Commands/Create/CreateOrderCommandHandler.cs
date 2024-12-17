@@ -17,6 +17,7 @@ using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Entities;
 using DiamondShop.Domain.Models.Orders.Enum;
 using DiamondShop.Domain.Models.Orders.ErrorMessages;
+using DiamondShop.Domain.Models.Orders.ValueObjects;
 using DiamondShop.Domain.Models.Promotions.Enum;
 using DiamondShop.Domain.Models.Transactions;
 using DiamondShop.Domain.Models.Transactions.Entities;
@@ -166,8 +167,10 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
                     errors.Add(new Error("Đơn hàng miễn phí không được chọn loại COD"));
                 if (cartModel.OrderPrices.FinalPrice > orderRule.MaxOrderAmountForDelivery)
                 {
-                    //errors.Add(new Error($"Tổng giá trị đơn hàng vượt quá giới hạn cho phép {orderRule.MaxCOD}"));
+                    errors.Add(new Error($"Tổng giá trị đơn hàng vượt quá giới hạn cho phép {orderRule.MaxOrderAmountForDelivery}"));
                 }
+                if (cartModel.OrderPrices.FinalPrice <= paymentRule.MinAmountForCOD)
+                    errors.Add(new Error($"đơn hàng dưới {paymentRule.MinAmountForCOD} xin vui lòng trả hết"));
             }
             //if(isAtShop.Value == false)
             //{
@@ -299,17 +302,21 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             // if order price = 0 then auto proceed;
             if (order.TotalPrice == 0)
             {
-                var manualPayment = Transaction.CreateManualPayment(order.Id,"giao dịch 0 đồng cho đơn 0 đồng",order.TotalPrice, Domain.Models.Transactions.Enum.TransactionType.Pay);
+
+                var getorder = await _orderRepository.GetById(order.Id);
+                var manualPayment = Transaction.CreateManualPayment(getorder.Id,"giao dịch 0 đồng cho đơn 0 đồng", getorder.TotalPrice, Domain.Models.Transactions.Enum.TransactionType.Pay);
+                
                 manualPayment.Status = TransactionStatus.Valid;
                 manualPayment.VerifiedDate = DateTime.UtcNow;
                 manualPayment.TimeStamp = DateTime.UtcNow.ToString(DateTimeFormatingRules.DateTimeFormat);
-                await _transactionRepository.Update(manualPayment, token);
-                order.Status = OrderStatus.Processing;
-                order.PaymentStatus = PaymentStatus.Paid;//order.PaymentType == PaymentType.Payall ?  : PaymentStatus.Deposited;
-                order.ExpiredDate = null;
-                var processinglog = OrderLog.CreateByChangeStatus(order, OrderStatus.Processing);
-                await _orderLogRepository.Create(log);
-                await _orderRepository.Update(order);
+                //await _transactionRepository.Update(manualPayment, token);
+                await _transactionRepository.Create(manualPayment);
+                getorder.Status = OrderStatus.Processing;
+                getorder.PaymentStatus = PaymentStatus.Paid;//order.PaymentType == PaymentType.Payall ?  : PaymentStatus.Deposited;
+                getorder.ExpiredDate = null;
+                var processinglog = OrderLog.CreateByChangeStatus(getorder, OrderStatus.Processing,"đơn 0đ", OrderLogId.Parse(Guid.NewGuid().ToString()));
+                await _orderLogRepository.Create(processinglog);
+                await _orderRepository.Update(getorder);
                 await _unitOfWork.SaveChangesAsync(token);
                 //var proceedOrderCommand = new ProceedOrderCommand(order.Id.Value, order.AccountId.Value);
                 //var result = await _sender.Send(proceedOrderCommand);

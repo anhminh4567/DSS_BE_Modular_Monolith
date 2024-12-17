@@ -178,7 +178,7 @@ namespace DiamondShop.Api.Controllers.Accounts
             return Ok(result.Value);
         }
         [HttpPut("Ban")]
-        [Authorize(Roles = AccountRole.StaffId)]
+        [Authorize(Roles = AccountRole.AdminId)]
         public async Task<ActionResult> BanAccount([FromQuery] string identityId, [FromQuery] string? banEndDate, CancellationToken cancellationToken = default)
         {
             var result = await _sender.Send(new BanAccountCommand(identityId,banEndDate), cancellationToken);
@@ -294,6 +294,14 @@ namespace DiamondShop.Api.Controllers.Accounts
         public async Task<ActionResult> ChangePassword([FromRoute] string identityId, [FromForm] string oldPassword, [FromForm] string newPassword)
         {
             var result = await _authenticationService.ChangePassword(identityId,oldPassword,newPassword);
+            if (result.IsSuccess)
+                return Ok();
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPut("{identityId}/ForgetPassword")]
+        public async Task<ActionResult> ResetPassword([FromRoute] string identityId, [FromForm] string newPassword)
+        {
+            var result = await _authenticationService.ResetPassword(identityId, newPassword);
             if (result.IsSuccess)
                 return Ok();
             return MatchError(result.Errors, ModelState);
