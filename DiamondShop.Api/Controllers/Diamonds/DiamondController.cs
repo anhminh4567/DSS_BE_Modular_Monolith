@@ -9,6 +9,7 @@ using DiamondShop.Application.Usecases.Diamonds.Commands.CreateForCustomizeReque
 using DiamondShop.Application.Usecases.Diamonds.Commands.Delete;
 using DiamondShop.Application.Usecases.Diamonds.Commands.DeletePreOrderDiamondFromCustomizeRequest;
 using DiamondShop.Application.Usecases.Diamonds.Commands.LockForUser;
+using DiamondShop.Application.Usecases.Diamonds.Commands.UpdateStatusMany;
 using DiamondShop.Application.Usecases.Diamonds.Queries.DashBoard.GetBestSellingCaratRangeForShape;
 using DiamondShop.Application.Usecases.Diamonds.Queries.DashBoard.GetBestSellingForManyShape;
 using DiamondShop.Application.Usecases.Diamonds.Queries.GetAll;
@@ -165,6 +166,17 @@ namespace DiamondShop.Api.Controllers.Diamonds
                 return Ok(mappedResult);
             }
 
+            return MatchError(result.Errors, ModelState);
+        }
+        [HttpPut("SetActive")]
+        [Produces(typeof(DiamondDto))]
+        public async Task<ActionResult> SetActive([FromBody] UpdateManyDiamondStatusCommand update)
+        {
+            var result = await _sender.Send(update);
+            if (result.IsSuccess)
+            {
+                return Ok();
+            }
             return MatchError(result.Errors, ModelState);
         }
         [HttpPut("{diamondId}")]

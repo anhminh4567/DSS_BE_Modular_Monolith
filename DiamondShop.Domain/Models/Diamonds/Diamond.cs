@@ -369,6 +369,10 @@ namespace DiamondShop.Domain.Models.Diamonds
                 throw new Exception("Cannot change status of a sold item");
             if(Status == ProductStatus.Locked)
                 throw new Exception("Cannot change status of a locked diammond for jewelry");
+            if (Status == ProductStatus.PreOrder)
+                throw new Exception("Cannot change status of a pre-order diamond");
+            if (Status == ProductStatus.LockForUser)
+                throw new Exception("Cannot change status of a locked diamond for user");
             if (isActive)
                 SetSell();
             else
