@@ -8,6 +8,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
     {
         public CreateManyDiamondPricesCommandValidator()
         {
+            ClassLevelCascadeMode = CascadeMode.Stop;
             RuleFor(x => x.listPrices).NotNull().NotEmpty().WithNotEmptyMessage();
             RuleForEach(x => x.listPrices).SetValidator(new DiamondPriceRequestDtoValidator());
         }
@@ -15,7 +16,8 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.CreateMany
         {
             public DiamondPriceRequestDtoValidator()
             {
-                RuleFor(c => c.price).NotEmpty().GreaterThan(0);
+                ClassLevelCascadeMode = CascadeMode.Stop;
+                RuleFor(c => c.price).NotEmpty().GreaterThan(1000).WithGreaterThanMessage();
                 When(x => x.Color != null, () =>
                 {
                     RuleFor(c => c.Color).IsInEnum().WithIsInEnumMessage();

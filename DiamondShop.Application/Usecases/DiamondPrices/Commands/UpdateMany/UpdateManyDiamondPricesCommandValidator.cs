@@ -20,7 +20,7 @@ namespace DiamondShop.Application.Usecases.DiamondPrices.Commands.UpdateMany
                     .WithNotEmptyMessage();
                 RuleFor(x => x.price).NotNull()
                         .WithNotEmptyMessage()
-                    .GreaterThan(0)
+                    .GreaterThan(1000)
                         .WithGreaterThanMessage();
             }
     }

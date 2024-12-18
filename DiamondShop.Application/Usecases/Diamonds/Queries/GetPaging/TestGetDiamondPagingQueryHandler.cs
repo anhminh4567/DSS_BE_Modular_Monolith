@@ -36,7 +36,6 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAccountRepository _accountRepository;
         private readonly IDiamondRequestRepository _diamondRequestRepository;
-
         public TestGetDiamondPagingQueryHandler(IDiamondRepository diamondRepository, IDiamondPriceRepository diamondPriceRepository, IDiamondServices diamondService, IDiamondShapeRepository diamondShapeRepository, IDiscountService discountService, IDiscountRepository discountRepository, IHttpContextAccessor httpContextAccessor, IAccountRepository accountRepository, IDiamondRequestRepository diamondRequestRepository)
         {
             _diamondRepository = diamondRepository;
@@ -100,7 +99,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
                     var getResult = await _diamondRepository.GetWhereSkuContain(_diamondRepository.GetQuery(), request.GetDiamond_ManagerQuery.sku);
                     //var getResult = await _diamondRepository.GetWhereSkuContain(request.GetDiamond_ManagerQuery.sku, trueStart,)
                     var skuTotalCount = getResult.Count();
-                    var skuList = getResult.Skip(trueStart).Take(request.pageSize).ToList();
+                    var skuList = getResult.Skip(trueStart).Take(request.pageSize).OrderByDescending(x => x.CreatedAt).ToList();
                     foreach (var diamond in skuList)
                     {
                         DiamondPrice diamondPrice;
@@ -123,7 +122,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
             }
             var resultQuery = await _diamondRepository.FilteringPrice(query, diamond_4C, request.priceStart, request.priceEnd);
             var totalCount = resultQuery.Count();
-            var returnList = resultQuery.Skip(trueStart).Take(request.pageSize).ToList();
+            var returnList = resultQuery.Skip(trueStart).Take(request.pageSize).OrderByDescending(x => x.CreatedAt).ToList();
             var getCount = returnList.Count();
             foreach (var diamond in returnList)
             {
