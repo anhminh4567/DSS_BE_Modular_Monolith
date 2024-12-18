@@ -249,6 +249,13 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             //{
             //    return new PaymentLinkResponse() { PaymentUrl = zalopayTransactionOnGoing.GetPaymentLink(), QrCode = GenQRImagePng(zalopayTransactionOnGoing.GetPaymentLink()) };
             //}
+            //var tryGetFromCache = await _dbCachingService.Get(cacheKey);// _cache.Get(cacheKey);
+            //if (tryGetFromCache != null)
+            //{
+            //    var parseResult = tryGetFromCache.GetObjectFromJsonString<ZalopayCreateOrderResponse>() ;
+            //    paymentLink = parseResult.order_url;
+            //    return new PaymentLinkResponse() { PaymentUrl = paymentLink, QrCode = GenQRImagePng(paymentLink) };
+            //}
             string? paymentLink;
             var tryGetFromCache = await _dbCachingService.Get(cacheKey);// _cache.Get(cacheKey);
             if (tryGetFromCache != null)
@@ -316,8 +323,14 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             if (result.return_code != 1)
                 return Result.Fail($"fail with message from paygate: {result.sub_return_message} and code: {result.return_code} ");
 
-            var dbCacheModel = new DbCacheModel();
-            //_dbCachingService.SetValue();
+            //var dbCacheModel = new DbCacheModel();
+            //dbCacheModel.Value = JsonConvert.SerializeObject(result);
+            //dbCacheModel.KeyId = cacheKey;
+            //dbCacheModel.Name = cacheKey;
+            //dbCacheModel.Type = typeof(ZalopayCreateOrderResponse).AssemblyQualifiedName;
+            //dbCacheModel.CreationTime = DateTime.UtcNow;
+            //await _dbCachingService.SetValue(dbCacheModel);
+            
             //var temporalTransaction = Transaction.CreatePayment(zalopayMethod.Id, order.Id, description, appTransactionId, result.order_url, timeStampe, amount, DateTime.UtcNow);
             //temporalTransaction.Status = TransactionStatus.Verifying;
             //await _transactionRepository.Create(temporalTransaction);
