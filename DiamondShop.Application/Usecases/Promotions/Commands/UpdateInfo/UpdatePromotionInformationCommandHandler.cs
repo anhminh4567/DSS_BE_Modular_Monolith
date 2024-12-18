@@ -60,6 +60,9 @@ namespace DiamondShop.Application.Usecases.Promotions.Commands.UpdateInfo
                 getPromotion.IsExcludeQualifierProduct = request.isExcludeQualifierProduct.Value;
             if(request.PromoCode != null)
             {
+                var getPromo = await _promotionRepository.GetByCode(request.PromoCode);
+                if (getPromo != null)
+                    return Result.Fail("mã code đã tồn tại, không đổi được");
                 if (request.PromoCode.Length < promoRule.MinCode || request.PromoCode.Length > promoRule.MaxCode)
                     return Result.Fail($"Mã khuyến mãi mới không hợp lệ, có chiều dài phải lớn hơn {promoRule.MinCode} và bé hơn {promoRule.MaxCode}");
                 getPromotion.PromoCode = request.PromoCode;
