@@ -99,9 +99,9 @@ namespace DiamondShop.Domain.Models.AccountAggregate
         {
             var user = Create(fullName, email);
             user.SetIdentity(identityId);
-            AccountRole roleToAdd_staff = allRoles.First(r => r.Id == AccountRole.Staff.Id);
+            //AccountRole roleToAdd_staff = allRoles.First(r => r.Id == AccountRole.Staff.Id);
             AccountRole roleToAdd_Admin = allRoles.First(r => r.Id == AccountRole.Admin.Id);
-            user.AddRole(roleToAdd_staff);
+            //user.AddRole(roleToAdd_staff);
             user.AddRole(roleToAdd_Admin);
 
             return user;
