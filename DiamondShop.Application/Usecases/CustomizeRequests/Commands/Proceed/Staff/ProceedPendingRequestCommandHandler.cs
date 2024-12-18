@@ -83,7 +83,7 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Commands.Proceed.St
 
                     if (assignedDiamond.DiamondId == null && assignedDiamond.CreateDiamondCommand == null)
                     {
-                        errors.Add(CustomizeRequestErrors.DiamondRequest.UnchosenMainDiamondError(i));
+                        errors.Add(CustomizeRequestErrors.DiamondRequest.UnchosenMainDiamondError(i+1));
                     }
                     else
                     {

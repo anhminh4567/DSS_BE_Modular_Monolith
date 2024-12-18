@@ -85,7 +85,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Create
                     if (isInAnyCriteria == false)
                     {
                         int index = sideDiamonds.IndexOf(sideDiamond);
-                        return Result.Fail(JewelryModelErrors.SideDiamond.NoCriteriaFound(index));
+                        return Result.Fail(JewelryModelErrors.SideDiamond.NoCriteriaFound(index+1));
                     }
                 }
                 await _sideDiamondRepository.CreateRange(sideDiamonds, token);

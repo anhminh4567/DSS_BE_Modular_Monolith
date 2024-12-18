@@ -28,6 +28,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
             query = query.Include(p => p.SideDiamonds);
             query = query.Include(p => p.MainDiamonds).ThenInclude(p => p.Shapes);
             query = query.Include(p => p.SizeMetals).ThenInclude(p => p.Metal);
+            query = query.Include(p => p.SizeMetals).ThenInclude(p => p.Size);
             return await query
                 .AsSplitQuery()
                 .FirstOrDefaultAsync(s => s.Id == id);
