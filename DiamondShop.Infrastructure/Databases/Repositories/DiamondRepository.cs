@@ -342,7 +342,17 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
             //.Where(x => x.ComputedPrice == null || (x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo));
             var testquery1 = joinPriceQuery.Where(x => x.ComputedPrice == null || (x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo))
                 .OrderBy(x => x.Diamond.Carat).ThenBy(x => x.ComputedPrice)
-                .Select(x => x.Diamond).Distinct();
+                .Select(x => x.Diamond);//.Distinct();
+            //var testquery2 = joinPriceQuery.Where(x => x.ComputedPrice == null || (x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo))
+            //    .OrderBy(x => x.Diamond.Carat)//.ThenBy(x => x.ComputedPrice)
+            //    .Select(x => new {x.Diamond.Carat}) .Distinct();
+            //var testquery3 = joinPriceQuery.Where(x => x.ComputedPrice == null || (x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo))
+            //    .OrderBy(x => x.Diamond.Carat)//.ThenBy(x => x.ComputedPrice)
+            //    .Select(x => new { x.Diamond.Carat });//.Distinct();
+            //var testquery4 = joinPriceQuery.Where(x => x.ComputedPrice == null || (x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo))
+            //    .OrderBy(x => x.Diamond.Carat).ThenBy(x => x.ComputedPrice)
+            //    .Select(x => new { x.Diamond.Carat });
+            //var testResult = testquery4.Skip(5).Take(5);
             return testquery1;
             //return finalQuery;
         }
