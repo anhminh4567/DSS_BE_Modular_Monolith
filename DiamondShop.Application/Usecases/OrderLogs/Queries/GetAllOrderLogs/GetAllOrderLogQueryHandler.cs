@@ -71,7 +71,7 @@ namespace DiamondShop.Application.Usecases.OrderLogs.Queries.GetAllOrderLogs
                     }
                 }
             }
-            var mappedLogs = getParentLog.OrderByDescending(x => x.CreatedDate).Adapt<List<OrderLogDto>>(config); //_mapper.Map<List<OrderLogDto>>(logs);
+            var mappedLogs = getParentLog.OrderBy(x => x.CreatedDate).Adapt<List<OrderLogDto>>(config); //_mapper.Map<List<OrderLogDto>>(logs);
             //getMappedLog.PreviousLog = mappedLogs.FirstOrDefault(x => x.Id == getMappedLog.PreviousLogId);
             
 
