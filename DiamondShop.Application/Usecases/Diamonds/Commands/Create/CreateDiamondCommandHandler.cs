@@ -70,6 +70,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Commands.Create
                 var fee = MoneyVndRoundUpRules.RoundAmountFromDecimal(extraFee.Value);
                 newDiamond.SetExtraFee(fee);
             }
+            newDiamond.Status = ProductStatus.Inactive;
             await _diamondRepository.Create(newDiamond);
             await _unitOfWork.SaveChangesAsync();
             return Result.Ok(newDiamond);
