@@ -14,6 +14,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
     public class JewelryModelSellingDetail
     {
         public JewelryModelId Id { get; set; }
+        public string Unit { get; set; }
         public string Name { get; set; }
         public string Category { get; set; }
         public float? Width { get; set; }
@@ -29,12 +30,13 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
         public List<Metal> Metals { get; set; } = new();
         public List<SideDiamondOpt>? SideDiamonds { get; set; } = new();
         public List<JewelryReview>? Reviews { get; set; } = new();
-        public static JewelryModelSellingDetail Create(JewelryModel model, List<SellingDetailMetal> MetalGroups,
+        public static JewelryModelSellingDetail Create(string Unit, JewelryModel model, List<SellingDetailMetal> MetalGroups,
             List<SideDiamondOpt>? sideDiamondOpts, List<Metal> metals, List<JewelryReview>? reviews)
         {
             return new JewelryModelSellingDetail()
             {
                 Id = model.Id,
+                Unit = Unit,
                 Name = model.Name,
                 Category = model.Category.Name,
                 Width = model.Width,
@@ -104,16 +106,14 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
     public class SellingDetailSize
     {
         public float Size { get; set; }
-        public string Unit { get; set; }
         public decimal Price { get; set; }
         public decimal SalePrice { get; set; } = 0;
         public bool IsInStock { get; set; }
-        public static SellingDetailSize Create(float sizeValue, string unit, decimal Price, bool isInStock)
+        public static SellingDetailSize Create(float sizeValue, decimal Price, bool isInStock)
         {
             return new SellingDetailSize
             {
                 Size = sizeValue,
-                Unit = unit,
                 Price = Price,
                 IsInStock = isInStock
             };
