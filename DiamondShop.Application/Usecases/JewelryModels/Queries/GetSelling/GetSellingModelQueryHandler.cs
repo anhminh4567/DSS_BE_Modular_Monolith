@@ -115,7 +115,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                                 k.SideDiamond.Quantity == p.Quantity && k.SideDiamond.DiamondShapeId == p.ShapeId &&
                                 k.SideDiamond.ColorMin == p.ColorMin && k.SideDiamond.ColorMax == p.ColorMax &&
                                 k.SideDiamond.ClarityMin == p.ClarityMin && k.SideDiamond.ClarityMax == p.ClarityMax &&
-                                k.SideDiamond.IsLabGrown == p.IsLabGrown && k.Review != null
+                                k.SideDiamond.IsLabGrown == p.IsLabGrown
                                 );
                             if (!existedJewelrySide.Any(p => p.Status == Domain.Common.Enums.ProductStatus.Active))
                                 continue;
@@ -124,13 +124,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
                             var thumbnail = sideDiamondImages?.FirstOrDefault();
                             if (sideDiamondImages != null && sideDiamondImages.Count >= 3)
                                 thumbnail = sideDiamondImages[2];
-                            var reviews = existedJewelry.Where(k =>
-                            k.SideDiamond != null &&
-                            k.SideDiamond.Carat == p.CaratWeight && k.SideDiamond.SettingType == p.SettingType &&
-                            k.SideDiamond.Quantity == p.Quantity && k.SideDiamond.DiamondShapeId == p.ShapeId &&
-                            k.SideDiamond.ColorMin == p.ColorMin && k.SideDiamond.ColorMax == p.ColorMax &&
-                            k.SideDiamond.ClarityMin == p.ClarityMin && k.SideDiamond.ClarityMax == p.ClarityMax &&
-                            k.SideDiamond.IsLabGrown == p.IsLabGrown && k.Review != null
+                            var reviews = existedJewelry.Where(k => k.Status == Domain.Common.Enums.ProductStatus.Sold && k.Review != null
                             ).Select(p => p.Review);
                             int totalReview = reviews.Count();
                             float starRating = totalReview == 0 ? 0 : reviews.Sum(p => p.StarRating) / totalReview;
