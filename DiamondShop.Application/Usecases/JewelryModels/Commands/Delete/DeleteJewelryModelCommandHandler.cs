@@ -45,7 +45,8 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Delete
             await _jewelryModelFileService.DeleteAllModelFiles(model);
             
             await _unitOfWork.BeginTransactionAsync(token);
-            await _jewelryModelRepository.Delete(model,token);
+            model.Length = 100;
+            await _jewelryModelRepository.Update(model);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
             return Result.Ok();

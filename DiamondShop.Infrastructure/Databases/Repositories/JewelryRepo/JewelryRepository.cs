@@ -75,7 +75,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
         }
         public async Task<bool> Existing(JewelryModelId modelId)
         {
-            return await _set.Where(p => p.Status == ProductStatus.Active && p.ModelId == modelId).AnyAsync();
+            return await _set.Where(p => p.Status != ProductStatus.Sold && p.ModelId == modelId).AnyAsync();
         }
         public async Task<bool> Existing(JewelryModelId modelId, MetalId metalId, SizeId sizeId)
         {

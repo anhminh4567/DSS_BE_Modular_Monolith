@@ -42,6 +42,7 @@ namespace DiamondShop.Infrastructure.Databases.Configurations.JewelryModelConfig
             builder.Property(o => o.ChainType).IsRequired(false).HasConversion<string>();
             builder.HasKey(o => o.Id);
             builder.HasIndex(o => o.ModelCode).IsUnique();
+            builder.HasQueryFilter(p => p.Length == null);
             //builder.HasIndex(o => o.Id);
         }
     }
