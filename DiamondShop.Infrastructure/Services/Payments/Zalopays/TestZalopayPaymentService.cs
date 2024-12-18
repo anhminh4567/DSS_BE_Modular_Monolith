@@ -330,6 +330,15 @@ namespace DiamondShop.Infrastructure.Services.Payments.Zalopays
             //dbCacheModel.Type = typeof(ZalopayCreateOrderResponse).AssemblyQualifiedName;
             //dbCacheModel.CreationTime = DateTime.UtcNow;
             //await _dbCachingService.SetValue(dbCacheModel);
+
+            //await _dbCachingService.SetValue(new DbCacheModel()
+            //{
+            //    CreationTime= DateTime.UtcNow,
+            //    KeyId = cacheKey,
+            //    Name = cacheKey,
+            //    Value = JsonConvert.SerializeObject(result),
+            //    Type = typeof(ZalopayCreateOrderResponse).GetType().AssemblyQualifiedName
+            //});
             
             //var temporalTransaction = Transaction.CreatePayment(zalopayMethod.Id, order.Id, description, appTransactionId, result.order_url, timeStampe, amount, DateTime.UtcNow);
             //temporalTransaction.Status = TransactionStatus.Verifying;
