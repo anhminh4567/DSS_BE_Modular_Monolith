@@ -27,7 +27,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
         {
             return new JewelryModelSelling()
             {
-                Name = $"{modelName} in {metalName} ({sideDiamondOpt.CaratWeight} Tw)",
+                Name = $"{modelName} {metalName} ({sideDiamondOpt.CaratWeight} Tw)",
                 Thumbnail = thumbnail,
                 StarRating = star,
                 ReviewCount = reviewCount,
@@ -44,7 +44,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSelling
         {
             return new JewelryModelSelling()
             {
-                Name = $"{modelName} in {metalName}",
+                Name = $"{modelName} {metalName}",
                 Thumbnail = thumbnail,
                 StarRating = star,
                 ReviewCount = reviewCount,

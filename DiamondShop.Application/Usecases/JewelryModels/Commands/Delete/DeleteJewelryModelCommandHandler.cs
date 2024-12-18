@@ -43,9 +43,9 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Commands.Delete
                 return Result.Fail(JewelryModelErrors.JewelryModelInUseError);
             //Delete gallery first
             await _jewelryModelFileService.DeleteAllModelFiles(model);
-            
             await _unitOfWork.BeginTransactionAsync(token);
             model.Length = 100;
+            model.ModelCode = $"DELETED_{DateTime.UtcNow.Ticks}";
             await _jewelryModelRepository.Update(model);
             await _unitOfWork.SaveChangesAsync(token);
             await _unitOfWork.CommitAsync(token);
