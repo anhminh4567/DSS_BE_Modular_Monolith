@@ -121,7 +121,7 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             var result = await _sender.Send(command);
             if (result.IsSuccess)
             {
-                return Ok("Create metal options success");
+                return Ok("Tạo lựa chọn kim loại thành công");
             }
             return MatchError(result.Errors, ModelState);
         }
@@ -131,7 +131,7 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             var result = await _sender.Send(command);
             if (result.IsSuccess)
             {
-                return Ok("Create side diamond(s) success");
+                return Ok("Tạo lựa chọn kim cương tấm");
             }
             return MatchError(result.Errors, ModelState);
         }
@@ -169,7 +169,7 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             var result = await _sender.Send(deleteJewelryModelCommand);
             if (result.IsSuccess)
             {
-                return Ok("Delete jewelry model success");
+                return Ok("Xóa mẫu trang sức thành công");
             }
             return MatchError(result.Errors, ModelState);
         }
@@ -179,7 +179,7 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             var result = await _sender.Send(deleteModelSizeMetalCommand);
             if (result.IsSuccess)
             {
-                return Ok("Delete metal options success");
+                return Ok("Xóa lựa chọn kim loại thành công");
             }
             return MatchError(result.Errors, ModelState);
         }
@@ -189,7 +189,7 @@ namespace DiamondShop.Api.Controllers.JewelryModels
             var result = await _sender.Send(deleteModelSideDiamondCommand);
             if (result.IsSuccess)
             {
-                return Ok("Delete metal options success");
+                return Ok("Xóa lựa chọn kim cương tấm thành công");
             }
             return MatchError(result.Errors, ModelState);
         }
