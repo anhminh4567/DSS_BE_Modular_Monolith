@@ -92,6 +92,7 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
                 query = _diamondRepository.Filtering4C(query, request.diamond_4C);
             if (request.diamond_Details is not null)
                 query = _diamondRepository.FilteringDetail(query, request.diamond_Details);
+            //query = _diamondRepository.QueryOrderBy( query,x => query.OrderBy(x => x.Carat));
             if (request.GetDiamond_ManagerQuery is not null)
             {
                 if (request.GetDiamond_ManagerQuery.sku is not null)

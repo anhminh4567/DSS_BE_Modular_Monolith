@@ -68,7 +68,7 @@ namespace DiamondShop.Test.Integration
             if (order.Status == OrderStatus.Cancelled && order.PaymentType == PaymentType.Payall)
                 refundAmount = MoneyVndRoundUpRules.RoundAmountFromDecimal(refundAmount * (1m - 0.01m * OrderPaymentRules.Default.PayAllFine));
 
-            var refundPayment = Transaction.CreateManualRefund(order.Id, staffId, "ABCCCDDD", $"Hoàn tiền đến khách hàng {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng ${order.OrderCode}", refundAmount);
+            var refundPayment = Transaction.CreateManualRefund(order.Id,"ACB","123", staffId, "ABCCCDDD", $"Hoàn tiền đến khách hàng {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng ${order.OrderCode}", refundAmount);
             await _context.Set<Transaction>().AddAsync(refundPayment);
             order.PaymentStatus = PaymentStatus.Refunded;
             _context.Set<Order>().Update(order);
@@ -79,7 +79,7 @@ namespace DiamondShop.Test.Integration
             var existed = _context.Set<Transaction>().Any(p => p.OrderId == order.Id && p.IsManual == true && p.TransactionType == TransactionType.Pay);
             Assert.False(existed);
             var payAmount = order.PaymentType == PaymentType.Payall ? order.TotalPrice : order.DepositFee;
-            var manualPayment = Transaction.CreateManualPayment(order.Id, $"Chuyển khoản từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", payAmount, TransactionType.Pay);
+            var manualPayment = Transaction.CreateManualPayment(order.Id, "ACB", "123", $"Chuyển khoản từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", payAmount, TransactionType.Pay);
             manualPayment.Evidence = Media.Create("evidence", "http/test-evidence", "");
             await _context.Set<Transaction>().AddAsync(manualPayment);
             await _context.SaveChangesAsync();
@@ -93,7 +93,7 @@ namespace DiamondShop.Test.Integration
             Assert.NotEmpty(transactions);
             //remaing amount
             var payAmount = order.TotalPrice - order.DepositFee;
-            var manualPayment = Transaction.CreateManualPayment(order.Id, $"Chuyển tiền còn lại từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", payAmount, TransactionType.Pay);
+            var manualPayment = Transaction.CreateManualPayment(order.Id, "ACB", "123", $"Chuyển tiền còn lại từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", payAmount, TransactionType.Pay);
             //add evidence to blob
             await _context.Set<Transaction>().AddAsync(manualPayment);
             await _context.SaveChangesAsync();
@@ -286,7 +286,7 @@ namespace DiamondShop.Test.Integration
             var existed = _context.Set<Transaction>().Any(p => p.OrderId == order.Id && p.IsManual == true && p.TransactionType == TransactionType.Pay);
             Assert.False(existed);
             var payAmount = order.PaymentType == PaymentType.Payall ? order.TotalPrice : order.DepositFee;
-            var manualPayment = Transaction.CreateManualPayment(order.Id, $"Chuyển khoản từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", payAmount, TransactionType.Pay);
+            var manualPayment = Transaction.CreateManualPayment(order.Id, "ACB", "123", $"Chuyển khoản từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", payAmount, TransactionType.Pay);
             manualPayment.Evidence = Media.Create("evidence", "http/test-evidence", "");
             await _context.Set<Transaction>().AddAsync(manualPayment);
 

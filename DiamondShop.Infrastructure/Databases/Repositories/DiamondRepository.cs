@@ -297,14 +297,16 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                                       CriteriaId = joinedQuery.Criteria != null ? joinedQuery.Criteria : DiamondCriteriaId.Parse("-404"), // Match only if criteria exists
                                       Color = joinedQuery.Diamond.Color,
                                       Clarity = joinedQuery.Diamond.Clarity,
-                                      IsLab = joinedQuery.Diamond.IsLabDiamond
+                                      IsLab = joinedQuery.Diamond.IsLabDiamond,
+                                      IsSideDiamond = false,
                                   }
                                   equals new
                                   {
                                       CriteriaId = price.CriteriaId,
                                       Color = price.Color ?? 0,
                                       Clarity = price.Clarity ?? 0,
-                                      IsLab = price.IsLabDiamond
+                                      IsLab = price.IsLabDiamond,
+                                      IsSideDiamond = false,
                                   }
                                   into priceGroup
                                   from matchedPrice in priceGroup.DefaultIfEmpty() // Include diamonds without matching prices
@@ -333,14 +335,16 @@ namespace DiamondShop.Infrastructure.Databases.Repositories
                 .GroupBy(x => x.Diamond.Id)
                 .Select(g => g.OrderByDescending(x => x.Priority).First().Diamond)// Select the highest priority row per diamond
                 ;//.ToList(); 
-            var testquery = joinPriceQuery.Where(x => x.ComputedPrice == null || (x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo))
-                .GroupBy(x => x.Diamond.Id)
-                .Select(g => g.OrderByDescending(x => x.Priority).Select(x => new { x.Diamond.Id, x.ComputedPrice })
-                .Where(x => x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo));
-                //.Where(x => x.ComputedPrice == null || (x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo));
-
-            //throw new NotImplementedException();
-            return finalQuery;
+            //var testquery = joinPriceQuery.Where(x => x.ComputedPrice == null || (x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo))
+            //    .GroupBy(x => x.Diamond.Id)
+            //    .Select(g => g.OrderByDescending(x => x.Priority).Select(x => new { x.Diamond.Id, x.ComputedPrice })
+            //    .Where(x => x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo));
+            //.Where(x => x.ComputedPrice == null || (x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo));
+            var testquery1 = joinPriceQuery.Where(x => x.ComputedPrice == null || (x.ComputedPrice >= priceFrom && x.ComputedPrice <= priceTo))
+                .OrderBy(x => x.Diamond.Carat).ThenBy(x => x.ComputedPrice)
+                .Select(x => x.Diamond).Distinct();
+            return testquery1;
+            //return finalQuery;
         }
 
         public async Task<IQueryable<Diamond>> GetWhereSkuContain(IQueryable<Diamond> query,string containingString, CancellationToken cancellationToken = default)
