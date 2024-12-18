@@ -131,7 +131,7 @@ namespace DiamondShop.Api.Controllers.Diamonds
         {
             var command = new CreateDiamondCommand(createDiamondCommand.diamond4c,createDiamondCommand.details,
                 createDiamondCommand.measurement,createDiamondCommand.shapeId,createDiamondCommand.sku,createDiamondCommand.Certificate,
-                createDiamondCommand.priceOffset);
+                createDiamondCommand.priceOffset,createDiamondCommand.extraFee);
             var result = await _sender.Send(command);
             if (result.IsSuccess)
             {
