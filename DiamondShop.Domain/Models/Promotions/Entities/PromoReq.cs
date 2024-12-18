@@ -38,16 +38,20 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         public Color? ColorFrom { get; set; }
         public Color? ColorTo { get; set; }
         public List<PromoReqShape> PromoReqShapes { get; set; } = new();
-        public static PromoReq CreateJewelryRequirement(string Name, Operator @operator, bool isForAmount, decimal? amount, int? quantity, JewelryModelId jewelryModelId)
+        public static PromoReq CreateJewelryRequirement(string Name, Operator @operator, bool isForAmount, decimal? amount, int? quantity, JewelryModelId jewelryModelId, bool isForPromo)
         {
-            if (isForAmount)
+            if (isForPromo)
             {
-                if (amount <= 1000)
-                    throw new Exception("yêu cầu trang sức có yêu cầu dưới 1000");
+                if (isForAmount)
+                {
+                    if (amount <= 1000)
+                        throw new Exception("yêu cầu trang sức có yêu cầu dưới 1000");
+                }
+                else
+                    if (quantity <= 0)
+                    throw new Exception("yêu cầu trang sức phải lớn hơn 0");
             }
-            else
-                if (quantity <= 0)
-                throw new Exception("yêu cầu trang sức phải lớn hơn 0");
+
             return new PromoReq()
             {
                 Id = PromoReqId.Create(),
@@ -69,16 +73,20 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
             Cut? cutTo,
             Color? colorFrom,
             Color? colorTo,
-            List<DiamondShape> selectedDiamondShapes)
+            List<DiamondShape> selectedDiamondShapes, bool isForPromo)
         {
-            if (isForAmount)
+            if (isForPromo)
             {
-                if (amount <= 1000)
-                    throw new Exception("yêu cầu kim cương có yêu cầu dưới 1000");
-            }
-            else
-                if (quantity <= 0)
+                if (isForAmount)
+                {
+                    if (amount <= 1000)
+                        throw new Exception("yêu cầu kim cương có yêu cầu dưới 1000");
+                }
+                else
+                    if (quantity <= 0)
                     throw new Exception("yêu cầu kim cương phải lớn hơn 0");
+            }
+
             var Id = PromoReqId.Create();
             var newPromo = new PromoReq()
             {

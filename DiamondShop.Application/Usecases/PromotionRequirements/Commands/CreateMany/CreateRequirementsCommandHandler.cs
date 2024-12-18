@@ -62,7 +62,7 @@ namespace DiamondShop.Application.Usecases.PromotionRequirements.Commands.Create
                         if (jewelryModelId == null)
                             return Result.Fail(new ConflictError("không tìm thấy jewelry model nào ở vị trí : " + (++i)));
                         var jewerlyModelId = JewelryModelId.Parse(jewelryModelId);
-                        var jelReq = PromoReq.CreateJewelryRequirement(req.Name, req.Operator, isMoneyAmount, req.MoneyAmount, req.Quantity, jewerlyModelId);
+                        var jelReq = PromoReq.CreateJewelryRequirement(req.Name, req.Operator, isMoneyAmount, req.MoneyAmount, req.Quantity, jewerlyModelId, req.isPromotion);
                         //if (req.Quantity < 1 || req.Quantity > MAX_AMOUNT)
                         //{
                         //    return Result.Fail($"loại yêu cầu vượt quá số lượng cho phép là {MAX_AMOUNT} ở vị trí: " + (++i));
@@ -75,7 +75,7 @@ namespace DiamondShop.Application.Usecases.PromotionRequirements.Commands.Create
                         var shapesIdParsed = req.DiamondRequirementSpec.ShapesIDs.Select(s => DiamondShapeId.Parse(s));
                         var selectedShape = shapes.Where(s => shapesIdParsed.Contains(s.Id)).ToList();
                         var diamondReq = PromoReq.CreateDiamondRequirement(req.Name, req.Operator, isMoneyAmount, req.MoneyAmount, req.Quantity,
-                            origin, caratFrom, caratTo, clarityFrom, clarityTo, cutFrom, cutTo, colorFrom, colorTo, selectedShape);
+                            origin, caratFrom, caratTo, clarityFrom, clarityTo, cutFrom, cutTo, colorFrom, colorTo, selectedShape,req.isPromotion);
                         //if (req.Quantity < 1 || req.Quantity > MAX_AMOUNT)
                         //{
                         //    return Result.Fail($"loại yêu cầu vượt quá số lượng cho phép là {MAX_AMOUNT} ở vị trí: " + (++i));

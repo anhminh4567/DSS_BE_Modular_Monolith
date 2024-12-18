@@ -16,6 +16,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;
 using OpenQA.Selenium.DevTools.V127.Audits;
+using Org.BouncyCastle.Ocsp;
 
 namespace DiamondShop.Test.Domain
 {
@@ -56,7 +57,7 @@ namespace DiamondShop.Test.Domain
                 CartItem.CreateDiamond(DiamondId.Create(),null),
             };
             var shapesIds = _diamondShapes.Select(s => s.Id).ToList();
-            var promotionRequirement = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, 1, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes);
+            var promotionRequirement = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, 1, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes, true);
             var promotionGift = Gift.CreateDiamond("test", null, UnitType.Percent, 20, 1, shapesIds, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D);
             var promotion = Promotion.Create("test", "test","test", DateTime.UtcNow, DateTime.UtcNow.AddDays(50), 1, true, RedemptionMode.Single);
             promotionRequirement.PromotionId = promotion.Id;
@@ -92,7 +93,7 @@ namespace DiamondShop.Test.Domain
         {
             // Arrange
             var shapesIds = _diamondShapes.Select(s => s.Id).ToList();
-            var promotionRequirement = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, 1, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes);
+            var promotionRequirement = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, 1, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes, true);
             var promotionGift = Gift.CreateDiamond("test", null, UnitType.Percent, 20, 1, shapesIds, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D);
             var promotion = Promotion.Create("test", "test", "test", DateTime.UtcNow, DateTime.UtcNow.AddDays(50), 1, false, RedemptionMode.Single);
             promotionRequirement.PromotionId = promotion.Id;
@@ -132,7 +133,7 @@ namespace DiamondShop.Test.Domain
             var diamond1Price = 11000000;
             var diamond2Price = 15000000;
             var expectedPriceRequirement = diamond1Price + diamond2Price - 5000000;
-            var promotionRequirement = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, true, expectedPriceRequirement, null, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes);
+            var promotionRequirement = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, true, expectedPriceRequirement, null, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes, true);
             var promotionGift = Gift.CreateOrder("test",UnitType.Percent,giftOrderPercent);//Gift.CreateDiamond("test", null, UnitType.Percent, 20, 1, shapesIds, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excelent, Color.I, Color.D);
             var promotion = Promotion.Create("test", "test", "test", DateTime.UtcNow, DateTime.UtcNow.AddDays(50), 1, false, RedemptionMode.Single);
             promotionRequirement.PromotionId = promotion.Id;
@@ -178,7 +179,7 @@ namespace DiamondShop.Test.Domain
             var giftOrderAmountReduced =  10000000;
             var expectedFinalPrice = diamond1Price + diamond2Price - giftOrderAmountReduced;
 
-            var promotionRequirement1= PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, diamontRequirementAmount, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes);
+            var promotionRequirement1= PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, diamontRequirementAmount, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes, true);
             var promotionRequirement2 = PromoReq.CreateOrderRequirement("test", Operator.Equal_Or_Larger, expectedOrderPriceRequirement);
 
             var promotionGift = Gift.CreateOrder("test", UnitType.Fix_Price, giftOrderAmountReduced);//Gift.CreateDiamond("test", null, UnitType.Percent, 20, 1, shapesIds, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excelent, Color.I, Color.D);
@@ -230,7 +231,7 @@ namespace DiamondShop.Test.Domain
             var giftOrderAmountReduced = diamond1Price + diamond2Price + 50000000;
             var expectedFinalPrice = diamond1Price + diamond2Price - giftOrderAmountReduced;
 
-            var promotionRequirement1 = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, diamontRequirementAmount, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes);
+            var promotionRequirement1 = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, diamontRequirementAmount, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes, true);
             var promotionRequirement2 = PromoReq.CreateOrderRequirement("test", Operator.Equal_Or_Larger, expectedOrderPriceRequirement);
 
             var promotionGift = Gift.CreateOrder("test", UnitType.Fix_Price, giftOrderAmountReduced);//Gift.CreateDiamond("test", null, UnitType.Percent, 20, 1, shapesIds, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excelent, Color.I, Color.D);
@@ -284,7 +285,7 @@ namespace DiamondShop.Test.Domain
             var expectedOrderFinalPrice = diamond1Price;
             //var expectedDiamondFinalPrice = diamond1Price + diamond2Price - giftODiamondAmountReduced;
 
-            var promotionRequirement1 = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, diamontRequirementAmount, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes);
+            var promotionRequirement1 = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, diamontRequirementAmount, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes, true);
             var promotionRequirement2 = PromoReq.CreateOrderRequirement("test", Operator.Equal_Or_Larger, expectedOrderPriceRequirement);
 
             var promotionGift = Gift.CreateDiamond("test", null, UnitType.Fix_Price, giftODiamondAmountReduced, 1, shapesIds, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D);
@@ -342,7 +343,7 @@ namespace DiamondShop.Test.Domain
             var diamond2PriceExpected = diamond2Price - maxAmount;
             //var expectedDiamondFinalPrice = diamond1Price + diamond2Price - giftODiamondAmountReduced;
 
-            var promotionRequirement1 = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, diamontRequirementAmount, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes);
+            var promotionRequirement1 = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, diamontRequirementAmount, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes, true);
             //var promotionRequirement2 = PromoReq.CreateOrderRequirement("test", Operator.Equal_Or_Larger, expectedOrderPriceRequirement);
 
             var promotionGift = Gift.CreateDiamond("test", null, UnitType.Percent, percent, 1, shapesIds, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D);
@@ -396,7 +397,7 @@ namespace DiamondShop.Test.Domain
             };
             var giftAmount = 4;
             var shapesIds = _diamondShapes.Select(s => s.Id).ToList();
-            var promotionRequirement = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, 1, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes);
+            var promotionRequirement = PromoReq.CreateDiamondRequirement("test", Operator.Equal_Or_Larger, false, null, 1, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D, _diamondShapes, true);
             var promotionGift = Gift.CreateDiamond("test", null, UnitType.Percent, 20, giftAmount, shapesIds, DiamondOrigin.Lab, 0, 10, Clarity.S12, Clarity.FL, Cut.Good, Cut.Excellent, Color.I, Color.D);
             var promotion = Promotion.Create("test", "test", "test", DateTime.UtcNow, DateTime.UtcNow.AddDays(50), 1, true, RedemptionMode.Single);
             promotionRequirement.PromotionId = promotion.Id;
