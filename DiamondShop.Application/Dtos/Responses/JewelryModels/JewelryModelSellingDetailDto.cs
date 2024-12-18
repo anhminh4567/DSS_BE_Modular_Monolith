@@ -7,6 +7,7 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
     public class JewelryModelSellingDetailDto
     {
         public string Id { get; set; }
+        public string Unit { get; set; }
         public string Name { get; set; }
         public string Category { get; set; }
         public float? Width { get; set; }
@@ -36,7 +37,6 @@ namespace DiamondShop.Application.Dtos.Responses.JewelryModels
     public class SellingDetailSizeDto
     {
         public float Size { get; set; }
-        public string Unit { get; set; }
         public decimal Price { get; set; }
         public decimal SalePrice { get; set; }
         public bool IsInStock { get; set; }
