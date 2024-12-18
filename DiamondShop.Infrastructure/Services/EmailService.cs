@@ -132,7 +132,7 @@ namespace DiamondShop.Infrastructure.Services
             }
         }
 
-        public async Task<Result> SendOrderPreparedEmail(Order order, Account account, DateTime completeeDate, CancellationToken cancellationToken = default)
+        public async Task<Result> SendOrderPreparedEmail(Order order, Account account, decimal totalAmountLeftToPay, DateTime completeeDate, CancellationToken cancellationToken = default)
         {
             var getOrderPreparedEmail = Path.Combine(Directory.GetCurrentDirectory(), "RazorTemplate", "EmailTemplate", OrderPreparedEmailFileName);
             if (getOrderPreparedEmail == null)

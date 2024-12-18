@@ -134,7 +134,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Proceed
                 order.Status = OrderStatus.Prepared;
                 order.FinishPreparedDate = DateTime.UtcNow;
                 var log = OrderLog.CreateByChangeStatus(order, OrderStatus.Prepared);
-                _emailService.SendOrderPreparedEmail(order, account, order.FinishPreparedDate.Value);
+                var totalTransAmount = order.Transactions.Where(x => x.TransactionType == TransactionType.Pay)//|| x.TransactionType == TransactionType.Pay_Remain
+                .Sum(x => x.TransactionAmount);
+                _ = _emailService.SendOrderPreparedEmail(order, account, totalTransAmount, order.FinishPreparedDate.Value);
                 await _orderLogRepository.Create(log);
             }
             else if (order.Status == OrderStatus.Prepared)

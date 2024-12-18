@@ -412,7 +412,7 @@ namespace DiamondShopSystem.Controllers
             order.Items.Add(OrderItem.Create(order.Id, "", null, DiamondId.Parse("1"), 25_000_000, 20_000_000, null, null, null, 0));
             order.Items.Add(OrderItem.Create(order.Id, "", JewelryId.Parse("2"), null, 25_000_000, 20_000_000, null, null, null, 0));
 
-            await _emailService.SendOrderPreparedEmail(order, account, DateTime.UtcNow);
+            await _emailService.SendOrderPreparedEmail(order, account,0, DateTime.UtcNow);
 
             //HttpContext.Response.Headers.ContentType = "text/html; charset=utf-8";
             return Ok();
