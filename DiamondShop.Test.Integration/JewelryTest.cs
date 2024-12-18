@@ -1,11 +1,19 @@
 ﻿using DiamondShop.Application.Dtos.Requests.Jewelries;
 using DiamondShop.Application.Usecases.Jewelries.Commands.Create;
 using DiamondShop.Application.Usecases.Jewelries.Commands.Delete;
+using DiamondShop.Application.Usecases.JewelryModels.Commands.Delete;
+using DiamondShop.Domain.Common.Enums;
 using DiamondShop.Domain.Models.Diamonds;
 using DiamondShop.Domain.Models.Jewelries;
+using DiamondShop.Domain.Models.JewelryModels;
+using DiamondShop.Domain.Models.JewelryModels.ErrorMessages;
+using DiamondShop.Domain.Repositories.JewelryModelRepo;
+using DiamondShop.Domain.Repositories.JewelryRepo;
 using DiamondShop.Test.Integration.Data;
 using FluentResults;
+using HtmlAgilityPack.CssSelectors.NetCore;
 using Microsoft.EntityFrameworkCore;
+using OpenQA.Selenium.BiDi.Modules.BrowsingContext;
 using Xunit.Abstractions;
 
 namespace DiamondShop.Test.Integration
@@ -186,6 +194,39 @@ namespace DiamondShop.Test.Integration
             var jewelryAfter = await _context.Set<Jewelry>().ToListAsync();
             foreach (var jewelry in jewelryAfter)
                 _output.WriteLine(jewelry.SerialCode);
+        }
+        [Trait("ReturnTrue", "DeleteJewelryStillCreateNewOne")]
+        [Fact]
+        public async Task Delete_Jewelry_Model()
+        {
+            var model = await TestData.SeedNoDiamondRingModel(_context);
+            _output.WriteLine(model.Id.Value);
+            var jewelryReq = new JewelryRequestDto(model.Id.Value, TestData.SizeIds[0].Value, TestData.MetalIds[0].Value, null, Domain.Common.Enums.ProductStatus.Sold);
+            for (int i = 0; i < 3; i++)
+            {
+                var createResult = await _sender.Send(new CreateJewelryCommand(jewelryReq, null, null));
+                if (createResult.IsFailed)
+                {
+                    _output.WriteLine(createResult.Errors[0].Message);
+                }
+                Assert.True(createResult.IsSuccess);
+            }
+            var isExistingFlag = await _context.Set<Jewelry>().Where(p => p.Status != ProductStatus.Sold && p.ModelId == model.Id).AnyAsync();
+            Assert.False(isExistingFlag);
+            _context.Set<JewelryModel>().Remove(model);
+            await _context.SaveChangesAsync();
+            var models = await _context.Set<JewelryModel>().ToListAsync();
+            _output.WriteLine(models.Count().ToString());
+            foreach (var modelOne in models)
+            {
+                _output.WriteLine($"{modelOne.Id.Value}");
+            }
+            var jewelries = await _context.Set<Jewelry>().ToListAsync();
+            foreach(var jewelry in jewelries)
+            {
+                _output.WriteLine($"{jewelry.Id.Value} {jewelry.SerialCode} {jewelry.ModelId}");
+            }
+            Assert.NotNull(jewelries);
         }
     }
 }
