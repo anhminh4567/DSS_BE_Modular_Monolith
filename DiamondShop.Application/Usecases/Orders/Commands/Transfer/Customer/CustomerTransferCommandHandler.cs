@@ -2,6 +2,7 @@
 using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Transfers;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
 using DiamondShop.Domain.Models.Orders.Enum;
@@ -17,6 +18,7 @@ using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace DiamondShop.Application.Usecases.Orders.Commands.Transfer.Customer
 {
@@ -30,8 +32,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Transfer.Customer
         private readonly IOrderTransactionService _orderTransactionService;
         private readonly IOrderService _orderService;
         private readonly ITransferFileService _transferFileService;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public CustomerTransferCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderLogRepository orderLogRepository, IOrderTransactionService orderTransactionService, ITransactionRepository transactionRepository, ITransferFileService transferFileService)
+        public CustomerTransferCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IOrderLogRepository orderLogRepository, IOrderTransactionService orderTransactionService, ITransactionRepository transactionRepository, ITransferFileService transferFileService, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
@@ -40,10 +43,12 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Transfer.Customer
             _orderTransactionService = orderTransactionService;
             _transactionRepository = transactionRepository;
             _transferFileService = transferFileService;
+            _optionsMonitor = optionsMonitor;
         }
 
         public async Task<Result<Order>> Handle(CustomerTransferCommand request, CancellationToken token)
         {
+            var shopRule = _optionsMonitor.CurrentValue.ShopBankAccountRules;
             request.Deconstruct(out string accountId, out TransferVerifyRequestDto transferSubmitRequestDto);
             transferSubmitRequestDto.Deconstruct(out string orderId, out IFormFile evidence);
             await _unitOfWork.BeginTransactionAsync(token);
@@ -60,7 +65,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Transfer.Customer
                 return Result.Fail(TransactionErrors.TransactionExistError);
             var payAmount = order.PaymentType == PaymentType.Payall ? order.TotalPrice : order.DepositFee;
 
-            var manualPayment = Transaction.CreateManualPayment(order.Id, $"{(order.PaymentType == PaymentType.Payall ? "Trả hết" : "Cọc trước")} từ khách hàng {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", payAmount, TransactionType.Pay);
+            var manualPayment = Transaction.CreateManualPayment(order.Id, shopRule.BankName, shopRule.AccountName, $"{(order.PaymentType == PaymentType.Payall ? "Trả hết" : "Cọc trước")} từ khách hàng {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", payAmount, TransactionType.Pay);
             await _transactionRepository.Create(manualPayment, token);
             await _unitOfWork.SaveChangesAsync(token);
             //add evidence to blob

@@ -66,7 +66,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Transfer.Staff
             if(chosenMethod == null)
                 return Result.Fail(TransactionErrors.PaymentMethodErrors.NotFoundError);
             var payAmount = _orderTransactionService.GetCorrectAmountFromOrder(order);
-            var manualPayment = Transaction.CreateManualPayment(order.Id, $"Chuyển tiền còn lại từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", payAmount, TransactionType.Pay);
+            var manualPayment = Transaction.CreateManualPayment(order.Id, "ACB", "NGUYENVANA", $"Chuyển tiền còn lại từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", payAmount, TransactionType.Pay);
             _transactionRepository.Create(manualPayment, token).Wait();
             await _unitOfWork.SaveChangesAsync();
            // await _unitOfWork.BeginTransactionAsync(token);

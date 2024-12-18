@@ -170,7 +170,7 @@ namespace DiamondShop.Domain.Services.Implementations
                     order.TotalFine = 0;//+= totalPaid - refundAmount;
                     finedAmount = 0;//refundAmount - totalPaid;
                 }
-                var transac = Transaction.CreateManualRefund(order.Id, VerifierId, TransactionCode, $"Manual refund for order#{order.OrderCode}", refundAmount);
+                var transac = Transaction.CreateManualRefund(order.Id, "ACB", "NGUYENVANA", VerifierId, TransactionCode, $"Manual refund for order#{order.OrderCode}", refundAmount);
                 order.AddRefund(transac);
             }
             else
@@ -216,7 +216,7 @@ namespace DiamondShop.Domain.Services.Implementations
                     finedAmount = 0;
                     //finedAmount = -(refundAmount - totalPaid);
                 }
-                var transac = Transaction.CreateManualRefund(order.Id, VerifierId, TransactionCode, $"hoàn tiền cho đơn hàng mã #{order.OrderCode}", refundAmount);
+                var transac = Transaction.CreateManualRefund(order.Id, "ACB", "NGUYENVANA", VerifierId, TransactionCode, $"hoàn tiền cho đơn hàng mã #{order.OrderCode}", refundAmount);
                 order.AddRefund(transac);
                 if (transac.TransactionAmount == 0)
                 {
@@ -240,7 +240,7 @@ namespace DiamondShop.Domain.Services.Implementations
             var remainAmount = order.TotalPrice - transaction.TotalAmount;
             if (transaction.IsManual)
             {
-                var transac = Transaction.CreateManualPayment(order.Id, $"trả phần còn lại cho đơn hàng mã #{order.OrderCode}", remainAmount, TransactionType.Pay);
+                var transac = Transaction.CreateManualPayment(order.Id, "ACB", "NGUYENVANA", $"trả phần còn lại cho đơn hàng mã #{order.OrderCode}", remainAmount, TransactionType.Pay);
                 order.AddTransaction(transac);
                 order.PaymentStatus = PaymentStatus.Paid;
             }

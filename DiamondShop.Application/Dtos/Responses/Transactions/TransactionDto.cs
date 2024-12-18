@@ -33,6 +33,8 @@ namespace DiamondShop.Application.Dtos.Responses.Transactions
         public string? RefundedTransacId { get; set; }
         public TransactionDto? RefundedTransaction { get; set; }
         public List<OrderDto> Orders { get; set; } = new();
+        public string? ShopBank { get; set; }
+        public string? ShopAccount { get; set; }
 
     }
 }

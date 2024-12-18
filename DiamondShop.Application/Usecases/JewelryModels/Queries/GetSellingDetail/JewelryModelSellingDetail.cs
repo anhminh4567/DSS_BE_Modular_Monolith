@@ -104,14 +104,16 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
     public class SellingDetailSize
     {
         public float Size { get; set; }
+        public string Unit { get; set; }
         public decimal Price { get; set; }
         public decimal SalePrice { get; set; } = 0;
         public bool IsInStock { get; set; }
-        public static SellingDetailSize Create(float sizeValue, decimal Price, bool isInStock)
+        public static SellingDetailSize Create(float sizeValue, string unit, decimal Price, bool isInStock)
         {
             return new SellingDetailSize
             {
                 Size = sizeValue,
+                Unit = unit,
                 Price = Price,
                 IsInStock = isInStock
             };
