@@ -83,7 +83,7 @@ namespace DiamondShop.Domain.Models.Transactions
                 Status = TransactionStatus.Valid
             };
         }
-        public static Transaction CreateManualPayment(OrderId orderId, string description, decimal amount, TransactionType type)
+        public static Transaction CreateManualPayment(OrderId orderId, string shopbank, string shopaccount, string description, decimal amount, TransactionType type)
         {
             return new Transaction
             {
@@ -97,9 +97,11 @@ namespace DiamondShop.Domain.Models.Transactions
                 IsManual = true,
                 Status = TransactionStatus.Verifying,
                 TimeStamp = DateTime.UtcNow.ToString(TransactionRule.TransactionTimeStamp),
+                ShopBank = shopbank,
+                ShopAccount = shopaccount
             };
         }
-        public static Transaction CreateManualRefund(OrderId orderId, AccountId verifierId, string transactionCode, string description, decimal amount)
+        public static Transaction CreateManualRefund(OrderId orderId, string shopbank, string shopaccount, AccountId verifierId, string transactionCode, string description, decimal amount)
         {
             var dateTimeNow = DateTime.UtcNow;
             return new Transaction
@@ -116,7 +118,9 @@ namespace DiamondShop.Domain.Models.Transactions
                 TimeStamp = dateTimeNow.ToString(TransactionRule.TransactionTimeStamp),
                 //FineAmount = finedAmount,
                 IsManual = true,
-                Status = TransactionStatus.Valid
+                Status = TransactionStatus.Valid,
+                ShopBank = shopbank,
+                ShopAccount = shopaccount
             };
         }
 

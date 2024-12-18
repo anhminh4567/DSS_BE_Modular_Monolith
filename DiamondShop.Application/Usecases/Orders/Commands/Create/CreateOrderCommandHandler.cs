@@ -307,7 +307,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Create
             {
 
                 var getorder = await _orderRepository.GetById(order.Id);
-                var manualPayment = Transaction.CreateManualPayment(getorder.Id,"giao dịch 0 đồng cho đơn 0 đồng", getorder.TotalPrice, Domain.Models.Transactions.Enum.TransactionType.Pay);
+                var manualPayment = Transaction.CreateManualPayment(getorder.Id, "ACB", "NGUYENVANA", "giao dịch 0 đồng cho đơn 0 đồng", getorder.TotalPrice, Domain.Models.Transactions.Enum.TransactionType.Pay);
                 
                 manualPayment.Status = TransactionStatus.Valid;
                 manualPayment.VerifiedDate = DateTime.UtcNow;
