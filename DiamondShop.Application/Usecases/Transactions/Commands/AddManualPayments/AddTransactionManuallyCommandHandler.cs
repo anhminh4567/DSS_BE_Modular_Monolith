@@ -76,10 +76,10 @@ namespace DiamondShop.Application.Usecases.Transactions.Commands.AddManualPaymen
             {
                 case PaymentType.Payall:
                     amountToCreate = _orderTransactionService.GetFullPaymentValueForOrder(order);
-                    return Transaction.CreateManualPayment(order.Id, request.description, amountToCreate, TransactionType.Pay);
+                    return Transaction.CreateManualPayment(order.Id, "ACB", "NGUYENVANA", request.description, amountToCreate, TransactionType.Pay);
                 case PaymentType.COD:
                     amountToCreate = _orderTransactionService.GetCODValueForOrder(order);
-                    return Transaction.CreateManualPayment(order.Id, request.description, amountToCreate, TransactionType.Pay);
+                    return Transaction.CreateManualPayment(order.Id, "ACB", "NGUYENVANA", request.description, amountToCreate, TransactionType.Pay);
                 default:
                     throw new Exception("Không rõ loại giao dịch");
             }
@@ -91,10 +91,10 @@ namespace DiamondShop.Application.Usecases.Transactions.Commands.AddManualPaymen
             {
                 case PaymentType.Payall:
                     amountToCreate = _orderTransactionService.GetFullPaymentValueForOrder(order);
-                    return Transaction.CreateManualPayment(order.Id, request.description, amountToCreate, TransactionType.Pay);
+                    return Transaction.CreateManualPayment(order.Id, "ACB", "NGUYENVANA", request.description, amountToCreate, TransactionType.Pay);
                 case PaymentType.COD:
                     amountToCreate = _orderTransactionService.GetDepositValueForOrder(order);
-                    return Transaction.CreateManualPayment(order.Id, request.description, amountToCreate, TransactionType.Pay);
+                    return Transaction.CreateManualPayment(order.Id, "ACB", "NGUYENVANA", request.description, amountToCreate, TransactionType.Pay);
                 default:
                     throw new Exception("unidentified payment Type");
             }

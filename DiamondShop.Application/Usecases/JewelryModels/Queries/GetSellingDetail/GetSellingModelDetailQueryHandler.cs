@@ -64,7 +64,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
                             SellingDetailMetal.CreateWithSide(
                                 model.Name, metals.Key, side.TotalPrice > 0, side, sideDiamondImages,
                                 metals.Select(k =>
-                                SellingDetailSize.Create(k.Size.Value, side.TotalPrice != null ? side.TotalPrice + model.CraftmanFee + k.Price : 0, sizesInStock.Contains(k.SizeId))).ToList()
+                                SellingDetailSize.Create(k.Size.Value, k.Size.Unit, side.TotalPrice != null ? side.TotalPrice + model.CraftmanFee + k.Price : 0, sizesInStock.Contains(k.SizeId))).ToList()
                             ));
                     };
                 }
@@ -75,7 +75,7 @@ namespace DiamondShop.Application.Usecases.JewelryModels.Queries.GetSellingDetai
                     metalGroups.Add(
                         SellingDetailMetal.CreateNoSide(
                             model.Name, metals.Key, images,
-                            metals.Select(p => SellingDetailSize.Create(p.Size.Value, p.Price + model.CraftmanFee, sizesInStock.Contains(p.SizeId))).ToList()
+                            metals.Select(p => SellingDetailSize.Create(p.Size.Value, p.Size.Unit, p.Price + model.CraftmanFee, sizesInStock.Contains(p.SizeId))).ToList()
                         ));
                 }
             }

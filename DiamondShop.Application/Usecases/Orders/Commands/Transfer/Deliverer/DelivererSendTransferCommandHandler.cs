@@ -61,7 +61,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Transfer.Deliverer
                 return Result.Fail(TransactionErrors.TransactionExistError);
             //remaing amount
             var payAmount = order.TotalPrice - order.DepositFee;
-            var manualPayment = Transaction.CreateManualPayment(order.Id, $"Chuyển tiền còn lại từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", payAmount, TransactionType.Pay);
+            var manualPayment = Transaction.CreateManualPayment(order.Id, "ACB", "NGUYENVANA", $"Chuyển tiền còn lại từ tài khoản {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng {order.OrderCode}", payAmount, TransactionType.Pay);
             await _transactionRepository.Create(manualPayment, token);
             await _unitOfWork.SaveChangesAsync(token);
             //add evidence to blob

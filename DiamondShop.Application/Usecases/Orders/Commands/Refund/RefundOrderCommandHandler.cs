@@ -3,6 +3,7 @@ using DiamondShop.Application.Dtos.Requests.Orders;
 using DiamondShop.Application.Services.Interfaces;
 using DiamondShop.Application.Services.Interfaces.Transfers;
 using DiamondShop.Domain.BusinessRules;
+using DiamondShop.Domain.Common;
 using DiamondShop.Domain.Common.ValueObjects;
 using DiamondShop.Domain.Models.AccountAggregate.ValueObjects;
 using DiamondShop.Domain.Models.Orders;
@@ -19,6 +20,7 @@ using DiamondShop.Domain.Services.interfaces;
 using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -39,8 +41,9 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Refund
         private readonly IOrderLogRepository _orderLogRepository;
         private readonly IOrderService _orderService;
         private readonly ITransferFileService _transferFileService;
+        private readonly IOptionsMonitor<ApplicationSettingGlobal> _optionsMonitor;
 
-        public RefundOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository, IOrderService orderService, ITransactionRepository transactionRepository, ITransferFileService transferFileService)
+        public RefundOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderTransactionService orderTransactionService, IOrderLogRepository orderLogRepository, IOrderService orderService, ITransactionRepository transactionRepository, ITransferFileService transferFileService, IOptionsMonitor<ApplicationSettingGlobal> optionsMonitor)
         {
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
@@ -49,10 +52,12 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Refund
             _orderService = orderService;
             _transactionRepository = transactionRepository;
             _transferFileService = transferFileService;
+            _optionsMonitor = optionsMonitor;
         }
 
         public async Task<Result<Order>> Handle(RefundOrderCommand request, CancellationToken token)
         {
+            var shopRule = _optionsMonitor.CurrentValue.ShopBankAccountRules;
             request.Deconstruct(out string accountId, out RefundConfirmRequestDto refundConfirmRequestDto);
             refundConfirmRequestDto.Deconstruct(out string orderId, out decimal amount, out string transactionCode, out IFormFile evidence);
             await _unitOfWork.BeginTransactionAsync(token);
@@ -84,7 +89,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Refund
                 }
                 if (refundAmount != amount)
                     return Result.Fail(TransactionErrors.TransactionNotValid);
-                var refundPayment = Transaction.CreateManualRefund(order.Id, AccountId.Parse(accountId), transactionCode, $"Hoàn tiền đến khách hàng {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng ${order.OrderCode}", refundAmount);
+                var refundPayment = Transaction.CreateManualRefund(order.Id, shopRule.BankName, shopRule.AccountName, AccountId.Parse(accountId), transactionCode, $"Hoàn tiền đến khách hàng {order.Account?.FullName.FirstName} {order.Account?.FullName.LastName} cho đơn hàng ${order.OrderCode}", refundAmount);
                 await _transactionRepository.Create(refundPayment);
                 await _unitOfWork.SaveChangesAsync(token);
                 var uploadResult = await _transferFileService.UploadTransferImage(refundPayment, new FileData(evidence.FileName, null, evidence.ContentType, evidence.OpenReadStream()));
