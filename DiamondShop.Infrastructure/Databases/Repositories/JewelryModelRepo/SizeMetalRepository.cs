@@ -15,7 +15,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryModelRepo
         }
         public override async Task<SizeMetal?> GetById(params object[] ids)
         {
-            return await _set.FirstOrDefaultAsync(p => p.ModelId == (JewelryModelId)ids[0] && p.MetalId == (MetalId)ids[1] && p.SizeId == (SizeId)ids[2]);
+            return await _set.Include(p => p.Size).FirstOrDefaultAsync(p => p.ModelId == (JewelryModelId)ids[0] && p.MetalId == (MetalId)ids[1] && p.SizeId == (SizeId)ids[2]);
         }
         public async Task CreateRange(List<SizeMetal> sizeMetalList, CancellationToken token) => await _set.AddRangeAsync(sizeMetalList, token);
 

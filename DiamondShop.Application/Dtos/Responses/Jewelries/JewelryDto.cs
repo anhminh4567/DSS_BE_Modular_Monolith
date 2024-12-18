@@ -22,7 +22,7 @@ namespace DiamondShop.Application.Dtos.Responses.Jewelries
         public ProductStatus Status { get; set; }
         public DateTime ShippingDate { get; set; }
         public List<DiamondDto> Diamonds { get; set; } = new();
-        public JewelrySideDiamondDto? SideDiamond { get; set; } = new();
+        public JewelrySideDiamondDto? SideDiamond { get; set; }
         public string ReviewId { get; set; }
         public JewelryReviewDto? Review { get; set; }
         public Media Thumbnail { get; set; }

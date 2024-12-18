@@ -64,10 +64,10 @@ namespace DiamondShop.Domain.Services.Implementations
                             req.Quantity++;
                         }
                         else
-                            errors.Add(JewelryModelErrors.MainDiamond.MismatchCaratError(index));
+                            errors.Add(JewelryModelErrors.MainDiamond.MismatchCaratError(index+1));
                     }
                     else
-                        errors.Add(JewelryModelErrors.MainDiamond.MismatchShapeError(index));
+                        errors.Add(JewelryModelErrors.MainDiamond.MismatchShapeError(index+1));
                 }
             }
             return Result.Fail(errors);
@@ -118,10 +118,10 @@ namespace DiamondShop.Domain.Services.Implementations
                             req.Quantity++;
                         }
                         else
-                            errors.Add(JewelryModelErrors.MainDiamond.MismatchCaratError(index));
+                            errors.Add(JewelryModelErrors.MainDiamond.MismatchCaratError(index+1));
                     }
                     else
-                        errors.Add(JewelryModelErrors.MainDiamond.MismatchShapeError(index));
+                        errors.Add(JewelryModelErrors.MainDiamond.MismatchShapeError(index+1));
                 }
             }
             return Result.Fail(errors);

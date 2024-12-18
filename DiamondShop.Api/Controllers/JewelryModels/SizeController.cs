@@ -22,8 +22,9 @@ namespace DiamondShop.Api.Controllers.JewelryModels
         public async Task<ActionResult> GetAll()
         {
             var result = await _sender.Send(new GetAllSizeQuery());
-            var mappedResult = _mapper.Map<List<SizeDto>>(result);
+            var mappedResult = _mapper.Map<List<SizeGroupDto>>(result);
             return Ok(mappedResult);
         }
+        public record SizeGroupDto(string Unit, List<SizeDto> Sizes);
     }
 }

@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 
 namespace DiamondShop.Application.Usecases.Sizes.Queries.GetAll
 {
-    public record GetAllSizeQuery() : IRequest<List<Size>>;
-    internal class GetAllSizeQueryHandler : IRequestHandler<GetAllSizeQuery, List<Size>>
+    public record GetAllSizeQuery() : IRequest<List<SizeGroup>>;
+    internal class GetAllSizeQueryHandler : IRequestHandler<GetAllSizeQuery, List<SizeGroup>>
     {
         private readonly ISizeRepository _sizeRepository;
 
@@ -19,14 +19,20 @@ namespace DiamondShop.Application.Usecases.Sizes.Queries.GetAll
         {
             _sizeRepository = sizeRepository;
         }
-        public async Task<List<Size>> Handle(GetAllSizeQuery request, CancellationToken cancellationToken)
+        public async Task<List<SizeGroup>> Handle(GetAllSizeQuery request, CancellationToken cancellationToken)
         {
             var query = _sizeRepository.GetQuery();
-            var list =query
+            var list = query
                 .OrderBy(x => x.Unit == Size.Milimeter ? 0 : x.Unit == Size.Centimeter ? 1 : 2)
-                .ThenBy(x => x.Value)
-                .ToList();
-            return list;
+                .ThenBy(x => x.Value).ToList();
+            var groups = list.GroupBy(x => x.Unit);
+            var result = new List<SizeGroup>();
+            foreach(var group in groups)
+            {
+                result.Add(new SizeGroup(group.Key, group.ToList()));
+            }
+            return result;
         }
     }
+    public record SizeGroup(string Unit, List<Size> Sizes);
 }

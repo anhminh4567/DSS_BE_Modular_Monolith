@@ -27,6 +27,7 @@ namespace DiamondShop.Infrastructure.Databases.Repositories.JewelryRepo
             return await _set.Include(d => d.SideDiamond)
                 .Include(d => d.Diamonds)
                 .ThenInclude(d => d.DiamondShape)
+                .Include(d => d.Size)
                 .Include(d => d.Model).FirstOrDefaultAsync(d => d.Id == id);
         }
         public Task<List<Jewelry>> GetJewelry(JewelryModelId jewelryModelId)
