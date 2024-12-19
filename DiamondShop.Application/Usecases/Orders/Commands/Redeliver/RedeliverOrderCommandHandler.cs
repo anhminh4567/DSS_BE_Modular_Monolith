@@ -48,7 +48,7 @@ namespace DiamondShop.Application.Usecases.Orders.Commands.Redeliver
                 return Result.Fail(OrderErrors.OrderNotFoundError);
             else if (order.HasDelivererReturned is false)
                 return Result.Fail(OrderErrors.DelivererHasNotReturnedError);
-            else if (order.ShipFailedCount > orderRule.MaxRedelivery)
+            else if (order.ShipFailedCount >= orderRule.MaxRedelivery)
                 return Result.Fail(OrderErrors.MaxRedeliveryError);
             var transactions = await _transactionRepository.GetByOrderId(order.Id);
             if (transactions != null)
