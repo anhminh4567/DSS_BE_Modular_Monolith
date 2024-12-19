@@ -65,6 +65,8 @@ namespace DiamondShop.Application.Usecases.CustomizeRequests.Queries.GetDetail
             if (customizeRequest.Status == CustomizeRequestStatus.Accepted)
             {
                 var jewelry = customizeRequest.Jewelry;
+                if(customizeRequest.Order != null && customizeRequest.JewelryId == null)
+                    return customizeRequest;
                 if (jewelry == null)
                     return Result.Fail(JewelryErrors.JewelryNotFoundError);
                 if (sizeMetal == null)
