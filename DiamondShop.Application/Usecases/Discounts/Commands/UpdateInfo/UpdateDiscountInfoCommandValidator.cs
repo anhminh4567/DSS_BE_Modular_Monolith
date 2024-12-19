@@ -13,7 +13,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.UpdateInfo
                     .WithNotEmptyMessage();
             When(x => x.discountPercent != null,() =>
             {
-                RuleFor(x => x.discountPercent).InclusiveBetween(1, 100);
+                RuleFor(x => x.discountPercent).InclusiveBetween(1, 90);
             });
             //When(x => x.UpdateStartEndDate != null, () =>
             //{

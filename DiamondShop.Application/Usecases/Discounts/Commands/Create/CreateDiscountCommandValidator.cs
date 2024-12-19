@@ -19,7 +19,7 @@ namespace DiamondShop.Application.Usecases.Discounts.Commands.Create
                     .WithNotEmptyMessage()
                 .GreaterThanOrEqualTo(1)
                     .WithGreaterThanOrEqualMessage()
-                .LessThan(100)
+                .LessThan(90)
                     .WithLessThanMessage();
             RuleFor(x => x.startDate).NotEmpty()
                 .Must(DateTimeUtil.BeAValidDate);

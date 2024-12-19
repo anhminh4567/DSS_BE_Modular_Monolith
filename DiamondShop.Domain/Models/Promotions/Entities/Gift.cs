@@ -117,7 +117,10 @@ namespace DiamondShop.Domain.Models.Promotions.Entities
         {
             if (UnitType == UnitType.Fix_Price)
                 throw new Exception("không thể set giá max cho lại gift là tiền, phần trăm mới được max price");
+            if (maxAmount < 1000)
+                throw new Exception("giá trị max phải lớn hơn 1000");
             MaxAmout = maxAmount;
+
         }
         public Gift() { }
     }
