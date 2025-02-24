@@ -15,7 +15,7 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         public LimitDto Cut { get; set; } = new();
         public LimitDto Polish { get; set; } = new();
         public LimitDto Symmetry { get; set; } = new();
-        public LimitFloatDto Price { get; set; } = new() 
+        public LimitLongDto Price { get; set; } = new() 
         {
             Min = 1000,
             Max = 20_000_000_000,
@@ -24,6 +24,11 @@ namespace DiamondShop.Application.Dtos.Responses.Diamonds
         {
             public float Min { get; set; } = 0;
             public float Max { get; set; } = 0;
+        }
+        public class LimitLongDto
+        {
+            public long Min { get; set; } = 0;
+            public long Max { get; set; } = 0;
         }
         public class LimitDto
         {

@@ -213,13 +213,13 @@ namespace DiamondShop.Api.Controllers.Accounts
             return Ok(mappedResult);
         }
 
-
-        [HttpGet("{accountId}")]
+        [HttpGet("null")]
+        [HttpGet("{accountId?}")]
         [ProducesResponseType(typeof(AccountDto), 200)]
         //[Authorize]
-        public async Task<ActionResult> GetDetail([FromRoute] string accountId, CancellationToken cancellationToken = default)
+        public async Task<ActionResult> GetDetail(string? accountId = null, CancellationToken cancellationToken = default)
         {
-            var result = await _sender.Send(new GetAccountDetailQuery(AccountId.Parse(accountId)), cancellationToken);
+            var result = await _sender.Send(new GetAccountDetailQuery(accountId is null ? null : AccountId.Parse(accountId)), cancellationToken);
             if (result.IsSuccess)
             {
                 var mappedResult = _mapper.Map<AccountDto>(result.Value);

@@ -61,6 +61,12 @@ public class Program
                 policy.AllowAnyMethod();
                 policy.AllowAnyHeader();
             });
+            setup.AddPolicy("localreactapp", policy =>
+            {
+                policy.WithOrigins("http://localhost:5173", "http://localhost:3001", "http://localhost:3002").AllowCredentials();
+                policy.AllowAnyMethod();
+                policy.AllowAnyHeader();
+            });
         });
 
         builder.Services.AddInfrastructure(builder.Configuration);
@@ -81,7 +87,9 @@ public class Program
         }
         app.UseSwagger();
         app.UseSwaggerUI();
-        app.UseCors();
+//        app.UseCors();
+        app.UseCors("localreactapp");
+
         app.UseMiddleware<CustomExeptionHandlerMiddleware>();
 
         app.UseAuthentication();

@@ -117,8 +117,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
                     TotalPage: skutotalPage,
                     CurrentPage: request.start,
                     Values: skuList,
-                    totalCount: skuTotalCount,
-                    totalTake: skuList.Count);
+                    TotalCount: skuTotalCount,
+                    TotalTake: skuList.Count);
                 }
             }
             var resultQuery = await _diamondRepository.FilteringPrice(query, diamond_4C, request.priceStart, request.priceEnd);
@@ -146,8 +146,8 @@ namespace DiamondShop.Application.Usecases.Diamonds.Queries.GetPaging
                 TotalPage: totalPage,
                 CurrentPage: request.start,
                 Values: returnList,
-                totalCount: totalCount,
-                totalTake: getCount);
+                TotalCount: totalCount,
+                TotalTake: getCount);
             return response;
             throw new NotImplementedException();
         }
