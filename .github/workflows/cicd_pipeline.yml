@@ -20,12 +20,14 @@ permissions:
 env:
   AZURE_WEBAPP_NAME_PRODUCTION: Diamondshop
   AZURE_WEBAPP_NAME_DEV: devdiamondshop
-  AZURE_WEBAPP_PACKAGE_PATH: DiamondShop.Api/publish
+  # AZURE_WEBAPP_PACKAGE_PATH: DiamondShop.Api/publish
+  WEBAPP_PACKAGE_PATH: DiamondShop.Api/publish
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 8.0.x
   WORKING_DIRECTORY: DiamondShop.Api
   SOLUTION_PATH: DiamondShopSystem.sln
-  TEST_DIRECTORY: DiamondShop.Test.General
+  TEST_DIRECTORY: DiamondShop.Test.Integration
+  TEST_CLASS_TO_RUN : OrderTest
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -48,61 +50,68 @@ jobs:
     - name: Build
       run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
     - name: Test
-      run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
+      run:
+        echo "using XUnit as test framework"
+        dotnet test --filter "DisplayName~${{ env.TEST_CLASS_TO_RUN }}" --logger "trx;logfilename=TestResult.trx" "${{ env.TEST_DIRECTORY }}"  --no-build
     - name: Publish
-      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.WEBAPP_PACKAGE_PATH }}"
     - name: Publish Artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: webapp
-        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        name: diamondshopwebapp
+        path: ${{ env.WEBAPP_PACKAGE_PATH }}
+        retention-days: 1
+        
+        
   deploy:
     runs-on: ubuntu-latest
     needs: build
     environment: ${{ inputs.environment_to_deploy }} 
     if: ${{ inputs.deploy_or_not }}
     steps:
-    - name: Download artifact from build job
-      uses: actions/download-artifact@v3
-      with:
-        name: webapp
-        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-    - name: Azure Login
-      uses: Azure/login@v2.2.0
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id:  ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    - name: Azure CLI script
-      uses: Azure/cli@v2.1.0
-      with:
-        azcliversion: latest
-        inlineScript: |
-            az account show
+    - name: Do some stuff later
+      run : echo "deploy pipeline have not been setup yet"
+    # - name: Download artifact from build job
+    #   uses: actions/download-artifact@v3
+    #   with:
+    #     name: webapp
+    #     path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+    # - name: Azure Login
+    #   uses: Azure/login@v2.2.0
+    #   with:
+    #     client-id: ${{ secrets.AZURE_CLIENT_ID }}
+    #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+    #     subscription-id:  ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    # - name: Azure CLI script
+    #   uses: Azure/cli@v2.1.0
+    #   with:
+    #     azcliversion: latest
+    #     inlineScript: |
+    #         az account show
     
-    - name: 'Set ASPNETCORE_ENVIRONMENT for Development' #${{ inputs.environment_to_deploy }}
-      if: ${{ inputs.environment_to_deploy == 'Development' }}
-      run: |
-          az webapp config appsettings set --name '${{ env.AZURE_WEBAPP_NAME_DEV }}' --resource-group '${{ secrets.RESOURCE_GROUP }}' --settings "ASPNETCORE_ENVIRONMENT=Development"
-    - name: 'Set ASPNETCORE_ENVIRONMENT for Production' #${{ inputs.environment_to_deploy }}
-      if: ${{ inputs.environment_to_deploy == 'Production' }}
-      run: |
-          az webapp config appsettings set --name '${{ env.AZURE_WEBAPP_NAME_PRODUCTION }}' --resource-group '${{ secrets.RESOURCE_GROUP }}' --settings "ASPNETCORE_ENVIRONMENT=Production"
+    # - name: 'Set ASPNETCORE_ENVIRONMENT for Development' #${{ inputs.environment_to_deploy }}
+    #   if: ${{ inputs.environment_to_deploy == 'Development' }}
+    #   run: |
+    #       az webapp config appsettings set --name '${{ env.AZURE_WEBAPP_NAME_DEV }}' --resource-group '${{ secrets.RESOURCE_GROUP }}' --settings "ASPNETCORE_ENVIRONMENT=Development"
+    # - name: 'Set ASPNETCORE_ENVIRONMENT for Production' #${{ inputs.environment_to_deploy }}
+    #   if: ${{ inputs.environment_to_deploy == 'Production' }}
+    #   run: |
+    #       az webapp config appsettings set --name '${{ env.AZURE_WEBAPP_NAME_PRODUCTION }}' --resource-group '${{ secrets.RESOURCE_GROUP }}' --settings "ASPNETCORE_ENVIRONMENT=Production"
 
-    - name: Deploy to Azure WebApp Development
-      if: ${{ inputs.environment_to_deploy == 'Development' }}
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME_DEV }}
-        publish-profile: ${{ secrets.DIAMONDSHOP_PUBLISHPROFILE_001_TEST }}
-        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+    # - name: Deploy to Azure WebApp Development
+    #   if: ${{ inputs.environment_to_deploy == 'Development' }}
+    #   uses: azure/webapps-deploy@v2
+    #   with:
+    #     app-name: ${{ env.AZURE_WEBAPP_NAME_DEV }}
+    #     publish-profile: ${{ secrets.DIAMONDSHOP_PUBLISHPROFILE_001_TEST }}
+    #     package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
         
-    - name: Deploy to Azure WebApp Test
-      if: ${{ inputs.environment_to_deploy == 'Production' }}
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME_PRODUCTION }}
-        publish-profile: ${{ secrets.Diamondshop_PublishProfile_001 }}
-        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+    # - name: Deploy to Azure WebApp Test
+    #   if: ${{ inputs.environment_to_deploy == 'Production' }}
+    #   uses: azure/webapps-deploy@v2
+    #   with:
+    #     app-name: ${{ env.AZURE_WEBAPP_NAME_PRODUCTION }}
+    #     publish-profile: ${{ secrets.Diamondshop_PublishProfile_001 }}
+    #     package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
         
