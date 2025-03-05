@@ -1,4 +1,4 @@
-name: Build and deploy .NET Core application to Web App testinghosting
+name: Build and deploy .NET Core application (deploy will be changed to aws)
 on:
   workflow_dispatch:
    inputs:
@@ -18,10 +18,11 @@ permissions:
   id-token: write
   contents: read
 env:
-  AZURE_WEBAPP_NAME_PRODUCTION: Diamondshop
-  AZURE_WEBAPP_NAME_DEV: devdiamondshop
+  # AZURE_WEBAPP_NAME_PRODUCTION: Diamondshop
+  # AZURE_WEBAPP_NAME_DEV: devdiamondshop
   # AZURE_WEBAPP_PACKAGE_PATH: DiamondShop.Api/publish
   WEBAPP_PACKAGE_PATH: DiamondShop.Api/publish
+  WEBAPP_ARTIFACT_NAME: diamondshopartifact
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 8.0.x
   WORKING_DIRECTORY: DiamondShop.Api
@@ -56,9 +57,9 @@ jobs:
     - name: Publish
       run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.WEBAPP_PACKAGE_PATH }}"
     - name: Publish Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4.6.1
       with:
-        name: diamondshopwebapp
+        name: ${{ env.WEBAPP_ARTIFACT_NAME }}
         path: ${{ env.WEBAPP_PACKAGE_PATH }}
         retention-days: 1
         
@@ -71,11 +72,11 @@ jobs:
     steps:
     - name: Do some stuff later
       run : echo "deploy pipeline have not been setup yet"
-    # - name: Download artifact from build job
-    #   uses: actions/download-artifact@v3
-    #   with:
-    #     name: webapp
-    #     path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+    - name: Download artifact from build job
+      uses: actions/download-artifact@v4.1.9
+      with:
+        name: ${{ env.WEBAPP_ARTIFACT_NAME }}
+        path: ${{ env.WEBAPP_PACKAGE_PATH }}
     # - name: Azure Login
     #   uses: Azure/login@v2.2.0
     #   with:
